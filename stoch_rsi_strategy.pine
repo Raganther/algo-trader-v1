@@ -1,0 +1,72 @@
+//@version=5
+strategy("Stoch RSI Mean Reversion (Python Replica)", overlay=true, initial_capital=10000, default_qty_type=strategy.fixed, default_qty_value=10000)
+
+// --- Parameters ---
+rsiPeriod = input.int(14, "RSI Period")
+stochPeriod = input.int(14, "Stoch Period")
+kPeriod = input.int(3, "K Period")
+dPeriod = input.int(3, "D Period")
+overbought = input.float(80, "Overbought")
+oversold = input.float(20, "Oversold")
+adxThreshold = input.float(25, "ADX Threshold")
+
+// --- Indicators ---
+// 1. Stoch RSI
+rsiVal = ta.rsi(close, rsiPeriod)
+// ta.stoch(source, high, low, length) -> Stoch(RSI)
+// In Python: stoch = (rsi - rsi_low) / (rsi_high - rsi_low) * 100
+k = ta.sma(ta.stoch(rsiVal, rsiVal, rsiVal, stochPeriod), kPeriod)
+d = ta.sma(k, dPeriod)
+
+// 2. ADX
+[diplus, diminus, adxVal] = ta.dmi(14, 14)
+
+// --- State Tracking ---
+var bool in_oversold_zone = false
+var bool in_overbought_zone = false
+
+// --- Logic ---
+// Replicating Python 'return' if ADX > Threshold (blocks both entries and exits)
+if adxVal <= adxThreshold
+    
+    // Update State (based on previous bar, matching Python's prev_k)
+    if k[1] < oversold
+        in_oversold_zone := true
+    if k[1] > overbought
+        in_overbought_zone := true
+
+    // Entry Logic
+    if strategy.position_size == 0
+        // Long Setup
+        if in_oversold_zone and k > 50
+            strategy.entry("Long", strategy.long, limit=close)
+            in_oversold_zone := false
+        
+        // Reset flag if we go high without triggering
+        if k > 50
+            in_oversold_zone := false
+
+        // Short Setup
+        if in_overbought_zone and k < 50
+            strategy.entry("Short", strategy.short, limit=close)
+            in_overbought_zone := false
+        
+        // Reset flag if we go low without triggering
+        if k < 50
+            in_overbought_zone := false
+
+    // Exit Logic
+    if strategy.position_size > 0
+        if k > overbought
+            strategy.close("Long")
+            
+    if strategy.position_size < 0
+        if k < oversold
+            strategy.close("Short")
+
+// Plotting
+plot(k, "K", color=color.blue)
+plot(d, "D", color=color.orange)
+hline(overbought, "OB", color=color.red)
+hline(oversold, "OS", color=color.green)
+hline(50, "Mid", color=color.gray)

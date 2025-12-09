@@ -1,0 +1,12 @@
+--- Batch Test: London Breakout (1h) ---
+Period: 2024-01-01 to 2024-03-31
+-----------------------------------------------------------------
+Symbol     | Return     | Trades   | Win Rate
+-----------------------------------------------------------------
+Found covering cache file: EURUSD=X_2014-01-01_2025-12-31_1h.csv
+EURUSD=X   |      0.00% |        0 |     0.0%
+Found covering cache file: USDJPY=X_2000-01-01_2025-11-25_1h.csv
+USDJPY=X   |      0.00% |        0 |     0.0%
+Found covering cache file: GBPUSD=X_2000-01-01_2025-11-25_1h.csv
+GBPUSD=X   |      0.00% |        0 |     0.0%
+-----------------------------------------------------------------

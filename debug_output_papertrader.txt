@@ -1,0 +1,15 @@
+--- Batch Test: London Breakout (15m) ---
+Period: 2024-01-01 to 2024-06-30
+-----------------------------------------------------------------
+Symbol     | Return     | Trades   | Win Rate
+-----------------------------------------------------------------
+Found covering cache file: EURUSD=X_2014-01-01_2025-12-31_15m.csv
+DEBUG: Converting 24.079999999999878 for EURUSD=X (Base: EUR, Quote: USD)
+EURUSD=X   |      0.24% |        1 |     0.0%
+Found covering cache file: USDJPY=X_2000-01-01_2025-11-25_15m.csv
+DEBUG: Converting 17854.99999999999 for USDJPY=X (Base: USD, Quote: JPY)
+DEBUG: Converting 17854.99999999999 JPY to USD using rate 160.802 -> 111.03717615452538
+USDJPY=X   |      1.11% |        1 |     0.0%
+Found covering cache file: GBPUSD=X_2000-01-01_2025-11-25_15m.csv
+GBPUSD=X   |      0.00% |        0 |     0.0%
+-----------------------------------------------------------------

@@ -1,0 +1,1470 @@
+[
+    {
+        "timestamp": "2025-11-22T21:40:40.391731",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10091.55,
+        "total_trades": 15,
+        "return_pct": 0.92
+    },
+    {
+        "timestamp": "2025-11-22T21:42:04.319129",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10091.55,
+        "total_trades": 15,
+        "return_pct": 0.92
+    },
+    {
+        "timestamp": "2025-11-22T21:42:31.491450",
+        "strategy": "RSI",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10014.14,
+        "total_trades": 6,
+        "return_pct": 0.14
+    },
+    {
+        "timestamp": "2025-11-22T21:54:35.627788",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9986.11,
+        "total_trades": 4,
+        "return_pct": -0.14
+    },
+    {
+        "timestamp": "2025-11-22T21:55:01.170901",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 16,
+            "slow_period": 22,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10061.89,
+        "total_trades": 15,
+        "return_pct": 0.62
+    },
+    {
+        "timestamp": "2025-11-22T21:55:12.058878",
+        "strategy": "RSI",
+        "parameters": {
+            "fast_period": 16,
+            "slow_period": 22,
+            "rsi_period": 18,
+            "rsi_overbought": 64,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10017.74,
+        "total_trades": 6,
+        "return_pct": 0.18
+    },
+    {
+        "timestamp": "2025-11-22T21:55:14.936918",
+        "strategy": "RSI",
+        "parameters": {
+            "fast_period": 16,
+            "slow_period": 22,
+            "rsi_period": 18,
+            "rsi_overbought": 64,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10017.74,
+        "total_trades": 6,
+        "return_pct": 0.18
+    },
+    {
+        "timestamp": "2025-11-22T21:55:25.249610",
+        "strategy": "RSI",
+        "parameters": {
+            "fast_period": 16,
+            "slow_period": 22,
+            "rsi_period": 22,
+            "rsi_overbought": 73,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10038.57,
+        "total_trades": 2,
+        "return_pct": 0.39
+    },
+    {
+        "timestamp": "2025-11-22T21:55:38.519897",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 16,
+            "slow_period": 22,
+            "rsi_period": 22,
+            "rsi_overbought": 73,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 26,
+            "bb_std": 2.3
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10017.06,
+        "total_trades": 2,
+        "return_pct": 0.17
+    },
+    {
+        "timestamp": "2025-11-22T21:55:55.075822",
+        "strategy": "MACD",
+        "parameters": {
+            "fast_period": 16,
+            "slow_period": 22,
+            "rsi_period": 22,
+            "rsi_overbought": 73,
+            "rsi_oversold": 30,
+            "macd_fast": 17,
+            "macd_slow": 21,
+            "macd_signal": 9,
+            "bb_period": 26,
+            "bb_std": 2.3
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10061.58,
+        "total_trades": 15,
+        "return_pct": 0.62
+    },
+    {
+        "timestamp": "2025-11-22T21:56:06.201254",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 16,
+            "slow_period": 22,
+            "rsi_period": 22,
+            "rsi_overbought": 73,
+            "rsi_oversold": 30,
+            "macd_fast": 17,
+            "macd_slow": 21,
+            "macd_signal": 9,
+            "bb_period": 30,
+            "bb_std": 2.9
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10000.0,
+        "total_trades": 0,
+        "return_pct": 0.0
+    },
+    {
+        "timestamp": "2025-11-22T22:09:21.360031",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 16,
+            "slow_period": 22,
+            "rsi_period": 22,
+            "rsi_overbought": 73,
+            "rsi_oversold": 30,
+            "macd_fast": 17,
+            "macd_slow": 21,
+            "macd_signal": 9,
+            "bb_period": 30,
+            "bb_std": 2.9
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10000.0,
+        "total_trades": 0,
+        "return_pct": 0.0
+    },
+    {
+        "timestamp": "2025-11-22T22:11:39.264684",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 16,
+            "slow_period": 22,
+            "rsi_period": 22,
+            "rsi_overbought": 73,
+            "rsi_oversold": 30,
+            "macd_fast": 17,
+            "macd_slow": 21,
+            "macd_signal": 9,
+            "bb_period": 30,
+            "bb_std": 2.9
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10000.0,
+        "total_trades": 0,
+        "return_pct": 0.0
+    },
+    {
+        "timestamp": "2025-11-22T22:11:54.199844",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 34,
+            "slow_period": 56,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10141.9,
+        "total_trades": 15,
+        "return_pct": 1.42
+    },
+    {
+        "timestamp": "2025-11-23T07:32:52.559727",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9954.93,
+        "total_trades": 5,
+        "return_pct": -0.45
+    },
+    {
+        "timestamp": "2025-11-23T07:34:15.413610",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9938.12,
+        "total_trades": 23,
+        "return_pct": -0.62
+    },
+    {
+        "timestamp": "2025-11-23T07:35:21.676057",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 12,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10174.9,
+        "total_trades": 621,
+        "return_pct": 1.75
+    },
+    {
+        "timestamp": "2025-11-23T07:37:31.914412",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10091.55,
+        "total_trades": 15,
+        "return_pct": 0.92
+    },
+    {
+        "timestamp": "2025-11-23T07:37:45.066928",
+        "strategy": "RSI",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 17,
+            "rsi_overbought": 72,
+            "rsi_oversold": 32,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10034.17,
+        "total_trades": 4,
+        "return_pct": 0.34
+    },
+    {
+        "timestamp": "2025-11-23T07:37:58.169755",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 17,
+            "rsi_overbought": 72,
+            "rsi_oversold": 32,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9986.11,
+        "total_trades": 4,
+        "return_pct": -0.14
+    },
+    {
+        "timestamp": "2025-11-23T07:39:04.489992",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 17,
+            "rsi_overbought": 72,
+            "rsi_oversold": 32,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 17960.85,
+        "total_trades": 189,
+        "return_pct": 79.61
+    },
+    {
+        "timestamp": "2025-11-23T07:40:53.784143",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10658.41,
+        "total_trades": 669,
+        "return_pct": 6.58
+    },
+    {
+        "timestamp": "2025-11-23T07:41:25.351004",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10091.55,
+        "total_trades": 15,
+        "return_pct": 0.92
+    },
+    {
+        "timestamp": "2025-11-23T07:41:49.416176",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 12,
+            "slow_period": 32,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 8878.34,
+        "total_trades": 647,
+        "return_pct": -11.22
+    },
+    {
+        "timestamp": "2025-11-23T07:43:29.241142",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10091.55,
+        "total_trades": 15,
+        "return_pct": 0.92
+    },
+    {
+        "timestamp": "2025-11-23T07:43:57.166741",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10091.55,
+        "total_trades": 15,
+        "return_pct": 0.92
+    },
+    {
+        "timestamp": "2025-11-23T07:44:46.202015",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9905.25,
+        "total_trades": 667,
+        "return_pct": -0.95
+    },
+    {
+        "timestamp": "2025-11-23T07:45:11.351886",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10091.55,
+        "total_trades": 15,
+        "return_pct": 0.92
+    },
+    {
+        "timestamp": "2025-11-23T07:46:00.934061",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10772.73,
+        "total_trades": 637,
+        "return_pct": 7.73
+    },
+    {
+        "timestamp": "2025-11-23T07:46:55.627445",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10192.88,
+        "total_trades": 711,
+        "return_pct": 1.93
+    },
+    {
+        "timestamp": "2025-11-23T07:47:52.162873",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10091.55,
+        "total_trades": 15,
+        "return_pct": 0.92
+    },
+    {
+        "timestamp": "2025-11-23T07:48:14.736405",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 12144.76,
+        "total_trades": 695,
+        "return_pct": 21.45
+    },
+    {
+        "timestamp": "2025-11-23T07:48:29.885145",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10091.55,
+        "total_trades": 15,
+        "return_pct": 0.92
+    },
+    {
+        "timestamp": "2025-11-23T07:48:38.399403",
+        "strategy": "MACD",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10050.24,
+        "total_trades": 17,
+        "return_pct": 0.5
+    },
+    {
+        "timestamp": "2025-11-23T07:48:48.143749",
+        "strategy": "RSI",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10014.14,
+        "total_trades": 6,
+        "return_pct": 0.14
+    },
+    {
+        "timestamp": "2025-11-23T07:49:06.897978",
+        "strategy": "RSI",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10071.57,
+        "total_trades": 182,
+        "return_pct": 0.72
+    },
+    {
+        "timestamp": "2025-11-23T07:51:25.077773",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 6534.15,
+        "total_trades": 747,
+        "return_pct": -34.66
+    },
+    {
+        "timestamp": "2025-11-23T07:52:02.728200",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10091.55,
+        "total_trades": 15,
+        "return_pct": 0.92
+    },
+    {
+        "timestamp": "2025-11-23T07:52:20.434942",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9406.13,
+        "total_trades": 709,
+        "return_pct": -5.94
+    },
+    {
+        "timestamp": "2025-11-23T07:53:06.178081",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 25,
+            "bb_std": 2.4
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9875.18,
+        "total_trades": 75,
+        "return_pct": -1.25
+    },
+    {
+        "timestamp": "2025-11-23T07:53:36.733641",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 40,
+            "bb_std": 3.2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9924.96,
+        "total_trades": 8,
+        "return_pct": -0.75
+    },
+    {
+        "timestamp": "2025-11-23T07:53:46.217150",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 40,
+            "bb_std": 3.2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10000.0,
+        "total_trades": 0,
+        "return_pct": 0.0
+    },
+    {
+        "timestamp": "2025-11-23T07:54:01.209475",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 1
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9987.78,
+        "total_trades": 8,
+        "return_pct": -0.12
+    },
+    {
+        "timestamp": "2025-11-23T07:54:19.737335",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 1
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9406.25,
+        "total_trades": 401,
+        "return_pct": -5.94
+    },
+    {
+        "timestamp": "2025-11-23T07:56:19.684305",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9005.72,
+        "total_trades": 739,
+        "return_pct": -9.94
+    },
+    {
+        "timestamp": "2025-11-23T07:58:29.712247",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10091.55,
+        "total_trades": 15,
+        "return_pct": 0.92
+    },
+    {
+        "timestamp": "2025-11-23T08:06:46.764945",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9049.76,
+        "total_trades": 685,
+        "return_pct": -9.5
+    },
+    {
+        "timestamp": "2025-11-23T08:12:08.266919",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10165.9,
+        "total_trades": 57,
+        "return_pct": 1.66
+    },
+    {
+        "timestamp": "2025-11-23T08:14:03.632815",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10002.3,
+        "total_trades": 35,
+        "return_pct": 0.02
+    },
+    {
+        "timestamp": "2025-11-23T08:14:21.381407",
+        "strategy": "RSI",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9996.3,
+        "total_trades": 11,
+        "return_pct": -0.04
+    },
+    {
+        "timestamp": "2025-11-23T08:14:29.387204",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9986.18,
+        "total_trades": 11,
+        "return_pct": -0.14
+    },
+    {
+        "timestamp": "2025-11-23T08:14:33.930808",
+        "strategy": "Bollinger",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9986.18,
+        "total_trades": 11,
+        "return_pct": -0.14
+    },
+    {
+        "timestamp": "2025-11-23T08:14:45.017554",
+        "strategy": "RSI",
+        "parameters": {
+            "fast_period": 10,
+            "slow_period": 30,
+            "rsi_period": 14,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9996.3,
+        "total_trades": 11,
+        "return_pct": -0.04
+    },
+    {
+        "timestamp": "2025-11-23T08:15:03.949125",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 15,
+            "slow_period": 37,
+            "rsi_period": 18,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9988.84,
+        "total_trades": 27,
+        "return_pct": -0.11
+    },
+    {
+        "timestamp": "2025-11-23T08:15:05.996250",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 15,
+            "slow_period": 37,
+            "rsi_period": 18,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9988.84,
+        "total_trades": 27,
+        "return_pct": -0.11
+    },
+    {
+        "timestamp": "2025-11-23T08:15:11.574143",
+        "strategy": "SMA",
+        "parameters": {
+            "fast_period": 22,
+            "slow_period": 37,
+            "rsi_period": 18,
+            "rsi_overbought": 70,
+            "rsi_oversold": 30,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "bb_period": 20,
+            "bb_std": 2
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9988.31,
+        "total_trades": 23,
+        "return_pct": -0.12
+    },
+    {
+        "timestamp": "2025-11-23T08:25:01.519331",
+        "strategy": "Composite",
+        "parameters": {
+            "signals": [
+                {
+                    "id": "SMA_1",
+                    "type": "SMA",
+                    "params": {
+                        "fast_period": 10,
+                        "slow_period": 30
+                    }
+                },
+                {
+                    "id": "MACD_2",
+                    "type": "MACD",
+                    "params": {
+                        "macd_fast": 12,
+                        "macd_slow": 26,
+                        "macd_signal": 9
+                    }
+                }
+            ],
+            "conditions": [
+                {
+                    "signal_id": "SMA_1",
+                    "operator": ">=",
+                    "value": 0
+                }
+            ],
+            "exit_conditions": [],
+            "stop_loss": 0.003,
+            "take_profit": 0.004
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9995.6,
+        "total_trades": 163,
+        "return_pct": -0.04
+    },
+    {
+        "timestamp": "2025-11-23T08:25:02.419929",
+        "strategy": "Composite",
+        "parameters": {
+            "signals": [
+                {
+                    "id": "SMA_1",
+                    "type": "SMA",
+                    "params": {
+                        "fast_period": 10,
+                        "slow_period": 30
+                    }
+                },
+                {
+                    "id": "MACD_2",
+                    "type": "MACD",
+                    "params": {
+                        "macd_fast": 12,
+                        "macd_slow": 26,
+                        "macd_signal": 9
+                    }
+                }
+            ],
+            "conditions": [
+                {
+                    "signal_id": "SMA_1",
+                    "operator": ">=",
+                    "value": 0
+                }
+            ],
+            "exit_conditions": [],
+            "stop_loss": 0.003,
+            "take_profit": 0.004
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 9995.6,
+        "total_trades": 163,
+        "return_pct": -0.04
+    },
+    {
+        "timestamp": "2025-11-24T10:22:08.046450",
+        "strategy": "Composite",
+        "parameters": {
+            "signals": [
+                {
+                    "id": "SMA_FAST",
+                    "type": "SMA",
+                    "params": {
+                        "fast_period": 10,
+                        "slow_period": 30
+                    }
+                }
+            ],
+            "conditions": [
+                {
+                    "signal_id": "SMA_FAST",
+                    "operator": ">",
+                    "value": 0
+                }
+            ],
+            "exit_conditions": []
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10000.0,
+        "total_trades": 0,
+        "return_pct": 0.0
+    },
+    {
+        "timestamp": "2025-11-24T11:11:08.861865",
+        "strategy": "Composite",
+        "parameters": {
+            "signals": [
+                {
+                    "id": "RSI",
+                    "type": "RSI",
+                    "params": {
+                        "rsi_period": 14,
+                        "mode": "value"
+                    }
+                },
+                {
+                    "id": "SMA_200",
+                    "type": "SMA",
+                    "params": {
+                        "slow_period": 200,
+                        "mode": "value"
+                    }
+                }
+            ],
+            "conditions": [],
+            "short_conditions": [
+                {
+                    "signal_id": "RSI",
+                    "operator": ">",
+                    "value": 80
+                },
+                {
+                    "signal_id": "SMA_200",
+                    "operator": "<",
+                    "value": "Close"
+                }
+            ],
+            "cover_conditions": [
+                {
+                    "signal_id": "RSI",
+                    "operator": "<",
+                    "value": 30
+                }
+            ],
+            "stop_loss": 0.01,
+            "take_profit": 0.03
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10036.84,
+        "total_trades": 6,
+        "return_pct": 0.37
+    },
+    {
+        "timestamp": "2025-11-24T11:11:37.348046",
+        "strategy": "Composite",
+        "parameters": {
+            "signals": [
+                {
+                    "id": "RSI",
+                    "type": "RSI",
+                    "params": {
+                        "rsi_period": 14,
+                        "mode": "value"
+                    }
+                },
+                {
+                    "id": "SMA_200",
+                    "type": "SMA",
+                    "params": {
+                        "slow_period": 200,
+                        "mode": "value"
+                    }
+                }
+            ],
+            "conditions": [],
+            "short_conditions": [
+                {
+                    "signal_id": "RSI",
+                    "operator": ">",
+                    "value": 80
+                },
+                {
+                    "signal_id": "SMA_200",
+                    "operator": "<",
+                    "value": "Close"
+                }
+            ],
+            "cover_conditions": [
+                {
+                    "signal_id": "RSI",
+                    "operator": "<",
+                    "value": 30
+                }
+            ],
+            "stop_loss": 0.01,
+            "take_profit": 0.03
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10036.84,
+        "total_trades": 6,
+        "return_pct": 0.37
+    },
+    {
+        "timestamp": "2025-11-24T11:12:10.805480",
+        "strategy": "Composite",
+        "parameters": {
+            "signals": [
+                {
+                    "id": "RSI",
+                    "type": "RSI",
+                    "params": {
+                        "rsi_period": 14,
+                        "mode": "value"
+                    }
+                },
+                {
+                    "id": "SMA_200",
+                    "type": "SMA",
+                    "params": {
+                        "slow_period": 200,
+                        "mode": "value"
+                    }
+                }
+            ],
+            "conditions": [],
+            "short_conditions": [
+                {
+                    "signal_id": "RSI",
+                    "operator": ">",
+                    "value": 80
+                },
+                {
+                    "signal_id": "SMA_200",
+                    "operator": "<",
+                    "value": "Close"
+                }
+            ],
+            "cover_conditions": [
+                {
+                    "signal_id": "RSI",
+                    "operator": "<",
+                    "value": 30
+                }
+            ],
+            "stop_loss": 0.01,
+            "take_profit": 0.03
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10036.84,
+        "total_trades": 6,
+        "return_pct": 0.37
+    },
+    {
+        "timestamp": "2025-11-24T11:13:03.424536",
+        "strategy": "Composite",
+        "parameters": {
+            "signals": [
+                {
+                    "id": "RSI",
+                    "type": "RSI",
+                    "params": {
+                        "rsi_period": 14,
+                        "mode": "value"
+                    }
+                },
+                {
+                    "id": "SMA_200",
+                    "type": "SMA",
+                    "params": {
+                        "slow_period": 200,
+                        "mode": "value"
+                    }
+                }
+            ],
+            "conditions": [],
+            "short_conditions": [
+                {
+                    "signal_id": "RSI",
+                    "operator": ">",
+                    "value": 80
+                },
+                {
+                    "signal_id": "SMA_200",
+                    "operator": "<",
+                    "value": "Close"
+                }
+            ],
+            "cover_conditions": [
+                {
+                    "signal_id": "RSI",
+                    "operator": "<",
+                    "value": 30
+                }
+            ],
+            "stop_loss": 0.01,
+            "take_profit": 0.03
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10036.84,
+        "total_trades": 6,
+        "return_pct": 0.37
+    },
+    {
+        "timestamp": "2025-11-24T11:15:04.144439",
+        "strategy": "Composite",
+        "parameters": {
+            "signals": [
+                {
+                    "id": "RSI",
+                    "type": "RSI",
+                    "params": {
+                        "rsi_period": 14,
+                        "mode": "value"
+                    }
+                },
+                {
+                    "id": "SMA_200",
+                    "type": "SMA",
+                    "params": {
+                        "slow_period": 200,
+                        "mode": "value"
+                    }
+                }
+            ],
+            "conditions": [],
+            "short_conditions": [
+                {
+                    "signal_id": "RSI",
+                    "operator": ">",
+                    "value": 80
+                },
+                {
+                    "signal_id": "SMA_200",
+                    "operator": "<",
+                    "value": "Close"
+                }
+            ],
+            "cover_conditions": [
+                {
+                    "signal_id": "RSI",
+                    "operator": "<",
+                    "value": 30
+                }
+            ],
+            "stop_loss": 0.01,
+            "take_profit": 0.03
+        },
+        "initial_capital": 10000.0,
+        "final_equity": 10036.84,
+        "total_trades": 6,
+        "return_pct": 0.37
+    }
+]

@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/alistairelliman/DEV/gemini 3 test/backend/runner.py", line 317, in <module>
+    main()
+  File "/Users/alistairelliman/DEV/gemini 3 test/backend/runner.py", line 152, in main
+    run_backtest(args)
+  File "/Users/alistairelliman/DEV/gemini 3 test/backend/runner.py", line 84, in run_backtest
+    results = backtester.run()
+              ^^^^^^^^^^^^^^^^
+  File "/Users/alistairelliman/DEV/gemini 3 test/backend/engine/backtester.py", line 26, in run
+    self.strategy = self.strategy_class(self.data, events=self.events, parameters=self.parameters, initial_cash=self.initial_capital, broker=self.broker)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: StochRSIMeanReversionStrategy.__init__() got an unexpected keyword argument 'events'
+--- Starting Backtest: StochRSIMeanReversion on EURGBP=X (1h) ---
+Found covering cache file: EURGBP=X_2002-01-01_2025-11-21_1h.csv

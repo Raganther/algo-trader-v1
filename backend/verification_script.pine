@@ -1,0 +1,58 @@
+//@version=5
+strategy("Donchian Breakout (Turtle) - Verification", overlay=true, initial_capital=10000, default_qty_type=strategy.percent_of_equity, default_qty_value=100)
+
+// --- Parameters ---
+entry_period = input.int(20, "Entry Period")
+exit_period = input.int(10, "Exit Period")
+stop_loss_atr = input.float(2.0, "Stop Loss ATR Multiplier")
+atr_period = input.int(20, "ATR Period")
+risk_per_trade = input.float(2.0, "Risk Per Trade (%)") / 100
+
+// --- Indicators ---
+// Important: We use [1] to reference the PREVIOUS candle's high/low to avoid lookahead bias.
+// This matches the Python .shift(1) logic.
+entry_high = ta.highest(high, entry_period)[1]
+entry_low = ta.lowest(low, entry_period)[1]
+
+exit_high = ta.highest(high, exit_period)[1]
+exit_low = ta.lowest(low, exit_period)[1]
+
+atr = ta.atr(atr_period)[1] // Use previous ATR for SL calculation
+
+// --- Plotting ---
+plot(entry_high, "Entry High", color=color.green)
+plot(entry_low, "Entry Low", color=color.red)
+plot(exit_high, "Exit High", color=color.blue, style=plot.style_circles)
+plot(exit_low, "Exit Low", color=color.orange, style=plot.style_circles)
+
+// --- Strategy Logic ---
+
+// Calculate Position Size based on Risk
+// Risk Amount = Equity * Risk%
+// Stop Distance = ATR * Multiplier
+// Position Size = Risk Amount / Stop Distance
+risk_amt = strategy.equity * risk_per_trade
+stop_dist = atr * stop_loss_atr
+pos_size = (stop_dist > 0) ? (risk_amt / stop_dist) : 0
+
+// Long Entry
+if (strategy.position_size == 0 and close > entry_high)
+    strategy.entry("Long", strategy.long, qty=pos_size)
+    // Hard Stop Loss
+    strategy.exit("Long SL", "Long", stop=strategy.position_avg_price - stop_dist)
+
+// Short Entry
+if (strategy.position_size == 0 and close < entry_low)
+    strategy.entry("Short", strategy.short, qty=pos_size)
+    // Hard Stop Loss
+    strategy.exit("Short SL", "Short", stop=strategy.position_avg_price + stop_dist)
+
+// Long Exit (Trailing Stop / Breakout against position)
+if (strategy.position_size > 0)
+    if (close < exit_low)
+        strategy.close("Long", comment="Exit Rule")
+
+// Short Exit
+if (strategy.position_size < 0)
+    if (close > exit_high)
+        strategy.close("Short", comment="Exit Rule")

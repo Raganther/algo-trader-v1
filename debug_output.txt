@@ -1,0 +1,9 @@
+--- Starting Backtest: HybridRegime on GBPJPY=X (1h) ---
+
+=== RESULTS ===
+Return: 26.93%
+Max DD: 29.92%
+Trades: 258
+Win Rate: 52.71%
+Database initialized.
+Results saved to SQLite Database.
