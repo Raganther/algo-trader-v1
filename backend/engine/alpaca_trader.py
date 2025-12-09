@@ -54,6 +54,18 @@ class AlpacaTrader:
             })
         return trades
 
+    def get_position(self, symbol):
+        """
+        Returns the quantity of the position for a specific symbol.
+        Returns 0 if no position exists.
+        """
+        try:
+            pos = self.client.get_open_position(symbol)
+            return float(pos.qty)
+        except Exception:
+            # Alpaca raises an error if no position exists
+            return 0.0
+
     def place_order(self, symbol, qty, side, order_type='market', time_in_force='gtc', stop_loss=None, take_profit=None):
         """
         Place an order with optional Bracket (Stop Loss / Take Profit).

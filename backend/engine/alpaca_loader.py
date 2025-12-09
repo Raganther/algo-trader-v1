@@ -79,7 +79,7 @@ class AlpacaDataLoader:
                     timeframe=alpaca_tf,
                     start=start_date,
                     end=end_date,
-                    feed=DataFeed.SIP # Use SIP for historical data
+                    feed=DataFeed.IEX # Use IEX for free tier compatibility
                 )
                 bars = self.stock_client.get_stock_bars(request_params)
                 df = bars.df

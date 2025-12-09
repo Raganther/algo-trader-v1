@@ -19,6 +19,7 @@ from backend.strategies.donchian_trend import DonchianTrendStrategy # New
 from backend.strategies.simple_sma import SimpleSMAStrategy
 from backend.strategies.stoch_rsi_quant import StochRSIQuantStrategy # New
 from backend.strategies.gamma_scalping import GammaScalping
+from backend.strategies.rapid_fire_test import RapidFireTestStrategy # New
 
 # Strategy Mapping
 STRATEGY_MAP = {
@@ -34,7 +35,8 @@ STRATEGY_MAP = {
     "DonchianTrend": DonchianTrendStrategy,
     "SimpleSMA": SimpleSMAStrategy,
     "StochRSIQuant": StochRSIQuantStrategy,
-    "GammaScalping": GammaScalping
+    "GammaScalping": GammaScalping,
+    "RapidFireTest": RapidFireTestStrategy
 }
 
 def run_backtest(args):

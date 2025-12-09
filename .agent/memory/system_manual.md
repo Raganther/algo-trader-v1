@@ -132,3 +132,22 @@ The Backend exposes results via a REST API for the Frontend.
 - **Matrix View**: Heatmap of performance (Year vs Pair).
 - **Edge View**: Filtered list of strategies meeting the "Consistency Champion" criteria (>65% win rate).
 - **Strategy Overview**: Visualizes the Composite Equity Curve (2002-2024).
+
+## 8. Forward Testing (Paper Trading)
+To verify the execution pipeline and measure slippage, we use a high-frequency test strategy.
+
+### RapidFireTest Strategy
+- **Logic**: RSI(2) on 1m timeframe. Buy < 10, Sell > 90.
+- **Goal**: Generate 10-20 trades/day to verify Alpaca connectivity and execution speed.
+
+**Command:**
+```bash
+python3 -m backend.runner trade --strategy RapidFireTest --symbol SPY --timeframe 5m --paper
+```
+
+**Verification Steps:**
+1.  Run the command.
+2.  Wait for "Entering Live Loop...".
+3.  Monitor the terminal for "SIGNAL: BUY/SELL".
+4.  Check Alpaca Dashboard to confirm the trade appeared.
+5.  Compare the "Price" in the terminal log vs the "Fill Price" in Alpaca to measure slippage.
