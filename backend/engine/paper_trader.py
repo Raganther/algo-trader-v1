@@ -83,6 +83,22 @@ class PaperTrader(BrokerAdapter):
             }
         return result 
 
+    def get_position(self, symbol: str) -> float:
+        """Return the size of the position for a symbol."""
+        if symbol in self.positions:
+            return self.positions[symbol]['size']
+        return 0.0
+
+    def get_cash(self) -> float:
+        """Return available cash."""
+        return self.cash
+
+    def get_average_entry_price(self, symbol: str) -> float:
+        """Return average entry price for a symbol."""
+        if symbol in self.positions:
+            return self.positions[symbol]['avg_price']
+        return 0.0
+
     # ... (omitted methods) ...
 
     def place_order(self, symbol: str, side: str, quantity: float, order_type: str = "market", price: float = None, stop_loss: float = None, take_profit: float = None, timestamp=None) -> dict:

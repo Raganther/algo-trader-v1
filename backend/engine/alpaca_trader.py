@@ -69,6 +69,22 @@ class AlpacaTrader:
             # print(f"DEBUG: get_position error: {e}") 
             return 0.0
 
+    def get_cash(self):
+        """Return available cash."""
+        return self.get_account_summary()['balance']
+
+    def get_average_entry_price(self, symbol):
+        """
+        Returns the average entry price for a specific symbol.
+        Returns 0.0 if no position exists.
+        """
+        try:
+            clean_symbol = symbol.replace('/', '')
+            pos = self.client.get_open_position(clean_symbol)
+            return float(pos.avg_entry_price)
+        except Exception:
+            return 0.0
+
     def place_order(self, symbol, qty, side, order_type='market', time_in_force='gtc', stop_loss=None, take_profit=None):
         """
         Place an order with optional Bracket (Stop Loss / Take Profit).

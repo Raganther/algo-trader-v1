@@ -88,6 +88,7 @@ The Agent follows the **Chapter 11 Design Pattern** (`Goal -> Plan -> Execute ->
 - **Execution**:
     - `runner.py` initializes the strategy with data and parameters.
     - `on_data(index, row)` is called for every bar.
+    - `place_order(symbol, qty, side)`: **NEW** Standard method for executing trades (Paper or Live).
     - `broker.place_order()` handles execution (Paper or Live).
 - **Hybrid Architecture**:
     - `HybridRegimeStrategy` uses a **MockBroker** system.
@@ -103,6 +104,20 @@ The Agent follows the **Chapter 11 Design Pattern** (`Goal -> Plan -> Execute ->
     - **HybridRegime Updates**:
         - **TICK Filter**: Automatically bypassed if `sector_tick` data is missing (e.g., for Forex CSVs).
         - **CSV Support**: `ToolBox` auto-detects Forex symbols and switches source to `csv`.
+
+## 5. Strategy Factory (Agent Capability)
+The Agent can autonomously create, register, and verify new strategies.
+
+- **Generator**: `backend.agent.strategy_generator.StrategyGenerator`
+    - Uses a robust template based on the verified `RapidFireTest` bot.
+    - Handles imports, class structure, and standard indicators (RSI).
+- **Registrar**: `backend.agent.registrar.StrategyRegistrar`
+    - Automatically injects the new strategy class into `backend/runner.py`.
+- **Workflow**:
+    1.  **Create**: Agent generates `backend/strategies/new_strategy.py`.
+    2.  **Register**: Agent updates `runner.py` imports and `STRATEGY_MAP`.
+    3.  **Verify**: Agent runs a backtest on `BTC/USD` (or other supported asset) to confirm syntax and logic.
+
 
 ## 5. Data Pipeline
 - **Sources**: Alpaca (Live/Paper), CSV (Backtest).

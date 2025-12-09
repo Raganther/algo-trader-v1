@@ -48,6 +48,22 @@ class Strategy(ABC):
             self._place_order('sell', price, size, timestamp)
             return True
 
+    def place_order(self, symbol, quantity, side, order_type='market', price=None, stop_loss=None, take_profit=None):
+        if self.broker:
+            return self.broker.place_order(symbol, side, quantity, order_type, price, stop_loss, take_profit)
+        else:
+            # Legacy fallback
+            self._place_order(side, price, quantity, None)
+            return True
+
+    def place_order(self, symbol, quantity, side, order_type='market', price=None, stop_loss=None, take_profit=None):
+        if self.broker:
+            return self.broker.place_order(symbol, side, quantity, order_type, price, stop_loss, take_profit)
+        else:
+            # Legacy fallback
+            self._place_order(side, price, quantity, None)
+            return True
+
     def _place_order(self, side, price, size, timestamp):
         self.orders.append({
             'side': side,

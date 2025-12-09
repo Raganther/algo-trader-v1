@@ -58,6 +58,20 @@ class {class_name}(Strategy):
         # self.data.loc[self.data['rsi'] < self.buy_threshold, 'signal'] = 1
         # self.data.loc[self.data['rsi'] > self.sell_threshold, 'signal'] = -1
 
+    def on_data(self, index, row):
+        """
+        Called on every new data point.
+        """
+        # Call on_bar with the correct signature
+        # on_bar expects (row, i, full_data)
+        self.on_bar(row, index, self.data)
+
+    def on_event(self, event):
+        """
+        Called when an economic event occurs.
+        """
+        pass
+
     def on_bar(self, row, i, full_data):
         \"\"\"
         Executed on every bar.
