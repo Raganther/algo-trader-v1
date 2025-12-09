@@ -20,6 +20,7 @@ from backend.strategies.simple_sma import SimpleSMAStrategy
 from backend.strategies.stoch_rsi_quant import StochRSIQuantStrategy # New
 from backend.strategies.gamma_scalping import GammaScalping
 from backend.strategies.rapid_fire_test import RapidFireTestStrategy # New
+from backend.strategies.a_golden_cross import AGoldenCrossStrategy
 
 # Strategy Mapping
 STRATEGY_MAP = {
@@ -36,7 +37,8 @@ STRATEGY_MAP = {
     "SimpleSMA": SimpleSMAStrategy,
     "StochRSIQuant": StochRSIQuantStrategy,
     "GammaScalping": GammaScalping,
-    "RapidFireTest": RapidFireTestStrategy
+    "RapidFireTest": RapidFireTestStrategy,
+    "AGoldenCross": AGoldenCrossStrategy,
 }
 
 def run_backtest(args):

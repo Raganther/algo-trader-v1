@@ -1,6 +1,14 @@
 # Recent Git History
 
-### 2311ebf - [Feat]: Verified Live Trading Pipeline (RapidFireTest) (2025-12-09)
+### 4eb6076 - [Feat]: Implemented Strategy Factory (Agent Upgrade) (2025-12-09)
+Detailed Progress:
+- Created 'StrategyGenerator' (backend/agent/strategy_generator.py) to write strategy code from templates.
+- Created 'StrategyRegistrar' (backend/agent/registrar.py) to auto-register strategies in runner.py.
+- Upgraded 'ResearcherAgent' and 'Planner' to handle 'Create' intent.
+- Fixed SyntaxError in runner.py caused by Registrar insertion logic.
+- Current Status: Verification backtest for 'AGoldenCross' is failing. Needs debugging of the generated strategy or import process.
+
+### 4febfae - [Feat]: Verified Live Trading Pipeline (RapidFireTest) (2025-12-09)
 Detailed Findings:
 - Successfully executed a full Buy -> Sell loop on BTC/USD (1m).
 - Fixed Critical Bug: 'Position Blindness' (AlpacaTrader.get_position was returning 0.0 due to symbol mismatch).
