@@ -58,10 +58,10 @@ class RapidFireTestStrategy(Strategy):
         if current_position == 0:
             if current_rsi < self.buy_threshold:
                 print(f"  >>> SIGNAL: BUY (RSI {current_rsi:.2f} < {self.buy_threshold})")
-                # Buy 1 share for testing
+                # Buy 0.01 share for testing (fits in small accounts)
                 self.broker.place_order(
                     symbol=self.symbol,
-                    qty=1,
+                    qty=0.01,
                     side='buy',
                     order_type='market'
                 )

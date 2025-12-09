@@ -60,10 +60,13 @@ class AlpacaTrader:
         Returns 0 if no position exists.
         """
         try:
-            pos = self.client.get_open_position(symbol)
+            # Clean symbol (BTC/USD -> BTCUSD)
+            clean_symbol = symbol.replace('/', '')
+            pos = self.client.get_open_position(clean_symbol)
             return float(pos.qty)
-        except Exception:
+        except Exception as e:
             # Alpaca raises an error if no position exists
+            # print(f"DEBUG: get_position error: {e}") 
             return 0.0
 
     def place_order(self, symbol, qty, side, order_type='market', time_in_force='gtc', stop_loss=None, take_profit=None):
@@ -76,12 +79,15 @@ class AlpacaTrader:
         alpaca_side = OrderSide.BUY if side.lower() == 'buy' else OrderSide.SELL
         alpaca_tif = TimeInForce.GTC # Default
         
+        # Clean symbol (BTC/USD -> BTCUSD)
+        clean_symbol = symbol.replace('/', '')
+
         if time_in_force.lower() == 'day':
             alpaca_tif = TimeInForce.DAY
             
         # Construct Order Request
         req_params = {
-            "symbol": symbol,
+            "symbol": clean_symbol,
             "qty": qty,
             "side": alpaca_side,
             "time_in_force": alpaca_tif

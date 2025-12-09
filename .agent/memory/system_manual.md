@@ -142,7 +142,11 @@ To verify the execution pipeline and measure slippage, we use a high-frequency t
 
 **Command:**
 ```bash
-python3 -m backend.runner trade --strategy RapidFireTest --symbol SPY --timeframe 5m --paper
+# Standard Run
+python3 -m backend.runner trade --strategy RapidFireTest --symbol BTC/USD --timeframe 1m --paper
+
+# Long-Running (Prevent Sleep)
+caffeinate -i python3 -m backend.runner trade --strategy RapidFireTest --symbol BTC/USD --timeframe 1m --paper
 ```
 
 **Verification Steps:**
