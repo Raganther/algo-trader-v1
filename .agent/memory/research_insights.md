@@ -94,6 +94,8 @@ It contains curated insights, proven strategies, and failed experiments derived 
 
 
 
+
+
 ## New Insights (Auto-Curated)
 
 
@@ -172,9 +174,13 @@ It contains curated insights, proven strategies, and failed experiments derived 
 
 
 
+
+
 ## New Insights (Auto-Curated)
 - Note: GammaScalping bug identified (pending fix).
 - Tested HybridRegime on GBPJPY (1h) [2020-2024]. Result: Negative (-0.09% to -0.38%). Higher ADX threshold (40) reduced losses, indicating Mean Reversion preference. Sector TICK optimization blocked by missing data.
+
+
 
 
 

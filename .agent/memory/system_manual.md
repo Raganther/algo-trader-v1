@@ -170,3 +170,10 @@ caffeinate -i python3 -m backend.runner trade --strategy RapidFireTest --symbol 
 3.  Monitor the terminal for "SIGNAL: BUY/SELL".
 4.  Check Alpaca Dashboard to confirm the trade appeared.
 5.  Compare the "Price" in the terminal log vs the "Fill Price" in Alpaca to measure slippage.
+
+
+## Recent System Updates
+- [Feat]: Verified Strategy Factory & Fixed Execution Pipeline (2025-12-09)
+- [Feat]: Implemented Strategy Factory (Agent Upgrade) (2025-12-09)
+- [Feat]: Verified Live Trading Pipeline (RapidFireTest) (2025-12-09)
+- [Feat]: Implemented Unified Memory System (2025-12-10)

@@ -74,6 +74,10 @@ def main():
     critic = Critic(memory)
     critic.curate_memory()
     
+    # Trigger System Manual Update
+    print("Updating System Manual...")
+    critic.update_system_manual()
+    
     print("Memory curation complete.")
 
 if __name__ == "__main__":

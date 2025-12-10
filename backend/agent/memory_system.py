@@ -12,6 +12,13 @@ class MemorySystem:
         with open(self.memory_file, "r") as f:
             return f.read()
 
+    def _load_memory_file(self, filepath):
+        """Loads content from a specific file."""
+        if not os.path.exists(filepath):
+            return ""
+        with open(filepath, "r") as f:
+            return f.read()
+
     def get_proven_strategies(self):
         """Extracts proven strategies from memory."""
         # Simple parsing for now - can be enhanced with LLM or regex

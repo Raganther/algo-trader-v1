@@ -1,6 +1,13 @@
 # Recent Git History
 
-### c3491eb - [Feat]: Verified Strategy Factory & Fixed Execution Pipeline (2025-12-09)
+### 2ddc7e9 - [Feat]: Implemented Unified Memory System (2025-12-10)
+Detailed Findings:
+- Extended 'Critic' agent to include 'update_system_manual' method.
+- 'Critic' now parses 'recent_history.md' for [Feat], [Refactor], and [Docs] tags.
+- 'curate_memory.py' now triggers both Insight Curation and System Manual Curation.
+- Verified that 'system_manual.md' is automatically updated with recent system changes.
+
+### 0b3bb72 - [Feat]: Verified Strategy Factory & Fixed Execution Pipeline (2025-12-09)
 Detailed Findings:
 - Verified 'Strategy Factory' capability by creating and backtesting 'AGoldenCross' on BTC/USD.
 - Fixed 'Strategy' base class to include 'place_order' method, enabling generated strategies to execute.

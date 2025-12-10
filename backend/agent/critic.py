@@ -306,3 +306,59 @@ class Critic:
             if float(match.group(1)) <= 0:
                 return True
         return False
+
+    def update_system_manual(self):
+        """
+        Scans recent history for system updates ([Feat], [Refactor], [Docs]) 
+        and appends them to the System Manual.
+        """
+        history_content = self.memory._load_memory_file(".agent/memory/recent_history.md")
+        manual_content = self.memory._load_memory_file(".agent/memory/system_manual.md")
+        
+        if not history_content or not manual_content:
+            return
+
+        updates = []
+        lines = history_content.split('\n')
+        
+        # Simple Parser for Git Log format: "### <hash> - [Type]: <Title>"
+        for line in lines:
+            if line.startswith("###") and ("[Feat]" in line or "[Refactor]" in line or "[Docs]" in line):
+                # Extract the update description
+                # Format: ### <hash> - [Feat]: Title (Date)
+                parts = line.split(" - ")
+                if len(parts) > 1:
+                    desc = parts[1].strip()
+                    updates.append(desc)
+        
+        if not updates:
+            return
+
+        # Deduplicate against existing manual
+        new_updates = [u for u in updates if u not in manual_content]
+        
+        if not new_updates:
+            print("No new system updates found.")
+            return
+            
+        print(f"Adding {len(new_updates)} system updates to System Manual...")
+        
+        # Append to Manual
+        # Check if section exists
+        header = "## Recent System Updates"
+        
+        if header not in manual_content:
+            # Append header to end
+            with open(".agent/memory/system_manual.md", "a") as f:
+                f.write(f"\n\n{header}\n")
+                for update in new_updates:
+                    f.write(f"- {update}\n")
+        else:
+            # Append to existing section (Naive append for now)
+            # Ideally we insert after the header, but appending to file is safer/easier
+            # unless the header is in the middle.
+            # Let's assume header is at the end or we just append.
+            # Actually, let's just append to the file.
+            with open(".agent/memory/system_manual.md", "a") as f:
+                for update in new_updates:
+                    f.write(f"- {update}\n")
