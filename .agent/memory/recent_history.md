@@ -1,5 +1,19 @@
 # Recent Git History
 
+### 33564a0 - [Fix]: Verified Live Trading & Logging Pipeline (2025-12-10)
+Detailed Findings:
+- Fixed 'LiveBroker' to include 'spread' in trade logs.
+- Updated 'RapidFireTest' to pass 'signal_price' for accurate slippage tracking.
+- Verified end-to-end execution and logging with 'RapidFireTest' (Long-Only).
+- Confirmed data alignment between Alpaca and internal DB.
+- Added Pine Scripts for TradingView verification.
+
+### a1721d9 - [Fix]: Enabled Live Trading Logger in CLI (2025-12-10)
+Detailed Findings:
+- Updated 'backend/runner.py' to use 'LiveBroker' and 'DatabaseManager' for the 'trade' command.
+- Fixed 'AttributeError' in 'LiveBroker' by adding 'get_position' method.
+- Verified that 'RapidFireTest' runs via CLI and logs trades to 'research.db' with unique Session IDs.
+
 ### fbd37cb - [Feat]: Implemented Live Trading Logger (2025-12-10)
 Detailed Findings:
 - Added 'live_trade_log' table to 'research.db' for persistent forward test verification.
