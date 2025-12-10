@@ -414,15 +414,24 @@ def main():
 def run_live_trading(args):
     import time
     from datetime import datetime
-    from backend.engine.alpaca_trader import AlpacaTrader
+    from backend.engine.live_broker import LiveBroker
     from backend.engine.alpaca_loader import AlpacaDataLoader
+    from backend.database import DatabaseManager
+    import uuid
     
     print(f"--- Starting Live Trading: {args.strategy} on {args.symbol} ({args.timeframe}) ---")
     print(f"Mode: {'PAPER' if args.paper else 'LIVE'}")
     
     # 1. Initialize Components
-    broker = AlpacaTrader(paper=args.paper)
+    # Use LiveBroker for logging and interface compatibility
+    broker = LiveBroker(symbol=args.symbol, paper=args.paper)
     loader = AlpacaDataLoader()
+    
+    # Initialize DB Logger
+    db = DatabaseManager()
+    db.initialize_db() # Ensure tables exist
+    session_id = str(uuid.uuid4())
+    print(f"Session ID: {session_id}")
     
     # 2. Configure Strategy
     strategy_class = STRATEGY_MAP.get(args.strategy)
@@ -498,50 +507,37 @@ def run_live_trading(args):
                     latest_data = latest_data.resample('5min').agg(ohlc_dict).dropna()
                 
                 # Check for new bar
-                current_last_bar_time = latest_data.index[-1]
-                
-                if current_last_bar_time > last_bar_time:
-                    print(f"[{now.strftime('%H:%M:%S')}] New Bar Detected: {current_last_bar_time}")
+                current_last_time = latest_data.index[-1]
+                if current_last_time > last_bar_time:
+                    print(f"New Bar: {current_last_time}")
+                    last_bar_time = current_last_time
                     
-                    # Get the new bar row
-                    new_bar = latest_data.iloc[-1]
-                    
-                    # Update Strategy Data (Append new bar)
-                    # Strategy usually keeps its own data copy or we update it?
-                    # Our Strategy class doesn't have an 'update_data' method standard.
-                    # But on_bar passes the row.
-                    # However, indicators need the full series usually.
-                    # We should update strategy.data
-                    
-                    # Hack: Re-init strategy or append?
-                    # Appending to dataframe is slow.
-                    # But for 5m bars it's fine.
-                    
-                    # Better: Pass the FULL latest_data to on_bar?
-                    # The strategy.on_bar(row, i, df) takes the dataframe.
-                    # So we should update strategy.data first.
-                    
+                    # Update Strategy
                     strategy.data = latest_data
+                    strategy.generate_signals(latest_data)
                     
-                    # CRITICAL: Re-calculate indicators for the new data
-                    # The strategy expects 'k', 'd', 'adx' etc. in the row
-                    strategy.generate_signals(strategy.data)
+                    # Run Logic
+                    last_index = len(latest_data) - 1
+                    last_row = latest_data.iloc[-1]
                     
-                    # Get the new bar row (now with indicators)
-                    new_bar = strategy.data.iloc[-1]
+                    broker.refresh()
+                    strategy.on_bar(last_row, last_index, latest_data)
                     
-                    # Run Strategy Logic
-                    # We use len(latest_data)-1 as the index
-                    strategy.on_bar(new_bar, len(latest_data)-1, strategy.data)
-                    
-                    last_bar_time = current_last_bar_time
-                    
-                else:
-                    # No new bar
-                    pass
-            
+                    # Log Trades
+                    new_trades = broker.get_new_trades()
+                    if new_trades:
+                        print(f"Logging {len(new_trades)} new trades to DB...")
+                        for trade in new_trades:
+                            trade['session_id'] = session_id
+                            trade['strategy'] = args.strategy
+                            db.save_live_trade(trade)
+                            
     except KeyboardInterrupt:
-        print("\nStopping Live Trading...")
+        print("Live Trading Stopped.")
+    except Exception as e:
+        print(f"Error in Live Loop: {e}")
+        import traceback
+        traceback.print_exc()
 
 def run_matrix(args):
     import multiprocessing

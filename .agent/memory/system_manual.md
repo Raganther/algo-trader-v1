@@ -78,12 +78,8 @@ The Agent can autonomously create and register new strategies.
 - `GET /api/insights`: Get generated research insights.
 
 ## 5. Recent System Updates
-- [Feat]: Implemented Unified Memory System (2025-12-10)
-- [Feat]: Verified Strategy Factory & Fixed Execution Pipeline (2025-12-09)
-- [Feat]: Implemented Strategy Factory (Agent Upgrade) (2025-12-09)
-- [Feat]: Verified Live Trading Pipeline (RapidFireTest) (2025-12-09)
-
-
-## Recent System Updates
+- [Fix]: Enabled Live Trading Logger in CLI (2025-12-10)
 - [Feat]: Implemented Live Trading Logger (2025-12-10)
 - [Refactor]: Optimized System Manual and Memory Logic (2025-12-10)
+- [Feat]: Implemented Unified Memory System (2025-12-10)
+- [Feat]: Verified Strategy Factory & Fixed Execution Pipeline (2025-12-09)

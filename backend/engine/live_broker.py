@@ -33,6 +33,24 @@ class LiveBroker:
     def get_positions(self):
         return self.positions
         
+    def get_position(self, symbol):
+        """Return position size for a specific symbol."""
+        # Clean symbol if needed, but dictionary keys should match
+        # AlpacaTrader returns 'BTCUSD' usually, but we might use 'BTC/USD'
+        # Let's handle both or just check.
+        # The refresh() method uses p['symbol'] from Alpaca.
+        
+        # Try exact match
+        if symbol in self.positions:
+            return self.positions[symbol]['size']
+            
+        # Try stripped match
+        clean = symbol.replace('/', '')
+        if clean in self.positions:
+            return self.positions[clean]['size']
+            
+        return 0.0
+        
     def get_new_trades(self):
         """Return and clear new trades list."""
         trades = self.new_trades[:]
