@@ -145,3 +145,21 @@ class AlpacaTrader:
         """
         self.client.close_all_positions(cancel_orders=True)
         return True
+
+    def get_order(self, order_id):
+        """
+        Get order details by ID.
+        """
+        try:
+            order = self.client.get_order_by_id(order_id)
+            return {
+                'id': str(order.id),
+                'status': order.status,
+                'filled_avg_price': float(order.filled_avg_price) if order.filled_avg_price else None,
+                'filled_qty': float(order.filled_qty) if order.filled_qty else 0.0,
+                'created_at': order.created_at.isoformat() if order.created_at else None,
+                'filled_at': order.filled_at.isoformat() if order.filled_at else None
+            }
+        except Exception as e:
+            print(f"Error fetching order {order_id}: {e}")
+            return None

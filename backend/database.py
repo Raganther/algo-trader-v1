@@ -61,6 +61,24 @@ class DatabaseManager:
                 last_updated TEXT
             )
         ''')
+
+        # 4. Live Trade Log (Verification & Slippage)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS live_trade_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT,
+                timestamp TEXT,
+                symbol TEXT,
+                strategy TEXT,
+                side TEXT,
+                qty REAL,
+                signal_price REAL,
+                fill_price REAL,
+                slippage REAL,
+                spread REAL,
+                pnl REAL
+            )
+        ''')
         
         conn.commit()
         conn.close()
@@ -281,3 +299,34 @@ class DatabaseManager:
             
         conn.close()
         return results
+
+    def save_live_trade(self, trade_data):
+        """Saves a live trade log entry."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('''
+                INSERT INTO live_trade_log (
+                    session_id, timestamp, symbol, strategy, side, qty, 
+                    signal_price, fill_price, slippage, spread, pnl
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                trade_data['session_id'],
+                trade_data['timestamp'],
+                trade_data['symbol'],
+                trade_data['strategy'],
+                trade_data['side'],
+                trade_data['qty'],
+                trade_data['signal_price'],
+                trade_data['fill_price'],
+                trade_data['slippage'],
+                trade_data['spread'],
+                trade_data.get('pnl', 0.0)
+            ))
+            conn.commit()
+            # print(f"Logged trade for {trade_data['symbol']}")
+        except Exception as e:
+            print(f"Error saving live trade log: {e}")
+        finally:
+            conn.close()

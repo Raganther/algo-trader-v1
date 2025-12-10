@@ -15,6 +15,13 @@ def run_paper_trading():
     loader = AlpacaDataLoader()
     broker = LiveBroker(symbol=SYMBOL, paper=True)
     
+    # Initialize DB Logger
+    from backend.database import DatabaseManager
+    import uuid
+    db = DatabaseManager()
+    session_id = str(uuid.uuid4())
+    print(f"Session ID: {session_id}")
+    
     # Initial Data Fetch (to initialize strategy)
     print("Fetching initial data...")
     data = loader.get_data(SYMBOL, TIMEFRAME, limit=200) # Fetch last 200 candles
@@ -87,6 +94,15 @@ def run_paper_trading():
             
             # Run Strategy Logic
             strategy.on_bar(last_row, last_index, new_data)
+            
+            # 5. Log New Trades
+            new_trades = broker.get_new_trades()
+            if new_trades:
+                print(f"Logging {len(new_trades)} new trades to DB...")
+                for trade in new_trades:
+                    trade['session_id'] = session_id
+                    trade['strategy'] = "StochRSIMeanReversion" # Hardcoded for now
+                    db.save_live_trade(trade)
             
         except Exception as e:
             print(f"Error in trading loop: {e}")
