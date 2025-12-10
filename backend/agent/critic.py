@@ -354,11 +354,51 @@ class Critic:
                 for update in new_updates:
                     f.write(f"- {update}\n")
         else:
-            # Append to existing section (Naive append for now)
-            # Ideally we insert after the header, but appending to file is safer/easier
-            # unless the header is in the middle.
-            # Let's assume header is at the end or we just append.
-            # Actually, let's just append to the file.
-            with open(".agent/memory/system_manual.md", "a") as f:
-                for update in new_updates:
-                    f.write(f"- {update}\n")
+            # Read current manual lines
+            with open(".agent/memory/system_manual.md", "r") as f:
+                lines = f.readlines()
+            
+            # Find where the section starts
+            start_idx = -1
+            for i, line in enumerate(lines):
+                if header in line:
+                    start_idx = i
+                    break
+            
+            if start_idx != -1:
+                # Extract existing updates
+                existing_updates = []
+                # Assume updates follow the header until end of file or next header
+                # Since it's usually at the end, we read until EOF
+                for i in range(start_idx + 1, len(lines)):
+                    if lines[i].strip().startswith("-"):
+                        existing_updates.append(lines[i].strip())
+                    elif lines[i].startswith("##"):
+                        break
+                
+                # Combine new and existing
+                # Prepend new updates (so newest is top)
+                # Format: "- [Type]: Desc (Date)"
+                # We want to keep the list sorted by date descending ideally.
+                # The new_updates are from recent history, so they are new.
+                
+                # Let's just prepend new ones to the list
+                formatted_new = [f"- {u}" for u in new_updates]
+                all_updates = formatted_new + existing_updates
+                
+                # Cap at 5
+                capped_updates = all_updates[:5]
+                
+                # Rewrite the file
+                # We need to replace the section content
+                
+                # Construct new file content
+                new_file_content = lines[:start_idx+1] # Header included
+                for update in capped_updates:
+                    new_file_content.append(f"{update}\n")
+                
+                # If there was content after the updates (unlikely for this section), we'd need to handle it.
+                # For now, assume this section is at the end.
+                
+                with open(".agent/memory/system_manual.md", "w") as f:
+                    f.writelines(new_file_content)
