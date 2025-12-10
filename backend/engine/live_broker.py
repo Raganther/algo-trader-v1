@@ -99,7 +99,8 @@ class LiveBroker:
                 'qty': size,
                 'signal_price': price, # Expected price from Strategy
                 'fill_price': filled_order['filled_avg_price'],
-                'slippage': filled_order['filled_avg_price'] - price,
+                'slippage': filled_order['filled_avg_price'] - price, # Slippage is bad if Buy Price > Signal Price
+                'spread': 0.0, # Placeholder
                 'timestamp': filled_order['filled_at']
             })
             print(f"✅ FILLED BUY: {filled_order['filled_avg_price']}")
@@ -128,6 +129,7 @@ class LiveBroker:
                 'signal_price': price,
                 'fill_price': filled_order['filled_avg_price'],
                 'slippage': price - filled_order['filled_avg_price'], # Slippage is bad if Sell Price < Signal Price
+                'spread': 0.0, # Placeholder, requires Bid/Ask snapshot
                 'timestamp': filled_order['filled_at']
             })
             print(f"✅ FILLED SELL: {filled_order['filled_avg_price']}")
@@ -135,3 +137,19 @@ class LiveBroker:
             print(f"⚠️ Order {res['id']} not filled yet.")
             
         return res
+
+    def place_order(self, symbol, qty, side, order_type='market', price=None, stop_loss=None, take_profit=None, **kwargs):
+        """
+        Unified interface for placing orders.
+        Delegates to buy/sell to ensure logging logic is used.
+        """
+        # Ignore symbol argument if it matches self.symbol (LiveBroker is single-symbol usually)
+        # But if it differs, we might warn.
+        
+        if side.lower() == 'buy':
+            return self.buy(price=price if price else 0.0, size=qty, stop_loss=stop_loss, take_profit=take_profit)
+        elif side.lower() == 'sell':
+            return self.sell(price=price if price else 0.0, size=qty, stop_loss=stop_loss, take_profit=take_profit)
+        else:
+            print(f"Error: Unknown side {side}")
+            return None

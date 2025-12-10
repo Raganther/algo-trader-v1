@@ -63,7 +63,8 @@ class RapidFireTestStrategy(Strategy):
                     symbol=self.symbol,
                     qty=0.01,
                     side='buy',
-                    order_type='market'
+                    order_type='market',
+                    price=bar['Close'] # Pass signal price for logging
                 )
 
         # Exit Logic (Sell)
@@ -75,5 +76,6 @@ class RapidFireTestStrategy(Strategy):
                     symbol=self.symbol,
                     qty=current_position,
                     side='sell',
-                    order_type='market'
+                    order_type='market',
+                    price=bar['Close'] # Pass signal price for logging
                 )
