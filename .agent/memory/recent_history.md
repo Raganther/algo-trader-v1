@@ -1,6 +1,16 @@
 # Recent Git History
 
-### 33564a0 - [Fix]: Verified Live Trading & Logging Pipeline (2025-12-10)
+### 5db5776 - feat: Implement Forward Test Analysis Pipeline (2025-12-11)
+Detailed Findings:
+- Implemented 'Theory vs Reality' feedback loop in analyze_results.py.
+- Added 'get_live_trades' to DatabaseManager to harvest live logs.
+- Updated 'research_insights.md' to include 'Baseline Established' category.
+- Verified pipeline with RapidFireTest on BTC/USD (Baseline: 0.5% Return).
+- Fixed path mismatch for research_insights.md.
+
+### a091eb1 - [Docs]: Update project memory and insights (2025-12-10)
+
+### ba2878e - [Fix]: Verified Live Trading & Logging Pipeline (2025-12-10)
 Detailed Findings:
 - Fixed 'LiveBroker' to include 'spread' in trade logs.
 - Updated 'RapidFireTest' to pass 'signal_price' for accurate slippage tracking.

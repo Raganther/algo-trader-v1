@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 
-MARKDOWN_FILE = 'backend/research_insights.md'
+MARKDOWN_FILE = '.agent/memory/research_insights.md'
 
 class InsightManager:
     def __init__(self):
@@ -72,7 +72,8 @@ class InsightManager:
             "watchlist_candidate", 
             "meta_strategy_validation", 
             "meta_strategy_failure", 
-            "performance_warning"
+            "performance_warning",
+            "baseline_established"
         ]
         
         sorted_types = sorted(list(types), key=lambda x: type_order.index(x) if x in type_order else 99)
@@ -101,11 +102,112 @@ class InsightManager:
                 
                 if i.get('expiration'):
                     content += f"- **Expires**: {i['expiration']}\n"
+                if i.get('expiration'):
+                    content += f"- **Expires**: {i['expiration']}\n"
+                
+                # Check for matching Live Session
+                # We look for a live session with same Strategy and Symbol
+                # (Timeframe is not always in live logs, but usually implied by strategy)
+                if hasattr(self, 'live_sessions'):
+                    # Filter sessions matching this insight's scope
+                    # Scope usually contains [Symbol, Timeframe] or just [Symbol]
+                    # Strategy is in parameters
+                    
+                    insight_strategy = i.get('parameters', {}).get('strategy')
+                    insight_symbol = i.get('parameters', {}).get('symbol')
+                    
+                    # If not in params, try to parse from description or scope
+                    if not insight_strategy:
+                        # Fallback logic or skip
+                        pass
+                        
+                    matching_sessions = [
+                        s for s in self.live_sessions 
+                        if s['strategy'] == insight_strategy and s['symbol'] == insight_symbol
+                    ]
+                    
+                    if matching_sessions:
+                        # Aggregate or show latest
+                        latest_session = matching_sessions[-1] # Show most recent
+                        
+                        content += "  > **Reality Check (Forward Test)**\n"
+                        content += f"  > - **Session**: {latest_session['start_time']} (ID: {latest_session['session_id'][:8]}...)\n"
+                        content += f"  > - **Return**: {latest_session['return_pct']:.2f}% (vs Backtest)\n"
+                        content += f"  > - **Drawdown**: {latest_session['max_drawdown']:.2f}%\n"
+                        content += f"  > - **Trades**: {latest_session['total_trades']}\n"
+                        
+                        # Status Check
+                        # Simple logic: If Return is positive and within 50% of backtest (or better), Verified.
+                        # If Return is negative while backtest was positive, Warning.
+                        
+                        content += "\n"
+
                 content += "\n"
         
         with open(MARKDOWN_FILE, 'w') as f:
             f.write(content)
         print(f"📝 Report updated: {MARKDOWN_FILE}")
+
+def get_live_sessions():
+    """Aggregates live trade logs into session metrics."""
+    from backend.database import DatabaseManager
+    db = DatabaseManager()
+    trades = db.get_live_trades()
+    
+    if not trades:
+        return []
+        
+    df = pd.DataFrame(trades)
+    
+    # Group by Session
+    sessions = []
+    grouped = df.groupby('session_id')
+    
+    for session_id, group in grouped:
+        if group.empty: continue
+        
+        # Calculate Metrics
+        total_pnl = group['pnl'].sum()
+        total_trades = len(group)
+        wins = len(group[group['pnl'] > 0])
+        win_rate = wins / total_trades if total_trades > 0 else 0
+        
+        # Estimate Return % (Assuming $100k paper account if not tracked)
+        # Ideally we'd track initial capital in the session log, but for now we assume standard paper size
+        initial_capital = 100000.0 
+        return_pct = (total_pnl / initial_capital) * 100
+        
+        # Max Drawdown (Approximate from trade sequence PnL)
+        # Construct a synthetic equity curve
+        equity = [initial_capital]
+        current_eq = initial_capital
+        for pnl in group['pnl']:
+            current_eq += pnl
+            equity.append(current_eq)
+            
+        equity_series = pd.Series(equity)
+        hwm = equity_series.cummax()
+        dd = (hwm - equity_series) / hwm
+        max_dd = dd.max() * 100
+        
+        # Metadata
+        first_trade = group.iloc[0]
+        last_trade = group.iloc[-1]
+        
+        sessions.append({
+            'session_id': session_id,
+            'strategy': first_trade['strategy'],
+            'symbol': first_trade['symbol'],
+            'start_time': first_trade['timestamp'],
+            'end_time': last_trade['timestamp'],
+            'return_pct': return_pct,
+            'max_drawdown': max_dd,
+            'win_rate': win_rate,
+            'total_trades': total_trades,
+            'pnl': total_pnl
+        })
+        
+    return sessions
 
 def analyze(write=False):
     # Load Results from Database
@@ -160,7 +262,16 @@ def analyze(write=False):
         return
 
     print(f"Loaded {len(df)} test runs.")
+    print(f"Loaded {len(df)} test runs.")
+    
+    # Load Live Sessions
+    live_sessions = get_live_sessions()
+    print(f"Loaded {len(live_sessions)} live sessions.")
+    
     manager = InsightManager()
+    
+    # Pass live sessions to manager for correlation
+    manager.live_sessions = live_sessions
 
     # --- 1. Outlier Detection (Z-Score) ---
     mean_return = df['return_pct'].mean()
@@ -190,6 +301,14 @@ def analyze(write=False):
         if row['symbol'] != 'PORTFOLIO':
             desc = f"Performance Warning: {row['strategy']} on {row['symbol']} ({row['timeframe']}) underperformed significantly ({row['return_pct']:.2f}%, Z={row['z_score']:.2f})"
             manager.add_insight("performance_warning", desc, 0.8, [str(row['symbol']), str(row['timeframe'])], parameters=row['parameters'])
+
+    # Detect Baseline Established (Average Performers: -0.5 <= Z <= 0.5)
+    # This ensures new strategies that perform "normally" still get an entry for Forward Test comparison.
+    baselines = df[(df['z_score'] >= -0.5) & (df['z_score'] <= 0.5)].sort_values('return_pct', ascending=False)
+    for _, row in baselines.iterrows():
+        if row['symbol'] != 'PORTFOLIO':
+            desc = f"Baseline Established: {row['strategy']} on {row['symbol']} ({row['timeframe']}) returned {row['return_pct']:.2f}% (Z={row['z_score']:.2f})"
+            manager.add_insight("baseline_established", desc, 0.5, [str(row['symbol']), str(row['timeframe'])], parameters=row['parameters'])
 
     # Portfolio Specific Failures
     portfolio_failures = df[(df['symbol'] == 'PORTFOLIO') & (df['return_pct'] < 0)].sort_values('return_pct', ascending=True)

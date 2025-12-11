@@ -61,7 +61,7 @@ class RapidFireTestStrategy(Strategy):
                 # Buy 0.01 share for testing (fits in small accounts)
                 self.broker.place_order(
                     symbol=self.symbol,
-                    qty=0.01,
+                    quantity=0.01,
                     side='buy',
                     order_type='market',
                     price=bar['Close'] # Pass signal price for logging
@@ -74,7 +74,7 @@ class RapidFireTestStrategy(Strategy):
                 # Close position
                 self.broker.place_order(
                     symbol=self.symbol,
-                    qty=current_position,
+                    quantity=current_position,
                     side='sell',
                     order_type='market',
                     price=bar['Close'] # Pass signal price for logging

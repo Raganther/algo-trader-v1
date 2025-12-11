@@ -330,3 +330,19 @@ class DatabaseManager:
             print(f"Error saving live trade log: {e}")
         finally:
             conn.close()
+    def get_live_trades(self):
+        """Retrieves all live trade logs."""
+        conn = self.get_connection()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('SELECT * FROM live_trade_log ORDER BY timestamp ASC')
+            rows = cursor.fetchall()
+            results = [dict(row) for row in rows]
+            return results
+        except Exception as e:
+            print(f"Error fetching live trades: {e}")
+            return []
+        finally:
+            conn.close()

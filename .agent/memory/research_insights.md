@@ -1,203 +1,980 @@
-# Research Insights
-
-This file serves as the "Long Term Semantic Memory" for the agent.
-It contains curated insights, proven strategies, and failed experiments derived from the "Episodic Memory" (Git History).
-
-## Proven Strategies
-<!-- Strategies that have passed verification -->
-
-- Result: +71.0% Total Return, 5.94% Max Drawdown.
-- Tested DonchianTrend on SPY (1h). Result: Success (See database for details).
-- Tested StochRSIMeanReversion on SPY (5m). Result: +32.95% Total Return (Baseline).
-- Tested StochRSIMeanReversion on SPY (5m) with params {'rsi_period': 21, 'stoch_period': 21}. Result: +2.95% Total Return (Too Slow).
-- Tested StochRSIMeanReversion on SPY (5m) with params {'rsi_period': 7, 'stoch_period': 7}. Result: +88.5% Total Return (Winner). Note: Underperformed in 2024 (5.3%) but crushed 2022 (24.7%).
-- **OPTIMIZED**: StochRSIMeanReversion on SPY (5m) with `adx_threshold=20` (Stricter Range Filter).
-    - 2016: +27.8% (vs +5%)
-    - 2018: +23.5% (vs -3%)
-    - 2020: +27.1% (vs +14.2%)
-    - 2021: +6.8% (vs +14.3%) -> Trade-off: Reduced performance in smooth bull markets.
-    - 2022: +35.3% (vs +25%)
-    - 2024: +10.9% (vs +5%)
-    - Conclusion: Stricter ADX filter avoids "fake" mean reversion in medium trends. Drastically improves volatile years, slightly dampens smooth bull years.
-- **ADAPTIVE**: StochRSIMeanReversion with Regime Switching (ATR% > 0.12% -> ADX 20, else ADX 30).
-    - 2018: +11.6% (Profitable, but less than Static 20's +23.5%)
-    - 2021: +11.1% (Recovered from Static 20's +6.8%, close to Original +14.3%)
-    - 2022: +20.6% (Profitable, but less than Static 20's +35.3%)
-    - Conclusion: The "Goldilocks" solution. Captures upside in Bull Markets (2021) while staying safe in Bear Markets (2018/2022).
-- **STRESS TEST (Optimized)**: Added $0.02 Spread (Slippage/Friction).
-    - 2022: +6.3% (Collapsed from +35.3%)
-    - 2016: -11.0% (Collapsed from +27.8%)
-    - **CRITICAL FAILURE**: The strategy trades too frequently (~3500 trades/year). Friction destroys the edge.
-    - **Pivot Required**: We must reduce trade frequency or increase average trade duration.
-- Tested HybridRegime on GBPJPY (1h) [2002-2024]. Result: Mixed. 2004 (+53%), 2007 (+34%), but 2002 (-24%). Long-term viable but needs optimization.
-
-## Failed Experiments
-<!-- Strategies that failed and why, to avoid repeating mistakes -->
-
-- Result: FAILED (-26.06% Return over 5 Years).
-- TimeOnly: +60% Return (Failed: Opening Drive volatility is essential)
-
-- Tested DonchianTrend on AAPL (1h) with params {'donchian_period': 50}. Result: -3.54% Total Return, 31.96% Max Drawdown.
-- Tested DonchianTrend on SPY (1h) with params {'donchian_period': 50}. Result: -4.8% Total Return, 13.55% Max Drawdown.
-- Tested GammaScalping on SPY (5m) with params {'vol_threshold': 0.015}. Result: -1.43% Total Return, 1.61% Max Drawdown.
-- Tested GammaScalping on SPY (5m) with params {'rsi_period': 7, 'stoch_period': 7}. Result: -1.0% Total Return, 1.72% Max Drawdown.
-- Tested HybridRegime on GBPJPY=X (1h) with params {'adx_threshold': 30}. Result: 0.0% Total Return, 0.0% Max Drawdown.
-- Tested HybridRegime on GBPJPY=X (1h) with params {'adx_threshold': 30}. Result: -0.31% Total Return, 0.34% Max Drawdown.
-- Tested HybridRegime on GBPJPY=X (1h) with params {'adx_threshold': 20}. Result: -0.38% Total Return, 0.41% Max Drawdown.
-- Tested HybridRegime on GBPJPY=X (1h) with params {'rsi_period': 9, 'stoch_period': 9}. Result: -0.34% Total Return, 0.35% Max Drawdown.
-## Market Mechanics
-<!-- General observations about market behavior (e.g. Volatility, Timeframes) -->
-
-## Invalidated Hypotheses (Corrections)
-<!-- Insights that were proven wrong by later data or bug fixes. Move incorrect insights here. -->
-
-
-## New Insights (Auto-Curated)
-- Crucial Insight: Fundamental conflict between ADX < 30 (Range) and TICK > 1.5 (Momentum).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## New Insights (Auto-Curated)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-- Tested DonchianTrend on EURUSD=X (1h) with params {'donchian_period': 50}. Result: Metrics not found in output.
-
-
-
-
-- Tested GammaScalping on SPY (5m) with params None. Result: Error: Traceback (most recent call last):.
-
-
-
-- Tested DonchianTrend on GBPUSD=X (1h) with params None. Result: Error: No data found from Alpaca..
-
-
-
-
-
-
-
-
-
-
-- Tested HybridRegime on GBPJPY=X (1h) with params None. Result: Error: No data found from Alpaca..
-
-
-- Tested HybridRegime on GBPJPY (1h) with params {'adx_threshold': 30}. Result: Error: No data found from Alpaca..
-
-
-- Tested HybridRegime on GBPJPY (1h) with params {'adx_threshold': 30}. Result: Error: Traceback (most recent call last):.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## New Insights (Auto-Curated)
-- Note: GammaScalping bug identified (pending fix).
-- Tested HybridRegime on GBPJPY (1h) [2020-2024]. Result: Negative (-0.09% to -0.38%). Higher ADX threshold (40) reduced losses, indicating Mean Reversion preference. Sector TICK optimization blocked by missing data.
-
-
-
-
-
-
-
-
-
-
-
+# 🧠 Research Insights (Auto-Generated)
+
+> [!NOTE]
+> This file is automatically generated by the Analysis Engine. Do not edit manually.
+
+## Consistency Champion
+### INSIGHT-003 🟢
+**Consistent Winner: HybridRegime on GBPJPY=X is profitable 70% of years.**
+
+- **Confidence**: 0.9
+- **Scope**: GBPJPY=X
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "strategy": "HybridRegime",
+  "symbol": "GBPJPY=X",
+  "avg_annual_return": 19.512608695652176,
+  "avg_win_rate": 0.528695652173913,
+  "profitable_years": 16,
+  "years_tested": 23,
+  "consistency_score": 0.6956521739130435
+}
+```
+</details>
+
+### INSIGHT-030 🟢
+**Consistent Winner: StochRSIMeanReversion on BTC/USD is profitable 75% of years.**
+
+- **Confidence**: 0.9
+- **Scope**: BTC/USD
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "strategy": "StochRSIMeanReversion",
+  "symbol": "BTC/USD",
+  "avg_annual_return": 1.3975,
+  "avg_win_rate": 0.5675,
+  "profitable_years": 3,
+  "years_tested": 4,
+  "consistency_score": 0.75
+}
+```
+</details>
+
+### INSIGHT-031 🟢
+**Consistent Winner: DonchianTrend on AAPL is profitable 80% of years.**
+
+- **Confidence**: 0.9
+- **Scope**: AAPL
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "strategy": "DonchianTrend",
+  "symbol": "AAPL",
+  "avg_annual_return": 5.508,
+  "avg_win_rate": 0.438,
+  "profitable_years": 4,
+  "years_tested": 5,
+  "consistency_score": 0.8
+}
+```
+</details>
+
+### INSIGHT-032 🟢
+**Consistent Winner: DonchianTrend on NVDA is profitable 100% of years.**
+
+- **Confidence**: 0.9
+- **Scope**: NVDA
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "strategy": "DonchianTrend",
+  "symbol": "NVDA",
+  "avg_annual_return": 20.324,
+  "avg_win_rate": 0.32799999999999996,
+  "profitable_years": 5,
+  "years_tested": 5,
+  "consistency_score": 1.0
+}
+```
+</details>
+
+### INSIGHT-033 🟢
+**Consistent Winner: DonchianTrend on TSLA is profitable 80% of years.**
+
+- **Confidence**: 0.9
+- **Scope**: TSLA
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "strategy": "DonchianTrend",
+  "symbol": "TSLA",
+  "avg_annual_return": 35.314,
+  "avg_win_rate": 0.48599999999999993,
+  "profitable_years": 4,
+  "years_tested": 5,
+  "consistency_score": 0.8
+}
+```
+</details>
+
+### INSIGHT-034 🟢
+**Consistent Winner: StochRSIQuant (Safe) on SPY is profitable 100% of years.**
+
+- **Confidence**: 0.9
+- **Scope**: SPY
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "strategy": "StochRSIQuant (Safe)",
+  "symbol": "SPY",
+  "avg_annual_return": 51.41,
+  "avg_win_rate": 0.5974999999999999,
+  "profitable_years": 4,
+  "years_tested": 4,
+  "consistency_score": 1.0
+}
+```
+</details>
+
+## Statistical Anomaly
+### INSIGHT-001 🟢
+**Statistical Anomaly: HybridRegime on GBPJPY=X (1h) returned 34.61% (Z=1.60)**
+
+- **Confidence**: 0.8
+- **Scope**: GBPJPY=X, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "GBPJPY=X",
+  "adx_period": 14,
+  "adx_threshold": 25,
+  "rsi_period": 14,
+  "stoch_period": 14,
+  "k_period": 3,
+  "d_period": 3,
+  "overbought": 80,
+  "oversold": 20,
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-004 🟢
+**Statistical Anomaly: StochRSISniper on SPY (5m) returned 33.44% (Z=1.54)**
+
+- **Confidence**: 0.8
+- **Scope**: SPY, 5m
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "SPY"
+}
+```
+</details>
+
+### INSIGHT-005 🟢
+**Statistical Anomaly: DonchianTrend on TSLA (4h) returned 86.29% (Z=4.20)**
+
+- **Confidence**: 0.8
+- **Scope**: TSLA, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "TSLA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-006 🟢
+**Statistical Anomaly: DonchianTrend on TSLA (1h) returned 78.14% (Z=3.79)**
+
+- **Confidence**: 0.8
+- **Scope**: TSLA, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "TSLA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-007 🟢
+**Statistical Anomaly: DonchianTrend on NVDA (4h) returned 68.61% (Z=3.31)**
+
+- **Confidence**: 0.8
+- **Scope**: NVDA, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "NVDA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-008 🟢
+**Statistical Anomaly: DonchianTrend on NVDA (1h) returned 48.10% (Z=2.28)**
+
+- **Confidence**: 0.8
+- **Scope**: NVDA, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "NVDA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-009 🟢
+**Statistical Anomaly: StochRSIMeanReversion on BTC/USD (1h) returned 43.87% (Z=2.06)**
+
+- **Confidence**: 0.8
+- **Scope**: BTC/USD, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "BTC/USD",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-010 🟢
+**Statistical Anomaly: DonchianBreakout on BTC/USD (4h) returned 42.16% (Z=1.98)**
+
+- **Confidence**: 0.8
+- **Scope**: BTC/USD, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "BTC/USD",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-011 🟢
+**Statistical Anomaly: StochRSIMeanReversion on SPY (15m) returned 33.31% (Z=1.53)**
+
+- **Confidence**: 0.8
+- **Scope**: SPY, 15m
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "SPY",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+## Watchlist Candidate
+### INSIGHT-002 🟡
+**Watchlist Candidate: HybridRegime on GBPJPY=X (1h) shows promise (22.25%, Z=0.97)**
+
+- **Confidence**: 0.6
+- **Scope**: GBPJPY=X, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "GBPJPY=X",
+  "adx_period": 14,
+  "adx_threshold": 25,
+  "rsi_period": 14,
+  "stoch_period": 14,
+  "k_period": 3,
+  "d_period": 3,
+  "overbought": 80,
+  "oversold": 20,
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-012 🟡
+**Watchlist Candidate: StochRSIMeanReversion on TSLA (4h) shows promise (21.87%, Z=0.95)**
+
+- **Confidence**: 0.6
+- **Scope**: TSLA, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "TSLA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-013 🟡
+**Watchlist Candidate: StochRSIMeanReversion on NVDA (1h) shows promise (14.99%, Z=0.61)**
+
+- **Confidence**: 0.6
+- **Scope**: NVDA, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "NVDA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-014 🟡
+**Watchlist Candidate: DonchianTrend on AAPL (4h) shows promise (28.29%, Z=1.28)**
+
+- **Confidence**: 0.6
+- **Scope**: AAPL, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "AAPL",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-015 🟡
+**Watchlist Candidate: DonchianTrend on TSLA (1h) shows promise (17.08%, Z=0.71)**
+
+- **Confidence**: 0.6
+- **Scope**: TSLA, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "TSLA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-016 🟡
+**Watchlist Candidate: StochRSIMeanReversion on AAPL (1h) shows promise (24.22%, Z=1.07)**
+
+- **Confidence**: 0.6
+- **Scope**: AAPL, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "AAPL",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-017 🟡
+**Watchlist Candidate: StochRSIMeanReversion (ADX25) on SPY (5m) shows promise (13.18%, Z=0.51)**
+
+- **Confidence**: 0.6
+- **Scope**: SPY, 5m
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "SPY",
+  "adx_threshold": 25,
+  "rsi_period": 7,
+  "stoch_period": 7
+}
+```
+</details>
+
+### INSIGHT-018 🟡
+**Watchlist Candidate: AGoldenCross on BTC/USD (1h) shows promise (22.99%, Z=1.01)**
+
+- **Confidence**: 0.6
+- **Scope**: BTC/USD, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "BTC/USD"
+}
+```
+</details>
+
+### INSIGHT-019 🟡
+**Watchlist Candidate: DonchianTrend on NVDA (4h) shows promise (18.79%, Z=0.80)**
+
+- **Confidence**: 0.6
+- **Scope**: NVDA, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "NVDA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-020 🟡
+**Watchlist Candidate: StochRSIMeanReversion on SPY (4h) shows promise (16.21%, Z=0.67)**
+
+- **Confidence**: 0.6
+- **Scope**: SPY, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "SPY",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+## Performance Warning
+### INSIGHT-021 🟢
+**Performance Warning: DonchianTrend on TSLA (5m) underperformed significantly (-93.06%, Z=-4.85)**
+
+- **Confidence**: 0.8
+- **Scope**: TSLA, 5m
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "TSLA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-022 🟢
+**Performance Warning: DonchianTrend on NVDA (5m) underperformed significantly (-88.83%, Z=-4.63)**
+
+- **Confidence**: 0.8
+- **Scope**: NVDA, 5m
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "NVDA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-023 🟢
+**Performance Warning: DonchianTrend on NVDA (15m) underperformed significantly (-54.65%, Z=-2.91)**
+
+- **Confidence**: 0.8
+- **Scope**: NVDA, 15m
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "NVDA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-024 🟢
+**Performance Warning: DonchianBreakout on BTC/USD (4h) underperformed significantly (-41.82%, Z=-2.26)**
+
+- **Confidence**: 0.8
+- **Scope**: BTC/USD, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "BTC/USD",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-025 🟢
+**Performance Warning: DonchianBreakout on EURUSD=X (1h) underperformed significantly (-43.69%, Z=-2.35)**
+
+- **Confidence**: 0.8
+- **Scope**: EURUSD=X, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "EURUSD=X",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-026 🟢
+**Performance Warning: StochRSIMeanReversion on AAPL (5m) underperformed significantly (-41.98%, Z=-2.27)**
+
+- **Confidence**: 0.8
+- **Scope**: AAPL, 5m
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "AAPL",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-027 🟢
+**Performance Warning: AGoldenCross on BTC/USD (1h) underperformed significantly (-38.84%, Z=-2.11)**
+
+- **Confidence**: 0.8
+- **Scope**: BTC/USD, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "BTC/USD"
+}
+```
+</details>
+
+### INSIGHT-028 🟢
+**Performance Warning: StochRSIQuant (Relaxed) on SPY (5m) underperformed significantly (-28.28%, Z=-1.58)**
+
+- **Confidence**: 0.8
+- **Scope**: SPY, 5m
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "SPY",
+  "use_time_filter": false,
+  "adx_threshold": 50
+}
+```
+</details>
+
+### INSIGHT-029 🟢
+**Performance Warning: DonchianTrend on TSLA (15m) underperformed significantly (-26.84%, Z=-1.50)**
+
+- **Confidence**: 0.8
+- **Scope**: TSLA, 15m
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "TSLA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+## Baseline Established
+### INSIGHT-035 🟡
+**Baseline Established: StochRSIMeanReversion (ADX45) on SPY (5m) returned -6.44% (Z=-0.48)**
+
+- **Confidence**: 0.5
+- **Scope**: SPY, 5m
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "SPY",
+  "adx_threshold": 45,
+  "rsi_period": 7,
+  "stoch_period": 7
+}
+```
+</details>
+
+### INSIGHT-036 🟡
+**Baseline Established: StochRSIMeanReversion on TSLA (1h) returned 0.60% (Z=-0.12)**
+
+- **Confidence**: 0.5
+- **Scope**: TSLA, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "TSLA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-037 🟡
+**Baseline Established: DonchianBreakout on EURUSD=X (4h) returned 9.90% (Z=0.35)**
+
+- **Confidence**: 0.5
+- **Scope**: EURUSD=X, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "EURUSD=X",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-038 🟡
+**Baseline Established: StochRSIMeanReversion on SPY (4h) returned -3.09% (Z=-0.31)**
+
+- **Confidence**: 0.5
+- **Scope**: SPY, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "SPY",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-039 🟡
+**Baseline Established: StochRSIMeanReversion on AAPL (4h) returned -2.50% (Z=-0.28)**
+
+- **Confidence**: 0.5
+- **Scope**: AAPL, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "AAPL",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-040 🟡
+**Baseline Established: DonchianTrend on SPY (1h) returned -6.71% (Z=-0.49)**
+
+- **Confidence**: 0.5
+- **Scope**: SPY, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "SPY",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20,
+  "adx_period": 14,
+  "adx_threshold": 25,
+  "sma_period": 200,
+  "donchian_period": 50
+}
+```
+</details>
+
+### INSIGHT-041 🟡
+**Baseline Established: StochRSIMeanReversion on BTC/USD (1h) returned -0.33% (Z=-0.17)**
+
+- **Confidence**: 0.5
+- **Scope**: BTC/USD, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "BTC/USD",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-042 🟡
+**Baseline Established: DonchianTrend on AAPL (1h) returned -2.06% (Z=-0.25)**
+
+- **Confidence**: 0.5
+- **Scope**: AAPL, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "AAPL",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20,
+  "adx_period": 14,
+  "adx_threshold": 25,
+  "sma_period": 200,
+  "donchian_period": 50
+}
+```
+</details>
+
+### INSIGHT-043 🟡
+**Baseline Established: DonchianTrend on BTC/USD (4h) returned -2.26% (Z=-0.26)**
+
+- **Confidence**: 0.5
+- **Scope**: BTC/USD, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "BTC/USD",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-044 🟡
+**Baseline Established: HybridRegime on GBPJPY=X (1h) returned -6.00% (Z=-0.45)**
+
+- **Confidence**: 0.5
+- **Scope**: GBPJPY=X, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "GBPJPY=X",
+  "adx_period": 14,
+  "adx_threshold": 25,
+  "rsi_period": 14,
+  "stoch_period": 14,
+  "k_period": 3,
+  "d_period": 3,
+  "overbought": 80,
+  "oversold": 20,
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-045 🟡
+**Baseline Established: StochRSIMeanReversion on NVDA (4h) returned -2.35% (Z=-0.27)**
+
+- **Confidence**: 0.5
+- **Scope**: NVDA, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "NVDA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-046 🟡
+**Baseline Established: StochRSIMeanReversion on TSLA (4h) returned -4.42% (Z=-0.37)**
+
+- **Confidence**: 0.5
+- **Scope**: TSLA, 4h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "TSLA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-047 🟡
+**Baseline Established: StochRSIMeanReversion on NVDA (1h) returned -0.09% (Z=-0.15)**
+
+- **Confidence**: 0.5
+- **Scope**: NVDA, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "NVDA",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-048 🟡
+**Baseline Established: SimpleSMA on XLK (5m) returned 2.03% (Z=-0.05)**
+
+- **Confidence**: 0.5
+- **Scope**: XLK, 5m
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "XLK"
+}
+```
+</details>
+
+### INSIGHT-049 🟡
+**Baseline Established: DonchianBreakout on EURUSD=X (1h) returned -6.18% (Z=-0.46)**
+
+- **Confidence**: 0.5
+- **Scope**: EURUSD=X, 1h
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "EURUSD=X",
+  "entry_period": 20,
+  "exit_period": 10,
+  "stop_loss_atr": 2.0,
+  "atr_period": 20
+}
+```
+</details>
+
+### INSIGHT-050 🟡
+**Baseline Established: RapidFireTest on BTC/USD (1m) returned 0.50% (Z=-0.13)**
+
+- **Confidence**: 0.5
+- **Scope**: BTC/USD, 1m
+<details>
+<summary>Strategy Parameters</summary>
+
+```json
+{
+  "symbol": "BTC/USD"
+}
+```
+</details>
 

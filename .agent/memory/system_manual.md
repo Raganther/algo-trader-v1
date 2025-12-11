@@ -13,7 +13,8 @@
 ### Components
 - **Backend**: Python (FastAPI).
     - **Engine**: Custom event-driven backtester (`backend/engine/`).
-    - **Database**: SQLite (`backend/research.db`) for storing test results.
+    - **Database**: SQLite (`backend/research.db`) for storing test results and live trade logs.
+    - **Analysis**: `analyze_results.py` correlates Backtests (Theory) with Live Logs (Reality).
 - **Frontend**: Next.js (React).
     - **Strategy Lab**: Dashboard for visualizing Matrix and Edge results.
 
@@ -78,6 +79,7 @@ The Agent can autonomously create and register new strategies.
 - `GET /api/insights`: Get generated research insights.
 
 ## 5. Recent System Updates
+- [Feat]: Implemented Forward Test Analysis (Theory vs Reality) (2025-12-11)
 - [Fix]: Enabled Live Trading Logger in CLI (2025-12-10)
 - [Feat]: Implemented Live Trading Logger (2025-12-10)
 - [Refactor]: Optimized System Manual and Memory Logic (2025-12-10)
@@ -86,5 +88,6 @@ The Agent can autonomously create and register new strategies.
 
 
 ## Recent System Updates
+- [Docs]: Update project memory and insights (2025-12-10)
 - [Feat]: Implemented Strategy Factory (Agent Upgrade) (2025-12-09)
 - [Feat]: Verified Live Trading Pipeline (RapidFireTest) (2025-12-09)

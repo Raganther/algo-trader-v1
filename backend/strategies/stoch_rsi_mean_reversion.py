@@ -16,6 +16,7 @@ class StochRSIMeanReversionStrategy(Strategy):
         self.overbought = float(parameters.get('overbought', 80))
         self.oversold = float(parameters.get('oversold', 20))
         self.adx_threshold = float(parameters.get('adx_threshold', 20))
+        self.dynamic_adx = parameters.get('dynamic_adx', True) # Default to True for backward compatibility
         self.position_size = float(parameters.get('position_size', 100000.0))
         self.sl_atr = float(parameters.get('sl_atr', 3.0))
         
@@ -81,28 +82,33 @@ class StochRSIMeanReversionStrategy(Strategy):
         # Skip this check when called from HybridRegime (which already filtered by ADX)
         if not self.skip_adx_filter:
             # --- Adaptive Logic ---
-            # Calculate ATR % (Volatility)
-            # atr_val is already calculated in generate_signals
-            atr_val = row[self.atr_col]
-            close_price = row['Close']
-            
-            if close_price > 0:
-                atr_pct = (atr_val / close_price) * 100
-            else:
-                atr_pct = 0
+            if self.dynamic_adx:
+                # Calculate ATR % (Volatility)
+                # atr_val is already calculated in generate_signals
+                atr_val = row[self.atr_col]
+                close_price = row['Close']
                 
-            # Determine Threshold based on Volatility
-            # If Volatility is High (> 0.12%), be Defensive (Threshold 20)
-            # If Volatility is Low (<= 0.12%), be Aggressive (Threshold 30)
-            if atr_pct > 0.12:
-                dynamic_threshold = 20
+                if close_price > 0:
+                    atr_pct = (atr_val / close_price) * 100
+                else:
+                    atr_pct = 0
+                    
+                # Determine Threshold based on Volatility
+                # If Volatility is High (> 0.12%), be Defensive (Threshold 20)
+                # If Volatility is Low (<= 0.12%), be Aggressive (Threshold 30)
+                if atr_pct > 0.12:
+                    dynamic_threshold = 20
+                else:
+                    dynamic_threshold = 30
+                    
+                # Use the dynamic threshold
+                if current_adx > dynamic_threshold:
+                    # Market is trending too strongly for the current regime
+                    return
             else:
-                dynamic_threshold = 30
-                
-            # Use the dynamic threshold
-            if current_adx > dynamic_threshold:
-                # Market is trending too strongly for the current regime
-                return
+                # Static Threshold (Strict Filter)
+                if current_adx > self.adx_threshold:
+                    return
 
         # 0. Check Stop Loss (Priority)
         if self.position == 'long' and self.current_sl:
