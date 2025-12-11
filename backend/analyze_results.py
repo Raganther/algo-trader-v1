@@ -141,19 +141,20 @@ class InsightManager:
                         # Show all matching sessions (limit to last 3 to avoid clutter if many)
                         for session in matching_sessions[-3:]:
                             # Calculate Reality Gap (Delta)
-                            # Backtest Return is stored in parameters as 'avg_annual_return' or similar
-                            # We need to fetch it from the insight dict
-                            theory_return = i.get('parameters', {}).get('avg_annual_return', 0.0)
-                            reality_return = session['return_pct']
-                            delta = reality_return - theory_return
+                            # Calculate Reality Gap (Delta) using Win Rate (Time-Independent)
+                            # Backtest Win Rate is stored in parameters as 'win_rate'
+                            theory_wr = i.get('parameters', {}).get('win_rate', 0.0)
+                            reality_wr = session['win_rate']
+                            delta = reality_wr - theory_wr
                             
                             # Status Icon
                             status_icon = "✅"
-                            if delta < -5.0: status_icon = "❌" # Major underperformance
-                            elif delta < -1.0: status_icon = "⚠️" # Warning
+                            if abs(delta) > 20.0: status_icon = "❌" # Major deviation
+                            elif abs(delta) > 10.0: status_icon = "⚠️" # Warning
                             
                             content += f"  > - **Session**: {session['start_time']} (ID: {session['session_id'][:8]}...)\n"
-                            content += f"  >   - **Return**: {session['return_pct']:.2f}% (Theory: {theory_return:.2f}% | Gap: {delta:.2f}%) {status_icon}\n"
+                            content += f"  >   - **Win Rate**: {session['win_rate']:.1f}% (Theory: {theory_wr:.1f}% | Gap: {delta:+.1f}%) {status_icon}\n"
+                            content += f"  >   - **Return**: {session['return_pct']:.2f}%\n"
                             content += f"  >   - **Drawdown**: {session['max_drawdown']:.2f}%\n"
                             content += f"  >   - **Trades**: {session['total_trades']}\n"
                         
@@ -193,9 +194,10 @@ def get_live_sessions():
         # We must match Buys and Sells to calculate realized PnL.
         
         realized_pnl = 0.0
-        inventory = [] # List of {'qty': float, 'price': float}
+        inventory = [] 
+        wins = 0
+        closed_trades = 0
         
-        # Sort by timestamp to ensure correct order
         group = group.sort_values('timestamp')
         
         for _, trade in group.iterrows():
@@ -206,32 +208,31 @@ def get_live_sessions():
             if side == 'buy':
                 inventory.append({'qty': qty, 'price': price})
             elif side == 'sell':
-                # Match against inventory (FIFO)
                 remaining_qty_to_close = qty
+                trade_pnl = 0.0
                 
                 while remaining_qty_to_close > 0 and inventory:
                     position = inventory[0]
                     
                     if position['qty'] > remaining_qty_to_close:
-                        # Partial close of this position chunk
-                        pnl = (price - position['price']) * remaining_qty_to_close
-                        realized_pnl += pnl
+                        chunk_pnl = (price - position['price']) * remaining_qty_to_close
+                        trade_pnl += chunk_pnl
                         position['qty'] -= remaining_qty_to_close
                         remaining_qty_to_close = 0
                     else:
-                        # Full close of this position chunk
-                        pnl = (price - position['price']) * position['qty']
-                        realized_pnl += pnl
+                        chunk_pnl = (price - position['price']) * position['qty']
+                        trade_pnl += chunk_pnl
                         remaining_qty_to_close -= position['qty']
-                        inventory.pop(0) # Remove exhausted chunk
-                        
+                        inventory.pop(0)
+                
+                realized_pnl += trade_pnl
+                closed_trades += 1
+                if trade_pnl > 0:
+                    wins += 1
+                    
         total_pnl = realized_pnl
         total_trades = len(group)
-        
-        # Approximate Win Rate from positive PnL chunks?
-        # For now, just set to 0.0 or calculate based on realized_pnl > 0 if we tracked chunks.
-        # Let's assume 50% for now to avoid error, or 0.
-        win_rate = 0.0 
+        win_rate = (wins / closed_trades * 100) if closed_trades > 0 else 0.0
         
         # Estimate Return % (Assuming $100k paper account if not tracked)
         initial_capital = 100000.0 

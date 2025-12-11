@@ -13,19 +13,36 @@ class LiveBroker:
         self.refresh()
 
     def refresh(self):
-        """Fetch latest account info from Alpaca."""
-        summary = self.trader.get_account_summary()
-        self.equity = summary['equity']
+        """Fetch latest account info from Alpaca with retry logic."""
+        import time
+        max_retries = 3
+        retry_delay = 1
         
-        # Convert Alpaca positions to simple dict format
-        # {'SPY': {'size': 10, 'price': 500}}
-        raw_pos = self.trader.get_open_trades()
-        self.positions = {}
-        for p in raw_pos:
-            self.positions[p['symbol']] = {
-                'size': p['qty'],
-                'price': p['entry_price']
-            }
+        for attempt in range(max_retries):
+            try:
+                summary = self.trader.get_account_summary()
+                self.equity = summary['equity']
+                
+                # Convert Alpaca positions to simple dict format
+                # {'SPY': {'size': 10, 'price': 500}}
+                raw_pos = self.trader.get_open_trades()
+                self.positions = {}
+                for p in raw_pos:
+                    self.positions[p['symbol']] = {
+                        'size': p['qty'],
+                        'price': p['entry_price']
+                    }
+                return # Success
+            except Exception as e:
+                print(f"⚠️ Connection Error in refresh (Attempt {attempt+1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                    retry_delay *= 2 # Exponential backoff
+                else:
+                    print("❌ Max retries reached. Skipping refresh.")
+                    # We don't raise here to prevent crashing the main loop, 
+                    # but we might be trading on stale data.
+                    pass
 
     def get_equity(self):
         return self.equity

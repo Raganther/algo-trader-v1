@@ -1,4 +1,10 @@
-### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (88 seconds ago)
+### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (12 seconds ago)
+
+- Recreated .agent/scripts/update_memory.sh to maintain detailed git log history.
+- Restored recent_history.md with last 20 commits including bodies.
+
+---
+### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (3 minutes ago)
 
 - Implemented dynamic FIFO PnL calculation in analyze_results.py to fix 0.00% return issue.
 - Added 'Reality Gap' (Delta) metric to research_insights.md to compare Theory vs Reality.
@@ -6,7 +12,7 @@
 - Updated System Manual and Walkthrough.
 
 ---
-### f32fec1 - feat: Implement Forward Test Analysis Pipeline (28 minutes ago)
+### f32fec1 - feat: Implement Forward Test Analysis Pipeline (29 minutes ago)
 
 Detailed Findings:
 - Implemented 'Theory vs Reality' feedback loop in analyze_results.py.
@@ -38,7 +44,7 @@ Detailed Findings:
 - Verified that 'RapidFireTest' runs via CLI and logs trades to 'research.db' with unique Session IDs.
 
 ---
-### fbd37cb - [Feat]: Implemented Live Trading Logger (27 hours ago)
+### fbd37cb - [Feat]: Implemented Live Trading Logger (28 hours ago)
 
 Detailed Findings:
 - Added 'live_trade_log' table to 'research.db' for persistent forward test verification.
@@ -47,7 +53,7 @@ Detailed Findings:
 - Integrated 'DatabaseManager' into 'paper_runner.py' to auto-save all live trades.
 
 ---
-### ed3db10 - [Refactor]: Optimized System Manual and Memory Logic (28 hours ago)
+### ed3db10 - [Refactor]: Optimized System Manual and Memory Logic (29 hours ago)
 
 Detailed Findings:
 - Refactored 'system_manual.md' to 5 essential sections, removing 50% of bloat.

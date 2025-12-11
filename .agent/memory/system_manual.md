@@ -79,6 +79,7 @@ The Agent can autonomously create and register new strategies.
 - `GET /api/insights`: Get generated research insights.
 
 ## 5. Recent System Updates
+- [Fix]: Implemented Auto-Retry Logic for Alpaca Connection (2025-12-11)
 - [Feat]: Implemented Forward Test Analysis (Theory vs Reality) (2025-12-11)
 - [Fix]: Enabled Live Trading Logger in CLI (2025-12-10)
 - [Feat]: Implemented Live Trading Logger (2025-12-10)

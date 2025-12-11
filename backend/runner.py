@@ -535,9 +535,12 @@ def run_live_trading(args):
     except KeyboardInterrupt:
         print("Live Trading Stopped.")
     except Exception as e:
-        print(f"Error in Live Loop: {e}")
+        print(f"❌ Critical Error in Live Loop: {e}")
         import traceback
         traceback.print_exc()
+        # Optional: Add a global retry loop here if we want to restart the whole process
+        # But for now, let's just let it crash if it's critical, 
+        # as we handled the transient network errors in the components.
 
 def run_matrix(args):
     import multiprocessing
