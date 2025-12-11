@@ -14,7 +14,7 @@
 - **Backend**: Python (FastAPI).
     - **Engine**: Custom event-driven backtester (`backend/engine/`).
     - **Database**: SQLite (`backend/research.db`) for storing test results and live trade logs.
-    - **Analysis**: `analyze_results.py` correlates Backtests (Theory) with Live Logs (Reality).
+    - **Analysis**: `analyze_results.py` correlates Backtests (Theory) with Live Logs (Reality) and calculates the **Reality Gap (Delta)**.
 - **Frontend**: Next.js (React).
     - **Strategy Lab**: Dashboard for visualizing Matrix and Edge results.
 
