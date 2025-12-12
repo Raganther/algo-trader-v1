@@ -306,6 +306,7 @@ class InsightManager:
             content += f"| **Win Rate** | **{avg_win_rate*100:.1f}%** | Avg across years |\n"
             content += f"| **Max Drawdown** | **{global_max_dd:.2f}%** | Global Worst Case |\n"
             content += f"| **Time in DD** | **{time_in_dd:.0f}%** | % Time Underwater |\n"
+            content += f"| **Timeframe** | **{profile_runs[0]['timeframe']}** | Candle Size |\n"
             content += f"| **Best Config** | `{best_config_str}` | Winning Parameters |\n\n"
             
             content += "### 📉 Risk Analysis\n"

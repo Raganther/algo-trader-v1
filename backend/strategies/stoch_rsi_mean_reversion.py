@@ -34,7 +34,7 @@ class StochRSIMeanReversionStrategy(Strategy):
 
     def generate_signals(self, df: pd.DataFrame):
         # 1. Calculate Indicators Iteratively
-        stoch = StochRSI(self.stoch_period, self.k_period, self.d_period)
+        stoch = StochRSI(self.rsi_period, self.stoch_period, self.k_period, self.d_period)
         k_values = []
         d_values = []
         

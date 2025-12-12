@@ -1,4 +1,14 @@
-### 2741654 - feat: Implement Strategy Profile and Iteration Tagging (21 seconds ago)
+### d616ce0 - feat: Optimize StochRSIMeanReversion and Refine Report (12 seconds ago)
+
+Detailed Changes:
+- Fixed bug in StochRSI indicator where 'rsi_period' was ignored (decoupled from stoch_period).
+- Ran Iterations 2-5 for StochRSIMeanReversion on SPY (2020-2025).
+- Identified Iteration 5 (RSI Period 7) as the new Champion (17.15% Return).
+- Updated research_insights.md to display 'Timeframe' in Strategy Profile.
+- Verified automatic promotion of winning iterations in the report.
+
+---
+### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (30 minutes ago)
 
 Detailed Changes:
 - Implemented 'Strategy Profile' view in research_insights.md with risk metrics (Time in DD, Stability).
@@ -20,7 +30,7 @@ Detailed Findings:
 - Confirmed system is ready for 'research.db' reset.
 
 ---
-### 96f9815 - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (9 hours ago)
+### 96f9815 - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (10 hours ago)
 
 Detailed Findings:
 - Implemented Hybrid Layout: Groups insights by Strategy/Symbol, shows Best Backtest (Theory) vs Reality Check (Forward Test).
@@ -45,7 +55,7 @@ Detailed Findings:
 - Restored recent_history.md with last 20 commits including bodies.
 
 ---
-### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (29 hours ago)
+### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (30 hours ago)
 
 - Implemented dynamic FIFO PnL calculation in analyze_results.py to fix 0.00% return issue.
 - Added 'Reality Gap' (Delta) metric to research_insights.md to compare Theory vs Reality.
@@ -53,7 +63,7 @@ Detailed Findings:
 - Updated System Manual and Walkthrough.
 
 ---
-### f32fec1 - feat: Implement Forward Test Analysis Pipeline (29 hours ago)
+### f32fec1 - feat: Implement Forward Test Analysis Pipeline (30 hours ago)
 
 Detailed Findings:
 - Implemented 'Theory vs Reality' feedback loop in analyze_results.py.
@@ -103,7 +113,7 @@ Detailed Findings:
 - Ensured memory remains concise and relevant for future sessions.
 
 ---
-### 8a4b881 - [Feat]: Implemented Unified Memory System (2 days ago)
+### 8a4b881 - [Feat]: Implemented Unified Memory System (3 days ago)
 
 Detailed Findings:
 - Extended 'Critic' agent to include 'update_system_manual' method.

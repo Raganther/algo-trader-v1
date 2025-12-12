@@ -3,12 +3,13 @@ import numpy as np
 from backend.indicators.rsi import RSI
 
 class StochRSI:
-    def __init__(self, period: int = 14, smooth_k: int = 3, smooth_d: int = 3):
-        self.period = period
+    def __init__(self, rsi_period: int = 14, stoch_period: int = 14, smooth_k: int = 3, smooth_d: int = 3):
+        self.rsi_period = rsi_period
+        self.stoch_period = stoch_period
         self.smooth_k = smooth_k
         self.smooth_d = smooth_d
         
-        self.rsi = RSI(period)
+        self.rsi = RSI(rsi_period)
         self.rsi_history = [] # Need history for Min/Max
         self.stoch_rsi_raw = [] # Need history for K
         self.k_values = [] # Need history for D
@@ -24,10 +25,10 @@ class StochRSI:
             return
 
         self.rsi_history.append(self.rsi.value)
-        if len(self.rsi_history) > self.period:
+        if len(self.rsi_history) > self.stoch_period:
             self.rsi_history.pop(0)
             
-        if len(self.rsi_history) == self.period:
+        if len(self.rsi_history) == self.stoch_period:
             min_rsi = min(self.rsi_history)
             max_rsi = max(self.rsi_history)
             
