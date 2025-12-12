@@ -1,0 +1,71 @@
+//@version=5
+strategy("StochRSI Mean Reversion [AlgoTrader]", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=100)
+
+// --- Parameters ---
+rsiPeriod = input.int(14, "RSI Period")
+stochPeriod = input.int(14, "Stoch Period")
+kPeriod = input.int(3, "K Period")
+dPeriod = input.int(3, "D Period")
+adxPeriod = input.int(14, "ADX Period")
+adxThreshold = input.int(20, "ADX Threshold (Max)")
+slAtrMultiplier = input.float(3.0, "Stop Loss ATR Multiplier")
+atrPeriod = input.int(14, "ATR Period")
+
+// --- Indicators ---
+// Stoch RSI
+rsiVal = ta.rsi(close, rsiPeriod)
+stochK = ta.sma(ta.stoch(rsiVal, rsiVal, rsiVal, stochPeriod), kPeriod)
+stochD = ta.sma(stochK, dPeriod)
+
+// ADX
+[diplus, diminus, adxVal] = ta.dmi(adxPeriod, adxPeriod)
+
+// ATR
+atrVal = ta.atr(atrPeriod)
+
+// --- Logic ---
+// State Tracking (using var to persist across bars)
+var bool inOversoldZone = false
+var bool inOverboughtZone = false
+
+// Update State
+if stochK < 20
+    inOversoldZone := true
+if stochK > 50
+    inOversoldZone := false
+
+if stochK > 80
+    inOverboughtZone := true
+if stochK < 50
+    inOverboughtZone := false
+
+// Entry Conditions
+longCondition = inOversoldZone[1] and stochK > 50 and adxVal < adxThreshold
+shortCondition = inOverboughtZone[1] and stochK < 50 and adxVal < adxThreshold
+
+// Exit Conditions
+longExit = stochK > 80
+shortExit = stochK < 20
+
+// --- Execution ---
+if (longCondition)
+    strategy.entry("Long", strategy.long)
+    // Set Stop Loss
+    stopLevel = close - (atrVal * slAtrMultiplier)
+    strategy.exit("SL Long", "Long", stop=stopLevel)
+
+if (shortCondition)
+    strategy.entry("Short", strategy.short)
+    // Set Stop Loss
+    stopLevel = close + (atrVal * slAtrMultiplier)
+    strategy.exit("SL Short", "Short", stop=stopLevel)
+
+if (longExit)
+    strategy.close("Long", comment="Exit Signal")
+
+if (shortExit)
+    strategy.close("Short", comment="Exit Signal")
+
+// --- Plotting ---
+plot(adxVal, "ADX", color=color.orange)
+hline(adxThreshold, "ADX Threshold", color=color.red)

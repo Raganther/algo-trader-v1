@@ -1,10 +1,29 @@
-### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (12 seconds ago)
+### 4551aef - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (10 seconds ago)
+
+Detailed Findings:
+- Implemented Hybrid Layout: Groups insights by Strategy/Symbol, shows Best Backtest (Theory) vs Reality Check (Forward Test).
+- Fixed Win Rate Scaling: Corrected bug where win rates were displayed as 5000% (now 50.0%).
+- Fixed Session Sorting: Live sessions are now sorted chronologically, ensuring the 'Latest' header matches the actual last session.
+- Fixed Missing Metrics: Injected return/win_rate into insight parameters to prevent 0.00% display.
+- Validated RapidFireTest: Confirmed correct 'Reality Gap' calculation (-16.0% gap for latest session).
+- Prep: Ready for full database reset.
+
+---
+### 91110bc - fix: Improve Alpaca connection stability and refine analysis (17 hours ago)
+
+- Implemented exponential backoff retry logic in LiveBroker.refresh() to handle RemoteDisconnected errors.
+- Updated analyze_results.py to compare Win Rate instead of Return for Reality Check.
+- Fixed database persistence issue for Insight parameters (win_rate).
+- Updated System Manual.
+
+---
+### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (20 hours ago)
 
 - Recreated .agent/scripts/update_memory.sh to maintain detailed git log history.
 - Restored recent_history.md with last 20 commits including bodies.
 
 ---
-### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (3 minutes ago)
+### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (20 hours ago)
 
 - Implemented dynamic FIFO PnL calculation in analyze_results.py to fix 0.00% return issue.
 - Added 'Reality Gap' (Delta) metric to research_insights.md to compare Theory vs Reality.
@@ -12,7 +31,7 @@
 - Updated System Manual and Walkthrough.
 
 ---
-### f32fec1 - feat: Implement Forward Test Analysis Pipeline (29 minutes ago)
+### f32fec1 - feat: Implement Forward Test Analysis Pipeline (20 hours ago)
 
 Detailed Findings:
 - Implemented 'Theory vs Reality' feedback loop in analyze_results.py.
@@ -22,11 +41,11 @@ Detailed Findings:
 - Fixed path mismatch for research_insights.md.
 
 ---
-### a091eb1 - [Docs]: Update project memory and insights (18 hours ago)
+### a091eb1 - [Docs]: Update project memory and insights (2 days ago)
 
 
 ---
-### ba2878e - [Fix]: Verified Live Trading & Logging Pipeline (24 hours ago)
+### ba2878e - [Fix]: Verified Live Trading & Logging Pipeline (2 days ago)
 
 Detailed Findings:
 - Fixed 'LiveBroker' to include 'spread' in trade logs.
@@ -36,7 +55,7 @@ Detailed Findings:
 - Added Pine Scripts for TradingView verification.
 
 ---
-### a1721d9 - [Fix]: Enabled Live Trading Logger in CLI (26 hours ago)
+### a1721d9 - [Fix]: Enabled Live Trading Logger in CLI (2 days ago)
 
 Detailed Findings:
 - Updated 'backend/runner.py' to use 'LiveBroker' and 'DatabaseManager' for the 'trade' command.
@@ -44,7 +63,7 @@ Detailed Findings:
 - Verified that 'RapidFireTest' runs via CLI and logs trades to 'research.db' with unique Session IDs.
 
 ---
-### fbd37cb - [Feat]: Implemented Live Trading Logger (28 hours ago)
+### fbd37cb - [Feat]: Implemented Live Trading Logger (2 days ago)
 
 Detailed Findings:
 - Added 'live_trade_log' table to 'research.db' for persistent forward test verification.
@@ -53,7 +72,7 @@ Detailed Findings:
 - Integrated 'DatabaseManager' into 'paper_runner.py' to auto-save all live trades.
 
 ---
-### ed3db10 - [Refactor]: Optimized System Manual and Memory Logic (29 hours ago)
+### ed3db10 - [Refactor]: Optimized System Manual and Memory Logic (2 days ago)
 
 Detailed Findings:
 - Refactored 'system_manual.md' to 5 essential sections, removing 50% of bloat.
@@ -62,7 +81,7 @@ Detailed Findings:
 - Ensured memory remains concise and relevant for future sessions.
 
 ---
-### 8a4b881 - [Feat]: Implemented Unified Memory System (30 hours ago)
+### 8a4b881 - [Feat]: Implemented Unified Memory System (2 days ago)
 
 Detailed Findings:
 - Extended 'Critic' agent to include 'update_system_manual' method.
@@ -71,7 +90,7 @@ Detailed Findings:
 - Verified that 'system_manual.md' is automatically updated with recent system changes.
 
 ---
-### 0b3bb72 - [Feat]: Verified Strategy Factory & Fixed Execution Pipeline (2 days ago)
+### 0b3bb72 - [Feat]: Verified Strategy Factory & Fixed Execution Pipeline (3 days ago)
 
 Detailed Findings:
 - Verified 'Strategy Factory' capability by creating and backtesting 'AGoldenCross' on BTC/USD.
@@ -80,7 +99,7 @@ Detailed Findings:
 - Confirmed that the Agent can now autonomously create, register, and verify new strategies on supported assets (Stocks/Crypto).
 
 ---
-### e6b5599 - [Feat]: Implemented Strategy Factory (Agent Upgrade) (2 days ago)
+### e6b5599 - [Feat]: Implemented Strategy Factory (Agent Upgrade) (3 days ago)
 
 Detailed Progress:
 - Created 'StrategyGenerator' (backend/agent/strategy_generator.py) to write strategy code from templates.
@@ -90,7 +109,7 @@ Detailed Progress:
 - Current Status: Verification backtest for 'AGoldenCross' is failing. Needs debugging of the generated strategy or import process.
 
 ---
-### 4febfae - [Feat]: Verified Live Trading Pipeline (RapidFireTest) (2 days ago)
+### 4febfae - [Feat]: Verified Live Trading Pipeline (RapidFireTest) (3 days ago)
 
 Detailed Findings:
 - Successfully executed a full Buy -> Sell loop on BTC/USD (1m).
@@ -101,11 +120,11 @@ Detailed Findings:
 - Updated System Manual with verified commands.
 
 ---
-### 3d7701e - Implement RapidFireTest strategy and fix Alpaca integration (2 days ago)
+### 3d7701e - Implement RapidFireTest strategy and fix Alpaca integration (3 days ago)
 
 
 ---
-### ea2ea0d - Initial commit: Gemini 3 Trading Bot (2 days ago)
+### ea2ea0d - Initial commit: Gemini 3 Trading Bot (3 days ago)
 
 
 ---
