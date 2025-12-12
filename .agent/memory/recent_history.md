@@ -1,4 +1,14 @@
-### 5d37ae8 - Refactor: System Cleanup and Redundancy Removal (13 seconds ago)
+### 2741654 - feat: Implement Strategy Profile and Iteration Tagging (21 seconds ago)
+
+Detailed Changes:
+- Implemented 'Strategy Profile' view in research_insights.md with risk metrics (Time in DD, Stability).
+- Added 'iteration_index' to test_runs table in research.db for better versioning.
+- Updated runner.py to auto-increment iteration index for new runs.
+- Refactored analyze_results.py to display 'Best Config' and 'Iteration History'.
+- Ran Matrix Backtest for StochRSIMeanReversion (Iteration 1) on SPY (2020-2025).
+
+---
+### debdf95 - Refactor: System Cleanup and Redundancy Removal (8 hours ago)
 
 Detailed Findings:
 - Deleted 'backend/paper_runner.py' (Redundant legacy script).
@@ -10,7 +20,7 @@ Detailed Findings:
 - Confirmed system is ready for 'research.db' reset.
 
 ---
-### 96f9815 - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (2 hours ago)
+### 96f9815 - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (9 hours ago)
 
 Detailed Findings:
 - Implemented Hybrid Layout: Groups insights by Strategy/Symbol, shows Best Backtest (Theory) vs Reality Check (Forward Test).
@@ -21,7 +31,7 @@ Detailed Findings:
 - Prep: Ready for full database reset.
 
 ---
-### 91110bc - fix: Improve Alpaca connection stability and refine analysis (19 hours ago)
+### 91110bc - fix: Improve Alpaca connection stability and refine analysis (27 hours ago)
 
 - Implemented exponential backoff retry logic in LiveBroker.refresh() to handle RemoteDisconnected errors.
 - Updated analyze_results.py to compare Win Rate instead of Return for Reality Check.
@@ -29,13 +39,13 @@ Detailed Findings:
 - Updated System Manual.
 
 ---
-### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (21 hours ago)
+### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (29 hours ago)
 
 - Recreated .agent/scripts/update_memory.sh to maintain detailed git log history.
 - Restored recent_history.md with last 20 commits including bodies.
 
 ---
-### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (21 hours ago)
+### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (29 hours ago)
 
 - Implemented dynamic FIFO PnL calculation in analyze_results.py to fix 0.00% return issue.
 - Added 'Reality Gap' (Delta) metric to research_insights.md to compare Theory vs Reality.
@@ -43,7 +53,7 @@ Detailed Findings:
 - Updated System Manual and Walkthrough.
 
 ---
-### f32fec1 - feat: Implement Forward Test Analysis Pipeline (22 hours ago)
+### f32fec1 - feat: Implement Forward Test Analysis Pipeline (29 hours ago)
 
 Detailed Findings:
 - Implemented 'Theory vs Reality' feedback loop in analyze_results.py.

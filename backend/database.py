@@ -31,9 +31,16 @@ class DatabaseManager:
                 win_rate REAL,
                 total_trades INTEGER,
                 parameters TEXT, -- JSON string
-                timestamp TEXT
+                timestamp TEXT,
+                iteration_index INTEGER DEFAULT 0
             )
         ''')
+        
+        # Migration: Add column if missing
+        try:
+            cursor.execute('ALTER TABLE test_runs ADD COLUMN iteration_index INTEGER DEFAULT 0')
+        except sqlite3.OperationalError:
+            pass # Column likely exists
         
         # 2. Equity Curves Table (Heavy Data)
         # Linked by test_id
@@ -84,6 +91,24 @@ class DatabaseManager:
         conn.close()
         print("Database initialized.")
 
+    def get_next_iteration_index(self, strategy, symbol):
+        """Calculates the next iteration index for a strategy/symbol pair."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute('''
+                SELECT MAX(iteration_index) FROM test_runs 
+                WHERE strategy = ? AND symbol = ?
+            ''', (strategy, symbol))
+            result = cursor.fetchone()
+            current_max = result[0] if result and result[0] is not None else 0
+            return current_max + 1
+        except Exception as e:
+            print(f"Error getting iteration index: {e}")
+            return 1
+        finally:
+            conn.close()
+
     def save_test_run(self, data):
         """Saves a test run dictionary (as produced by runner.py) to the DB."""
         conn = self.get_connection()
@@ -106,12 +131,14 @@ class DatabaseManager:
             year = data.get('year', '2023')
             end_date = f"{year}-12-31"
 
+            end_date = f"{year}-12-31"
+
         try:
             cursor.execute('''
                 INSERT OR REPLACE INTO test_runs (
                     test_id, strategy, symbol, timeframe, start_date, end_date,
-                    return_pct, max_drawdown, win_rate, total_trades, parameters, timestamp
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    return_pct, max_drawdown, win_rate, total_trades, parameters, timestamp, iteration_index
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 data['test_id'],
                 data['strategy'],
@@ -124,7 +151,8 @@ class DatabaseManager:
                 metrics.get('win_rate', 0.0),
                 metrics.get('total_trades', 0),
                 params,
-                datetime.now().isoformat()
+                datetime.now().isoformat(),
+                data.get('iteration_index', 0)
             ))
             
             # Insert into equity_curves

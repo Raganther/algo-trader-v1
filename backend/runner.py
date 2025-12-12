@@ -245,6 +245,10 @@ def run_backtest(args):
     db = DatabaseManager()
     db.initialize_db()
     
+    # Get Next Iteration Index (Global for this run)
+    iteration_index = db.get_next_iteration_index(args.strategy, args.symbol)
+    print(f"Starting Iteration {iteration_index} for {args.strategy}...")
+    
     # If multi-year, split into yearly segments
     if end_year > start_year:
         print(f"\nSplitting into yearly segments ({start_year}-{end_year})...")
@@ -298,6 +302,10 @@ def run_backtest(args):
                                 if trade_year == year:
                                     if trade['pnl'] > 0: year_win += 1
                                     else: year_loss += 1
+                            elif isinstance(ts_val, pd.Timestamp):
+                                if ts_val.year == year:
+                                    if trade['pnl'] > 0: year_win += 1
+                                    else: year_loss += 1
                         except:
                             pass
                 
@@ -312,8 +320,8 @@ def run_backtest(args):
                         "equity": row['equity']
                     })
                 
-                # Build test_id
-                test_id = f"{args.strategy}_{args.symbol}_{args.timeframe}_{year}"
+                # Build test_id with Iteration
+                test_id = f"{args.strategy}_{args.symbol}_{args.timeframe}_{year}_v{iteration_index}"
                 strategy_name = args.strategy
                 if args.tag:
                     test_id += f"_{args.tag}"
@@ -333,15 +341,16 @@ def run_backtest(args):
                         "win_rate": round(win_rate, 2),
                         "equity_curve": slice_curve
                     },
-                    "parameters": params
+                    "parameters": params,
+                    "iteration_index": iteration_index
                 }
                 db.save_test_run(output)
-                print(f"  {year}: {year_return_pct:.2f}% Return, {year_max_dd:.2f}% DD, {total_trades} Trades")
+                print(f"  {year}: {year_return_pct:.2f}% Return, {year_max_dd:.2f}% DD, {total_trades} Trades (Iter {iteration_index})")
         
         print(f"Saved {end_year - start_year + 1} yearly records to database.")
     else:
         # Single year - save as before
-        test_id = f"{args.strategy}_{args.symbol}_{args.timeframe}_{start_year}"
+        test_id = f"{args.strategy}_{args.symbol}_{args.timeframe}_{start_year}_v{iteration_index}"
         strategy_name = args.strategy
         
         if args.tag:
@@ -356,7 +365,8 @@ def run_backtest(args):
             "start": args.start,
             "end": args.end,
             "metrics": results,
-            "parameters": params
+            "parameters": params,
+            "iteration_index": iteration_index
         }
         db.save_test_run(output)
         print(f"Results saved to SQLite Database.")
