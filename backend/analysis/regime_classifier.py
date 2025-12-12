@@ -31,7 +31,7 @@ class RegimeClassifier:
         - RANGING: ADX < Threshold
         - VOLATILE: ATR % > Volatility Threshold (Overrides others if extreme)
         """
-        if 'adx' not in self.data.columns:
+        if 'adx' not in self.data.columns or 'atr_pct' not in self.data.columns:
             self.calculate_indicators()
             
         def get_regime(row):

@@ -1,4 +1,14 @@
-### cbe5d30 - feat: Regime Switching Research and Analysis (28 seconds ago)
+### 0000732 - feat: Hybrid Strategy Development (Failed) (63 seconds ago)
+
+Detailed Changes:
+- Implemented HybridRegimeV2 (StochRSI + Donchian + RegimeClassifier).
+- Backtested on IWM (15m, 2020-2025).
+- Result: -76% Return (Failed).
+- Updated research_insights.md with results.
+- Fixed bugs in RegimeClassifier and runner.py.
+
+---
+### 759473a - feat: Regime Switching Research and Analysis (19 minutes ago)
 
 Detailed Changes:
 - Implemented RegimeClassifier (ADX, ATR, SMA) in backend/analysis/regime_classifier.py.
@@ -9,7 +19,7 @@ Detailed Changes:
 - Fixed AlpacaDataLoader import and usage in scan_regimes.py.
 
 ---
-### 1f902d1 - feat: Cross-Asset Validation and Trend Strategy Research (60 minutes ago)
+### 1f902d1 - feat: Cross-Asset Validation and Trend Strategy Research (80 minutes ago)
 
 Detailed Changes:
 - Conducted Cross-Asset Validation for StochRSIMeanReversion on QQQ, IWM, DIA.
@@ -29,7 +39,7 @@ Detailed Changes:
 - Marked 'Refine Report' as complete in task.md.
 
 ---
-### 15b354f - feat: Timeframe Analysis for StochRSIMeanReversion (2 hours ago)
+### 15b354f - feat: Timeframe Analysis for StochRSIMeanReversion (3 hours ago)
 
 Detailed Changes:
 - Conducted Timeframe Analysis for StochRSIMeanReversion (SPY, 2020-2025).
@@ -48,7 +58,7 @@ Detailed Changes:
 - Verified automatic promotion of winning iterations in the report.
 
 ---
-### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (3 hours ago)
+### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (4 hours ago)
 
 Detailed Changes:
 - Implemented 'Strategy Profile' view in research_insights.md with risk metrics (Time in DD, Stability).
@@ -89,13 +99,13 @@ Detailed Findings:
 - Updated System Manual.
 
 ---
-### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (32 hours ago)
+### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (33 hours ago)
 
 - Recreated .agent/scripts/update_memory.sh to maintain detailed git log history.
 - Restored recent_history.md with last 20 commits including bodies.
 
 ---
-### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (32 hours ago)
+### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (33 hours ago)
 
 - Implemented dynamic FIFO PnL calculation in analyze_results.py to fix 0.00% return issue.
 - Added 'Reality Gap' (Delta) metric to research_insights.md to compare Theory vs Reality.
@@ -169,15 +179,5 @@ Detailed Findings:
 - Fixed 'Strategy' base class to include 'place_order' method, enabling generated strategies to execute.
 - Updated 'PaperTrader' and 'AlpacaTrader' with helper methods ('get_position', 'get_cash') to match the robust 'RapidFireTest' template.
 - Confirmed that the Agent can now autonomously create, register, and verify new strategies on supported assets (Stocks/Crypto).
-
----
-### e6b5599 - [Feat]: Implemented Strategy Factory (Agent Upgrade) (3 days ago)
-
-Detailed Progress:
-- Created 'StrategyGenerator' (backend/agent/strategy_generator.py) to write strategy code from templates.
-- Created 'StrategyRegistrar' (backend/agent/registrar.py) to auto-register strategies in runner.py.
-- Upgraded 'ResearcherAgent' and 'Planner' to handle 'Create' intent.
-- Fixed SyntaxError in runner.py caused by Registrar insertion logic.
-- Current Status: Verification backtest for 'AGoldenCross' is failing. Needs debugging of the generated strategy or import process.
 
 ---

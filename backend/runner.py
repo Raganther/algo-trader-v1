@@ -137,7 +137,14 @@ def run_backtest(args):
         from backend.strategies.stoch_rsi_sniper import StochRSISniperStrategy
         STRATEGY_MAP['StochRSISniper'] = StochRSISniperStrategy
     except ImportError:
-        pass # File might not exist yet
+        pass 
+
+    # Import HybridRegimeV2
+    try:
+        from backend.strategies.hybrid_regime_v2 import HybridRegimeV2
+        STRATEGY_MAP['HybridRegimeV2'] = HybridRegimeV2
+    except ImportError:
+        pass
         
     strategy_class = STRATEGY_MAP.get(args.strategy)
     if not strategy_class:

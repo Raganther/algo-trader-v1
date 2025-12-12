@@ -199,7 +199,37 @@
 
 ---
 
-## 7. RapidFireTest on BTC/USD
+## 7. HybridRegimeV2 on IWM
+> **Status**: 🟢 Verified Strategy | **Stability**: Low (Score: -2.3)
+
+### 📊 Strategy Profile (Iteration 1)
+| Metric | Value | Notes |
+| :--- | :--- | :--- |
+| **Total Return** | **-76.70%** | Cumulative (6 Years) |
+| **Avg Annual** | **-21.03%** | Mean of yearly returns |
+| **Win Rate** | **31.3%** | Avg across years |
+| **Max Drawdown** | **77.72%** | Global Worst Case |
+| **Time in DD** | **100%** | % Time Underwater |
+| **Timeframe** | **15m** | Candle Size |
+| **Best Config** | `{}` | Winning Parameters |
+
+### 📉 Risk Analysis
+- **Longest Dry Spell**: 0 Days
+- **Worst Year**: 2023 (-33.24%)
+
+### 🗓️ Yearly Breakdown
+| Year | Return | Win Rate | DD | Trades |
+| :--- | :--- | :--- | :--- | :--- |
+| 2025 | -18.55% | 0.0% | 26.73% | 0 |
+| 2024 | -3.22% | 0.0% | 13.71% | 0 |
+| 2023 | -33.24% | 53.0% | 36.30% | 239 |
+| 2022 | -22.90% | 45.0% | 29.37% | 749 |
+| 2021 | -27.49% | 45.0% | 31.27% | 785 |
+| 2020 | -20.79% | 45.0% | 22.42% | 321 |
+
+---
+
+## 8. RapidFireTest on BTC/USD
 > **Status**: 🟡 Watchlist Candidate | **Stability**: High (Score: 12.4)
 
 ### 📊 Strategy Profile (Iteration 0)
@@ -225,27 +255,3 @@
 
 ---
 
----
-
-## 8. Market Regime Analysis (Quantitative)
-> **Status**: 🔬 Research Phase | **Goal**: Map Strategy Performance to Market Conditions
-
-### 🔍 Regime Classification (2020-2025)
-We used an automated `RegimeClassifier` (ADX, ATR, SMA) to segment the market history.
-
-#### **IWM (The Range Monster)**
-- **Dominant Regime**: `VOLATILE_RANGE` (High Volatility, No Trend).
-- **Key Insight**: From **Aug 2022 to Apr 2023**, IWM was in a continuous "Volatile Range" for **165 trading days**.
-- **Correlation**: This perfectly aligns with `StochRSIMeanReversion`'s exceptional performance in 2022 (+35.14%). The strategy thrives in this specific regime.
-
-#### **SPY (The Trend Setter)**
-- **Dominant Regime**: `TRENDING_UP` (Strong ADX, Price > SMA 200).
-- **Key Insight**: SPY spent most of 2020, 2021, 2023, and 2024 in a "Trending Up" state.
-- **Correlation**: `StochRSIMeanReversion` still worked (54% return), but likely missed the "easy" buy-and-hold gains during the strongest trends.
-
-### 💡 Hybrid Strategy Hypothesis
-If we can detect the switch from `TRENDING_UP` to `VOLATILE_RANGE` in real-time, we can switch strategies:
-1.  **Regime = TRENDING**: Deploy `DonchianBreakout` (or Buy & Hold).
-2.  **Regime = RANGING**: Deploy `StochRSIMeanReversion`.
-
----
