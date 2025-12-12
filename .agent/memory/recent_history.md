@@ -1,4 +1,16 @@
-### 4551aef - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (10 seconds ago)
+### 5d37ae8 - Refactor: System Cleanup and Redundancy Removal (13 seconds ago)
+
+Detailed Findings:
+- Deleted 'backend/paper_runner.py' (Redundant legacy script).
+- Deleted 'backend/run_live_strategy.py' (Redundant legacy script).
+- Deleted 'backend/database.sqlite' (Redundant old DB).
+- Deleted 'results.db' (Redundant artifact).
+- Verified 'runner.py' handles all Backtest/Matrix/Trade functions.
+- Verified 'backend/engine/backtester.py' supports CSV backtesting independently of Alpaca.
+- Confirmed system is ready for 'research.db' reset.
+
+---
+### 96f9815 - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (2 hours ago)
 
 Detailed Findings:
 - Implemented Hybrid Layout: Groups insights by Strategy/Symbol, shows Best Backtest (Theory) vs Reality Check (Forward Test).
@@ -9,7 +21,7 @@ Detailed Findings:
 - Prep: Ready for full database reset.
 
 ---
-### 91110bc - fix: Improve Alpaca connection stability and refine analysis (17 hours ago)
+### 91110bc - fix: Improve Alpaca connection stability and refine analysis (19 hours ago)
 
 - Implemented exponential backoff retry logic in LiveBroker.refresh() to handle RemoteDisconnected errors.
 - Updated analyze_results.py to compare Win Rate instead of Return for Reality Check.
@@ -17,13 +29,13 @@ Detailed Findings:
 - Updated System Manual.
 
 ---
-### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (20 hours ago)
+### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (21 hours ago)
 
 - Recreated .agent/scripts/update_memory.sh to maintain detailed git log history.
 - Restored recent_history.md with last 20 commits including bodies.
 
 ---
-### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (20 hours ago)
+### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (21 hours ago)
 
 - Implemented dynamic FIFO PnL calculation in analyze_results.py to fix 0.00% return issue.
 - Added 'Reality Gap' (Delta) metric to research_insights.md to compare Theory vs Reality.
@@ -31,7 +43,7 @@ Detailed Findings:
 - Updated System Manual and Walkthrough.
 
 ---
-### f32fec1 - feat: Implement Forward Test Analysis Pipeline (20 hours ago)
+### f32fec1 - feat: Implement Forward Test Analysis Pipeline (22 hours ago)
 
 Detailed Findings:
 - Implemented 'Theory vs Reality' feedback loop in analyze_results.py.
