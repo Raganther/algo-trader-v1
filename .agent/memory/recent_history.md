@@ -1,4 +1,15 @@
-### 1a96531 - feat: Cross-Asset Validation and Trend Strategy Research (21 seconds ago)
+### cbe5d30 - feat: Regime Switching Research and Analysis (28 seconds ago)
+
+Detailed Changes:
+- Implemented RegimeClassifier (ADX, ATR, SMA) in backend/analysis/regime_classifier.py.
+- Created scan_regimes.py to map historical market conditions.
+- Analyzed regimes for SPY, QQQ, IWM (2020-2025).
+- Confirmed correlation between IWM Volatile Range and StochRSI performance.
+- Updated research_insights.md with Market Regime Analysis.
+- Fixed AlpacaDataLoader import and usage in scan_regimes.py.
+
+---
+### 1f902d1 - feat: Cross-Asset Validation and Trend Strategy Research (60 minutes ago)
 
 Detailed Changes:
 - Conducted Cross-Asset Validation for StochRSIMeanReversion on QQQ, IWM, DIA.
@@ -9,7 +20,7 @@ Detailed Changes:
 - Updated research_insights.md with new strategy profiles.
 
 ---
-### c481d43 - feat: Refine Report with Full Configuration (37 minutes ago)
+### c481d43 - feat: Refine Report with Full Configuration (2 hours ago)
 
 Detailed Changes:
 - Updated runner.py to include default parameters for StochRSIMeanReversion.
@@ -18,7 +29,7 @@ Detailed Changes:
 - Marked 'Refine Report' as complete in task.md.
 
 ---
-### 15b354f - feat: Timeframe Analysis for StochRSIMeanReversion (73 minutes ago)
+### 15b354f - feat: Timeframe Analysis for StochRSIMeanReversion (2 hours ago)
 
 Detailed Changes:
 - Conducted Timeframe Analysis for StochRSIMeanReversion (SPY, 2020-2025).
@@ -27,7 +38,7 @@ Detailed Changes:
 - Updated research_insights.md to reflect the new Champion and history.
 
 ---
-### 126d26c - feat: Optimize StochRSIMeanReversion and Refine Report (2 hours ago)
+### 126d26c - feat: Optimize StochRSIMeanReversion and Refine Report (3 hours ago)
 
 Detailed Changes:
 - Fixed bug in StochRSI indicator where 'rsi_period' was ignored (decoupled from stoch_period).
@@ -37,7 +48,7 @@ Detailed Changes:
 - Verified automatic promotion of winning iterations in the report.
 
 ---
-### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (2 hours ago)
+### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (3 hours ago)
 
 Detailed Changes:
 - Implemented 'Strategy Profile' view in research_insights.md with risk metrics (Time in DD, Stability).
@@ -47,7 +58,7 @@ Detailed Changes:
 - Ran Matrix Backtest for StochRSIMeanReversion (Iteration 1) on SPY (2020-2025).
 
 ---
-### debdf95 - Refactor: System Cleanup and Redundancy Removal (10 hours ago)
+### debdf95 - Refactor: System Cleanup and Redundancy Removal (11 hours ago)
 
 Detailed Findings:
 - Deleted 'backend/paper_runner.py' (Redundant legacy script).
@@ -59,7 +70,7 @@ Detailed Findings:
 - Confirmed system is ready for 'research.db' reset.
 
 ---
-### 96f9815 - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (12 hours ago)
+### 96f9815 - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (13 hours ago)
 
 Detailed Findings:
 - Implemented Hybrid Layout: Groups insights by Strategy/Symbol, shows Best Backtest (Theory) vs Reality Check (Forward Test).
@@ -70,7 +81,7 @@ Detailed Findings:
 - Prep: Ready for full database reset.
 
 ---
-### 91110bc - fix: Improve Alpaca connection stability and refine analysis (29 hours ago)
+### 91110bc - fix: Improve Alpaca connection stability and refine analysis (30 hours ago)
 
 - Implemented exponential backoff retry logic in LiveBroker.refresh() to handle RemoteDisconnected errors.
 - Updated analyze_results.py to compare Win Rate instead of Return for Reality Check.
@@ -78,13 +89,13 @@ Detailed Findings:
 - Updated System Manual.
 
 ---
-### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (31 hours ago)
+### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (32 hours ago)
 
 - Recreated .agent/scripts/update_memory.sh to maintain detailed git log history.
 - Restored recent_history.md with last 20 commits including bodies.
 
 ---
-### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (31 hours ago)
+### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (32 hours ago)
 
 - Implemented dynamic FIFO PnL calculation in analyze_results.py to fix 0.00% return issue.
 - Added 'Reality Gap' (Delta) metric to research_insights.md to compare Theory vs Reality.
@@ -92,7 +103,7 @@ Detailed Findings:
 - Updated System Manual and Walkthrough.
 
 ---
-### f32fec1 - feat: Implement Forward Test Analysis Pipeline (32 hours ago)
+### f32fec1 - feat: Implement Forward Test Analysis Pipeline (33 hours ago)
 
 Detailed Findings:
 - Implemented 'Theory vs Reality' feedback loop in analyze_results.py.
@@ -124,7 +135,7 @@ Detailed Findings:
 - Verified that 'RapidFireTest' runs via CLI and logs trades to 'research.db' with unique Session IDs.
 
 ---
-### fbd37cb - [Feat]: Implemented Live Trading Logger (2 days ago)
+### fbd37cb - [Feat]: Implemented Live Trading Logger (3 days ago)
 
 Detailed Findings:
 - Added 'live_trade_log' table to 'research.db' for persistent forward test verification.
@@ -168,16 +179,5 @@ Detailed Progress:
 - Upgraded 'ResearcherAgent' and 'Planner' to handle 'Create' intent.
 - Fixed SyntaxError in runner.py caused by Registrar insertion logic.
 - Current Status: Verification backtest for 'AGoldenCross' is failing. Needs debugging of the generated strategy or import process.
-
----
-### 4febfae - [Feat]: Verified Live Trading Pipeline (RapidFireTest) (3 days ago)
-
-Detailed Findings:
-- Successfully executed a full Buy -> Sell loop on BTC/USD (1m).
-- Fixed Critical Bug: 'Position Blindness' (AlpacaTrader.get_position was returning 0.0 due to symbol mismatch).
-- Fixed Critical Bug: 'Symbol Mismatch' (Alpaca requires 'BTCUSD' but Strategy used 'BTC/USD'). Added sanitization in get_position and place_order.
-- Validated Execution: 5/6 trades matched TradingView signals perfectly.
-- Identified Data Feed Variance: One sell signal missed due to slight price difference between IEX and Coinbase.
-- Updated System Manual with verified commands.
 
 ---

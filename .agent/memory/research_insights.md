@@ -225,3 +225,27 @@
 
 ---
 
+---
+
+## 8. Market Regime Analysis (Quantitative)
+> **Status**: 🔬 Research Phase | **Goal**: Map Strategy Performance to Market Conditions
+
+### 🔍 Regime Classification (2020-2025)
+We used an automated `RegimeClassifier` (ADX, ATR, SMA) to segment the market history.
+
+#### **IWM (The Range Monster)**
+- **Dominant Regime**: `VOLATILE_RANGE` (High Volatility, No Trend).
+- **Key Insight**: From **Aug 2022 to Apr 2023**, IWM was in a continuous "Volatile Range" for **165 trading days**.
+- **Correlation**: This perfectly aligns with `StochRSIMeanReversion`'s exceptional performance in 2022 (+35.14%). The strategy thrives in this specific regime.
+
+#### **SPY (The Trend Setter)**
+- **Dominant Regime**: `TRENDING_UP` (Strong ADX, Price > SMA 200).
+- **Key Insight**: SPY spent most of 2020, 2021, 2023, and 2024 in a "Trending Up" state.
+- **Correlation**: `StochRSIMeanReversion` still worked (54% return), but likely missed the "easy" buy-and-hold gains during the strongest trends.
+
+### 💡 Hybrid Strategy Hypothesis
+If we can detect the switch from `TRENDING_UP` to `VOLATILE_RANGE` in real-time, we can switch strategies:
+1.  **Regime = TRENDING**: Deploy `DonchianBreakout` (or Buy & Hold).
+2.  **Regime = RANGING**: Deploy `StochRSIMeanReversion`.
+
+---
