@@ -735,7 +735,21 @@ def worker_task(task_config):
                 "stop_loss_atr": 2.0,
                 "atr_period": 20
             }
-        else:
+        elif strategy_name == "StochRSIMeanReversion":
+            params = {
+                "symbol": symbol,
+                "rsi_period": 14,
+                "stoch_period": 14,
+                "k_period": 3,
+                "d_period": 3,
+                "overbought": 80,
+                "oversold": 20,
+                "adx_period": 14,
+                "adx_threshold": 25,
+                "stop_loss_atr": 2.0,
+                "atr_period": 14
+            }
+        else: # Default parameters for other strategies
             params = {
                 "symbol": symbol,
                 "entry_period": 20,

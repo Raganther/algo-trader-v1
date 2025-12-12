@@ -1,4 +1,13 @@
-### 59feba8 - feat: Timeframe Analysis for StochRSIMeanReversion (24 seconds ago)
+### 6a17548 - feat: Refine Report with Full Configuration (21 seconds ago)
+
+Detailed Changes:
+- Updated runner.py to include default parameters for StochRSIMeanReversion.
+- Updated analyze_results.py to merge default parameters with run parameters for display.
+- Updated research_insights.md to show the full configuration for the Champion Strategy (Iteration 6).
+- Marked 'Refine Report' as complete in task.md.
+
+---
+### 15b354f - feat: Timeframe Analysis for StochRSIMeanReversion (35 minutes ago)
 
 Detailed Changes:
 - Conducted Timeframe Analysis for StochRSIMeanReversion (SPY, 2020-2025).
@@ -7,7 +16,7 @@ Detailed Changes:
 - Updated research_insights.md to reflect the new Champion and history.
 
 ---
-### 126d26c - feat: Optimize StochRSIMeanReversion and Refine Report (36 minutes ago)
+### 126d26c - feat: Optimize StochRSIMeanReversion and Refine Report (71 minutes ago)
 
 Detailed Changes:
 - Fixed bug in StochRSI indicator where 'rsi_period' was ignored (decoupled from stoch_period).
@@ -17,7 +26,7 @@ Detailed Changes:
 - Verified automatic promotion of winning iterations in the report.
 
 ---
-### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (66 minutes ago)
+### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (2 hours ago)
 
 Detailed Changes:
 - Implemented 'Strategy Profile' view in research_insights.md with risk metrics (Time in DD, Stability).
@@ -50,7 +59,7 @@ Detailed Findings:
 - Prep: Ready for full database reset.
 
 ---
-### 91110bc - fix: Improve Alpaca connection stability and refine analysis (28 hours ago)
+### 91110bc - fix: Improve Alpaca connection stability and refine analysis (29 hours ago)
 
 - Implemented exponential backoff retry logic in LiveBroker.refresh() to handle RemoteDisconnected errors.
 - Updated analyze_results.py to compare Win Rate instead of Return for Reality Check.
@@ -58,13 +67,13 @@ Detailed Findings:
 - Updated System Manual.
 
 ---
-### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (30 hours ago)
+### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (31 hours ago)
 
 - Recreated .agent/scripts/update_memory.sh to maintain detailed git log history.
 - Restored recent_history.md with last 20 commits including bodies.
 
 ---
-### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (30 hours ago)
+### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (31 hours ago)
 
 - Implemented dynamic FIFO PnL calculation in analyze_results.py to fix 0.00% return issue.
 - Added 'Reality Gap' (Delta) metric to research_insights.md to compare Theory vs Reality.
@@ -162,10 +171,6 @@ Detailed Findings:
 
 ---
 ### 3d7701e - Implement RapidFireTest strategy and fix Alpaca integration (3 days ago)
-
-
----
-### ea2ea0d - Initial commit: Gemini 3 Trading Bot (3 days ago)
 
 
 ---

@@ -290,6 +290,25 @@ class InsightManager:
             best_config_str = "{}"
             if profile_runs:
                 p = profile_runs[0].get('parameters', {})
+                
+                # Merge with defaults if Strategy is StochRSIMeanReversion
+                if strategy == "StochRSIMeanReversion":
+                    defaults = {
+                        "rsi_period": 14,
+                        "stoch_period": 14,
+                        "k_period": 3,
+                        "d_period": 3,
+                        "overbought": 80,
+                        "oversold": 20,
+                        "adx_period": 14,
+                        "adx_threshold": 25,
+                        "stop_loss_atr": 2.0,
+                        "atr_period": 14
+                    }
+                    # Update defaults with actual params (overrides)
+                    defaults.update(p)
+                    p = defaults
+                
                 # Filter out metadata
                 clean_p = {k:v for k,v in p.items() if k not in ['strategy', 'symbol', 'return_pct', 'win_rate', 'max_drawdown', 'total_trades', 'timeframe', 'year']}
                 best_config_str = json.dumps(clean_p)

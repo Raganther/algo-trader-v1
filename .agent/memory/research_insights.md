@@ -15,7 +15,7 @@
 | **Max Drawdown** | **11.61%** | Global Worst Case |
 | **Time in DD** | **89%** | % Time Underwater |
 | **Timeframe** | **15m** | Candle Size |
-| **Best Config** | `{"rsi_period": 7}` | Winning Parameters |
+| **Best Config** | `{"rsi_period": 7, "stoch_period": 14, "k_period": 3, "d_period": 3, "overbought": 80, "oversold": 20, "adx_period": 14, "adx_threshold": 25, "stop_loss_atr": 2.0, "atr_period": 14}` | Winning Parameters |
 
 ### 📉 Risk Analysis
 - **Longest Dry Spell**: 0 Days
