@@ -34,18 +34,18 @@ class MACDBollingerStrategy(Strategy):
         from backend.indicators.bollinger import bollinger_bands
         from backend.indicators.macd import macd
         from backend.indicators.atr import atr
-        from backend.indicators.adx import adx # New
+        from backend.indicators.adx import adx
 
         # Bollinger Bands
-        bb = bollinger_bands(self.data['Close'], self.bb_period, self.bb_std)
-        self.data['bb_upper'] = bb['upper']
-        self.data['bb_lower'] = bb['lower']
-        self.data['bb_middle'] = bb['middle']
+        bb_results = bollinger_bands(self.data['Close'], self.bb_period, self.bb_std)
+        self.data['bb_upper'] = bb_results['upper']
+        self.data['bb_lower'] = bb_results['lower']
+        self.data['bb_middle'] = bb_results['middle']
         
         # MACD
-        m = macd(self.data['Close'], self.macd_fast, self.macd_slow, self.macd_signal)
-        self.data['macd'] = m['macd']
-        self.data['macd_signal'] = m['signal']
+        macd_results = macd(self.data['Close'], self.macd_fast, self.macd_slow, self.macd_signal)
+        self.data['macd'] = macd_results['macd']
+        self.data['macd_signal'] = macd_results['signal']
         
         # ATR for Stop Loss
         self.data['atr'] = atr(
@@ -53,11 +53,16 @@ class MACDBollingerStrategy(Strategy):
             self.data['Low'], 
             self.data['Close'], 
             self.atr_period
-        ).shift(1)
+        )
         
-        # ADX (Optional)
+        # ADX Filter
         if self.use_adx_filter:
-            self.data['adx'] = adx(self.data['High'], self.data['Low'], self.data['Close'], 14)
+            self.data['adx'] = adx(
+                self.data['High'], 
+                self.data['Low'], 
+                self.data['Close'], 
+                self.adx_period
+            )
 
     def on_data(self, index, row):
         # Get current position

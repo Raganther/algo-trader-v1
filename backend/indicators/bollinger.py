@@ -27,3 +27,27 @@ class BollingerBands:
             self.lower = mean - (std * self.std_dev)
         else:
             self.ready = False
+
+def bollinger_bands(series: pd.Series, period: int = 20, std_dev: float = 2.0) -> pd.DataFrame:
+    """
+    Calculate Bollinger Bands.
+    
+    Args:
+        series (pd.Series): Price series.
+        period (int): Lookback period.
+        std_dev (float): Standard deviation multiplier.
+        
+    Returns:
+        pd.DataFrame: Contains 'upper', 'middle', 'lower'.
+    """
+    middle = series.rolling(window=period).mean()
+    std = series.rolling(window=period).std()
+    
+    upper = middle + (std * std_dev)
+    lower = middle - (std * std_dev)
+    
+    return pd.DataFrame({
+        'upper': upper,
+        'middle': middle,
+        'lower': lower
+    })
