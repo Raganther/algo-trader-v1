@@ -139,9 +139,9 @@ class InsightManager:
             cursor = conn.cursor()
             cursor.execute('''
                 SELECT * FROM test_runs 
-                WHERE strategy = ? AND symbol = ? AND timeframe = ?
+                WHERE strategy = ? AND symbol = ?
                 ORDER BY start_date DESC
-            ''', (strategy, symbol, timeframe))
+            ''', (strategy, symbol))
             runs = [dict(row) for row in cursor.fetchall()]
             conn.close()
             

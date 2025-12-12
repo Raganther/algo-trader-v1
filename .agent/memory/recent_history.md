@@ -1,4 +1,13 @@
-### d616ce0 - feat: Optimize StochRSIMeanReversion and Refine Report (12 seconds ago)
+### 59feba8 - feat: Timeframe Analysis for StochRSIMeanReversion (24 seconds ago)
+
+Detailed Changes:
+- Conducted Timeframe Analysis for StochRSIMeanReversion (SPY, 2020-2025).
+- Identified 15m Timeframe (Iteration 6) as the new Champion with 54.36% Return.
+- Updated analyze_results.py to correctly display Iteration History across different timeframes.
+- Updated research_insights.md to reflect the new Champion and history.
+
+---
+### 126d26c - feat: Optimize StochRSIMeanReversion and Refine Report (36 minutes ago)
 
 Detailed Changes:
 - Fixed bug in StochRSI indicator where 'rsi_period' was ignored (decoupled from stoch_period).
@@ -8,7 +17,7 @@ Detailed Changes:
 - Verified automatic promotion of winning iterations in the report.
 
 ---
-### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (30 minutes ago)
+### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (66 minutes ago)
 
 Detailed Changes:
 - Implemented 'Strategy Profile' view in research_insights.md with risk metrics (Time in DD, Stability).
@@ -18,7 +27,7 @@ Detailed Changes:
 - Ran Matrix Backtest for StochRSIMeanReversion (Iteration 1) on SPY (2020-2025).
 
 ---
-### debdf95 - Refactor: System Cleanup and Redundancy Removal (8 hours ago)
+### debdf95 - Refactor: System Cleanup and Redundancy Removal (9 hours ago)
 
 Detailed Findings:
 - Deleted 'backend/paper_runner.py' (Redundant legacy script).
@@ -30,7 +39,7 @@ Detailed Findings:
 - Confirmed system is ready for 'research.db' reset.
 
 ---
-### 96f9815 - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (10 hours ago)
+### 96f9815 - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (11 hours ago)
 
 Detailed Findings:
 - Implemented Hybrid Layout: Groups insights by Strategy/Symbol, shows Best Backtest (Theory) vs Reality Check (Forward Test).
@@ -41,7 +50,7 @@ Detailed Findings:
 - Prep: Ready for full database reset.
 
 ---
-### 91110bc - fix: Improve Alpaca connection stability and refine analysis (27 hours ago)
+### 91110bc - fix: Improve Alpaca connection stability and refine analysis (28 hours ago)
 
 - Implemented exponential backoff retry logic in LiveBroker.refresh() to handle RemoteDisconnected errors.
 - Updated analyze_results.py to compare Win Rate instead of Return for Reality Check.
@@ -49,7 +58,7 @@ Detailed Findings:
 - Updated System Manual.
 
 ---
-### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (29 hours ago)
+### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (30 hours ago)
 
 - Recreated .agent/scripts/update_memory.sh to maintain detailed git log history.
 - Restored recent_history.md with last 20 commits including bodies.
@@ -63,7 +72,7 @@ Detailed Findings:
 - Updated System Manual and Walkthrough.
 
 ---
-### f32fec1 - feat: Implement Forward Test Analysis Pipeline (30 hours ago)
+### f32fec1 - feat: Implement Forward Test Analysis Pipeline (31 hours ago)
 
 Detailed Findings:
 - Implemented 'Theory vs Reality' feedback loop in analyze_results.py.
