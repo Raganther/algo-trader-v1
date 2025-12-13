@@ -253,8 +253,12 @@ def run_backtest(args):
     db.initialize_db()
     
     # Get Next Iteration Index (Global for this run)
-    iteration_index = db.get_next_iteration_index(args.strategy, args.symbol)
-    print(f"Starting Iteration {iteration_index} for {args.strategy}...")
+    if args.iteration is not None:
+        iteration_index = args.iteration
+        print(f"Using Specified Iteration: v{iteration_index}")
+    else:
+        iteration_index = db.get_next_iteration_index(args.strategy, args.symbol)
+        print(f"Starting Iteration {iteration_index} for {args.strategy}...")
     
     # If multi-year, split into yearly segments
     if end_year > start_year:
@@ -396,6 +400,7 @@ def main():
     bt_parser.add_argument("--source", type=str, default="csv", choices=["csv", "alpaca"], help="Data Source (csv or alpaca)")
     bt_parser.add_argument("--parameters", type=str, help="JSON string of parameters to override defaults")
     bt_parser.add_argument("--tag", type=str, help="Optional tag to identify this run variation")
+    bt_parser.add_argument("--iteration", type=int, help="Specific Iteration Index to link (Optional)")
     
     # Matrix Command
     matrix_parser = subparsers.add_parser('matrix', help='Run matrix research')
@@ -497,8 +502,10 @@ def run_live_trading(args):
     initial_data = loader.fetch_data(args.symbol, fetch_tf, start_date, end_date)
     
     if initial_data is None or initial_data.empty:
-        print("Error: Could not fetch warmup data.")
-        return
+        print("⚠️ Warning: Could not fetch warmup data (API Error). Starting with empty history.")
+        # Create empty DataFrame with correct columns
+        initial_data = pd.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Volume'])
+        # return # Don't exit, proceed with empty data
         
     # Resample if needed
     if args.timeframe == '5m':

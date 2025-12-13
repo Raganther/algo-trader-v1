@@ -104,7 +104,48 @@
 
 ---
 
-## 4. StochRSIMeanReversion on QQQ
+## 4. RapidFireTest on BTC/USD
+> **Status**: 🟢 Verified Strategy | **Stability**: High (Score: 3.3)
+
+### 🧪 Reality Check (Forward Test)
+> **Cumulative Reality**: 1 Sessions | **Gap**: 🔴 -64.0% (Win Rate)
+
+| Metric | Theory (Backtest) | Reality (Live) | Delta |
+| :--- | :--- | :--- | :--- |
+| **Win Rate** | **64.0%** | **0.0%** | -64.0% |
+| **Return** | 12.07% (Avg Yr) | 0.00% (Realized) | N/A |
+| **Trades** | 2 Years | 1 Trades | -
+
+### 📊 Strategy Profile (Iteration 1)
+| Metric | Value | Notes |
+| :--- | :--- | :--- |
+| **Total Return** | **25.45%** | Cumulative (2 Years) |
+| **Avg Annual** | **12.07%** | Mean of yearly returns |
+| **Win Rate** | **64.0%** | Avg across years |
+| **Max Drawdown** | **2.28%** | Global Worst Case |
+| **Time in DD** | **73%** | % Time Underwater |
+| **Timeframe** | **1m** | Candle Size |
+| **Best Config** | `{"buy_threshold": 10, "sell_threshold": 90}` | Winning Parameters |
+
+### 📉 Risk Analysis
+- **Longest Dry Spell**: 0 Days
+- **Worst Year**: 2024 (8.41%)
+
+### 🗓️ Yearly Breakdown
+| Year | Return | Win Rate | DD | Trades |
+| :--- | :--- | :--- | :--- | :--- |
+| 2025 | 15.72% | 64.0% | 1.33% | 20700 |
+| 2024 | 8.41% | 64.0% | 2.41% | 24172 |
+
+### 📜 Iteration History (Variations)
+| Iter | TF | Return | Reality | Params |
+| :--- | :--- | :--- | :--- | :--- |
+| **2** | 1m | **16.95%** | 🔴 -66.0% | `{"buy_threshold": 30, "sell_threshold": 70}` |
+| **0** | 1m | **15.25%** | 🔴 -47.8% | `{}` |
+
+---
+
+## 5. StochRSIMeanReversion on QQQ
 > **Status**: 🟢 Verified Strategy | **Stability**: Low (Score: 0.4)
 
 ### 📊 Strategy Profile (Iteration 1)
@@ -134,7 +175,7 @@
 
 ---
 
-## 5. MACDBollinger on QQQ
+## 6. MACDBollinger on QQQ
 > **Status**: 🟢 Verified Strategy | **Stability**: Low (Score: 0.1)
 
 ### 📊 Strategy Profile (Iteration 1)
@@ -164,7 +205,7 @@
 
 ---
 
-## 6. DonchianBreakout on QQQ
+## 7. DonchianBreakout on QQQ
 > **Status**: 🟢 Verified Strategy | **Stability**: Low (Score: 0.6)
 
 ### 📊 Strategy Profile (Iteration 2)
@@ -199,7 +240,7 @@
 
 ---
 
-## 7. HybridRegimeV2 on IWM
+## 8. HybridRegimeV2 on IWM
 > **Status**: 🟢 Verified Strategy | **Stability**: Low (Score: -2.3)
 
 ### 📊 Strategy Profile (Iteration 1)
@@ -226,41 +267,6 @@
 | 2022 | -22.90% | 45.0% | 29.37% | 749 |
 | 2021 | -27.49% | 45.0% | 31.27% | 785 |
 | 2020 | -20.79% | 45.0% | 22.42% | 321 |
-
----
-
-## 8. RapidFireTest on BTC/USD
-> **Status**: 🟡 Watchlist Candidate | **Stability**: High (Score: 12.4)
-
-### 🧪 Reality Check (Forward Test)
-> **Cumulative Reality**: 1 Sessions | **Gap**: 🔴 -44.5% (Win Rate)
-
-| Metric | Theory (Backtest) | Reality (Live) | Delta |
-| :--- | :--- | :--- | :--- |
-| **Win Rate** | **64.5%** | **20.0%** | -44.5% |
-| **Return** | 7.36% (Avg Yr) | -0.00% (Realized) | N/A |
-| **Trades** | 2 Years | 11 Trades | -
-
-### 📊 Strategy Profile (Iteration 0)
-| Metric | Value | Notes |
-| :--- | :--- | :--- |
-| **Total Return** | **15.25%** | Cumulative (2 Years) |
-| **Avg Annual** | **7.36%** | Mean of yearly returns |
-| **Win Rate** | **64.5%** | Avg across years |
-| **Max Drawdown** | **1.20%** | Global Worst Case |
-| **Time in DD** | **74%** | % Time Underwater |
-| **Timeframe** | **1m** | Candle Size |
-| **Best Config** | `{}` | Winning Parameters |
-
-### 📉 Risk Analysis
-- **Longest Dry Spell**: 0 Days
-- **Worst Year**: 2024 (6.76%)
-
-### 🗓️ Yearly Breakdown
-| Year | Return | Win Rate | DD | Trades |
-| :--- | :--- | :--- | :--- | :--- |
-| 2025 | 7.95% | 64.0% | 1.38% | 10313 |
-| 2024 | 6.76% | 65.0% | 1.17% | 12086 |
 
 ---
 

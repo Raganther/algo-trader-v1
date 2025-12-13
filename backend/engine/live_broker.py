@@ -1,4 +1,4 @@
-```python
+
 from backend.engine.alpaca_trader import AlpacaTrader
 
 class LiveBroker:
@@ -9,12 +9,30 @@ class LiveBroker:
         self.symbol = symbol
         self.paper = paper
         self.iteration_index = iteration_index
-        self.alpaca = AlpacaTrader(paper=paper)
-        self.initial_balance = self.alpaca.get_cash()
+        self.trader = AlpacaTrader(paper=paper)
+        
+        # Retry logic for initial connection
+        import time
+        max_retries = 5
+        retry_delay = 2
+        
+        for attempt in range(max_retries):
+            try:
+                self.initial_balance = self.trader.get_cash()
+                break
+            except Exception as e:
+                print(f"⚠️ Connection Error in init (Attempt {attempt+1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                    retry_delay *= 2
+                else:
+                    print("❌ Failed to connect to Alpaca after retries. Defaulting balance to 100k.")
+                    self.initial_balance = 100000.0 # Fallback to avoid crash
+        
         self.trades = [] # Local log of trades in this session
         self.last_trade_time = None
         self.positions = {} # Cache positions
-        self.equity = 100000.0 # Default fallback
+        self.equity = self.initial_balance # Default fallback
         self.new_trades = [] # Queue for new trades
         self.refresh()
 
