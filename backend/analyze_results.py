@@ -420,9 +420,80 @@ class InsightManager:
                 
             content += "---\n\n"
         
+        # --- MARKET REGIME ANALYSIS ---
+        try:
+            regime_content = self._generate_regime_analysis()
+            content += regime_content
+        except Exception as e:
+            print(f"⚠️ Failed to generate Regime Analysis: {e}")
+
         with open(MARKDOWN_FILE, 'w') as f:
             f.write(content)
         print(f"📝 Report updated: {MARKDOWN_FILE}")
+
+    def _generate_regime_analysis(self):
+        """Generates the Market Regime Analysis section."""
+        from backend.engine.alpaca_loader import AlpacaDataLoader
+        from backend.analysis.regime_quantifier import RegimeQuantifier
+        
+        content = "## 🌍 Market Regime Analysis\n"
+        content += "> **Context**: Analysis of market conditions for key assets.\n\n"
+        
+        assets = [
+            {"symbol": "SPY", "years": 5},
+            {"symbol": "BTC/USD", "years": 2}
+        ]
+        
+        loader = AlpacaDataLoader()
+        end_date = datetime.now()
+        
+        for asset in assets:
+            symbol = asset['symbol']
+            years = asset['years']
+            start_date = end_date - pd.Timedelta(days=years*365)
+            
+            content += f"### {symbol} ({years} Years)\n"
+            
+            try:
+                data = loader.fetch_data(symbol, "1d", start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"))
+            except:
+                content += f"> ⚠️ Could not fetch data for {symbol}.\n\n"
+                continue
+                
+            if data is None or data.empty:
+                content += f"> ⚠️ No data available for {symbol}.\n\n"
+                continue
+                
+            # Quantify
+            quantifier = RegimeQuantifier(data)
+            df = quantifier.quantify()
+            
+            # Calculate Stats
+            total_bars = len(df)
+            counts = df['regime'].value_counts()
+            
+            content += "| Regime | % of Time | Avg Daily Volatility (ATR) |\n"
+            content += "| :--- | :--- | :--- |\n"
+            
+            for regime in [RegimeQuantifier.BULL_TREND, RegimeQuantifier.BEAR_TREND, RegimeQuantifier.RANGING, RegimeQuantifier.VOLATILE]:
+                count = counts.get(regime, 0)
+                pct = (count / total_bars) * 100
+                
+                # Avg Volatility for this regime
+                regime_df = df[df['regime'] == regime]
+                avg_vol = regime_df['atr'].mean() if not regime_df.empty else 0
+                
+                # Icon
+                icon = "⚪"
+                if regime == RegimeQuantifier.BULL_TREND: icon = "🟢"
+                elif regime == RegimeQuantifier.BEAR_TREND: icon = "🔴"
+                elif regime == RegimeQuantifier.VOLATILE: icon = "🟣"
+                
+                content += f"| **{icon} {regime}** | {pct:.1f}% | {avg_vol:.2f} |\n"
+                
+            content += "\n"
+            
+        return content
 
 def get_live_sessions():
     """Aggregates live trade logs into cumulative metrics by Iteration."""

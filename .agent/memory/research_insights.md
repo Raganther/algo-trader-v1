@@ -270,3 +270,22 @@
 
 ---
 
+## 🌍 Market Regime Analysis
+> **Context**: Analysis of market conditions for key assets.
+
+### SPY (5 Years)
+| Regime | % of Time | Avg Daily Volatility (ATR) |
+| :--- | :--- | :--- |
+| **🟢 BULL_TREND** | 20.3% | 4.43 |
+| **🔴 BEAR_TREND** | 3.5% | 9.99 |
+| **⚪ RANGING** | 66.6% | 5.89 |
+| **🟣 VOLATILE** | 9.6% | 10.60 |
+
+### BTC/USD (2 Years)
+| Regime | % of Time | Avg Daily Volatility (ATR) |
+| :--- | :--- | :--- |
+| **🟢 BULL_TREND** | 7.1% | 3147.94 |
+| **🔴 BEAR_TREND** | 4.0% | 4168.69 |
+| **⚪ RANGING** | 80.4% | 2926.15 |
+| **🟣 VOLATILE** | 8.5% | 4498.90 |
+
