@@ -317,6 +317,33 @@ class InsightManager:
             content += f"## {i+1}. {strategy} on {symbol}\n"
             content += f"> **Status**: {status_icon} {status_text} | **Stability**: {stability_label} (Score: {stability_score})\n\n"
             
+            # --- REALITY CHECK (FORWARD TEST) ---
+            # Check if we have a matching live session
+            matching_sessions = [s for s in self.live_sessions if s['strategy'] == strategy and s['symbol'] == symbol]
+            
+            if matching_sessions:
+                # Sort by date descending (latest first)
+                matching_sessions.sort(key=lambda x: x['start_time'], reverse=True)
+                latest_session = matching_sessions[0]
+                
+                # Calculate Reality Gap
+                # Compare Latest Session Return vs Avg Annual Return (normalized? No, just raw comparison is hard)
+                # Better: Compare Win Rate (Theory vs Reality)
+                theory_wr = avg_win_rate * 100
+                reality_wr = latest_session['win_rate']
+                wr_delta = reality_wr - theory_wr
+                
+                delta_icon = "🟢" if wr_delta >= -5 else "🟡" if wr_delta >= -15 else "🔴"
+                
+                content += f"### 🧪 Reality Check (Forward Test)\n"
+                content += f"> **Latest Session**: {latest_session['start_time']} | **Gap**: {delta_icon} {wr_delta:+.1f}% (Win Rate)\n\n"
+                
+                content += f"| Metric | Theory (Backtest) | Reality (Live) | Delta |\n"
+                content += f"| :--- | :--- | :--- | :--- |\n"
+                content += f"| **Win Rate** | **{theory_wr:.1f}%** | **{reality_wr:.1f}%** | {wr_delta:+.1f}% |\n"
+                content += f"| **Return** | {avg_annual_return:.2f}% (Avg Yr) | {latest_session['return_pct']:.2f}% (Session) | N/A |\n"
+                content += f"| **Trades** | {len(profile_runs)} Years | {latest_session['total_trades']} Trades | -\n\n"
+            
             content += f"### 📊 Strategy Profile (Iteration {best_iteration_idx})\n"
             content += f"| Metric | Value | Notes |\n"
             content += f"| :--- | :--- | :--- |\n"

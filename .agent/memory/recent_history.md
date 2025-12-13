@@ -1,4 +1,12 @@
-### 0000732 - feat: Hybrid Strategy Development (Failed) (63 seconds ago)
+### 0626371 - fix: Restore Reality Gap and Fix LiveBroker (19 seconds ago)
+
+Detailed Changes:
+- Fixed TypeError in LiveBroker.place_order (qty vs quantity mismatch).
+- Re-implemented 'Reality Gap' logic in analyze_results.py (restored missing feature).
+- Updated LiveBroker to match PaperTrader interface.
+
+---
+### e4d9a39 - feat: Hybrid Strategy Development (Failed) (9 hours ago)
 
 Detailed Changes:
 - Implemented HybridRegimeV2 (StochRSI + Donchian + RegimeClassifier).
@@ -8,7 +16,7 @@ Detailed Changes:
 - Fixed bugs in RegimeClassifier and runner.py.
 
 ---
-### 759473a - feat: Regime Switching Research and Analysis (19 minutes ago)
+### 759473a - feat: Regime Switching Research and Analysis (9 hours ago)
 
 Detailed Changes:
 - Implemented RegimeClassifier (ADX, ATR, SMA) in backend/analysis/regime_classifier.py.
@@ -19,7 +27,7 @@ Detailed Changes:
 - Fixed AlpacaDataLoader import and usage in scan_regimes.py.
 
 ---
-### 1f902d1 - feat: Cross-Asset Validation and Trend Strategy Research (80 minutes ago)
+### 1f902d1 - feat: Cross-Asset Validation and Trend Strategy Research (10 hours ago)
 
 Detailed Changes:
 - Conducted Cross-Asset Validation for StochRSIMeanReversion on QQQ, IWM, DIA.
@@ -30,7 +38,7 @@ Detailed Changes:
 - Updated research_insights.md with new strategy profiles.
 
 ---
-### c481d43 - feat: Refine Report with Full Configuration (2 hours ago)
+### c481d43 - feat: Refine Report with Full Configuration (11 hours ago)
 
 Detailed Changes:
 - Updated runner.py to include default parameters for StochRSIMeanReversion.
@@ -39,7 +47,7 @@ Detailed Changes:
 - Marked 'Refine Report' as complete in task.md.
 
 ---
-### 15b354f - feat: Timeframe Analysis for StochRSIMeanReversion (3 hours ago)
+### 15b354f - feat: Timeframe Analysis for StochRSIMeanReversion (11 hours ago)
 
 Detailed Changes:
 - Conducted Timeframe Analysis for StochRSIMeanReversion (SPY, 2020-2025).
@@ -48,7 +56,7 @@ Detailed Changes:
 - Updated research_insights.md to reflect the new Champion and history.
 
 ---
-### 126d26c - feat: Optimize StochRSIMeanReversion and Refine Report (3 hours ago)
+### 126d26c - feat: Optimize StochRSIMeanReversion and Refine Report (12 hours ago)
 
 Detailed Changes:
 - Fixed bug in StochRSI indicator where 'rsi_period' was ignored (decoupled from stoch_period).
@@ -58,7 +66,7 @@ Detailed Changes:
 - Verified automatic promotion of winning iterations in the report.
 
 ---
-### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (4 hours ago)
+### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (13 hours ago)
 
 Detailed Changes:
 - Implemented 'Strategy Profile' view in research_insights.md with risk metrics (Time in DD, Stability).
@@ -68,7 +76,7 @@ Detailed Changes:
 - Ran Matrix Backtest for StochRSIMeanReversion (Iteration 1) on SPY (2020-2025).
 
 ---
-### debdf95 - Refactor: System Cleanup and Redundancy Removal (11 hours ago)
+### debdf95 - Refactor: System Cleanup and Redundancy Removal (20 hours ago)
 
 Detailed Findings:
 - Deleted 'backend/paper_runner.py' (Redundant legacy script).
@@ -80,7 +88,7 @@ Detailed Findings:
 - Confirmed system is ready for 'research.db' reset.
 
 ---
-### 96f9815 - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (13 hours ago)
+### 96f9815 - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (22 hours ago)
 
 Detailed Findings:
 - Implemented Hybrid Layout: Groups insights by Strategy/Symbol, shows Best Backtest (Theory) vs Reality Check (Forward Test).
@@ -91,7 +99,7 @@ Detailed Findings:
 - Prep: Ready for full database reset.
 
 ---
-### 91110bc - fix: Improve Alpaca connection stability and refine analysis (30 hours ago)
+### 91110bc - fix: Improve Alpaca connection stability and refine analysis (2 days ago)
 
 - Implemented exponential backoff retry logic in LiveBroker.refresh() to handle RemoteDisconnected errors.
 - Updated analyze_results.py to compare Win Rate instead of Return for Reality Check.
@@ -99,13 +107,13 @@ Detailed Findings:
 - Updated System Manual.
 
 ---
-### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (33 hours ago)
+### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (2 days ago)
 
 - Recreated .agent/scripts/update_memory.sh to maintain detailed git log history.
 - Restored recent_history.md with last 20 commits including bodies.
 
 ---
-### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (33 hours ago)
+### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (2 days ago)
 
 - Implemented dynamic FIFO PnL calculation in analyze_results.py to fix 0.00% return issue.
 - Added 'Reality Gap' (Delta) metric to research_insights.md to compare Theory vs Reality.
@@ -113,7 +121,7 @@ Detailed Findings:
 - Updated System Manual and Walkthrough.
 
 ---
-### f32fec1 - feat: Implement Forward Test Analysis Pipeline (33 hours ago)
+### f32fec1 - feat: Implement Forward Test Analysis Pipeline (2 days ago)
 
 Detailed Findings:
 - Implemented 'Theory vs Reality' feedback loop in analyze_results.py.
@@ -123,11 +131,11 @@ Detailed Findings:
 - Fixed path mismatch for research_insights.md.
 
 ---
-### a091eb1 - [Docs]: Update project memory and insights (2 days ago)
+### a091eb1 - [Docs]: Update project memory and insights (3 days ago)
 
 
 ---
-### ba2878e - [Fix]: Verified Live Trading & Logging Pipeline (2 days ago)
+### ba2878e - [Fix]: Verified Live Trading & Logging Pipeline (3 days ago)
 
 Detailed Findings:
 - Fixed 'LiveBroker' to include 'spread' in trade logs.
@@ -137,7 +145,7 @@ Detailed Findings:
 - Added Pine Scripts for TradingView verification.
 
 ---
-### a1721d9 - [Fix]: Enabled Live Trading Logger in CLI (2 days ago)
+### a1721d9 - [Fix]: Enabled Live Trading Logger in CLI (3 days ago)
 
 Detailed Findings:
 - Updated 'backend/runner.py' to use 'LiveBroker' and 'DatabaseManager' for the 'trade' command.
@@ -170,14 +178,5 @@ Detailed Findings:
 - 'Critic' now parses 'recent_history.md' for [Feat], [Refactor], and [Docs] tags.
 - 'curate_memory.py' now triggers both Insight Curation and System Manual Curation.
 - Verified that 'system_manual.md' is automatically updated with recent system changes.
-
----
-### 0b3bb72 - [Feat]: Verified Strategy Factory & Fixed Execution Pipeline (3 days ago)
-
-Detailed Findings:
-- Verified 'Strategy Factory' capability by creating and backtesting 'AGoldenCross' on BTC/USD.
-- Fixed 'Strategy' base class to include 'place_order' method, enabling generated strategies to execute.
-- Updated 'PaperTrader' and 'AlpacaTrader' with helper methods ('get_position', 'get_cash') to match the robust 'RapidFireTest' template.
-- Confirmed that the Agent can now autonomously create, register, and verify new strategies on supported assets (Stocks/Crypto).
 
 ---

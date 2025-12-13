@@ -155,18 +155,19 @@ class LiveBroker:
             
         return res
 
-    def place_order(self, symbol, qty, side, order_type='market', price=None, stop_loss=None, take_profit=None, **kwargs):
+    def place_order(self, symbol, side, quantity, order_type='market', price=None, stop_loss=None, take_profit=None, **kwargs):
         """
         Unified interface for placing orders.
         Delegates to buy/sell to ensure logging logic is used.
+        Matches PaperTrader signature: (symbol, side, quantity, ...)
         """
         # Ignore symbol argument if it matches self.symbol (LiveBroker is single-symbol usually)
         # But if it differs, we might warn.
         
         if side.lower() == 'buy':
-            return self.buy(price=price if price else 0.0, size=qty, stop_loss=stop_loss, take_profit=take_profit)
+            return self.buy(price=price if price else 0.0, size=quantity, stop_loss=stop_loss, take_profit=take_profit)
         elif side.lower() == 'sell':
-            return self.sell(price=price if price else 0.0, size=qty, stop_loss=stop_loss, take_profit=take_profit)
+            return self.sell(price=price if price else 0.0, size=quantity, stop_loss=stop_loss, take_profit=take_profit)
         else:
             print(f"Error: Unknown side {side}")
             return None
