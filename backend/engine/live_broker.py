@@ -1,12 +1,18 @@
+```python
 from backend.engine.alpaca_trader import AlpacaTrader
 
 class LiveBroker:
     """
     Adapts AlpacaTrader to match the BacktestBroker interface expected by Strategies.
     """
-    def __init__(self, symbol, paper=True):
-        self.trader = AlpacaTrader(paper=paper)
+    def __init__(self, symbol, paper=True, iteration_index=None):
         self.symbol = symbol
+        self.paper = paper
+        self.iteration_index = iteration_index
+        self.alpaca = AlpacaTrader(paper=paper)
+        self.initial_balance = self.alpaca.get_cash()
+        self.trades = [] # Local log of trades in this session
+        self.last_trade_time = None
         self.positions = {} # Cache positions
         self.equity = 100000.0 # Default fallback
         self.new_trades = [] # Queue for new trades
@@ -70,9 +76,13 @@ class LiveBroker:
         
     def get_new_trades(self):
         """Return and clear new trades list."""
-        trades = self.new_trades[:]
+        # Return copy and clear
+        trades_to_return = []
+        for t in self.new_trades:
+            t['iteration_index'] = self.iteration_index
+            trades_to_return.append(t)
         self.new_trades = []
-        return trades
+        return trades_to_return
 
     def _wait_for_fill(self, order_id, retries=5):
         """Polls Alpaca for order fill."""

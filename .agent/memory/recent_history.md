@@ -1,11 +1,21 @@
-### c380252 - docs: Update task list with Cloud Deployment objective (17 seconds ago)
+### 39c212f - feat: Implement Strict Iteration Linking and Cumulative Forward Testing (19 seconds ago)
+
+Detailed Changes:
+- Database: Added 'iteration_index' column to 'live_trade_log'.
+- Runner: Added '--iteration' CLI argument to 'trade' command.
+- LiveBroker: Updated to track and log 'iteration_index'.
+- Analysis: Updated 'analyze_results.py' to aggregate live sessions by iteration and display cumulative results.
+- Report: Added 'Reality' column to Iteration History table.
+
+---
+### 2cfa72b - docs: Update task list with Cloud Deployment objective (2 hours ago)
 
 Detailed Changes:
 - Added 'Cloud Deployment' section to task.md.
 - Marked 'Forward Testing' verification as complete.
 
 ---
-### ab4d36c - fix: Restore Reality Gap and Fix LiveBroker (2 hours ago)
+### ab4d36c - fix: Restore Reality Gap and Fix LiveBroker (3 hours ago)
 
 Detailed Changes:
 - Fixed TypeError in LiveBroker.place_order (qty vs quantity mismatch).
@@ -13,7 +23,7 @@ Detailed Changes:
 - Updated LiveBroker to match PaperTrader interface.
 
 ---
-### e4d9a39 - feat: Hybrid Strategy Development (Failed) (10 hours ago)
+### e4d9a39 - feat: Hybrid Strategy Development (Failed) (12 hours ago)
 
 Detailed Changes:
 - Implemented HybridRegimeV2 (StochRSI + Donchian + RegimeClassifier).
@@ -23,7 +33,7 @@ Detailed Changes:
 - Fixed bugs in RegimeClassifier and runner.py.
 
 ---
-### 759473a - feat: Regime Switching Research and Analysis (11 hours ago)
+### 759473a - feat: Regime Switching Research and Analysis (13 hours ago)
 
 Detailed Changes:
 - Implemented RegimeClassifier (ADX, ATR, SMA) in backend/analysis/regime_classifier.py.
@@ -34,7 +44,7 @@ Detailed Changes:
 - Fixed AlpacaDataLoader import and usage in scan_regimes.py.
 
 ---
-### 1f902d1 - feat: Cross-Asset Validation and Trend Strategy Research (12 hours ago)
+### 1f902d1 - feat: Cross-Asset Validation and Trend Strategy Research (14 hours ago)
 
 Detailed Changes:
 - Conducted Cross-Asset Validation for StochRSIMeanReversion on QQQ, IWM, DIA.
@@ -45,7 +55,7 @@ Detailed Changes:
 - Updated research_insights.md with new strategy profiles.
 
 ---
-### c481d43 - feat: Refine Report with Full Configuration (12 hours ago)
+### c481d43 - feat: Refine Report with Full Configuration (14 hours ago)
 
 Detailed Changes:
 - Updated runner.py to include default parameters for StochRSIMeanReversion.
@@ -54,7 +64,7 @@ Detailed Changes:
 - Marked 'Refine Report' as complete in task.md.
 
 ---
-### 15b354f - feat: Timeframe Analysis for StochRSIMeanReversion (13 hours ago)
+### 15b354f - feat: Timeframe Analysis for StochRSIMeanReversion (15 hours ago)
 
 Detailed Changes:
 - Conducted Timeframe Analysis for StochRSIMeanReversion (SPY, 2020-2025).
@@ -63,7 +73,7 @@ Detailed Changes:
 - Updated research_insights.md to reflect the new Champion and history.
 
 ---
-### 126d26c - feat: Optimize StochRSIMeanReversion and Refine Report (14 hours ago)
+### 126d26c - feat: Optimize StochRSIMeanReversion and Refine Report (15 hours ago)
 
 Detailed Changes:
 - Fixed bug in StochRSI indicator where 'rsi_period' was ignored (decoupled from stoch_period).
@@ -73,7 +83,7 @@ Detailed Changes:
 - Verified automatic promotion of winning iterations in the report.
 
 ---
-### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (14 hours ago)
+### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (16 hours ago)
 
 Detailed Changes:
 - Implemented 'Strategy Profile' view in research_insights.md with risk metrics (Time in DD, Stability).
@@ -83,7 +93,7 @@ Detailed Changes:
 - Ran Matrix Backtest for StochRSIMeanReversion (Iteration 1) on SPY (2020-2025).
 
 ---
-### debdf95 - Refactor: System Cleanup and Redundancy Removal (22 hours ago)
+### debdf95 - Refactor: System Cleanup and Redundancy Removal (23 hours ago)
 
 Detailed Findings:
 - Deleted 'backend/paper_runner.py' (Redundant legacy script).
@@ -95,7 +105,7 @@ Detailed Findings:
 - Confirmed system is ready for 'research.db' reset.
 
 ---
-### 96f9815 - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (24 hours ago)
+### 96f9815 - Refactor: Finalized Research Insights hybrid layout and Fixed Analysis Logic (25 hours ago)
 
 Detailed Findings:
 - Implemented Hybrid Layout: Groups insights by Strategy/Symbol, shows Best Backtest (Theory) vs Reality Check (Forward Test).
@@ -167,14 +177,5 @@ Detailed Findings:
 - Updated 'LiveBroker' to poll Alpaca for exact fill prices and timestamps.
 - Updated 'AlpacaTrader' to include 'get_order' method for retrieving execution details.
 - Integrated 'DatabaseManager' into 'paper_runner.py' to auto-save all live trades.
-
----
-### ed3db10 - [Refactor]: Optimized System Manual and Memory Logic (3 days ago)
-
-Detailed Findings:
-- Refactored 'system_manual.md' to 5 essential sections, removing 50% of bloat.
-- Updated 'Critic' agent to cap 'Recent System Updates' to the last 5 items.
-- Fixed duplicate section numbering and redundant process descriptions.
-- Ensured memory remains concise and relevant for future sessions.
 
 ---

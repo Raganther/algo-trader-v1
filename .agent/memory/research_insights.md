@@ -62,15 +62,15 @@
 | 2020 | 2.76% | 56.0% | 2.17% | 142 |
 
 ### 📜 Iteration History (Variations)
-| Iter | TF | Return | Params |
-| :--- | :--- | :--- | :--- |
-| **5** | 1h | **17.15%** | `{"rsi_period": 7}` |
-| **1** | 1h | **14.04%** | `{}` |
-| **4** | 1h | **14.04%** | `{"rsi_period": 7}` |
-| **2** | 1h | **12.48%** | `{"oversold": 10, "overbought": 90, "rsi_period": 10}` |
-| **3** | 1h | **10.04%** | `{"oversold": 30, "overbought": 70}` |
-| **8** | 1d | **2.99%** | `{"rsi_period": 7}` |
-| **7** | 4h | **-4.53%** | `{"rsi_period": 7}` |
+| Iter | TF | Return | Reality | Params |
+| :--- | :--- | :--- | :--- | :--- |
+| **5** | 1h | **17.15%** | - | `{"rsi_period": 7}` |
+| **1** | 1h | **14.04%** | - | `{}` |
+| **4** | 1h | **14.04%** | - | `{"rsi_period": 7}` |
+| **2** | 1h | **12.48%** | - | `{"oversold": 10, "overbought": 90, "rsi_period": 10}` |
+| **3** | 1h | **10.04%** | - | `{"oversold": 30, "overbought": 70}` |
+| **8** | 1d | **2.99%** | - | `{"rsi_period": 7}` |
+| **7** | 4h | **-4.53%** | - | `{"rsi_period": 7}` |
 
 ---
 
@@ -193,9 +193,9 @@
 | 2020 | -2.52% | 27.0% | 11.43% | 11 |
 
 ### 📜 Iteration History (Variations)
-| Iter | TF | Return | Params |
-| :--- | :--- | :--- | :--- |
-| **1** | 1h | **13.62%** | `{"entry_period": 20, "exit_period": 10, "stop_loss_atr": 2.0, "atr_period": 20}` |
+| Iter | TF | Return | Reality | Params |
+| :--- | :--- | :--- | :--- | :--- |
+| **1** | 1h | **13.62%** | - | `{"entry_period": 20, "exit_period": 10, "stop_loss_atr": 2.0, "atr_period": 20}` |
 
 ---
 
@@ -233,13 +233,13 @@
 > **Status**: 🟡 Watchlist Candidate | **Stability**: High (Score: 12.4)
 
 ### 🧪 Reality Check (Forward Test)
-> **Latest Session**: 2025-12-13T08:32:07.902757+00:00 | **Gap**: 🔴 -39.5% (Win Rate)
+> **Cumulative Reality**: 1 Sessions | **Gap**: 🔴 -44.5% (Win Rate)
 
 | Metric | Theory (Backtest) | Reality (Live) | Delta |
 | :--- | :--- | :--- | :--- |
-| **Win Rate** | **64.5%** | **25.0%** | -39.5% |
-| **Return** | 7.36% (Avg Yr) | -0.00% (Session) | N/A |
-| **Trades** | 2 Years | 8 Trades | -
+| **Win Rate** | **64.5%** | **20.0%** | -44.5% |
+| **Return** | 7.36% (Avg Yr) | -0.00% (Realized) | N/A |
+| **Trades** | 2 Years | 11 Trades | -
 
 ### 📊 Strategy Profile (Iteration 0)
 | Metric | Value | Notes |

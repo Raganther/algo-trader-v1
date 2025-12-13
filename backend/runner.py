@@ -416,6 +416,7 @@ def main():
     trade_parser.add_argument('--paper', action='store_true', default=True, help='Use Paper Trading (Default: True)')
     trade_parser.add_argument('--live', action='store_false', dest='paper', help='Use Live Trading')
     trade_parser.add_argument("--parameters", type=str, help="JSON string of parameters")
+    trade_parser.add_argument("--iteration", type=int, help="Specific Iteration Index to link (Optional)")
     
     args = parser.parse_args()
     
@@ -440,13 +441,25 @@ def run_live_trading(args):
     print(f"Mode: {'PAPER' if args.paper else 'LIVE'}")
     
     # 1. Initialize Components
+    # Resolve Iteration Index
+    db = DatabaseManager()
+    db.initialize_db() # Ensure tables exist
+    
+    iteration_index = args.iteration
+    if iteration_index is None:
+        # Auto-resolve latest iteration
+        # We can use get_next_iteration_index - 1
+        next_idx = db.get_next_iteration_index(args.strategy, args.symbol)
+        iteration_index = max(0, next_idx - 1)
+        print(f"Auto-Resolved Iteration: v{iteration_index}")
+    else:
+        print(f"Using Specified Iteration: v{iteration_index}")
+
     # Use LiveBroker for logging and interface compatibility
-    broker = LiveBroker(symbol=args.symbol, paper=args.paper)
+    broker = LiveBroker(symbol=args.symbol, paper=args.paper, iteration_index=iteration_index)
     loader = AlpacaDataLoader()
     
     # Initialize DB Logger
-    db = DatabaseManager()
-    db.initialize_db() # Ensure tables exist
     session_id = str(uuid.uuid4())
     print(f"Session ID: {session_id}")
     

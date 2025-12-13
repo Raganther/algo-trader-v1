@@ -318,31 +318,28 @@ class InsightManager:
             content += f"> **Status**: {status_icon} {status_text} | **Stability**: {stability_label} (Score: {stability_score})\n\n"
             
             # --- REALITY CHECK (FORWARD TEST) ---
-            # Check if we have a matching live session
-            matching_sessions = [s for s in self.live_sessions if s['strategy'] == strategy and s['symbol'] == symbol]
+            # Check if we have a matching live session for the BEST iteration
+            matching_session = next((s for s in self.live_sessions 
+                                     if s['strategy'] == strategy 
+                                     and s['symbol'] == symbol 
+                                     and s['iteration_index'] == best_iteration_idx), None)
             
-            if matching_sessions:
-                # Sort by date descending (latest first)
-                matching_sessions.sort(key=lambda x: x['start_time'], reverse=True)
-                latest_session = matching_sessions[0]
-                
+            if matching_session:
                 # Calculate Reality Gap
-                # Compare Latest Session Return vs Avg Annual Return (normalized? No, just raw comparison is hard)
-                # Better: Compare Win Rate (Theory vs Reality)
                 theory_wr = avg_win_rate * 100
-                reality_wr = latest_session['win_rate']
+                reality_wr = matching_session['win_rate']
                 wr_delta = reality_wr - theory_wr
                 
                 delta_icon = "🟢" if wr_delta >= -5 else "🟡" if wr_delta >= -15 else "🔴"
                 
                 content += f"### 🧪 Reality Check (Forward Test)\n"
-                content += f"> **Latest Session**: {latest_session['start_time']} | **Gap**: {delta_icon} {wr_delta:+.1f}% (Win Rate)\n\n"
+                content += f"> **Cumulative Reality**: {matching_session['session_count']} Sessions | **Gap**: {delta_icon} {wr_delta:+.1f}% (Win Rate)\n\n"
                 
                 content += f"| Metric | Theory (Backtest) | Reality (Live) | Delta |\n"
                 content += f"| :--- | :--- | :--- | :--- |\n"
                 content += f"| **Win Rate** | **{theory_wr:.1f}%** | **{reality_wr:.1f}%** | {wr_delta:+.1f}% |\n"
-                content += f"| **Return** | {avg_annual_return:.2f}% (Avg Yr) | {latest_session['return_pct']:.2f}% (Session) | N/A |\n"
-                content += f"| **Trades** | {len(profile_runs)} Years | {latest_session['total_trades']} Trades | -\n\n"
+                content += f"| **Return** | {avg_annual_return:.2f}% (Avg Yr) | {matching_session['return_pct']:.2f}% (Realized) | N/A |\n"
+                content += f"| **Trades** | {len(profile_runs)} Years | {matching_session['total_trades']} Trades | -\n\n"
             
             content += f"### 📊 Strategy Profile (Iteration {best_iteration_idx})\n"
             content += f"| Metric | Value | Notes |\n"
@@ -389,20 +386,36 @@ class InsightManager:
                 p = iter_runs[0].get('parameters', {})
                 clean_p = {k:v for k,v in p.items() if k not in ['strategy', 'symbol', 'return_pct', 'win_rate', 'max_drawdown', 'total_trades', 'timeframe', 'year']}
                 
+                # Check for Reality Data for this iteration
+                iter_session = next((s for s in self.live_sessions 
+                                     if s['strategy'] == strategy 
+                                     and s['symbol'] == symbol 
+                                     and s['iteration_index'] == idx), None)
+                
+                reality_badge = "-"
+                if iter_session:
+                    # Calculate Win Rate Delta
+                    iter_theory_wr = np.mean([r['win_rate'] for r in iter_runs]) * 100
+                    iter_reality_wr = iter_session['win_rate']
+                    iter_delta = iter_reality_wr - iter_theory_wr
+                    icon = "🟢" if iter_delta >= -5 else "🔴"
+                    reality_badge = f"{icon} {iter_delta:+.1f}%"
+
                 other_iterations.append({
                     'iteration': idx,
                     'return': tot_ret,
                     'params': json.dumps(clean_p),
-                    'timeframe': iter_runs[0]['timeframe']
+                    'timeframe': iter_runs[0]['timeframe'],
+                    'reality': reality_badge
                 })
             
             if other_iterations:
                 content += "### 📜 Iteration History (Variations)\n"
-                content += "| Iter | TF | Return | Params |\n"
-                content += "| :--- | :--- | :--- | :--- |\n"
+                content += "| Iter | TF | Return | Reality | Params |\n"
+                content += "| :--- | :--- | :--- | :--- | :--- |\n"
                 other_iterations.sort(key=lambda x: x['return'], reverse=True)
                 for r in other_iterations:
-                    content += f"| **{r['iteration']}** | {r['timeframe']} | **{r['return']:.2f}%** | `{r['params']}` |\n"
+                    content += f"| **{r['iteration']}** | {r['timeframe']} | **{r['return']:.2f}%** | {r['reality']} | `{r['params']}` |\n"
                 content += "\n"
                 
             content += "---\n\n"
@@ -412,7 +425,7 @@ class InsightManager:
         print(f"📝 Report updated: {MARKDOWN_FILE}")
 
 def get_live_sessions():
-    """Aggregates live trade logs into session metrics."""
+    """Aggregates live trade logs into cumulative metrics by Iteration."""
     from backend.database import DatabaseManager
     db = DatabaseManager()
     trades = db.get_live_trades()
@@ -422,18 +435,19 @@ def get_live_sessions():
         
     df = pd.DataFrame(trades)
     
-    # Group by Session
-    sessions = []
-    grouped = df.groupby('session_id')
+    # Ensure iteration_index exists (fill NaN with 0 for legacy trades)
+    if 'iteration_index' not in df.columns:
+        df['iteration_index'] = 0
+    df['iteration_index'] = df['iteration_index'].fillna(0).astype(int)
     
-    for session_id, group in grouped:
+    # Group by Strategy + Symbol + Iteration (Cumulative)
+    sessions = []
+    grouped = df.groupby(['strategy', 'symbol', 'iteration_index'])
+    
+    for (strategy, symbol, iteration_index), group in grouped:
         if group.empty: continue
         
-        # Calculate Metrics
-        # Dynamic PnL Calculation (FIFO)
-        # The 'pnl' column in DB is likely 0.0 because logs are individual trades.
-        # We must match Buys and Sells to calculate realized PnL.
-        
+        # Calculate Metrics (FIFO PnL)
         realized_pnl = 0.0
         inventory = [] 
         wins = 0
@@ -472,49 +486,33 @@ def get_live_sessions():
                     wins += 1
                     
         total_pnl = realized_pnl
-        total_trades = len(group)
+        total_trades = len(group) # Includes opens and closes
+        # Win Rate based on CLOSED trades
         win_rate = (wins / closed_trades * 100) if closed_trades > 0 else 0.0
         
-        # Estimate Return % (Assuming $100k paper account if not tracked)
+        # Estimate Return % (Assuming $100k paper account)
         initial_capital = 100000.0 
         return_pct = (total_pnl / initial_capital) * 100
-        
-        # Max Drawdown (Approximate from cumulative PnL)
-        # We can't easily reconstruct the exact equity curve without tick data,
-        # but we can track the realized PnL curve.
-        
-        # Re-calculate cumulative PnL for DD
-        # Note: This is imperfect because it only updates on Close, not MTM.
-        # But it's better than 0.00%.
-        
-        # To get a curve, we need to run the FIFO logic again or store the PnL events.
-        # Let's just use the final PnL for now to verify the fix, 
-        # and maybe assume a linear path or just 0 DD if profitable.
-        # Actually, let's just use the realized PnL as the "Equity" at the end.
-        # For DD, we really need the intermediate points.
-        
-        # Simplified DD: If total PnL is negative, that's the drawdown? No.
-        # Let's just report 0.00% DD for now unless we do the full curve.
-        max_dd = 0.0
-        if total_pnl < 0:
-             # Rough approximation: Max DD is at least the current loss
-             max_dd = (abs(total_pnl) / initial_capital) * 100
         
         # Metadata
         first_trade = group.iloc[0]
         last_trade = group.iloc[-1]
         
+        # Count unique sessions involved
+        unique_sessions = group['session_id'].nunique()
+        
         sessions.append({
-            'session_id': session_id,
-            'strategy': first_trade['strategy'],
-            'symbol': first_trade['symbol'],
-            'start_time': first_trade['timestamp'],
-            'end_time': last_trade['timestamp'],
+            'strategy': strategy,
+            'symbol': symbol,
+            'iteration_index': iteration_index,
+            'start_time': first_trade['timestamp'], # First trade ever
+            'last_active': last_trade['timestamp'],
             'return_pct': return_pct,
-            'max_drawdown': max_dd,
             'win_rate': win_rate,
             'total_trades': total_trades,
-            'pnl': total_pnl
+            'closed_trades': closed_trades,
+            'pnl': total_pnl,
+            'session_count': unique_sessions
         })
         
     return sessions

@@ -329,35 +329,34 @@ class DatabaseManager:
         return results
 
     def save_live_trade(self, trade_data):
-        """Saves a live trade log entry."""
+        """
+        Saves a live trade execution to the log.
+        """
         conn = self.get_connection()
         cursor = conn.cursor()
         
-        try:
-            cursor.execute('''
-                INSERT INTO live_trade_log (
-                    session_id, timestamp, symbol, strategy, side, qty, 
-                    signal_price, fill_price, slippage, spread, pnl
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                trade_data['session_id'],
-                trade_data['timestamp'],
-                trade_data['symbol'],
-                trade_data['strategy'],
-                trade_data['side'],
-                trade_data['qty'],
-                trade_data['signal_price'],
-                trade_data['fill_price'],
-                trade_data['slippage'],
-                trade_data['spread'],
-                trade_data.get('pnl', 0.0)
-            ))
-            conn.commit()
-            # print(f"Logged trade for {trade_data['symbol']}")
-        except Exception as e:
-            print(f"Error saving live trade log: {e}")
-        finally:
-            conn.close()
+        cursor.execute('''
+            INSERT INTO live_trade_log (
+                session_id, timestamp, symbol, strategy, side, qty, 
+                signal_price, fill_price, slippage, spread, pnl, iteration_index
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            trade_data.get('session_id'),
+            trade_data.get('timestamp'),
+            trade_data.get('symbol'),
+            trade_data.get('strategy'),
+            trade_data.get('side'),
+            trade_data.get('qty'),
+            trade_data.get('signal_price'),
+            trade_data.get('fill_price'),
+            trade_data.get('slippage'),
+            trade_data.get('spread'),
+            trade_data.get('pnl', 0.0),
+            trade_data.get('iteration_index') # New field
+        ))
+        
+        conn.commit()
+        conn.close()    # print(f"Logged trade for {trade_data['symbol']}")
     def get_live_trades(self):
         """Retrieves all live trade logs."""
         conn = self.get_connection()
