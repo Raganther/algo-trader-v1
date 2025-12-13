@@ -232,6 +232,15 @@
 ## 8. RapidFireTest on BTC/USD
 > **Status**: 🟡 Watchlist Candidate | **Stability**: High (Score: 12.4)
 
+### 🧪 Reality Check (Forward Test)
+> **Latest Session**: 2025-12-13T08:32:07.902757+00:00 | **Gap**: 🔴 -39.5% (Win Rate)
+
+| Metric | Theory (Backtest) | Reality (Live) | Delta |
+| :--- | :--- | :--- | :--- |
+| **Win Rate** | **64.5%** | **25.0%** | -39.5% |
+| **Return** | 7.36% (Avg Yr) | -0.00% (Session) | N/A |
+| **Trades** | 2 Years | 8 Trades | -
+
 ### 📊 Strategy Profile (Iteration 0)
 | Metric | Value | Notes |
 | :--- | :--- | :--- |
