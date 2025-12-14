@@ -21,6 +21,7 @@ from backend.strategies.stoch_rsi_quant import StochRSIQuantStrategy # New
 from backend.strategies.gamma_scalping import GammaScalping
 from backend.strategies.rapid_fire_test import RapidFireTestStrategy # New
 from backend.strategies.a_golden_cross import AGoldenCrossStrategy
+from backend.strategies.regime_gated_stoch import RegimeGatedStoch # New
 
 # Strategy Mapping
 STRATEGY_MAP = {
@@ -39,6 +40,7 @@ STRATEGY_MAP = {
     "GammaScalping": GammaScalping,
     "RapidFireTest": RapidFireTestStrategy,
     "AGoldenCross": AGoldenCrossStrategy,
+    "RegimeGatedStoch": RegimeGatedStoch,
 }
 
 def run_backtest(args):
@@ -205,6 +207,24 @@ def run_backtest(args):
             "adx_period": 14,
             "adx_threshold": 25,
             "sma_period": 200
+        }
+    elif args.strategy == "RegimeGatedStoch":
+        params = {
+            "symbol": args.symbol,
+            "rsi_period": 14,
+            "stoch_period": 14,
+            "k_period": 3,
+            "d_period": 3,
+            "overbought": 80,
+            "oversold": 20,
+            "adx_period": 14,
+            "adx_threshold": 25,
+            "stop_loss_atr": 2.0,
+            "atr_period": 14,
+            # Regime Params (Defaults)
+            "sma_fast": 50,
+            "sma_slow": 200,
+            "vol_multiplier": 1.5
         }
     else:
         params = {

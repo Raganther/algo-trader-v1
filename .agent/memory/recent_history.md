@@ -1,6 +1,27 @@
 # Recent Git History
 
-### 7b0a355 - feat: Implement RapidFireTest Iteration 1 & 2 (2025-12-13)
+### 600a5a4 - [System] Critical Cleanup & GZIP Support (2025-12-14)
+Detailed Changes:
+- [Fix] Solved Critical Disk Full Issue (Deleted 7GB of uncompressed data).
+- [Feat] Added native GZIP support to DataLoader (.csv.gz).
+- [Refactor] Organized project structure (moved scripts/logs/docs).
+- [Feat] Verified QQQ (5m) Backtest frequency (1,275 trades/year).
+- [Docs] Updated System Manual with new architecture.
+
+### 6e453f8 - feat: implement market regime analysis (2025-12-13)
+Implemented a robust Market Regime Analysis engine to classify market conditions (Bull, Bear, Range, Volatile).
+
+Key Changes:
+
+- Created 'backend/analysis/regime_quantifier.py': Vectorized logic using ADX, SMA50/200, and ATR.
+
+- Created 'backend/analysis/visualize_regimes.py': Generates interactive Plotly charts with regime-colored backgrounds.
+
+- Updated 'backend/analyze_results.py': Automatically runs regime analysis for SPY and BTC/USD and appends findings to 'research_insights.md'.
+
+- Updated 'research_insights.md': Added new section showing SPY is Ranging 66% of the time and BTC 80% of the time.
+
+### 4c4622f - feat: Implement RapidFireTest Iteration 1 & 2 (2025-12-13)
 Detailed Findings:
 - Iteration 1 (Shorting): 25.45% Return, 44k Trades. Promoted to Champion.
 - Iteration 2 (Long-Only High Freq): 16.95% Return, 66k Trades. Created to bypass Alpaca Crypto shorting limits.
@@ -126,17 +147,3 @@ Detailed Findings:
 - Fixed path mismatch for research_insights.md.
 
 ### a091eb1 - [Docs]: Update project memory and insights (2025-12-10)
-
-### ba2878e - [Fix]: Verified Live Trading & Logging Pipeline (2025-12-10)
-Detailed Findings:
-- Fixed 'LiveBroker' to include 'spread' in trade logs.
-- Updated 'RapidFireTest' to pass 'signal_price' for accurate slippage tracking.
-- Verified end-to-end execution and logging with 'RapidFireTest' (Long-Only).
-- Confirmed data alignment between Alpaca and internal DB.
-- Added Pine Scripts for TradingView verification.
-
-### a1721d9 - [Fix]: Enabled Live Trading Logger in CLI (2025-12-10)
-Detailed Findings:
-- Updated 'backend/runner.py' to use 'LiveBroker' and 'DatabaseManager' for the 'trade' command.
-- Fixed 'AttributeError' in 'LiveBroker' by adding 'get_position' method.
-- Verified that 'RapidFireTest' runs via CLI and logs trades to 'research.db' with unique Session IDs.

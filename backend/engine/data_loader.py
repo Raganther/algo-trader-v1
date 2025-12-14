@@ -24,9 +24,20 @@ class DataLoader:
             if not os.path.exists(self.data_dir):
                 print(f"Data directory not found: {self.data_dir}")
             else:
+            else:
                 for filename in os.listdir(self.data_dir):
-                    if filename.startswith(f"{safe_symbol}_") and filename.endswith(f"_{interval}.csv"):
-                        parts = filename.replace(".csv", "").split("_")
+                    # Check for CSV or GZ
+                    is_csv = filename.endswith(f"_{interval}.csv")
+                    is_gz = filename.endswith(f"_{interval}.csv.gz")
+                    
+                    if (filename.startswith(f"{safe_symbol}_") and (is_csv or is_gz)):
+                        # Remove extension
+                        if is_gz:
+                            clean_name = filename.replace(".csv.gz", "")
+                        else:
+                            clean_name = filename.replace(".csv", "")
+                            
+                        parts = clean_name.split("_")
                         if len(parts) >= 4:
                             file_start = parts[-3]
                             file_end = parts[-2]
@@ -36,6 +47,7 @@ class DataLoader:
                                 # print(f"Found overlapping cache file: {filename}")
                                 file_path = os.path.join(self.data_dir, filename)
                                 try:
+                                    # Pandas handles gzip automatically if extension is .gz
                                     data = pd.read_csv(file_path, index_col=0, parse_dates=True)
                                 
                                     # Normalize columns (lowercase to Title Case)
