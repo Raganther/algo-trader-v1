@@ -1,4 +1,35 @@
-### ca2884c - feat: Add realistic testing standards and wrapper script (9 seconds ago)
+### 1dc5d09 - docs: Update system manual with testing standards and workflow automation (3 seconds ago)
+
+Detailed Changes:
+- [Update] Core Architecture section: Added realistic cost modeling and automation components
+- [Update] CLI Reference: Prioritized wrapper scripts over direct runner.py usage
+  * Added realistic-test.sh documentation (auto-detects asset type, applies spread/delay)
+  * Added test-and-sync.sh documentation (manual control with auto-sync)
+  * Documented direct runner.py usage as 'low-level, not recommended'
+- [New] Testing Standards & Realistic Costs section:
+  * Documented 30% return difference (96% vs 65% on IWM)
+  * Mandatory parameters: spread, delay, source
+  * Asset-specific recommendations (stocks, crypto, forex)
+  * Explained iteration system and version tracking
+- [New] Workflow Automation section:
+  * Complete testing workflow (automatic with wrappers)
+  * Manual workflow steps (when using runner.py directly)
+- [New] Quick Reference Card section:
+  * Most common commands with examples
+  * File locations reference
+  * Important notes and warnings
+- [Update] Recent System Updates: Added 2026-02-02 changes
+- [Meta] Updated 'Last Updated' timestamp and system status
+
+Key Improvements:
+- System manual now reflects current best practices
+- Clear guidance on using wrapper scripts vs direct runner
+- Comprehensive testing standards documentation
+- Quick reference for common operations
+- Updated to 282 lines (from ~95 lines)
+
+---
+### ac5a713 - feat: Add realistic testing standards and wrapper script (4 minutes ago)
 
 Detailed Changes:
 - [Feat] Created scripts/realistic-test.sh wrapper that auto-applies realistic settings:
@@ -215,13 +246,5 @@ Detailed Findings:
 
 - Recreated .agent/scripts/update_memory.sh to maintain detailed git log history.
 - Restored recent_history.md with last 20 commits including bodies.
-
----
-### 137b87a - feat: Implement Reality Gap metric and fix PnL calculation (8 weeks ago)
-
-- Implemented dynamic FIFO PnL calculation in analyze_results.py to fix 0.00% return issue.
-- Added 'Reality Gap' (Delta) metric to research_insights.md to compare Theory vs Reality.
-- Validated pipeline with RapidFireTest on BTC/USD (21-trade session recovered).
-- Updated System Manual and Walkthrough.
 
 ---
