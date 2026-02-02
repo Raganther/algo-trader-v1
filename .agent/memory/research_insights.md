@@ -6,30 +6,32 @@
 ## 1. StochRSIMeanReversion on QQQ
 > **Status**: 🟢 Verified Strategy | **Stability**: N/A (Score: N/A)
 
-### 📊 Strategy Profile (Iteration 2)
+### 📊 Strategy Profile (Iteration 4)
 | Metric | Value | Notes |
 | :--- | :--- | :--- |
-| **Total Return** | **39.03%** | Cumulative (1 Years) |
-| **Avg Annual** | **39.03%** | Mean of yearly returns |
-| **Win Rate** | **57.0%** | Avg across years |
-| **Max Drawdown** | **2.83%** | Global Worst Case |
-| **Time in DD** | **70%** | % Time Underwater |
+| **Total Return** | **44.90%** | Cumulative (1 Years) |
+| **Avg Annual** | **44.90%** | Mean of yearly returns |
+| **Win Rate** | **62.0%** | Avg across years |
+| **Max Drawdown** | **2.75%** | Global Worst Case |
+| **Time in DD** | **67%** | % Time Underwater |
 | **Timeframe** | **5m** | Candle Size |
 | **Best Config** | `{"rsi_period": 14, "stoch_period": 14, "k_period": 3, "d_period": 3, "overbought": 80, "oversold": 20, "adx_period": 14, "adx_threshold": 25, "stop_loss_atr": 2.0, "atr_period": 14}` | Winning Parameters |
 
 ### 📉 Risk Analysis
-- **Longest Dry Spell**: 44 Days
-- **Worst Year**: 2024 (39.03%)
+- **Longest Dry Spell**: 36 Days
+- **Worst Year**: 2024 (44.90%)
 
 ### 🗓️ Yearly Breakdown
 | Year | Return | Win Rate | DD | Trades |
 | :--- | :--- | :--- | :--- | :--- |
-| 2024 | 39.03% | 57.0% | 2.04% | 1275 |
+| 2024 | 44.90% | 62.0% | 2.54% | 1261 |
 
 ### 📜 Iteration History (Variations)
 | Iter | TF | Return | Costs | Reality | Params |
 | :--- | :--- | :--- | :--- | :--- | :--- |
+| **2** | 5m | **39.03%** | Raw | - | `{}` |
 | **1** | 15m | **18.59%** | Raw | - | `{"rsi_period": 7}` |
+| **3** | 1h | **-0.88%** | Real | - | `{}` |
 
 ---
 
@@ -65,6 +67,7 @@
 | Iter | TF | Return | Costs | Reality | Params |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **2** | 15m | **65.20%** | Raw | - | `{"rsi_period": 7}` |
+| **3** | 15m | **19.79%** | Real | - | `{}` |
 
 ---
 
@@ -145,6 +148,11 @@
 | 2021 | 2.61% | 53.0% | 5.85% | 326 |
 | 2020 | 0.13% | 47.0% | 4.01% | 97 |
 
+### 📜 Iteration History (Variations)
+| Iter | TF | Return | Costs | Reality | Params |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **2** | 15m | **3.10%** | Real | - | `{}` |
+
 ---
 
 ## 5. RapidFireTest on BTC/USD
@@ -182,37 +190,7 @@
 
 ---
 
-## 6. MACDBollinger on QQQ
-> **Status**: 🟢 Verified Strategy | **Stability**: Low (Score: 0.1)
-
-### 📊 Strategy Profile (Iteration 1)
-| Metric | Value | Notes |
-| :--- | :--- | :--- |
-| **Total Return** | **2.44%** | Cumulative (6 Years) |
-| **Avg Annual** | **1.03%** | Mean of yearly returns |
-| **Win Rate** | **29.3%** | Avg across years |
-| **Max Drawdown** | **20.37%** | Global Worst Case |
-| **Time in DD** | **99%** | % Time Underwater |
-| **Timeframe** | **1h** | Candle Size |
-| **Best Config** | `{"bb_period": 20, "bb_std": 2.0, "macd_fast": 12, "macd_slow": 26, "macd_signal": 9, "sl_atr": 2.0, "atr_period": 14, "use_trailing_stop": true, "trailing_atr_dist": 3.0, "use_adx_filter": false, "adx_threshold": 25}` | Winning Parameters |
-
-### 📉 Risk Analysis
-- **Longest Dry Spell**: 0 Days
-- **Worst Year**: 2021 (-11.75%)
-
-### 🗓️ Yearly Breakdown
-| Year | Return | Win Rate | DD | Trades |
-| :--- | :--- | :--- | :--- | :--- |
-| 2025 | -10.76% | 24.0% | 13.71% | 108 |
-| 2024 | 9.75% | 32.0% | 11.49% | 110 |
-| 2023 | -1.08% | 32.0% | 9.80% | 100 |
-| 2022 | 21.15% | 34.0% | 10.04% | 88 |
-| 2021 | -11.75% | 27.0% | 14.90% | 108 |
-| 2020 | -1.10% | 27.0% | 13.46% | 48 |
-
----
-
-## 7. DonchianBreakout on QQQ
+## 6. DonchianBreakout on QQQ
 > **Status**: 🟢 Verified Strategy | **Stability**: Low (Score: 0.6)
 
 ### 📊 Strategy Profile (Iteration 2)
@@ -243,7 +221,38 @@
 ### 📜 Iteration History (Variations)
 | Iter | TF | Return | Costs | Reality | Params |
 | :--- | :--- | :--- | :--- | :--- | :--- |
+| **3** | 4h | **22.61%** | Real | - | `{"entry_period": 20, "exit_period": 10, "stop_loss_atr": 2.0, "atr_period": 20}` |
 | **1** | 1h | **13.62%** | Raw | - | `{"entry_period": 20, "exit_period": 10, "stop_loss_atr": 2.0, "atr_period": 20}` |
+
+---
+
+## 7. MACDBollinger on QQQ
+> **Status**: 🟢 Verified Strategy | **Stability**: Low (Score: 0.1)
+
+### 📊 Strategy Profile (Iteration 1)
+| Metric | Value | Notes |
+| :--- | :--- | :--- |
+| **Total Return** | **2.44%** | Cumulative (6 Years) |
+| **Avg Annual** | **1.03%** | Mean of yearly returns |
+| **Win Rate** | **29.3%** | Avg across years |
+| **Max Drawdown** | **20.37%** | Global Worst Case |
+| **Time in DD** | **99%** | % Time Underwater |
+| **Timeframe** | **1h** | Candle Size |
+| **Best Config** | `{"bb_period": 20, "bb_std": 2.0, "macd_fast": 12, "macd_slow": 26, "macd_signal": 9, "sl_atr": 2.0, "atr_period": 14, "use_trailing_stop": true, "trailing_atr_dist": 3.0, "use_adx_filter": false, "adx_threshold": 25}` | Winning Parameters |
+
+### 📉 Risk Analysis
+- **Longest Dry Spell**: 0 Days
+- **Worst Year**: 2021 (-11.75%)
+
+### 🗓️ Yearly Breakdown
+| Year | Return | Win Rate | DD | Trades |
+| :--- | :--- | :--- | :--- | :--- |
+| 2025 | -10.76% | 24.0% | 13.71% | 108 |
+| 2024 | 9.75% | 32.0% | 11.49% | 110 |
+| 2023 | -1.08% | 32.0% | 9.80% | 100 |
+| 2022 | 21.15% | 34.0% | 10.04% | 88 |
+| 2021 | -11.75% | 27.0% | 14.90% | 108 |
+| 2020 | -1.10% | 27.0% | 13.46% | 48 |
 
 ---
 
@@ -277,33 +286,7 @@
 
 ---
 
-## 9. RegimeGatedStoch on BTC/USD
-> **Status**: 🟡 Watchlist Candidate | **Stability**: Moderate (Score: 1.2)
-
-### 📊 Strategy Profile (Iteration 1)
-| Metric | Value | Notes |
-| :--- | :--- | :--- |
-| **Total Return** | **3.49%** | Cumulative (2 Years) |
-| **Avg Annual** | **1.74%** | Mean of yearly returns |
-| **Win Rate** | **55.5%** | Avg across years |
-| **Max Drawdown** | **15.98%** | Global Worst Case |
-| **Time in DD** | **95%** | % Time Underwater |
-| **Timeframe** | **1h** | Candle Size |
-| **Best Config** | `{"rsi_period": 14, "stoch_period": 14, "k_period": 3, "d_period": 3, "overbought": 80, "oversold": 20, "adx_period": 14, "adx_threshold": 25, "stop_loss_atr": 2.0, "atr_period": 14, "sma_fast": 50, "sma_slow": 200, "vol_multiplier": 1.5}` | Winning Parameters |
-
-### 📉 Risk Analysis
-- **Longest Dry Spell**: 0 Days
-- **Worst Year**: 2024 (0.34%)
-
-### 🗓️ Yearly Breakdown
-| Year | Return | Win Rate | DD | Trades |
-| :--- | :--- | :--- | :--- | :--- |
-| 2025 | 3.14% | 55.0% | 10.35% | 262 |
-| 2024 | 0.34% | 56.0% | 17.01% | 251 |
-
----
-
-## 10. RegimeGatedStoch on SPY
+## 9. RegimeGatedStoch on SPY
 > **Status**: 🟡 Watchlist Candidate | **Stability**: Low (Score: 0.4)
 
 ### 📊 Strategy Profile (Iteration 1)
@@ -330,6 +313,32 @@
 | 2022 | 10.48% | 74.0% | 4.32% | 54 |
 | 2021 | 0.16% | 60.0% | 5.14% | 75 |
 | 2020 | 3.86% | 68.0% | 2.32% | 31 |
+
+---
+
+## 10. RegimeGatedStoch on BTC/USD
+> **Status**: 🟡 Watchlist Candidate | **Stability**: Moderate (Score: 1.2)
+
+### 📊 Strategy Profile (Iteration 1)
+| Metric | Value | Notes |
+| :--- | :--- | :--- |
+| **Total Return** | **3.49%** | Cumulative (2 Years) |
+| **Avg Annual** | **1.74%** | Mean of yearly returns |
+| **Win Rate** | **55.5%** | Avg across years |
+| **Max Drawdown** | **15.98%** | Global Worst Case |
+| **Time in DD** | **95%** | % Time Underwater |
+| **Timeframe** | **1h** | Candle Size |
+| **Best Config** | `{"rsi_period": 14, "stoch_period": 14, "k_period": 3, "d_period": 3, "overbought": 80, "oversold": 20, "adx_period": 14, "adx_threshold": 25, "stop_loss_atr": 2.0, "atr_period": 14, "sma_fast": 50, "sma_slow": 200, "vol_multiplier": 1.5}` | Winning Parameters |
+
+### 📉 Risk Analysis
+- **Longest Dry Spell**: 0 Days
+- **Worst Year**: 2024 (0.34%)
+
+### 🗓️ Yearly Breakdown
+| Year | Return | Win Rate | DD | Trades |
+| :--- | :--- | :--- | :--- | :--- |
+| 2025 | 3.14% | 55.0% | 10.35% | 262 |
+| 2024 | 0.34% | 56.0% | 17.01% | 251 |
 
 ---
 
