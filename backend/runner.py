@@ -373,7 +373,9 @@ def run_backtest(args):
                         "equity_curve": slice_curve
                     },
                     "parameters": params,
-                    "iteration_index": iteration_index
+                    "iteration_index": iteration_index,
+                    "spread": args.spread,
+                    "execution_delay": args.delay
                 }
                 db.save_test_run(output)
                 print(f"  {year}: {year_return_pct:.2f}% Return, {year_max_dd:.2f}% DD, {total_trades} Trades (Iter {iteration_index})")
@@ -397,7 +399,9 @@ def run_backtest(args):
             "end": args.end,
             "metrics": results,
             "parameters": params,
-            "iteration_index": iteration_index
+            "iteration_index": iteration_index,
+            "spread": args.spread,
+            "execution_delay": args.delay
         }
         db.save_test_run(output)
         print(f"Results saved to SQLite Database.")

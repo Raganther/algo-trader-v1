@@ -401,21 +401,27 @@ class InsightManager:
                     icon = "🟢" if iter_delta >= -5 else "🔴"
                     reality_badge = f"{icon} {iter_delta:+.1f}%"
 
+                # Determine Real vs Raw costs
+                iter_spread = iter_runs[0].get('spread', 0) or 0
+                iter_delay = iter_runs[0].get('execution_delay', 0) or 0
+                costs_tag = "Real" if (iter_spread > 0 and iter_delay > 0) else "Raw"
+
                 other_iterations.append({
                     'iteration': idx,
                     'return': tot_ret,
                     'params': json.dumps(clean_p),
                     'timeframe': iter_runs[0]['timeframe'],
+                    'costs': costs_tag,
                     'reality': reality_badge
                 })
             
             if other_iterations:
                 content += "### 📜 Iteration History (Variations)\n"
-                content += "| Iter | TF | Return | Reality | Params |\n"
-                content += "| :--- | :--- | :--- | :--- | :--- |\n"
+                content += "| Iter | TF | Return | Costs | Reality | Params |\n"
+                content += "| :--- | :--- | :--- | :--- | :--- | :--- |\n"
                 other_iterations.sort(key=lambda x: x['return'], reverse=True)
                 for r in other_iterations:
-                    content += f"| **{r['iteration']}** | {r['timeframe']} | **{r['return']:.2f}%** | {r['reality']} | `{r['params']}` |\n"
+                    content += f"| **{r['iteration']}** | {r['timeframe']} | **{r['return']:.2f}%** | {r['costs']} | {r['reality']} | `{r['params']}` |\n"
                 content += "\n"
                 
             content += "---\n\n"

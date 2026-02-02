@@ -32,15 +32,22 @@ class DatabaseManager:
                 total_trades INTEGER,
                 parameters TEXT, -- JSON string
                 timestamp TEXT,
-                iteration_index INTEGER DEFAULT 0
+                iteration_index INTEGER DEFAULT 0,
+                spread REAL DEFAULT 0,
+                execution_delay INTEGER DEFAULT 0
             )
         ''')
         
-        # Migration: Add column if missing
-        try:
-            cursor.execute('ALTER TABLE test_runs ADD COLUMN iteration_index INTEGER DEFAULT 0')
-        except sqlite3.OperationalError:
-            pass # Column likely exists
+        # Migration: Add columns if missing
+        for col_sql in [
+            'ALTER TABLE test_runs ADD COLUMN iteration_index INTEGER DEFAULT 0',
+            'ALTER TABLE test_runs ADD COLUMN spread REAL DEFAULT 0',
+            'ALTER TABLE test_runs ADD COLUMN execution_delay INTEGER DEFAULT 0',
+        ]:
+            try:
+                cursor.execute(col_sql)
+            except sqlite3.OperationalError:
+                pass # Column likely exists
         
         # 2. Equity Curves Table (Heavy Data)
         # Linked by test_id
@@ -137,8 +144,9 @@ class DatabaseManager:
             cursor.execute('''
                 INSERT OR REPLACE INTO test_runs (
                     test_id, strategy, symbol, timeframe, start_date, end_date,
-                    return_pct, max_drawdown, win_rate, total_trades, parameters, timestamp, iteration_index
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    return_pct, max_drawdown, win_rate, total_trades, parameters, timestamp, iteration_index,
+                    spread, execution_delay
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 data['test_id'],
                 data['strategy'],
@@ -152,7 +160,9 @@ class DatabaseManager:
                 metrics.get('total_trades', 0),
                 params,
                 datetime.now().isoformat(),
-                data.get('iteration_index', 0)
+                data.get('iteration_index', 0),
+                data.get('spread', 0),
+                data.get('execution_delay', 0)
             ))
             
             # Insert into equity_curves

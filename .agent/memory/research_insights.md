@@ -27,9 +27,9 @@
 | 2024 | 39.03% | 57.0% | 2.04% | 1275 |
 
 ### 📜 Iteration History (Variations)
-| Iter | TF | Return | Reality | Params |
-| :--- | :--- | :--- | :--- | :--- |
-| **1** | 15m | **18.59%** | - | `{"rsi_period": 7}` |
+| Iter | TF | Return | Costs | Reality | Params |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **1** | 15m | **18.59%** | Raw | - | `{"rsi_period": 7}` |
 
 ---
 
@@ -62,9 +62,9 @@
 | 2020 | 21.05% | 58.0% | 6.24% | 106 |
 
 ### 📜 Iteration History (Variations)
-| Iter | TF | Return | Reality | Params |
-| :--- | :--- | :--- | :--- | :--- |
-| **2** | 15m | **65.20%** | - | `{"rsi_period": 7}` |
+| Iter | TF | Return | Costs | Reality | Params |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **2** | 15m | **65.20%** | Raw | - | `{"rsi_period": 7}` |
 
 ---
 
@@ -97,20 +97,23 @@
 | 2020 | 2.76% | 56.0% | 2.17% | 142 |
 
 ### 📜 Iteration History (Variations)
-| Iter | TF | Return | Reality | Params |
-| :--- | :--- | :--- | :--- | :--- |
-| **11** | 15m | **31.03%** | - | `{"rsi_period": 7}` |
-| **5** | 1h | **17.15%** | - | `{"rsi_period": 7}` |
-| **1** | 1h | **14.04%** | - | `{}` |
-| **4** | 1h | **14.04%** | - | `{"rsi_period": 7}` |
-| **2** | 1h | **12.48%** | - | `{"oversold": 10, "overbought": 90, "rsi_period": 10}` |
-| **12** | 15m | **11.59%** | - | `{"rsi_period": 7}` |
-| **3** | 1h | **10.04%** | - | `{"oversold": 30, "overbought": 70}` |
-| **9** | 1h | **4.18%** | - | `{}` |
-| **8** | 1d | **2.99%** | - | `{"rsi_period": 7}` |
-| **13** | 1h | **1.30%** | - | `{"rsi_period": 7}` |
-| **10** | 1h | **1.28%** | - | `{}` |
-| **7** | 4h | **-4.53%** | - | `{"rsi_period": 7}` |
+| Iter | TF | Return | Costs | Reality | Params |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **14** | 15m | **47.29%** | Raw | - | `{}` |
+| **11** | 15m | **31.03%** | Raw | - | `{"rsi_period": 7}` |
+| **15** | 15m | **31.03%** | Raw | - | `{"rsi_period": 7}` |
+| **5** | 1h | **17.15%** | Raw | - | `{"rsi_period": 7}` |
+| **1** | 1h | **14.04%** | Raw | - | `{}` |
+| **4** | 1h | **14.04%** | Raw | - | `{"rsi_period": 7}` |
+| **2** | 1h | **12.48%** | Raw | - | `{"oversold": 10, "overbought": 90, "rsi_period": 10}` |
+| **12** | 15m | **11.59%** | Raw | - | `{"rsi_period": 7}` |
+| **3** | 1h | **10.04%** | Raw | - | `{"oversold": 30, "overbought": 70}` |
+| **9** | 1h | **4.18%** | Raw | - | `{}` |
+| **8** | 1d | **2.99%** | Raw | - | `{"rsi_period": 7}` |
+| **13** | 1h | **1.30%** | Raw | - | `{"rsi_period": 7}` |
+| **10** | 1h | **1.28%** | Raw | - | `{}` |
+| **7** | 4h | **-4.53%** | Raw | - | `{"rsi_period": 7}` |
+| **16** | 15m | **-8.61%** | Real | - | `{}` |
 
 ---
 
@@ -238,9 +241,9 @@
 | 2020 | -2.52% | 27.0% | 11.43% | 11 |
 
 ### 📜 Iteration History (Variations)
-| Iter | TF | Return | Reality | Params |
-| :--- | :--- | :--- | :--- | :--- |
-| **1** | 1h | **13.62%** | - | `{"entry_period": 20, "exit_period": 10, "stop_loss_atr": 2.0, "atr_period": 20}` |
+| Iter | TF | Return | Costs | Reality | Params |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **1** | 1h | **13.62%** | Raw | - | `{"entry_period": 20, "exit_period": 10, "stop_loss_atr": 2.0, "atr_period": 20}` |
 
 ---
 

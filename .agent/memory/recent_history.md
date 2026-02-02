@@ -1,4 +1,13 @@
-### 1dc5d09 - docs: Update system manual with testing standards and workflow automation (3 seconds ago)
+### 4269c04 - feat: Add Real/Raw cost tag to iteration history table (5 minutes ago)
+
+Track spread and execution_delay per test run in the database,
+and display a Costs column (Real/Raw) in the iteration history
+so realistic results are easily distinguishable from raw backtests.
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+---
+### 5c2653d - docs: Update system manual with testing standards and workflow automation (35 minutes ago)
 
 Detailed Changes:
 - [Update] Core Architecture section: Added realistic cost modeling and automation components
@@ -29,7 +38,7 @@ Key Improvements:
 - Updated to 282 lines (from ~95 lines)
 
 ---
-### ac5a713 - feat: Add realistic testing standards and wrapper script (4 minutes ago)
+### ac5a713 - feat: Add realistic testing standards and wrapper script (39 minutes ago)
 
 Detailed Changes:
 - [Feat] Created scripts/realistic-test.sh wrapper that auto-applies realistic settings:
@@ -240,11 +249,5 @@ Detailed Findings:
 - Updated analyze_results.py to compare Win Rate instead of Return for Reality Check.
 - Fixed database persistence issue for Insight parameters (win_rate).
 - Updated System Manual.
-
----
-### 3246ac9 - fix: Restore update_memory.sh and recent_history.md log format (8 weeks ago)
-
-- Recreated .agent/scripts/update_memory.sh to maintain detailed git log history.
-- Restored recent_history.md with last 20 commits including bodies.
 
 ---
