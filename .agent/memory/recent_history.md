@@ -1,4 +1,13 @@
-### 4269c04 - feat: Add Real/Raw cost tag to iteration history table (5 minutes ago)
+### 08d2aa6 - refactor: Move regime chart from .agent to reports directory (8 seconds ago)
+
+.agent/ should contain system intelligence (memory, workflows, automation),
+not output artifacts. Moved regime_chart_SPY_1d.html to reports/ where
+visualization outputs belong.
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+---
+### 5644d1e - feat: Add Real/Raw cost tag to iteration history table (2 hours ago)
 
 Track spread and execution_delay per test run in the database,
 and display a Costs column (Real/Raw) in the iteration history
@@ -7,7 +16,7 @@ so realistic results are easily distinguishable from raw backtests.
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 ---
-### 5c2653d - docs: Update system manual with testing standards and workflow automation (35 minutes ago)
+### 5c2653d - docs: Update system manual with testing standards and workflow automation (3 hours ago)
 
 Detailed Changes:
 - [Update] Core Architecture section: Added realistic cost modeling and automation components
@@ -38,7 +47,7 @@ Key Improvements:
 - Updated to 282 lines (from ~95 lines)
 
 ---
-### ac5a713 - feat: Add realistic testing standards and wrapper script (39 minutes ago)
+### ac5a713 - feat: Add realistic testing standards and wrapper script (3 hours ago)
 
 Detailed Changes:
 - [Feat] Created scripts/realistic-test.sh wrapper that auto-applies realistic settings:
@@ -70,7 +79,7 @@ Key Findings:
 Recommendation: All future tests should use realistic-test.sh wrapper for accurate performance estimates.
 
 ---
-### c5f0706 - feat: Add automatic test-and-sync wrapper + fix data_loader bug (4 hours ago)
+### c5f0706 - feat: Add automatic test-and-sync wrapper + fix data_loader bug (6 hours ago)
 
 Detailed Changes:
 - [Fix] Resolved IndentationError in backend/engine/data_loader.py (duplicate else statement on line 26-27).
@@ -241,13 +250,5 @@ Detailed Findings:
 - Fixed Missing Metrics: Injected return/win_rate into insight parameters to prevent 0.00% display.
 - Validated RapidFireTest: Confirmed correct 'Reality Gap' calculation (-16.0% gap for latest session).
 - Prep: Ready for full database reset.
-
----
-### 91110bc - fix: Improve Alpaca connection stability and refine analysis (8 weeks ago)
-
-- Implemented exponential backoff retry logic in LiveBroker.refresh() to handle RemoteDisconnected errors.
-- Updated analyze_results.py to compare Win Rate instead of Return for Reality Check.
-- Fixed database persistence issue for Insight parameters (win_rate).
-- Updated System Manual.
 
 ---
