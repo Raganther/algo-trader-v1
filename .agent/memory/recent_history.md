@@ -1,4 +1,38 @@
-### cce7fa2 - test: Realistic cost validation of top 5 strategies (2024) (9 seconds ago)
+### 3bf597a - docs: Document forward testing setup and progress (7 seconds ago)
+
+Created forward_testing_plan.md documenting the complete setup process
+for running multi-week forward tests on Google Cloud.
+
+## Completed Today (Phase 1)
+- Set up Google Cloud e2-micro instance (Ubuntu 22.04)
+- Deployed code and installed all Python dependencies
+- Configured Alpaca API keys for paper trading
+- Successfully tested live trading connection (IWM 15m)
+- Verified trade logging to database
+
+## Server Details
+- Provider: Google Cloud Platform
+- Instance: e2-micro (1 GB RAM, 2 vCPU)
+- Cost: ~$7/month (covered by $300 free credit for 90 days)
+- OS: Ubuntu 22.04 LTS
+- Location: us-central1
+
+## Next Steps (Tomorrow)
+1. Install PM2 process manager for 24/7 background execution
+2. Monitor initial 3-day test run for stability
+3. Add QQQ 5m and QQQ 4h strategies after verification
+4. Run all 3 strategies for 2+ weeks
+5. Download database and analyze real Alpaca trading costs
+
+## Goal
+Measure actual spreads, slippage, and performance to validate
+backtest assumptions and update realistic-test.sh settings with
+real-world data.
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+---
+### 6bbe78b - test: Realistic cost validation of top 5 strategies (2024) (3 hours ago)
 
 Ran realistic backtests (spread=0.0001, delay=1) on top-performing strategies
 to validate performance with trading costs. Results reveal critical insights
@@ -57,7 +91,7 @@ about strategy viability and overfitting reduction.
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
 ---
-### 153e1ae - refactor: Move regime chart from .agent to reports directory (55 minutes ago)
+### 153e1ae - refactor: Move regime chart from .agent to reports directory (4 hours ago)
 
 .agent/ should contain system intelligence (memory, workflows, automation),
 not output artifacts. Moved regime_chart_SPY_1d.html to reports/ where
@@ -66,7 +100,7 @@ visualization outputs belong.
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
 ---
-### 5644d1e - feat: Add Real/Raw cost tag to iteration history table (3 hours ago)
+### 5644d1e - feat: Add Real/Raw cost tag to iteration history table (6 hours ago)
 
 Track spread and execution_delay per test run in the database,
 and display a Costs column (Real/Raw) in the iteration history
@@ -75,7 +109,7 @@ so realistic results are easily distinguishable from raw backtests.
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 ---
-### 5c2653d - docs: Update system manual with testing standards and workflow automation (4 hours ago)
+### 5c2653d - docs: Update system manual with testing standards and workflow automation (7 hours ago)
 
 Detailed Changes:
 - [Update] Core Architecture section: Added realistic cost modeling and automation components
@@ -106,7 +140,7 @@ Key Improvements:
 - Updated to 282 lines (from ~95 lines)
 
 ---
-### ac5a713 - feat: Add realistic testing standards and wrapper script (4 hours ago)
+### ac5a713 - feat: Add realistic testing standards and wrapper script (7 hours ago)
 
 Detailed Changes:
 - [Feat] Created scripts/realistic-test.sh wrapper that auto-applies realistic settings:
@@ -138,7 +172,7 @@ Key Findings:
 Recommendation: All future tests should use realistic-test.sh wrapper for accurate performance estimates.
 
 ---
-### c5f0706 - feat: Add automatic test-and-sync wrapper + fix data_loader bug (7 hours ago)
+### c5f0706 - feat: Add automatic test-and-sync wrapper + fix data_loader bug (11 hours ago)
 
 Detailed Changes:
 - [Fix] Resolved IndentationError in backend/engine/data_loader.py (duplicate else statement on line 26-27).
@@ -286,17 +320,5 @@ Detailed Changes:
 - Updated runner.py to auto-increment iteration index for new runs.
 - Refactored analyze_results.py to display 'Best Config' and 'Iteration History'.
 - Ran Matrix Backtest for StochRSIMeanReversion (Iteration 1) on SPY (2020-2025).
-
----
-### debdf95 - Refactor: System Cleanup and Redundancy Removal (7 weeks ago)
-
-Detailed Findings:
-- Deleted 'backend/paper_runner.py' (Redundant legacy script).
-- Deleted 'backend/run_live_strategy.py' (Redundant legacy script).
-- Deleted 'backend/database.sqlite' (Redundant old DB).
-- Deleted 'results.db' (Redundant artifact).
-- Verified 'runner.py' handles all Backtest/Matrix/Trade functions.
-- Verified 'backend/engine/backtester.py' supports CSV backtesting independently of Alpaca.
-- Confirmed system is ready for 'research.db' reset.
 
 ---
