@@ -61,6 +61,11 @@
 | 2021 | 3.48% | 51.0% | 8.90% | 247 |
 | 2020 | 21.05% | 58.0% | 6.24% | 106 |
 
+### 📜 Iteration History (Variations)
+| Iter | TF | Return | Reality | Params |
+| :--- | :--- | :--- | :--- | :--- |
+| **2** | 15m | **65.20%** | - | `{"rsi_period": 7}` |
+
 ---
 
 ## 3. StochRSIMeanReversion on SPY
@@ -94,13 +99,16 @@
 ### 📜 Iteration History (Variations)
 | Iter | TF | Return | Reality | Params |
 | :--- | :--- | :--- | :--- | :--- |
+| **11** | 15m | **31.03%** | - | `{"rsi_period": 7}` |
 | **5** | 1h | **17.15%** | - | `{"rsi_period": 7}` |
 | **1** | 1h | **14.04%** | - | `{}` |
 | **4** | 1h | **14.04%** | - | `{"rsi_period": 7}` |
 | **2** | 1h | **12.48%** | - | `{"oversold": 10, "overbought": 90, "rsi_period": 10}` |
+| **12** | 15m | **11.59%** | - | `{"rsi_period": 7}` |
 | **3** | 1h | **10.04%** | - | `{"oversold": 30, "overbought": 70}` |
 | **9** | 1h | **4.18%** | - | `{}` |
 | **8** | 1d | **2.99%** | - | `{"rsi_period": 7}` |
+| **13** | 1h | **1.30%** | - | `{"rsi_period": 7}` |
 | **10** | 1h | **1.28%** | - | `{}` |
 | **7** | 4h | **-4.53%** | - | `{"rsi_period": 7}` |
 
@@ -289,6 +297,36 @@
 | :--- | :--- | :--- | :--- | :--- |
 | 2025 | 3.14% | 55.0% | 10.35% | 262 |
 | 2024 | 0.34% | 56.0% | 17.01% | 251 |
+
+---
+
+## 10. RegimeGatedStoch on SPY
+> **Status**: 🟡 Watchlist Candidate | **Stability**: Low (Score: 0.4)
+
+### 📊 Strategy Profile (Iteration 1)
+| Metric | Value | Notes |
+| :--- | :--- | :--- |
+| **Total Return** | **11.70%** | Cumulative (6 Years) |
+| **Avg Annual** | **2.01%** | Mean of yearly returns |
+| **Win Rate** | **60.5%** | Avg across years |
+| **Max Drawdown** | **11.31%** | Global Worst Case |
+| **Time in DD** | **85%** | % Time Underwater |
+| **Timeframe** | **1h** | Candle Size |
+| **Best Config** | `{"rsi_period": 14, "stoch_period": 14, "k_period": 3, "d_period": 3, "overbought": 80, "oversold": 20, "adx_period": 14, "adx_threshold": 25, "stop_loss_atr": 2.0, "atr_period": 14, "sma_fast": 50, "sma_slow": 200, "vol_multiplier": 1.5}` | Winning Parameters |
+
+### 📉 Risk Analysis
+- **Longest Dry Spell**: 0 Days
+- **Worst Year**: 2025 (-6.86%)
+
+### 🗓️ Yearly Breakdown
+| Year | Return | Win Rate | DD | Trades |
+| :--- | :--- | :--- | :--- | :--- |
+| 2025 | -6.86% | 50.0% | 9.02% | 84 |
+| 2024 | -1.46% | 52.0% | 3.62% | 52 |
+| 2023 | 5.90% | 59.0% | 3.15% | 74 |
+| 2022 | 10.48% | 74.0% | 4.32% | 54 |
+| 2021 | 0.16% | 60.0% | 5.14% | 75 |
+| 2020 | 3.86% | 68.0% | 2.32% | 31 |
 
 ---
 

@@ -1,4 +1,36 @@
-### 053cbf2 - feat: Add automatic test-and-sync wrapper + fix data_loader bug (12 seconds ago)
+### ca2884c - feat: Add realistic testing standards and wrapper script (9 seconds ago)
+
+Detailed Changes:
+- [Feat] Created scripts/realistic-test.sh wrapper that auto-applies realistic settings:
+  * Detects asset type (Stock/Crypto/Forex)
+  * Applies appropriate spread (0.0001 for stocks, 0.0002 for crypto/forex)
+  * Forces execution delay of 1 bar (realistic order fill)
+  * Uses Alpaca API for consistent data
+- [Docs] Created docs/testing-standards.md comprehensive guide:
+  * Explains why spread/delay matter (30% impact on returns!)
+  * Provides recommended settings by asset class
+  * Documents before/after comparison
+  * Migration plan from old tests to realistic tests
+- [Test] Validated realistic settings impact:
+  * IWM: 96.29% (no costs) → 65.21% (realistic) = -31% difference
+  * SPY: 54.36% (no costs) → 31.87% (realistic) = -22% difference
+  * Spread/delay account for 5-7% per year on active strategies
+- [Fix] Identified reproducibility issues:
+  * Original tests likely used spread=0, delay=0 (unrealistic)
+  * Data from Alpaca may have been revised/corrected over time
+  * 2025 data was incomplete in Dec 2025 runs vs Feb 2026 reruns
+- [System] Database now has 114 test runs (added iterations 11-13)
+
+Key Findings:
+- Strategies still profitable with realistic costs!
+- IWM: 65% over 6 years (realistic) is excellent
+- SPY: 32% over 6 years (realistic) is solid
+- Testing standards now enforce robust, tradeable results
+
+Recommendation: All future tests should use realistic-test.sh wrapper for accurate performance estimates.
+
+---
+### c5f0706 - feat: Add automatic test-and-sync wrapper + fix data_loader bug (4 hours ago)
 
 Detailed Changes:
 - [Fix] Resolved IndentationError in backend/engine/data_loader.py (duplicate else statement on line 26-27).
@@ -191,15 +223,5 @@ Detailed Findings:
 - Added 'Reality Gap' (Delta) metric to research_insights.md to compare Theory vs Reality.
 - Validated pipeline with RapidFireTest on BTC/USD (21-trade session recovered).
 - Updated System Manual and Walkthrough.
-
----
-### f32fec1 - feat: Implement Forward Test Analysis Pipeline (8 weeks ago)
-
-Detailed Findings:
-- Implemented 'Theory vs Reality' feedback loop in analyze_results.py.
-- Added 'get_live_trades' to DatabaseManager to harvest live logs.
-- Updated 'research_insights.md' to include 'Baseline Established' category.
-- Verified pipeline with RapidFireTest on BTC/USD (Baseline: 0.5% Return).
-- Fixed path mismatch for research_insights.md.
 
 ---
