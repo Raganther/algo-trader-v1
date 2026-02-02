@@ -24,7 +24,6 @@ class DataLoader:
             if not os.path.exists(self.data_dir):
                 print(f"Data directory not found: {self.data_dir}")
             else:
-            else:
                 for filename in os.listdir(self.data_dir):
                     # Check for CSV or GZ
                     is_csv = filename.endswith(f"_{interval}.csv")

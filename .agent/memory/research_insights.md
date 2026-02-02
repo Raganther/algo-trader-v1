@@ -99,7 +99,9 @@
 | **4** | 1h | **14.04%** | - | `{"rsi_period": 7}` |
 | **2** | 1h | **12.48%** | - | `{"oversold": 10, "overbought": 90, "rsi_period": 10}` |
 | **3** | 1h | **10.04%** | - | `{"oversold": 30, "overbought": 70}` |
+| **9** | 1h | **4.18%** | - | `{}` |
 | **8** | 1d | **2.99%** | - | `{"rsi_period": 7}` |
+| **10** | 1h | **1.28%** | - | `{}` |
 | **7** | 4h | **-4.53%** | - | `{"rsi_period": 7}` |
 
 ---
@@ -296,19 +298,16 @@
 ### SPY (5 Years)
 | Regime | % of Time | Avg Daily Volatility (ATR) |
 | :--- | :--- | :--- |
-| **🟢 BULL_TREND** | 20.3% | 4.43 |
+| **🟢 BULL_TREND** | 19.5% | 4.48 |
 | **🔴 BEAR_TREND** | 3.5% | 9.99 |
-| **⚪ RANGING** | 66.6% | 5.89 |
+| **⚪ RANGING** | 67.3% | 5.90 |
 | **🟣 VOLATILE** | 9.6% | 10.60 |
 
 ### BTC/USD (2 Years)
 | Regime | % of Time | Avg Daily Volatility (ATR) |
 | :--- | :--- | :--- |
-| **🟢 BULL_TREND** | 7.1% | 3147.94 |
-| **🔴 BEAR_TREND** | 4.0% | 4169.25 |
-| **⚪ RANGING** | 80.4% | 2926.15 |
+| **🟢 BULL_TREND** | 5.5% | 3314.75 |
+| **🔴 BEAR_TREND** | 7.9% | 3672.82 |
+| **⚪ RANGING** | 78.1% | 2955.14 |
 | **🟣 VOLATILE** | 8.5% | 4498.90 |
-
-
-## New Insights (Auto-Curated)
 
