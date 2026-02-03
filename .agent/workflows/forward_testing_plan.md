@@ -149,6 +149,94 @@ pm2 delete iwm-15m      # Remove process
 
 ---
 
+### 🔧 Phase 2.5: Debugging & BTC Addition - IN PROGRESS (2026-02-03 Evening)
+
+**Issues Found & Fixed:**
+- ❌ Database schema missing `iteration_index` column (crash-looping bots)
+  - ✅ Fixed: Added column via Python on cloud server
+- ❌ IWM startup script had malformed EOF syntax
+  - ✅ Fixed: Rewrote `start_iwm.sh` with proper bash syntax
+- ❌ PM2 directory context issue causing module import errors
+  - ✅ Fixed: All bots now use startup scripts with `cd ~/algo-trader-v1`
+
+**BTC 1m Bot Added (Testing Platform):**
+- ✅ Created `start_btc_loop.sh` with auto-restart wrapper
+- ✅ Bot runs 24/7 on BTC/USD (trades continuously, not market hours)
+- ✅ Generating high-frequency trades for Alpaca integration testing
+- ⚠️ **CRITICAL ISSUE DISCOVERED:** Bot stops consistently after 5-10 minutes
+
+### ⚠️ Critical Issue: Bot Auto-Stop Behavior
+
+**Problem:**
+The BTC bot (and potentially others) consistently stops after 5-10 minutes with `KeyboardInterrupt`:
+- Receives bars successfully ✅
+- Executes trades on Alpaca ✅
+- Logs to database ✅
+- Then prints "Live Trading Stopped" and exits ❌
+
+**Evidence:**
+```
+21:12 - BUY executed ✅
+21:13-21:18 - Bars received (6 minutes)
+21:19 - "Live Trading Stopped" ❌
+21:21 - Auto-restart via wrapper ✅
+21:24 - SELL executed ✅ (continues working)
+```
+
+**Root Cause: UNKNOWN** - Possible causes:
+1. Alpaca API session timeout
+2. Alpaca SDK connection keepalive issue
+3. Rate limiting after X requests
+4. Memory leak causing crash
+5. Bug in data fetching loop
+
+**Current Workaround:**
+- ✅ Bash wrapper script auto-restarts bot within 5 seconds
+- ✅ Bot reconnects to Alpaca and fetches existing positions
+- ✅ Continues trading after restart
+- ⚠️ Band-aid solution, not a fix
+
+**Trade Safety Analysis:**
+
+*Good News:*
+- ✅ `LiveBroker.refresh()` fetches existing positions on startup (live_broker.py:52)
+- ✅ Bot should reconnect and continue managing open trades
+- ✅ Database shows trades before/after restarts (10+ successful trades logged)
+
+*Risks:*
+- ⚠️ If Alpaca is unreachable during restart, `refresh()` fails silently
+- ⚠️ Orphaned positions could occur if connection fails
+- ⚠️ Order execution timing: trade sent → bot crashes → not logged to database
+- ⚠️ Not production-ready until root cause is fixed
+
+**Verification:**
+Recent database trades show continuous activity despite restarts:
+```
+21:24 - SELL 76370.14 (after restart)
+21:13 - BUY  76666.88 (before restart)
+21:09 - SELL 76764.52
+21:08 - BUY  76770.90
+```
+
+### Current Test Status (2026-02-03 21:30 UTC)
+
+| Bot | Strategy | Symbol | TF | Status | Health | Issue |
+|-----|----------|--------|----|----|--------|-------|
+| **iwm-15m** | StochRSI | IWM | 15m | 🟡 Idle | Stable | Waiting for market open |
+| **btc-1m** | RapidFire | BTC/USD | 1m | 🟡 Running | **Auto-restart loop** | Stops every 5-10 mins |
+
+**Server Details:**
+- Location: europe-west2-a (changed from us-central1)
+- Instance: algotrader2026
+- Access: `gcloud compute ssh algotrader2026 --zone=europe-west2-a`
+
+**Database Status:**
+- ✅ 10+ BTC trades logged since 20:38 UTC
+- ✅ Schema updated with iteration_index
+- ✅ Trades show before/after restart continuity
+
+---
+
 ## Next Steps
 
 ### 1. Monitor Initial Run (Days 1-3)
@@ -193,9 +281,18 @@ gcloud compute scp algotrader2026:~/algo-trader-v1/backend/research.db ~/Downloa
 
 ## Remaining Tasks
 
+**Phase 2: Setup & Debugging**
 - [x] Install PM2 and start background process ✅ (2026-02-03)
-- [ ] Monitor for 3 days to verify stability (In Progress - Day 1/3)
-- [ ] Add QQQ 5m and QQQ 4h strategies (After Day 3)
+- [x] Fix database schema (iteration_index) ✅ (2026-02-03)
+- [x] Fix startup scripts ✅ (2026-02-03)
+- [x] Add BTC bot for testing ✅ (2026-02-03)
+- [x] Implement auto-restart wrapper ✅ (2026-02-03)
+- [ ] **CRITICAL: Debug bot auto-stop issue** (Next priority)
+- [ ] Monitor IWM for 3 days when market opens (In Progress - Day 1/3)
+
+**Phase 3: Production Testing**
+- [ ] Fix root cause of bot stopping (required before production)
+- [ ] Add QQQ 5m and QQQ 4h strategies (After IWM stability confirmed)
 - [ ] Run all 3 strategies for 2+ weeks
 - [ ] Download database and analyze results
 - [ ] Calculate real Alpaca spreads from trade logs
@@ -206,10 +303,19 @@ gcloud compute scp algotrader2026:~/algo-trader-v1/backend/research.db ~/Downloa
 
 ## Important Notes
 
+### ⚠️ Current System Status
+**TESTING MODE - NOT PRODUCTION READY**
+- ✅ Bots are running and logging trades
+- ✅ Auto-restart wrapper keeps them alive
+- ❌ Bot auto-stop issue unresolved (stops every 5-10 mins)
+- ❌ Root cause unknown - requires debugging
+- **Recommendation:** Use for testing/learning only until root cause is fixed
+
 ### Server Management
 - **Never stop the server** - bot runs 24/7 in background
-- **Reconnect anytime** via Google Cloud Console → SSH
+- **Reconnect anytime** via Google Cloud Console → SSH or `gcloud compute ssh algotrader2026 --zone=europe-west2-a`
 - **Check status** daily for first week to catch issues early
+- **Current zone:** europe-west2-a (London region)
 
 ### What's Being Logged
 Every trade captures:
@@ -220,9 +326,12 @@ Every trade captures:
 - Session ID for grouping trades
 
 ### Expected Timeline
-- **Week 1:** IWM 15m solo run + stability verification
-- **Week 2-3:** Add QQQ strategies, all 3 running simultaneously
-- **Week 4:** Download database, analyze results, update settings
+- **Week 1 (Current):** Debug bot stability issue, IWM market-hours testing, BTC 24/7 testing
+- **Week 2:** Fix root cause, verify stable operation for 72+ hours
+- **Week 3-4:** Add QQQ strategies (if stable), run all 3 simultaneously
+- **Week 5:** Download database, analyze results, update realistic-test.sh settings
+
+*Timeline extended due to bot auto-stop issue discovery*
 
 ### How to Download Results (When Ready)
 ```bash
