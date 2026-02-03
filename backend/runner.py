@@ -8,7 +8,7 @@ from backend.engine.backtester import Backtester
 from backend.database import DatabaseManager
 from backend.strategies.donchian_breakout import DonchianBreakoutStrategy
 from backend.strategies.bollinger_breakout import BollingerBreakoutStrategy
-from backend.strategies.nfp_breakout import NFPBreakoutStrategy
+# from backend.strategies.nfp_breakout import NFPBreakoutStrategy  # Commented out - missing backend.data module
 from backend.strategies.macd_bollinger import MACDBollingerStrategy # New
 from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
 from backend.strategies.stoch_rsi_next_open import StochRSINextOpen
@@ -27,7 +27,7 @@ from backend.strategies.regime_gated_stoch import RegimeGatedStoch # New
 STRATEGY_MAP = {
     "DonchianBreakout": DonchianBreakoutStrategy,
     "BollingerBreakout": BollingerBreakoutStrategy,
-    "NFPBreakout": NFPBreakoutStrategy,
+    # "NFPBreakout": NFPBreakoutStrategy,  # Commented out - missing backend.data module
     "MACDBollinger": MACDBollingerStrategy,
     "StochRSIMeanReversion": StochRSIMeanReversionStrategy,
     "StochRSINextOpen": StochRSINextOpen,
