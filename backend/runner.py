@@ -537,10 +537,12 @@ def run_live_trading(args):
         initial_data = initial_data.resample('5min').agg(ohlc_dict).dropna()
         
     print(f"Warmup Data: {len(initial_data)} bars")
-    
+
     # Initialize Strategy
+    print(f"[DEBUG] Initializing {args.strategy} strategy...")
     strategy = strategy_class(initial_data, None, params, 100000, broker)
-    
+    print(f"[DEBUG] Strategy initialized successfully!")
+
     # 3. Live Loop
     # Force unbuffered output for real-time logging
     import sys
