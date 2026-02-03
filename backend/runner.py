@@ -542,48 +542,62 @@ def run_live_trading(args):
     strategy = strategy_class(initial_data, None, params, 100000, broker)
     
     # 3. Live Loop
+    # Force unbuffered output for real-time logging
+    import sys
+    sys.stdout.flush()
+
     print("Entering Live Loop... (Press Ctrl+C to stop)")
-    
+
     last_bar_time = initial_data.index[-1]
-    
+    loop_count = 0
+
     try:
         while True:
+            loop_count += 1
+            print(f"[DEBUG] Loop iteration {loop_count} starting at {datetime.now()}")
+
             # Sleep logic (simple polling)
             # For 5m bars, we can poll every 1 minute to check if a new bar is ready?
             # Or just sleep 60s.
             time.sleep(60)
-            
+            print(f"[DEBUG] Woke up from sleep, fetching data...")
+
             # Fetch latest data (small window)
             # We fetch last 2 days to be safe and ensure continuity
             now = datetime.now()
             start_fetch = (now - pd.Timedelta(days=2)).strftime('%Y-%m-%d')
             end_fetch = (now + pd.Timedelta(days=1)).strftime('%Y-%m-%d') # Future to get today
-            
-            latest_data = loader.fetch_data(args.symbol, fetch_tf, start_fetch, end_fetch)
-            
+
+            try:
+                latest_data = loader.fetch_data(args.symbol, fetch_tf, start_fetch, end_fetch)
+                print(f"[DEBUG] Data fetch successful. Rows: {len(latest_data) if latest_data is not None else 'None'}")
+            except Exception as fetch_error:
+                print(f"[DEBUG] ⚠️ Data fetch exception: {type(fetch_error).__name__}: {fetch_error}")
+                latest_data = None
+
             if latest_data is not None and not latest_data.empty:
                 # Resample
                 if args.timeframe == '5m':
                     ohlc_dict = {'Open': 'first', 'High': 'max', 'Low': 'min', 'Close': 'last', 'Volume': 'sum'}
                     latest_data = latest_data.resample('5min').agg(ohlc_dict).dropna()
-                
+
                 # Check for new bar
                 current_last_time = latest_data.index[-1]
                 if current_last_time > last_bar_time:
                     print(f"New Bar: {current_last_time}")
                     last_bar_time = current_last_time
-                    
+
                     # Update Strategy
                     strategy.data = latest_data
                     strategy.generate_signals(latest_data)
-                    
+
                     # Run Logic
                     last_index = len(latest_data) - 1
                     last_row = latest_data.iloc[-1]
-                    
+
                     broker.refresh()
                     strategy.on_bar(last_row, last_index, latest_data)
-                    
+
                     # Log Trades
                     new_trades = broker.get_new_trades()
                     if new_trades:
@@ -592,11 +606,21 @@ def run_live_trading(args):
                             trade['session_id'] = session_id
                             trade['strategy'] = args.strategy
                             db.save_live_trade(trade)
-                            
+                else:
+                    print(f"[DEBUG] No new bar. Last: {current_last_time}, Previous: {last_bar_time}")
+            else:
+                print(f"[DEBUG] ⚠️ Data fetch returned None or empty. latest_data={latest_data}")
+
+            print(f"[DEBUG] Loop iteration {loop_count} completed successfully")
+
     except KeyboardInterrupt:
+        print(f"[DEBUG] KeyboardInterrupt caught at loop iteration {loop_count}")
         print("Live Trading Stopped.")
     except Exception as e:
+        print(f"[DEBUG] Exception caught: {type(e).__name__}")
         print(f"❌ Critical Error in Live Loop: {e}")
+        import traceback
+        traceback.print_exc()
         import traceback
         traceback.print_exc()
         # Optional: Add a global retry loop here if we want to restart the whole process
