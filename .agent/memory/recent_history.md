@@ -1,4 +1,64 @@
-### 2204b47 - docs: Update forward testing plan - PM2 setup complete (5 seconds ago)
+### 8ab43d2 - docs: Document resolution of bot auto-stop issue (1 hour ago)
+
+Root cause identified and fixed: Bash wrapper scripts were causing
+signal handling issues with PM2, resulting in KeyboardInterrupt after 3-4 minutes.
+
+## Problem
+- BTC bot crashed consistently at iteration 4 (~3 minutes)
+- KeyboardInterrupt triggered despite no user input
+- Pattern: PM2 → bash wrapper → Python created signal propagation issues
+
+## Solution
+**Run Python directly under PM2 (no bash wrapper):**
+```bash
+cd ~/algo-trader-v1
+pm2 start 'python3 -u -m backend.runner trade --strategy RapidFireTest --symbol BTC/USD --timeframe 1m --paper' --name btc-1m
+pm2 save
+```
+
+## Verification
+- Before fix: Max 3 minutes uptime, constant restarts
+- After fix: 15+ minutes continuous operation, 0 restarts
+- Bot passed iteration 4 successfully (previously crashed here)
+- Memory stable at ~115 MB
+
+## Testing Methodology
+1. Added debug logging to identify crash point
+2. Tested locally on Mac → worked perfectly (proved code correct)
+3. Compared cloud vs local environments
+4. Isolated bash wrapper as culprit through elimination
+
+## Key Learning
+When using PM2 for long-running Python processes, avoid bash wrappers.
+PM2 has built-in auto-restart and monitoring - let it manage Python directly.
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+---
+### 127662b - docs: Document BTC bot auto-stop issue and Phase 2.5 progress (2 hours ago)
+
+Added Phase 2.5 section to forward_testing_plan.md documenting critical
+auto-stop issue discovered during BTC bot deployment.
+
+## Issues Found & Fixed
+- Database schema missing iteration_index column → Added via Python on cloud
+- IWM startup script malformed EOF syntax → Rewrote with proper bash
+- PM2 directory context causing import errors → Added cd commands to scripts
+
+## BTC Bot Issue (CRITICAL)
+Bot stops consistently after 5-10 minutes with KeyboardInterrupt:
+- Receives bars successfully ✅
+- Executes trades on Alpaca ✅
+- Logs to database ✅
+- Then prints "Live Trading Stopped" and exits ❌
+
+**Workaround:** Auto-restart wrapper keeps bot running
+**Status:** Investigating root cause
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+---
+### 189606f - docs: Update forward testing plan - PM2 setup complete (3 hours ago)
 
 Updated forward_testing_plan.md to reflect completed PM2 installation
 and successful launch of first forward test.
