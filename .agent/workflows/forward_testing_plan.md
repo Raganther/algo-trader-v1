@@ -165,65 +165,62 @@ pm2 delete iwm-15m      # Remove process
 - ✅ Generating high-frequency trades for Alpaca integration testing
 - ⚠️ **CRITICAL ISSUE DISCOVERED:** Bot stops consistently after 5-10 minutes
 
-### ⚠️ Critical Issue: Bot Auto-Stop Behavior
+### ✅ Critical Issue RESOLVED: Bot Auto-Stop Behavior
 
-**Problem:**
-The BTC bot (and potentially others) consistently stops after 5-10 minutes with `KeyboardInterrupt`:
-- Receives bars successfully ✅
-- Executes trades on Alpaca ✅
-- Logs to database ✅
-- Then prints "Live Trading Stopped" and exits ❌
+**Problem (RESOLVED):**
+The BTC bot consistently stopped after 3-4 minutes with `KeyboardInterrupt`:
+- Completed iterations 1, 2, 3 successfully ✅
+- Then received KeyboardInterrupt at start of iteration 4 ❌
+- Happened consistently at ~3 minute mark
 
-**Evidence:**
-```
-21:12 - BUY executed ✅
-21:13-21:18 - Bars received (6 minutes)
-21:19 - "Live Trading Stopped" ❌
-21:21 - Auto-restart via wrapper ✅
-21:24 - SELL executed ✅ (continues working)
-```
+**Root Cause Identified:**
+- ❌ Bash wrapper scripts (`start_btc_loop.sh`) were causing signal handling issues
+- ❌ PM2 managing bash → bash managing Python created problematic process tree
+- ❌ Signal propagation (likely SIGHUP/SIGTERM) reached Python as KeyboardInterrupt
 
-**Root Cause: UNKNOWN** - Possible causes:
-1. Alpaca API session timeout
-2. Alpaca SDK connection keepalive issue
-3. Rate limiting after X requests
-4. Memory leak causing crash
-5. Bug in data fetching loop
+**Solution:**
+✅ **Run Python directly under PM2** (no bash wrapper)
 
-**Current Workaround:**
-- ✅ Bash wrapper script auto-restarts bot within 5 seconds
-- ✅ Bot reconnects to Alpaca and fetches existing positions
-- ✅ Continues trading after restart
-- ⚠️ Band-aid solution, not a fix
-
-**Trade Safety Analysis:**
-
-*Good News:*
-- ✅ `LiveBroker.refresh()` fetches existing positions on startup (live_broker.py:52)
-- ✅ Bot should reconnect and continue managing open trades
-- ✅ Database shows trades before/after restarts (10+ successful trades logged)
-
-*Risks:*
-- ⚠️ If Alpaca is unreachable during restart, `refresh()` fails silently
-- ⚠️ Orphaned positions could occur if connection fails
-- ⚠️ Order execution timing: trade sent → bot crashes → not logged to database
-- ⚠️ Not production-ready until root cause is fixed
-
-**Verification:**
-Recent database trades show continuous activity despite restarts:
-```
-21:24 - SELL 76370.14 (after restart)
-21:13 - BUY  76666.88 (before restart)
-21:09 - SELL 76764.52
-21:08 - BUY  76770.90
+**Working Command:**
+```bash
+cd ~/algo-trader-v1
+pm2 start 'python3 -u -m backend.runner trade --strategy RapidFireTest --symbol BTC/USD --timeframe 1m --paper' --name btc-1m
+pm2 save
 ```
 
-### Current Test Status (2026-02-03 21:30 UTC)
+**Verification (2026-02-03 23:01-23:07):**
+```
+Loop 1: 23:01:38 - Completed ✅
+Loop 2: 23:02:39 - Completed ✅
+Loop 3: 23:03:40 - Completed ✅
+Loop 4: 23:04:40 - **Completed successfully!** ✅  (Previously crashed here)
+Loop 5: 23:05:41 - Completed ✅
+Loop 6: 23:06:42 - Completed ✅
+Loop 7+: Continuing...
+```
+
+**PM2 Status After Fix:**
+- Uptime: 10+ minutes (previously max 3 minutes)
+- Restarts: **0** (previously constant restarts)
+- Memory: Stable at ~115 MB
+- CPU: 0%
+
+**Test Methodology Used:**
+1. Added debug logging to identify exact crash point
+2. Tested bot locally on Mac → worked perfectly (proved code was correct)
+3. Compared cloud vs local environments
+4. Tested direct SSH execution vs PM2 wrapper vs PM2 direct
+5. Isolated bash wrapper as the culprit
+
+**Lesson Learned:**
+When using PM2 for long-running Python processes, avoid bash wrappers. PM2 has built-in auto-restart and monitoring - let it manage Python directly.
+
+### Current Test Status (2026-02-03 23:07 UTC)
 
 | Bot | Strategy | Symbol | TF | Status | Health | Issue |
 |-----|----------|--------|----|----|--------|-------|
 | **iwm-15m** | StochRSI | IWM | 15m | 🟡 Idle | Stable | Waiting for market open |
-| **btc-1m** | RapidFire | BTC/USD | 1m | 🟡 Running | **Auto-restart loop** | Stops every 5-10 mins |
+| **btc-1m** | RapidFire | BTC/USD | 1m | 🟢 Running | **Stable** | ✅ Fixed - Running directly under PM2 |
 
 **Server Details:**
 - Location: europe-west2-a (changed from us-central1)
