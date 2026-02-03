@@ -95,9 +95,9 @@ From each forward test, we need:
 
 ---
 
-## Progress Update (2026-02-02)
+## Progress Update
 
-### ✅ Phase 1: Setup - COMPLETED
+### ✅ Phase 1: Setup - COMPLETED (2026-02-02)
 
 **Server Setup:**
 - ✅ Google Cloud e2-micro instance created (us-central1)
@@ -120,31 +120,61 @@ From each forward test, we need:
 
 ---
 
-## Next Steps (Tomorrow)
+### ✅ Phase 2: PM2 Setup - COMPLETED (2026-02-03)
 
-### 1. Set Up Background Process (PM2)
+**Background Process Manager Installed:**
+- ✅ Node.js and npm installed
+- ✅ PM2 v6.0.14 installed globally
+- ✅ IWM 15m forward test started with PM2
+- ✅ Process saved to PM2 (`pm2 save`)
+- ✅ Auto-startup enabled via systemd
+- ✅ Bot survives server reboots
+
+**Current Running Tests:**
+- **IWM 15m** (StochRSIMeanReversion)
+  - Status: Online
+  - Session ID: f53b07bc-f9da-42b0-a38a-4c88413c6f76
+  - Started: 2026-02-03 13:00 UTC
+  - Warmup: 99 bars loaded
+
+**PM2 Commands Reference:**
 ```bash
-# Install PM2
-sudo apt install -y nodejs npm
-sudo npm install -g pm2
-
-# Start forward test
-pm2 start "python3 -m backend.runner trade --strategy StochRSIMeanReversion --symbol IWM --timeframe 15m --paper" --name "iwm-15m"
-
-# Save and enable auto-restart
-pm2 save
-pm2 startup
+pm2 status              # Check running processes
+pm2 logs iwm-15m        # Watch live logs
+pm2 logs iwm-15m --lines 100  # Last 100 log lines
+pm2 restart iwm-15m     # Restart process
+pm2 stop iwm-15m        # Stop process
+pm2 delete iwm-15m      # Remove process
 ```
 
-### 2. Monitor Initial Run (First 24-48 Hours)
-- Check logs daily: `pm2 logs iwm-15m`
-- Verify trades are being logged
-- Check for errors or crashes
+---
 
-### 3. Add Additional Strategies (After 3-Day Test)
+## Next Steps
+
+### 1. Monitor Initial Run (Days 1-3)
+- ✅ **Day 1 (Today):** Bot is running, wait for first trades
+- ⏳ **Day 2:** Check logs for any trades: `pm2 logs iwm-15m --lines 100`
+- ⏳ **Day 3:** Verify stability, check for crashes/errors
+
+**Daily Check Command:**
 ```bash
-pm2 start "python3 -m backend.runner trade --strategy StochRSIMeanReversion --symbol QQQ --timeframe 5m --paper" --name "qqq-5m"
-pm2 start "python3 -m backend.runner trade --strategy DonchianBreakout --symbol QQQ --timeframe 4h --paper" --name "qqq-4h"
+# SSH into server
+pm2 status
+pm2 logs iwm-15m --lines 50
+```
+
+### 2. Add Additional Strategies (After 3-Day Stability Test)
+Once IWM 15m runs stable for 3 days, add:
+
+```bash
+# QQQ 5m (best realistic performer: +44.9%)
+pm2 start python3 --name qqq-5m -- -m backend.runner trade --strategy StochRSIMeanReversion --symbol QQQ --timeframe 5m --paper
+
+# QQQ 4h Donchian (realistic: +22.61%)
+pm2 start python3 --name qqq-4h -- -m backend.runner trade --strategy DonchianBreakout --symbol QQQ --timeframe 4h --paper
+
+# Save all processes
+pm2 save
 ```
 
 ### 4. Database Sync Plan
@@ -163,14 +193,44 @@ gcloud compute scp algotrader2026:~/algo-trader-v1/backend/research.db ~/Downloa
 
 ## Remaining Tasks
 
-- [ ] Install PM2 and start background process
-- [ ] Monitor for 3 days to verify stability
-- [ ] Add QQQ 5m and QQQ 4h strategies
+- [x] Install PM2 and start background process ✅ (2026-02-03)
+- [ ] Monitor for 3 days to verify stability (In Progress - Day 1/3)
+- [ ] Add QQQ 5m and QQQ 4h strategies (After Day 3)
 - [ ] Run all 3 strategies for 2+ weeks
 - [ ] Download database and analyze results
 - [ ] Calculate real Alpaca spreads from trade logs
 - [ ] Update realistic-test.sh with measured values
 - [ ] Document findings in research insights
+
+---
+
+## Important Notes
+
+### Server Management
+- **Never stop the server** - bot runs 24/7 in background
+- **Reconnect anytime** via Google Cloud Console → SSH
+- **Check status** daily for first week to catch issues early
+
+### What's Being Logged
+Every trade captures:
+- Signal price (what strategy wanted)
+- Fill price (what Alpaca gave)
+- Slippage (difference = real cost)
+- Timestamp, side (buy/sell), quantity
+- Session ID for grouping trades
+
+### Expected Timeline
+- **Week 1:** IWM 15m solo run + stability verification
+- **Week 2-3:** Add QQQ strategies, all 3 running simultaneously
+- **Week 4:** Download database, analyze results, update settings
+
+### How to Download Results (When Ready)
+```bash
+# From your laptop
+gcloud compute scp algotrader2026:~/algo-trader-v1/backend/research.db ~/Downloads/forward_test_results.db --zone=us-central1-a
+```
+
+Then analyze locally or merge with backtest database.
 
 ---
 

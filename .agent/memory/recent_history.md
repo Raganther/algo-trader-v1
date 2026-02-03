@@ -1,4 +1,40 @@
-### 3bf597a - docs: Document forward testing setup and progress (7 seconds ago)
+### 2204b47 - docs: Update forward testing plan - PM2 setup complete (5 seconds ago)
+
+Updated forward_testing_plan.md to reflect completed PM2 installation
+and successful launch of first forward test.
+
+## Completed Today (Phase 2)
+- Installed PM2 v6.0.14 process manager
+- Started IWM 15m forward test running in background
+- Enabled auto-restart on crash
+- Configured systemd for auto-start on server reboot
+- Verified live trading connection and bar reception
+
+## Current Status
+- **IWM 15m** running live on Google Cloud
+- Session ID: f53b07bc-f9da-42b0-a38a-4c88413c6f76
+- Started: 2026-02-03 13:00 UTC
+- Warmup: 99 bars loaded
+- Status: Online and monitoring
+
+## Next Steps
+- Monitor for 3 days to verify stability
+- Add QQQ 5m and QQQ 4h after verification
+- Run all 3 strategies for 2-4 weeks
+- Download database and measure real Alpaca trading costs
+
+## PM2 Commands Documented
+- pm2 status - Check processes
+- pm2 logs iwm-15m - Watch output
+- pm2 restart/stop/delete - Process management
+
+Bot now runs 24/7 independently, logging all trades to database
+for later analysis of real-world spreads and performance.
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+---
+### 037b509 - docs: Document forward testing setup and progress (14 hours ago)
 
 Created forward_testing_plan.md documenting the complete setup process
 for running multi-week forward tests on Google Cloud.
@@ -32,7 +68,7 @@ real-world data.
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
 ---
-### 6bbe78b - test: Realistic cost validation of top 5 strategies (2024) (3 hours ago)
+### 6bbe78b - test: Realistic cost validation of top 5 strategies (2024) (18 hours ago)
 
 Ran realistic backtests (spread=0.0001, delay=1) on top-performing strategies
 to validate performance with trading costs. Results reveal critical insights
@@ -91,7 +127,7 @@ about strategy viability and overfitting reduction.
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
 ---
-### 153e1ae - refactor: Move regime chart from .agent to reports directory (4 hours ago)
+### 153e1ae - refactor: Move regime chart from .agent to reports directory (19 hours ago)
 
 .agent/ should contain system intelligence (memory, workflows, automation),
 not output artifacts. Moved regime_chart_SPY_1d.html to reports/ where
@@ -100,7 +136,7 @@ visualization outputs belong.
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
 ---
-### 5644d1e - feat: Add Real/Raw cost tag to iteration history table (6 hours ago)
+### 5644d1e - feat: Add Real/Raw cost tag to iteration history table (21 hours ago)
 
 Track spread and execution_delay per test run in the database,
 and display a Costs column (Real/Raw) in the iteration history
@@ -109,7 +145,7 @@ so realistic results are easily distinguishable from raw backtests.
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 ---
-### 5c2653d - docs: Update system manual with testing standards and workflow automation (7 hours ago)
+### 5c2653d - docs: Update system manual with testing standards and workflow automation (21 hours ago)
 
 Detailed Changes:
 - [Update] Core Architecture section: Added realistic cost modeling and automation components
@@ -140,7 +176,7 @@ Key Improvements:
 - Updated to 282 lines (from ~95 lines)
 
 ---
-### ac5a713 - feat: Add realistic testing standards and wrapper script (7 hours ago)
+### ac5a713 - feat: Add realistic testing standards and wrapper script (21 hours ago)
 
 Detailed Changes:
 - [Feat] Created scripts/realistic-test.sh wrapper that auto-applies realistic settings:
@@ -172,7 +208,7 @@ Key Findings:
 Recommendation: All future tests should use realistic-test.sh wrapper for accurate performance estimates.
 
 ---
-### c5f0706 - feat: Add automatic test-and-sync wrapper + fix data_loader bug (11 hours ago)
+### c5f0706 - feat: Add automatic test-and-sync wrapper + fix data_loader bug (25 hours ago)
 
 Detailed Changes:
 - [Fix] Resolved IndentationError in backend/engine/data_loader.py (duplicate else statement on line 26-27).
@@ -252,7 +288,7 @@ Detailed Changes:
 - Updated LiveBroker to match PaperTrader interface.
 
 ---
-### e4d9a39 - feat: Hybrid Strategy Development (Failed) (7 weeks ago)
+### e4d9a39 - feat: Hybrid Strategy Development (Failed) (8 weeks ago)
 
 Detailed Changes:
 - Implemented HybridRegimeV2 (StochRSI + Donchian + RegimeClassifier).
@@ -262,7 +298,7 @@ Detailed Changes:
 - Fixed bugs in RegimeClassifier and runner.py.
 
 ---
-### 759473a - feat: Regime Switching Research and Analysis (7 weeks ago)
+### 759473a - feat: Regime Switching Research and Analysis (8 weeks ago)
 
 Detailed Changes:
 - Implemented RegimeClassifier (ADX, ATR, SMA) in backend/analysis/regime_classifier.py.
@@ -273,7 +309,7 @@ Detailed Changes:
 - Fixed AlpacaDataLoader import and usage in scan_regimes.py.
 
 ---
-### 1f902d1 - feat: Cross-Asset Validation and Trend Strategy Research (7 weeks ago)
+### 1f902d1 - feat: Cross-Asset Validation and Trend Strategy Research (8 weeks ago)
 
 Detailed Changes:
 - Conducted Cross-Asset Validation for StochRSIMeanReversion on QQQ, IWM, DIA.
@@ -284,7 +320,7 @@ Detailed Changes:
 - Updated research_insights.md with new strategy profiles.
 
 ---
-### c481d43 - feat: Refine Report with Full Configuration (7 weeks ago)
+### c481d43 - feat: Refine Report with Full Configuration (8 weeks ago)
 
 Detailed Changes:
 - Updated runner.py to include default parameters for StochRSIMeanReversion.
@@ -293,7 +329,7 @@ Detailed Changes:
 - Marked 'Refine Report' as complete in task.md.
 
 ---
-### 15b354f - feat: Timeframe Analysis for StochRSIMeanReversion (7 weeks ago)
+### 15b354f - feat: Timeframe Analysis for StochRSIMeanReversion (8 weeks ago)
 
 Detailed Changes:
 - Conducted Timeframe Analysis for StochRSIMeanReversion (SPY, 2020-2025).
@@ -302,7 +338,7 @@ Detailed Changes:
 - Updated research_insights.md to reflect the new Champion and history.
 
 ---
-### 126d26c - feat: Optimize StochRSIMeanReversion and Refine Report (7 weeks ago)
+### 126d26c - feat: Optimize StochRSIMeanReversion and Refine Report (8 weeks ago)
 
 Detailed Changes:
 - Fixed bug in StochRSI indicator where 'rsi_period' was ignored (decoupled from stoch_period).
@@ -310,15 +346,5 @@ Detailed Changes:
 - Identified Iteration 5 (RSI Period 7) as the new Champion (17.15% Return).
 - Updated research_insights.md to display 'Timeframe' in Strategy Profile.
 - Verified automatic promotion of winning iterations in the report.
-
----
-### 5f44a53 - feat: Implement Strategy Profile and Iteration Tagging (7 weeks ago)
-
-Detailed Changes:
-- Implemented 'Strategy Profile' view in research_insights.md with risk metrics (Time in DD, Stability).
-- Added 'iteration_index' to test_runs table in research.db for better versioning.
-- Updated runner.py to auto-increment iteration index for new runs.
-- Refactored analyze_results.py to display 'Best Config' and 'Iteration History'.
-- Ran Matrix Backtest for StochRSIMeanReversion (Iteration 1) on SPY (2020-2025).
 
 ---
