@@ -215,12 +215,31 @@ Loop 7+: Continuing...
 **Lesson Learned:**
 When using PM2 for long-running Python processes, avoid bash wrappers. PM2 has built-in auto-restart and monitoring - let it manage Python directly.
 
-### Current Test Status (2026-02-03 23:07 UTC)
+### Current Test Status (2026-02-04 14:30 UTC)
 
-| Bot | Strategy | Symbol | TF | Status | Health | Issue |
-|-----|----------|--------|----|----|--------|-------|
-| **iwm-15m** | StochRSI | IWM | 15m | 🟡 Idle | Stable | Waiting for market open |
-| **btc-1m** | RapidFire | BTC/USD | 1m | 🟢 Running | **Stable** | ✅ Fixed - Running directly under PM2 |
+| Bot | Strategy | Symbol | TF | Status | Uptime | Memory | Purpose |
+|-----|----------|--------|----|----|--------|--------|---------|
+| **iwm-15m** | StochRSI | IWM | 15m | 🟢 Live | 15h+ | 78.6 MB | Production test (+19.79% realistic) |
+| **qqq-5m** | StochRSI | QQQ | 5m | 🟢 Live | 5m | 105.9 MB | ⭐ Champion (+44.9% realistic) |
+| **spy-15m** | StochRSI | SPY | 15m | 🟢 Live | 1m | 101.8 MB | Baseline spreads (most liquid) |
+| **dia-15m** | StochRSI | DIA | 15m | 🟢 Live | 1m | 102.0 MB | Blue chip spread analysis |
+
+**Platform Status:**
+- Total Memory: 388 MB / 958 MB (40% used)
+- All bots: 0 restarts ✅
+- Server: Running directly under PM2 (no bash wrappers)
+- Market: Opening now (9:30 AM ET)
+
+**Expected Trade Volume:**
+- QQQ 5m: 15-25 trades/day
+- SPY 15m: 8-12 trades/day
+- IWM 15m: 8-12 trades/day
+- DIA 15m: 6-10 trades/day
+- **Total: 40-60 trades/day** (280-420 trades/week)
+
+**Tests Completed:**
+- ✅ BTC/USD 1m - Platform validation complete (23 trades, 0.0432% avg slippage measured)
+- Stopped after proving infrastructure stability
 
 **Server Details:**
 - Location: europe-west2-a (changed from us-central1)
@@ -236,29 +255,57 @@ When using PM2 for long-running Python processes, avoid bash wrappers. PM2 has b
 
 ## Next Steps
 
-### 1. Monitor Initial Run (Days 1-3)
-- ✅ **Day 1 (Today):** Bot is running, wait for first trades
-- ⏳ **Day 2:** Check logs for any trades: `pm2 logs iwm-15m --lines 100`
-- ⏳ **Day 3:** Verify stability, check for crashes/errors
+### 1. Active Data Collection Phase (Weeks 1-2)
+- ✅ **Day 1 (2026-02-04):** 4 strategies running, collecting live data
+- ⏳ **Days 2-7:** Monitor daily for stability and trade execution
+- ⏳ **Week 2:** Continue collection, target 500+ total trades
 
-**Daily Check Command:**
+**Daily Check Commands:**
 ```bash
-# SSH into server
+# Check all bots status
+gcloud compute ssh algotrader2026 --zone=europe-west2-a
 pm2 status
+
+# View recent activity
+pm2 logs qqq-5m --lines 50
 pm2 logs iwm-15m --lines 50
+
+# Quick health check (all bots)
+pm2 status | grep -E "online|stopped|errored"
 ```
 
-### 2. Add Additional Strategies (After 3-Day Stability Test)
-Once IWM 15m runs stable for 3 days, add:
+**What to Monitor:**
+- Bot uptime (should increase daily)
+- Restart count (should stay at 0)
+- Memory usage (should be stable ~400 MB)
+- Error logs (should be empty)
+
+### 2. Database Analysis (After 2 Weeks)
+Once we have 500+ trades across all strategies:
 
 ```bash
-# QQQ 5m (best realistic performer: +44.9%)
-pm2 start python3 --name qqq-5m -- -m backend.runner trade --strategy StochRSIMeanReversion --symbol QQQ --timeframe 5m --paper
+# Download database from server
+gcloud compute scp algotrader2026:~/algo-trader-v1/backend/research.db ./research_cloud.db --zone=europe-west2-a
 
-# QQQ 4h Donchian (realistic: +22.61%)
-pm2 start python3 --name qqq-4h -- -m backend.runner trade --strategy DonchianBreakout --symbol QQQ --timeframe 4h --paper
+# Analyze spread data
+python3 -m backend.analyze_results --live
 
-# Save all processes
+# Calculate measured spreads by symbol
+# Compare to backtest assumptions
+# Update realistic-test.sh with real values
+```
+
+### 3. Optional: Add More Strategies
+If memory/CPU allows and we want more data:
+
+```bash
+# QQQ 1m (ultra high frequency - 50-100 trades/day)
+cd ~/algo-trader-v1
+pm2 start 'python3 -u -m backend.runner trade --strategy StochRSIMeanReversion --symbol QQQ --timeframe 1m --paper' --name qqq-1m
+pm2 save
+
+# OR QQQ 4h Donchian (low frequency trend-following)
+pm2 start 'python3 -u -m backend.runner trade --strategy DonchianBreakout --symbol QQQ --timeframe 4h --paper' --name qqq-4h
 pm2 save
 ```
 
