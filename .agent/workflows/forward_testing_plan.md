@@ -215,20 +215,57 @@ Loop 7+: Continuing...
 **Lesson Learned:**
 When using PM2 for long-running Python processes, avoid bash wrappers. PM2 has built-in auto-restart and monitoring - let it manage Python directly.
 
-### Current Test Status (2026-02-04 14:30 UTC)
+### ✅ Phase 3: Per-Candle Logging Enhancement - COMPLETED (2026-02-04 20:10 UTC)
+
+**Problem:**
+Bots were running correctly but silent unless signals occurred. No visibility into:
+- Current market conditions (price, StochRSI K values, ADX)
+- Why bots weren't trading (waiting for thresholds)
+- Real-time indicator values on each candle
+
+**Solution:**
+Added per-candle logging to `backend/strategies/stoch_rsi_mean_reversion.py`:
+```python
+# Print every bar for monitoring (FORWARD TESTING VISIBILITY)
+print(f"[{row.name}] {self.symbol} ${row['Close']:.2f} | K: {current_k:.1f} (prev: {prev_k:.1f}) | ADX: {current_adx:.1f}")
+```
+
+**Deployment:**
+- ✅ Code committed (4c51f6b) and pushed to GitHub
+- ✅ Pulled on cloud server
+- ✅ All 4 bots restarted with new logging
+- ✅ Verified logging output in PM2 logs
+
+**Example Output:**
+```
+[2026-02-04 20:05:00+00:00] QQQ $607.77 | K: 80.0 (prev: 88.5) | ADX: 25.5
+[2026-02-04 20:00:00+00:00] SPY $687.95 | K: 98.5 (prev: 99.1) | ADX: 29.6
+```
+
+**Benefit:**
+Now we can see exactly what the market is doing on every candle processed, making it easy to understand bot behavior and monitor for trade signals.
+
+---
+
+### Current Test Status (2026-02-04 20:10 UTC)
 
 | Bot | Strategy | Symbol | TF | Status | Uptime | Memory | Purpose |
 |-----|----------|--------|----|----|--------|--------|---------|
-| **iwm-15m** | StochRSI | IWM | 15m | 🟢 Live | 15h+ | 78.6 MB | Production test (+19.79% realistic) |
-| **qqq-5m** | StochRSI | QQQ | 5m | 🟢 Live | 5m | 105.9 MB | ⭐ Champion (+44.9% realistic) |
-| **spy-15m** | StochRSI | SPY | 15m | 🟢 Live | 1m | 101.8 MB | Baseline spreads (most liquid) |
-| **dia-15m** | StochRSI | DIA | 15m | 🟢 Live | 1m | 102.0 MB | Blue chip spread analysis |
+| **iwm-15m** | StochRSI | IWM | 15m | 🟢 Live | 1m | 101.3 MB | Production test (+19.79% realistic) |
+| **qqq-5m** | StochRSI | QQQ | 5m | 🟢 Live | 1m | 104.7 MB | ⭐ Champion (+44.9% realistic) |
+| **spy-15m** | StochRSI | SPY | 15m | 🟢 Live | 1m | 101.3 MB | Baseline spreads (most liquid) |
+| **dia-15m** | StochRSI | DIA | 15m | 🟢 Live | 1m | 101.5 MB | Blue chip spread analysis |
 
 **Platform Status:**
-- Total Memory: 388 MB / 958 MB (40% used)
+- Total Memory: 408 MB / 958 MB (43% used)
 - All bots: 0 restarts ✅
 - Server: Running directly under PM2 (no bash wrappers)
-- Market: Opening now (9:30 AM ET)
+- Per-candle logging: Active ✅
+
+**Current Market Conditions (Live):**
+- **QQQ 5m**: K=80.0 (at overbought threshold), falling from 88.5 → waiting for K<50 to SHORT
+- **SPY 15m**: K=98.5 (deeply overbought), falling from 99.1 → waiting for K<50 to SHORT
+- Market is overbought across all symbols, no trade signals yet (expected behavior)
 
 **Expected Trade Volume:**
 - QQQ 5m: 15-25 trades/day
@@ -330,14 +367,14 @@ gcloud compute scp algotrader2026:~/algo-trader-v1/backend/research.db ~/Downloa
 - [x] Fix database schema (iteration_index) ✅ (2026-02-03)
 - [x] Fix startup scripts ✅ (2026-02-03)
 - [x] Add BTC bot for testing ✅ (2026-02-03)
-- [x] Implement auto-restart wrapper ✅ (2026-02-03)
-- [ ] **CRITICAL: Debug bot auto-stop issue** (Next priority)
-- [ ] Monitor IWM for 3 days when market opens (In Progress - Day 1/3)
+- [x] Debug bot auto-stop issue ✅ (2026-02-03 - Run Python directly under PM2)
+- [x] Add per-candle logging for visibility ✅ (2026-02-04)
+- [x] Deploy all 4 production strategies ✅ (2026-02-04)
 
-**Phase 3: Production Testing**
-- [ ] Fix root cause of bot stopping (required before production)
-- [ ] Add QQQ 5m and QQQ 4h strategies (After IWM stability confirmed)
-- [ ] Run all 3 strategies for 2+ weeks
+**Phase 3: Production Testing - IN PROGRESS**
+- [x] All 4 strategies running simultaneously ✅ (IWM, QQQ, SPY, DIA)
+- [ ] Monitor for 2+ weeks for trade execution (Day 1/14 in progress)
+- [ ] Collect 500+ total trades across all strategies
 - [ ] Download database and analyze results
 - [ ] Calculate real Alpaca spreads from trade logs
 - [ ] Update realistic-test.sh with measured values
@@ -347,35 +384,43 @@ gcloud compute scp algotrader2026:~/algo-trader-v1/backend/research.db ~/Downloa
 
 ## Important Notes
 
-### ⚠️ Current System Status
-**TESTING MODE - NOT PRODUCTION READY**
-- ✅ Bots are running and logging trades
-- ✅ Auto-restart wrapper keeps them alive
-- ❌ Bot auto-stop issue unresolved (stops every 5-10 mins)
-- ❌ Root cause unknown - requires debugging
-- **Recommendation:** Use for testing/learning only until root cause is fixed
+### ✅ Current System Status
+**PRODUCTION FORWARD TESTING - STABLE**
+- ✅ All 4 bots running with PM2 (0 restarts)
+- ✅ Bot auto-stop issue RESOLVED (run Python directly, not bash wrappers)
+- ✅ Per-candle logging for full market visibility
+- ✅ Trade logging to SQLite database
+- ✅ Platform validated with BTC test (23 trades, stable execution)
+- **Status:** Ready for 2+ week data collection
 
 ### Server Management
-- **Never stop the server** - bot runs 24/7 in background
+- **Never stop the server** - bots run 24/7 in background
 - **Reconnect anytime** via Google Cloud Console → SSH or `gcloud compute ssh algotrader2026 --zone=europe-west2-a`
-- **Check status** daily for first week to catch issues early
+- **Check status** daily for first week to catch any unexpected issues
 - **Current zone:** europe-west2-a (London region)
 
 ### What's Being Logged
+
+**Per-Candle Logs (PM2):**
+Every candle shows:
+- Timestamp, Symbol, Close price
+- StochRSI K value (current and previous)
+- ADX value
+- Example: `[2026-02-04 20:05:00] QQQ $607.77 | K: 80.0 (prev: 88.5) | ADX: 25.5`
+
+**Trade Logs (SQLite Database):**
 Every trade captures:
 - Signal price (what strategy wanted)
 - Fill price (what Alpaca gave)
 - Slippage (difference = real cost)
 - Timestamp, side (buy/sell), quantity
-- Session ID for grouping trades
+- Session ID, iteration index for grouping
 
 ### Expected Timeline
-- **Week 1 (Current):** Debug bot stability issue, IWM market-hours testing, BTC 24/7 testing
-- **Week 2:** Fix root cause, verify stable operation for 72+ hours
-- **Week 3-4:** Add QQQ strategies (if stable), run all 3 simultaneously
-- **Week 5:** Download database, analyze results, update realistic-test.sh settings
-
-*Timeline extended due to bot auto-stop issue discovery*
+- **Week 1 (Current - Day 1):** Monitor daily, verify stable operation, watch for first trades
+- **Week 2:** Accumulate trades, verify all 4 strategies executing correctly
+- **Week 3-4:** Continue collection, target 500+ total trades
+- **Week 4-5:** Download database, analyze results, update realistic-test.sh settings
 
 ### How to Download Results (When Ready)
 ```bash
