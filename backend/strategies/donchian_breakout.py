@@ -46,11 +46,38 @@ class DonchianBreakoutStrategy(Strategy):
         
         # Modular ATR returns the rolling mean. We just need to shift it by 1 for usage (to avoid lookahead)
         self.data[self.atr_col] = atr(
-            self.data['High'], 
-            self.data['Low'], 
-            self.data['Close'], 
+            self.data['High'],
+            self.data['Low'],
+            self.data['Close'],
             self.atr_period
         ).shift(1)
+
+    def generate_signals(self, df: pd.DataFrame):
+        """Calculate indicators for live trading. Called by runner on each new bar."""
+        from backend.indicators.donchian import donchian_channels
+        from backend.indicators.atr import atr
+
+        # Donchian Channels
+        channels = donchian_channels(
+            df['High'],
+            df['Low'],
+            self.entry_period,
+            self.exit_period
+        )
+        df['entry_high'] = channels['upper_entry']
+        df['entry_low'] = channels['lower_entry']
+        df['exit_high'] = channels['upper_exit']
+        df['exit_low'] = channels['lower_exit']
+
+        # ATR for Stop Loss
+        df[self.atr_col] = atr(
+            df['High'],
+            df['Low'],
+            df['Close'],
+            self.atr_period
+        ).shift(1)
+
+        return df
 
     def on_data(self, index, row):
         # Delegate to on_bar with internal bar position and data
