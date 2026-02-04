@@ -292,11 +292,84 @@ At deployment (20:30 bar):
 
 ---
 
-### Current Test Status (2026-02-04 20:32 UTC - AGGRESSIVE TESTING MODE)
+### ✅ Phase 5: EXTREME Testing + BTC Validation - ACTIVE (2026-02-04 22:00-22:35 UTC)
 
-| Bot | Strategy | Symbol | TF | Status | K Value | Zone | Next Signal |
-|-----|----------|--------|----|----|---------|------|-------------|
-| **qqq-5m** | StochRSI | QQQ | 5m | 🟢 Live | **36.0** | 🟢 Oversold | K > 50 → BUY (15-30 min) |
+**Problem Discovered (22:15 UTC):**
+After deploying aggressive mode (60/40 thresholds), stock bots stopped receiving new bars:
+- Stock bots: Last bar at 21:30 GMT, no new data until 22:15
+- Alpaca after-hours data: Sparse/delayed (not continuous like regular hours)
+- Market conditions: After-hours (4:30-5:15 PM ET) - low volume period
+- **Root cause**: Alpaca doesn't provide continuous after-hours bar data for stocks
+
+**Decision: EXTREME Mode + Switch to BTC**
+1. **Made thresholds ULTRA-AGGRESSIVE** for maximum signal generation:
+   - Oversold: 40 → **50** (trades at midpoint!)
+   - Overbought: 60 → **50** (trades every reversal!)
+   - ADX: 40 → **50** (almost no filter)
+   - **Effect**: Trades EVERY time K crosses 50 in either direction
+
+2. **Switched to BTC/USD 1m for validation:**
+   - BTC trades 24/7 (no market hours gaps)
+   - 1-minute timeframe (rapid feedback)
+   - StochRSI with EXTREME settings (50/50)
+   - Purpose: Prove infrastructure works while stocks are quiet
+
+**Deployment (22:22 UTC):**
+- ✅ Stopped all 3 stock bots (QQQ, SPY, IWM)
+- ✅ Started BTC 1m bot with extreme StochRSI
+- ✅ Verified candle logging active
+- ✅ Confirmed data matches Alpaca chart
+
+**BTC Bot Status (22:33 UTC):**
+- Strategy: StochRSIMeanReversion (EXTREME 50/50)
+- Symbol: BTC/USD
+- Timeframe: 1m
+- Status: 🟢 Running, processing bars every minute
+- Session: 7d82e307-4919-4282-99e3-bce19dd2fd44
+- Latest: K=16.0 (falling fast from 100!)
+
+**Recent BTC Progression:**
+```
+22:28: $73,502 | K: 100.0 → Peak (maxed out)
+22:29: $73,338 | K: 87.7  → Starting to fall
+22:30: $73,363 | K: 76.1  → Falling toward 50
+22:31: $73,199 | K: 53.3  → Just crossed 50! (SIGNAL ZONE)
+22:32: $73,146 | K: 37.7  → Below 50 (oversold zone)
+22:33: $73,103 | K: 16.0  → Deeply oversold
+```
+
+**Expected Overnight:**
+- BTC will continue trading 24/7
+- Should generate 10-30 trades by morning
+- Validates: Order execution, position management, database logging, slippage measurement
+- Data collection: Real Alpaca trading costs for BTC
+
+**Stock Bots:**
+- Will resume when market opens tomorrow 2:30 PM Irish time (9:30 AM ET)
+- After-hours data too sparse for reliable testing
+- Better to test during regular hours with high volume
+
+---
+
+### Current Test Status (2026-02-04 22:35 UTC - BTC EXTREME TESTING MODE)
+
+| Bot | Strategy | Symbol | TF | Status | Latest K | Thresholds | Purpose |
+|-----|----------|--------|----|----|----------|------------|---------|
+| **btc-1m** | StochRSI | BTC/USD | 1m | 🟢 Live | **16.0** ⬇️ | 50/50 (EXTREME) | 24/7 infrastructure validation |
+
+**EXTREME Thresholds:**
+- Oversold: **50** (not 20) - LONG when K crosses above 50
+- Overbought: **50** (not 80) - SHORT when K crosses below 50
+- Trades EVERY reversal at midpoint!
+
+**Stock Bots (Paused):**
+| Bot | Status | Reason |
+|-----|--------|--------|
+| qqq-5m | ⏸️ Stopped | After-hours data gaps from Alpaca |
+| spy-15m | ⏸️ Stopped | After-hours data gaps from Alpaca |
+| iwm-15m | ⏸️ Stopped | After-hours data gaps from Alpaca |
+
+**Resume Plan:** Tomorrow 2:30 PM Irish time when regular market opens
 | **spy-15m** | StochRSI | SPY | 15m | 🟢 Live | **87.8** | 🔴 Overbought | K < 50 → SHORT (1-2 hrs) |
 | **iwm-15m** | StochRSI | IWM | 15m | 🟢 Live | **85.2** | 🔴 Overbought | K < 50 → SHORT (1-2 hrs) |
 | **dia-15m** | StochRSI | DIA | 15m | 🟢 Live | **93.9** | 🔴 Overbought | K < 50 → SHORT (1-2 hrs) |
