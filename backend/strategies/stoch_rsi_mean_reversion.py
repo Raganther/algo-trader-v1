@@ -77,7 +77,10 @@ class StochRSIMeanReversionStrategy(Strategy):
         # Use .iloc for previous row access using passed integer position
         prev_k = df.iloc[i-1]['k']
         current_adx = row['adx']
-        
+
+        # Print every bar for monitoring (FORWARD TESTING VISIBILITY)
+        print(f"[{row.name}] {self.symbol} ${row['Close']:.2f} | K: {current_k:.1f} (prev: {prev_k:.1f}) | ADX: {current_adx:.1f}")
+
         # Regime Filter: Only trade if Market is Ranging (ADX < Threshold)
         # Skip this check when called from HybridRegime (which already filtered by ADX)
         if not self.skip_adx_filter:
