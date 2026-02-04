@@ -247,32 +247,76 @@ Now we can see exactly what the market is doing on every candle processed, makin
 
 ---
 
-### Current Test Status (2026-02-04 20:10 UTC)
+### ✅ Phase 4: Aggressive Testing Mode - DEPLOYED (2026-02-04 20:32 UTC)
 
-| Bot | Strategy | Symbol | TF | Status | Uptime | Memory | Purpose |
-|-----|----------|--------|----|----|--------|--------|---------|
-| **iwm-15m** | StochRSI | IWM | 15m | 🟢 Live | 1m | 101.3 MB | Production test (+19.79% realistic) |
-| **qqq-5m** | StochRSI | QQQ | 5m | 🟢 Live | 1m | 104.7 MB | ⭐ Champion (+44.9% realistic) |
-| **spy-15m** | StochRSI | SPY | 15m | 🟢 Live | 1m | 101.3 MB | Baseline spreads (most liquid) |
-| **dia-15m** | StochRSI | DIA | 15m | 🟢 Live | 1m | 101.5 MB | Blue chip spread analysis |
+**Problem Discovered:**
+After 6+ hours of running with conservative settings, no trades executed:
+- Conservative thresholds (oversold <20, overbought >80) too extreme
+- Market conditions didn't reach extreme levels
+- Off-by-one bug: `prev_k > 80` should be `>= 80` (missed K=80.0 exactly)
+- Need to verify infrastructure works before 2-week real test
+
+**Decision:**
+Deploy aggressive "testing mode" for 24 hours to generate trades and validate:
+- ✅ Orders execute on Alpaca correctly
+- ✅ Positions open and close properly
+- ✅ Database logging captures all data
+- ✅ Slippage measurement works
+- ✅ Multi-bot coordination functions
+
+**Changes Made:**
+1. **Fixed threshold bug**: Changed `>` to `>=` and `<` to `<=` to include exact values
+2. **Lowered overbought**: 80 → **60** (more frequent signals)
+3. **Raised oversold**: 20 → **40** (more frequent signals)
+4. **Raised ADX threshold**: 20 → **40** (allow more trending markets)
+
+**Deployment:**
+- ✅ Code committed (9689758) and pushed to GitHub
+- ✅ All 4 bots stopped, pulled new code, and restarted at 20:32 UTC
+- ✅ Verified new thresholds active
+
+**Expected Results (24 hours):**
+- 20-40 trades across all 4 bots
+- Verify system works end-to-end
+- Measure real slippage on executed trades
+- Prove infrastructure before reverting to conservative settings
+
+**Immediate Market Response:**
+At deployment (20:30 bar):
+- **QQQ 5m**: K=36.0 → **Already in oversold zone!** (< 40 threshold)
+- **SPY 15m**: K=87.8 → In overbought zone (> 60), falling
+- **IWM 15m**: K=85.2 → In overbought zone (> 60), falling
+- **DIA 15m**: K=93.9 → In overbought zone (> 60), falling
+
+**First Trade Expected:** Within 15-30 minutes (QQQ waiting for K to cross above 50)
+
+---
+
+### Current Test Status (2026-02-04 20:32 UTC - AGGRESSIVE TESTING MODE)
+
+| Bot | Strategy | Symbol | TF | Status | K Value | Zone | Next Signal |
+|-----|----------|--------|----|----|---------|------|-------------|
+| **qqq-5m** | StochRSI | QQQ | 5m | 🟢 Live | **36.0** | 🟢 Oversold | K > 50 → BUY (15-30 min) |
+| **spy-15m** | StochRSI | SPY | 15m | 🟢 Live | **87.8** | 🔴 Overbought | K < 50 → SHORT (1-2 hrs) |
+| **iwm-15m** | StochRSI | IWM | 15m | 🟢 Live | **85.2** | 🔴 Overbought | K < 50 → SHORT (1-2 hrs) |
+| **dia-15m** | StochRSI | DIA | 15m | 🟢 Live | **93.9** | 🔴 Overbought | K < 50 → SHORT (1-2 hrs) |
+
+**Testing Mode Thresholds:**
+- Oversold: K < **40** (was 20)
+- Overbought: K > **60** (was 80)
+- ADX threshold: < **40** (was 20)
 
 **Platform Status:**
-- Total Memory: 408 MB / 958 MB (43% used)
-- All bots: 0 restarts ✅
+- Total Memory: 411 MB / 958 MB (43% used)
+- All bots: 0-1 restarts (auto-recovery from API hiccup) ✅
 - Server: Running directly under PM2 (no bash wrappers)
 - Per-candle logging: Active ✅
+- Testing mode: **ACTIVE** 🔬
 
-**Current Market Conditions (Live):**
-- **QQQ 5m**: K=80.0 (at overbought threshold), falling from 88.5 → waiting for K<50 to SHORT
-- **SPY 15m**: K=98.5 (deeply overbought), falling from 99.1 → waiting for K<50 to SHORT
-- Market is overbought across all symbols, no trade signals yet (expected behavior)
-
-**Expected Trade Volume:**
-- QQQ 5m: 15-25 trades/day
-- SPY 15m: 8-12 trades/day
-- IWM 15m: 8-12 trades/day
-- DIA 15m: 6-10 trades/day
-- **Total: 40-60 trades/day** (280-420 trades/week)
+**Expected Trades (Next 2-4 Hours):**
+- **QQQ**: Already in oversold zone, waiting for bounce above 50 → **BUY imminent**
+- **SPY/IWM/DIA**: All in overbought zones, falling → **SHORT signals expected within 1-2 hours**
+- **Total expected in 24h**: 20-40 trades (validates infrastructure)
 
 **Tests Completed:**
 - ✅ BTC/USD 1m - Platform validation complete (23 trades, 0.0432% avg slippage measured)
@@ -292,10 +336,22 @@ Now we can see exactly what the market is doing on every candle processed, makin
 
 ## Next Steps
 
-### 1. Active Data Collection Phase (Weeks 1-2)
-- ✅ **Day 1 (2026-02-04):** 4 strategies running, collecting live data
-- ⏳ **Days 2-7:** Monitor daily for stability and trade execution
-- ⏳ **Week 2:** Continue collection, target 500+ total trades
+### 1. Infrastructure Validation (24 Hours - ACTIVE NOW)
+- ✅ **Deployed:** Aggressive testing mode at 20:32 UTC (2026-02-04)
+- ⏳ **Monitor:** Next 24 hours for trade execution
+- ⏳ **Collect:** 20-40 trades to validate system works
+- ⏳ **Verify:** Orders execute, positions open/close, database logs correctly
+- ⏳ **Measure:** Real slippage on executed trades
+
+### 2. Revert to Conservative Settings (After 24h validation)
+- [ ] Stop all bots
+- [ ] Revert thresholds: oversold 40→20, overbought 60→80, ADX 40→20
+- [ ] Restart bots with production settings
+- [ ] Begin 2+ week data collection
+
+### 3. Long-Term Data Collection (Weeks 1-2)
+- [ ] Monitor daily for stability and trade execution
+- [ ] Continue collection, target 500+ total trades across all strategies
 
 **Daily Check Commands:**
 ```bash
@@ -371,10 +427,17 @@ gcloud compute scp algotrader2026:~/algo-trader-v1/backend/research.db ~/Downloa
 - [x] Add per-candle logging for visibility ✅ (2026-02-04)
 - [x] Deploy all 4 production strategies ✅ (2026-02-04)
 
-**Phase 3: Production Testing - IN PROGRESS**
+**Phase 3: Infrastructure Validation (Testing Mode) - IN PROGRESS**
 - [x] All 4 strategies running simultaneously ✅ (IWM, QQQ, SPY, DIA)
-- [ ] Monitor for 2+ weeks for trade execution (Day 1/14 in progress)
-- [ ] Collect 500+ total trades across all strategies
+- [x] Discovered no trades after 6 hours (conservative thresholds too extreme) ✅
+- [x] Fixed threshold bug (>= instead of >) ✅ (2026-02-04)
+- [x] Deployed aggressive testing mode ✅ (2026-02-04 20:32)
+- [ ] Monitor for 24 hours for trade execution (Hour 1/24 in progress)
+- [ ] Collect 20-40 trades to validate infrastructure
+- [ ] Verify orders execute, positions open/close, database logs
+- [ ] Measure real slippage on executed trades
+- [ ] Revert to conservative settings after validation
+- [ ] Begin 2+ week production data collection
 - [ ] Download database and analyze results
 - [ ] Calculate real Alpaca spreads from trade logs
 - [ ] Update realistic-test.sh with measured values
@@ -385,13 +448,15 @@ gcloud compute scp algotrader2026:~/algo-trader-v1/backend/research.db ~/Downloa
 ## Important Notes
 
 ### ✅ Current System Status
-**PRODUCTION FORWARD TESTING - STABLE**
-- ✅ All 4 bots running with PM2 (0 restarts)
+**AGGRESSIVE TESTING MODE - VALIDATING INFRASTRUCTURE**
+- ✅ All 4 bots running with PM2 (0-1 restarts from API recovery)
 - ✅ Bot auto-stop issue RESOLVED (run Python directly, not bash wrappers)
 - ✅ Per-candle logging for full market visibility
 - ✅ Trade logging to SQLite database
 - ✅ Platform validated with BTC test (23 trades, stable execution)
-- **Status:** Ready for 2+ week data collection
+- 🔬 **Testing Mode Active:** Aggressive thresholds to generate 20-40 trades in 24h
+- 🎯 **Goal:** Validate infrastructure works before 2+ week production test
+- ⏰ **Timeline:** Revert to conservative settings after 24h validation
 
 ### Server Management
 - **Never stop the server** - bots run 24/7 in background

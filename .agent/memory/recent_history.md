@@ -1,3 +1,95 @@
+### 9689758 - feat: Enable aggressive testing mode for infrastructure validation (Just now)
+
+Deployed aggressive testing mode to validate infrastructure works before
+2-week production test. After 6 hours with conservative settings, no trades
+executed - thresholds too extreme for current market conditions.
+
+## Issues Found
+1. **No trades after 6 hours**: Conservative thresholds (oversold <20, overbought >80) not reached
+2. **Threshold bug**: Line 169/140 used `>` and `<` instead of `>=` and `<=` - missed K=80.0 exactly
+3. **Unrealistic expectations**: Estimated "40-60 trades/day" was backtest average, not daily guarantee
+4. **Same strategy**: All 4 bots use StochRSI (just different symbols), not different strategies
+
+## Solution: 24-Hour Testing Mode
+**Changed strategy defaults temporarily:**
+- Oversold: 20 → **40** (more frequent LONG signals)
+- Overbought: 80 → **60** (more frequent SHORT signals)
+- ADX threshold: 20 → **40** (allow more trending markets)
+- Fixed: `>` → `>=` and `<` → `<=` to include exact threshold values
+
+## Deployment (20:32 UTC)
+- ✅ All 4 bots stopped, pulled code, restarted
+- ✅ New thresholds active
+- ✅ Immediate response: QQQ K=36.0 (in oversold zone!)
+
+## Expected Results (24 Hours)
+- **Goal**: 20-40 trades to validate infrastructure
+- **Verify**: Orders execute, positions open/close, database logs
+- **Measure**: Real slippage on executed trades
+- **Then**: Revert to conservative settings for real 2-week test
+
+## Market Status at Deployment (20:30 bar)
+- **QQQ 5m**: K=36.0 → IN OVERSOLD ZONE → BUY signal expected in 15-30 min
+- **SPY 15m**: K=87.8 → IN OVERBOUGHT ZONE → SHORT signal expected in 1-2 hrs
+- **IWM 15m**: K=85.2 → IN OVERBOUGHT ZONE → SHORT signal expected in 1-2 hrs
+- **DIA 15m**: K=93.9 → IN OVERBOUGHT ZONE → SHORT signal expected in 1-2 hrs
+
+## Purpose
+Smart validation approach: prove system works with test data before
+committing to 2+ weeks of conservative forward testing.
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+---
+### 4c51f6b - feat: Add per-candle logging for forward testing visibility (30 minutes ago)
+
+Added logging to display market conditions on every candle, not just
+on trade signals. Provides real-time visibility into StochRSI K values,
+price, and ADX to understand why bots are/aren't trading.
+
+## Problem
+Bots were silent unless signals occurred - no way to see:
+- Current StochRSI K values
+- Whether approaching oversold/overbought zones
+- ADX filter status
+- Why no trades executing
+
+## Solution
+Added single logging line to `backend/strategies/stoch_rsi_mean_reversion.py:82`:
+```python
+print(f"[{row.name}] {self.symbol} ${row['Close']:.2f} | K: {current_k:.1f} (prev: {prev_k:.1f}) | ADX: {current_adx:.1f}")
+```
+
+## Example Output
+```
+[2026-02-04 20:05:00+00:00] QQQ $607.77 | K: 80.0 (prev: 88.5) | ADX: 25.5
+[2026-02-04 20:00:00+00:00] SPY $687.95 | K: 98.5 (prev: 99.1) | ADX: 29.6
+```
+
+## Deployment
+- ✅ Code committed and pushed to GitHub
+- ✅ Pulled on cloud server
+- ✅ All 4 bots restarted
+- ✅ Verified logging active in PM2 logs
+
+## Benefit
+Now we can monitor market conditions in real-time via `pm2 logs`,
+making it easy to see when bots are approaching trade signals.
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+---
+### 74f9c9a - docs: Update forward testing plan with per-candle logging completion (30 minutes ago)
+
+Updated forward_testing_plan.md to document:
+- Phase 3: Per-Candle Logging Enhancement (completed 20:10 UTC)
+- Updated system status to PRODUCTION FORWARD TESTING - STABLE
+- Marked logging and deployment tasks as complete
+- Added current market conditions showing overbought market
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+---
 ### 8ab43d2 - docs: Document resolution of bot auto-stop issue (1 hour ago)
 
 Root cause identified and fixed: Bash wrapper scripts were causing
