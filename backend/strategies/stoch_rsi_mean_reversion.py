@@ -13,9 +13,9 @@ class StochRSIMeanReversionStrategy(Strategy):
         self.stoch_period = int(parameters.get('stoch_period', 14))
         self.k_period = int(parameters.get('k_period', 3))
         self.d_period = int(parameters.get('d_period', 3))
-        self.overbought = float(parameters.get('overbought', 60))  # Testing mode: 60 (was 80)
-        self.oversold = float(parameters.get('oversold', 40))  # Testing mode: 40 (was 20)
-        self.adx_threshold = float(parameters.get('adx_threshold', 40))  # Testing mode: 40 (was 20)
+        self.overbought = float(parameters.get('overbought', 50))  # EXTREME testing: 50 (trades every reversal)
+        self.oversold = float(parameters.get('oversold', 50))  # EXTREME testing: 50 (trades every reversal)
+        self.adx_threshold = float(parameters.get('adx_threshold', 50))  # EXTREME testing: 50 (almost no filter)
         self.dynamic_adx = parameters.get('dynamic_adx', True) # Default to True for backward compatibility
         self.position_size = float(parameters.get('position_size', 100000.0))
         self.sl_atr = float(parameters.get('sl_atr', 3.0))
