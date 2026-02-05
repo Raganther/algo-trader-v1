@@ -98,11 +98,16 @@ class AlpacaTrader:
         # Clean symbol (BTC/USD -> BTCUSD)
         clean_symbol = symbol.replace('/', '')
 
-        # Alpaca requires fractional stock orders to be DAY type
+        # Alpaca constraints for stock orders:
+        # - Fractional orders must be DAY type
+        # - Fractional short selling is not allowed
         is_crypto = '/' in symbol
-        is_fractional = qty != int(qty)
-        if not is_crypto and is_fractional:
-            alpaca_tif = TimeInForce.DAY
+        if not is_crypto:
+            if side.lower() == 'sell':
+                qty = int(qty)  # Round down to whole shares (no fractional shorts)
+            is_fractional = qty != int(qty)
+            if is_fractional:
+                alpaca_tif = TimeInForce.DAY
 
         if time_in_force.lower() == 'day':
             alpaca_tif = TimeInForce.DAY
