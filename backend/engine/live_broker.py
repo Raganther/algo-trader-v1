@@ -137,14 +137,18 @@ class LiveBroker:
         is_crypto = '/' in self.symbol
 
         print(f"LIVE BUY: {size} shares of {self.symbol}")
-        res = self.trader.place_order(
-            symbol=self.symbol,
-            qty=size,
-            side='buy',
-            stop_loss=None if is_crypto else stop_loss,
-            take_profit=None if is_crypto else take_profit
-        )
-        
+        try:
+            res = self.trader.place_order(
+                symbol=self.symbol,
+                qty=size,
+                side='buy',
+                stop_loss=None if is_crypto else stop_loss,
+                take_profit=None if is_crypto else take_profit
+            )
+        except Exception as e:
+            print(f"❌ BUY order rejected: {e}")
+            return None
+
         # Poll for fill to get exact price
         filled_order = self._wait_for_fill(res['id'])
         if filled_order:
@@ -161,7 +165,7 @@ class LiveBroker:
             print(f"✅ FILLED BUY: {filled_order['filled_avg_price']}")
         else:
             print(f"⚠️ Order {res['id']} not filled yet.")
-            
+
         return res
 
     def sell(self, price, size, timestamp=None, stop_loss=None, take_profit=None):
@@ -170,14 +174,18 @@ class LiveBroker:
         is_crypto = '/' in self.symbol
 
         print(f"LIVE SELL: {size} shares of {self.symbol}")
-        res = self.trader.place_order(
-            symbol=self.symbol,
-            qty=size,
-            side='sell',
-            stop_loss=None if is_crypto else stop_loss,
-            take_profit=None if is_crypto else take_profit
-        )
-        
+        try:
+            res = self.trader.place_order(
+                symbol=self.symbol,
+                qty=size,
+                side='sell',
+                stop_loss=None if is_crypto else stop_loss,
+                take_profit=None if is_crypto else take_profit
+            )
+        except Exception as e:
+            print(f"❌ SELL order rejected: {e}")
+            return None
+
         # Poll for fill
         filled_order = self._wait_for_fill(res['id'])
         if filled_order:
@@ -194,7 +202,7 @@ class LiveBroker:
             print(f"✅ FILLED SELL: {filled_order['filled_avg_price']}")
         else:
             print(f"⚠️ Order {res['id']} not filled yet.")
-            
+
         return res
 
     def place_order(self, symbol, side, quantity, order_type='market', price=None, stop_loss=None, take_profit=None, **kwargs):
