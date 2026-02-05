@@ -388,61 +388,81 @@ After running BTC bot overnight with EXTREME settings (50/50), discovered bot ge
 
 ---
 
-### Current Test Status (2026-02-05 08:50 UTC - BTC VALIDATION ACTIVE)
+### ✅ Phase 7: Position Tracking Bug Fixes - COMPLETED (2026-02-05 11:30-16:00 UTC)
 
-| Bot | Strategy | Symbol | TF | Status | Latest K | Thresholds | Purpose |
-|-----|----------|--------|----|----|----------|------------|---------|
-| **btc-1m** | StochRSI | BTC/USD | 1m | 🟢 Live | **4.4** ⬇️ | 50/50 (EXTREME) | Validating order execution after bug fixes |
+**Critical Discovery Session:**
+Deep analysis of overnight BTC trading revealed 4 critical position tracking bugs that explained why exits silently failed and duplicate positions accumulated.
 
-**EXTREME Thresholds:**
-- Oversold: **50** (not 20) - LONG when K crosses above 50
-- Overbought: **50** (not 80) - SHORT when K crosses below 50
-- Trades EVERY reversal at midpoint!
+**Bug #1: Position State Lost on Restart**
+- `strategy.py:15` sets `self.position = 0` on every init
+- After PM2 restart, bot thinks it's flat but Alpaca still has position
+- Result: Opens duplicate positions (0.35 + 0.35 = 0.70 BTC)
+- **Fix**: Added position sync after strategy init in `runner.py` — queries Alpaca and sets `strategy.position` to match reality
+- Prints `[SYNC] Recovered position: long (0.693616188)` or `[SYNC] Confirmed flat position`
 
-**Stock Bots (Paused):**
-| Bot | Status | Reason |
-|-----|--------|--------|
-| qqq-5m | ⏸️ Stopped | After-hours data gaps from Alpaca |
-| spy-15m | ⏸️ Stopped | After-hours data gaps from Alpaca |
-| iwm-15m | ⏸️ Stopped | After-hours data gaps from Alpaca |
+**Bug #2: Zone Flags Re-trigger While Holding**
+- Zone entry logic (`in_oversold_zone = True`) was OUTSIDE `if self.position == 0:` block
+- With EXTREME thresholds (50/50), K oscillates → zone re-triggers → duplicate entries
+- **Fix**: Moved zone flag logic inside `position == 0` check in `stoch_rsi_mean_reversion.py`
 
-**Resume Plan:** Tomorrow 2:30 PM Irish time when regular market opens
-| **spy-15m** | StochRSI | SPY | 15m | 🟢 Live | **87.8** | 🔴 Overbought | K < 50 → SHORT (1-2 hrs) |
-| **iwm-15m** | StochRSI | IWM | 15m | 🟢 Live | **85.2** | 🔴 Overbought | K < 50 → SHORT (1-2 hrs) |
-| **dia-15m** | StochRSI | DIA | 15m | 🟢 Live | **93.9** | 🔴 Overbought | K < 50 → SHORT (1-2 hrs) |
+**Bug #3: Symbol Format Mismatch (MAIN EXIT BUG)**
+- Alpaca returns positions keyed as `BTCUSD` (no slash)
+- Strategy looks up `BTC/USD` (with slash) via `get_positions().get(self.symbol)`
+- Lookup returns `None` → `qty = 0` → `LIVE SELL: 0 shares` → order fails
+- **Fix**: `live_broker.py` refresh() now stores BOTH formats (`BTCUSD` and `BTC/USD`) for crypto symbols
 
-**Testing Mode Thresholds:**
-- Oversold: K < **40** (was 20)
-- Overbought: K > **60** (was 80)
-- ADX threshold: < **40** (was 20)
+**Bug #4: Exit Qty Lookup Method**
+- Exit blocks used `get_positions().get(symbol)` which doesn't handle format mismatch
+- **Fix**: Changed all exit paths to use `get_position(symbol)` method which already handles both formats
+
+**Additional Stock-Specific Fixes (discovered during SPY/QQQ testing):**
+
+**Bug #5: Fractional Stock Orders Must Be DAY Type**
+- Alpaca requires `TimeInForce.DAY` for fractional stock orders (default was GTC)
+- **Fix**: Auto-detect fractional qty for non-crypto and switch TIF
+
+**Bug #6: Fractional Short Selling Not Allowed for Stocks**
+- Alpaca rejects fractional short sells for stocks
+- **Fix**: Round ALL stock orders (buy and sell) to whole shares
+- Prevents fractional residuals (buy 35.67 → sell 35 → 0.67 orphan)
+
+**Bug #7: Exit State Not Guarded on Failure**
+- Strategy set `self.position = 0` even if the sell/buy order failed
+- Ghost state: thinks it exited but position still open on Alpaca
+- **Fix**: Only reset position state if order returns non-None result; skip if qty is 0
+
+**Validation Results (2026-02-05 15:30-16:15 UTC):**
+- BTC: 3+ clean round-trip trades, entries and exits both filling correctly
+- SPY: 2 clean round-trips with whole shares (35 buy → 35 sell, no residuals)
+- QQQ: Running, waiting for 15m signals
+- All trades verified against Alpaca order history — exact price/qty match
+
+---
+
+### Current Test Status (2026-02-05 16:15 UTC - MULTI-ASSET VALIDATION ACTIVE)
+
+| Bot | Strategy | Symbol | TF | Status | Trades | Notes |
+|-----|----------|--------|----|----|--------|-------|
+| **btc-1m** | StochRSI | BTC/USD | 1m | 🟢 Live | 3+ round-trips | Entries/exits working, fractional crypto OK |
+| **spy-5m** | StochRSI | SPY | 5m | 🟢 Live | 2 round-trips | Whole shares (35), no residuals |
+| **qqq-15m** | StochRSI | QQQ | 15m | 🟢 Live | 0 (waiting) | 15m bars = slower signals, no errors |
+
+**Settings (all bots):**
+- Thresholds: 50/50 (EXTREME — trades every K=50 crossing)
+- ADX filter: Disabled (`skip_adx_filter=True`)
+- Position sizing: 25% of equity cap
+- Stocks: Whole shares only (rounded via `int()`)
 
 **Platform Status:**
-- Memory: 110 MB (single bot running)
-- BTC bot: 17+ minutes uptime, 5 restarts ✅
 - Server: Running directly under PM2 (no bash wrappers)
-- Per-candle logging: Active ✅
-- Account: $98,811 equity, 0 positions (clean slate) ✅
-- Critical bugs: **FIXED** ✅
-
-**Waiting for First Clean Trade:**
-- K needs to rise from 4.4 to >50 for LONG entry signal
-- Expected position size: ~$24,700 (25% of equity) = 0.35 BTC
-- Will validate: Order execution, fill logging, database recording
-- ETA: 15-60 minutes (market dependent)
-
-**Tests Completed:**
-- ✅ BTC/USD 1m - Platform validation complete (23 trades, 0.0432% avg slippage measured)
-- Stopped after proving infrastructure stability
+- Per-candle logging: Active
+- All 7 bugs fixed and validated
+- Commits: 3af74ad, 7633a95, 4a8ace5, d8e4439, 3832ae6
 
 **Server Details:**
-- Location: europe-west2-a (changed from us-central1)
+- Location: europe-west2-a (London)
 - Instance: algotrader2026
 - Access: `gcloud compute ssh algotrader2026 --zone=europe-west2-a`
-
-**Database Status:**
-- ✅ 10+ BTC trades logged since 20:38 UTC
-- ✅ Schema updated with iteration_index
-- ✅ Trades show before/after restart continuity
 
 ---
 
@@ -539,15 +559,17 @@ gcloud compute scp algotrader2026:~/algo-trader-v1/backend/research.db ~/Downloa
 - [x] Add per-candle logging for visibility ✅ (2026-02-04)
 - [x] Deploy all 4 production strategies ✅ (2026-02-04)
 
-**Phase 3: Infrastructure Validation (Testing Mode) - IN PROGRESS**
+**Phase 3: Infrastructure Validation (Testing Mode) - NEAR COMPLETE**
 - [x] All 4 strategies running simultaneously ✅ (IWM, QQQ, SPY, DIA)
 - [x] Discovered no trades after 6 hours (conservative thresholds too extreme) ✅
 - [x] Fixed threshold bug (>= instead of >) ✅ (2026-02-04)
 - [x] Deployed aggressive testing mode ✅ (2026-02-04 20:32)
-- [ ] Monitor for 24 hours for trade execution (Hour 1/24 in progress)
-- [ ] Collect 20-40 trades to validate infrastructure
-- [ ] Verify orders execute, positions open/close, database logs
-- [ ] Measure real slippage on executed trades
+- [x] Fixed 7 critical bugs (position sync, symbol mismatch, zone re-trigger, exit qty, fractional orders, whole shares, exit state guard) ✅ (2026-02-05)
+- [x] BTC round-trip trades validated (entry + exit filling correctly) ✅
+- [x] SPY round-trip trades validated (whole shares, no residuals) ✅
+- [x] All trades verified against Alpaca order history ✅
+- [ ] QQQ round-trip trade validation (waiting for 15m signal)
+- [ ] Monitor for 24 hours of stable multi-asset trading
 - [ ] Revert to conservative settings after validation
 - [ ] Begin 2+ week production data collection
 - [ ] Download database and analyze results
@@ -560,15 +582,16 @@ gcloud compute scp algotrader2026:~/algo-trader-v1/backend/research.db ~/Downloa
 ## Important Notes
 
 ### ✅ Current System Status
-**AGGRESSIVE TESTING MODE - VALIDATING INFRASTRUCTURE**
-- ✅ All 4 bots running with PM2 (0-1 restarts from API recovery)
-- ✅ Bot auto-stop issue RESOLVED (run Python directly, not bash wrappers)
-- ✅ Per-candle logging for full market visibility
-- ✅ Trade logging to SQLite database
-- ✅ Platform validated with BTC test (23 trades, stable execution)
-- 🔬 **Testing Mode Active:** Aggressive thresholds to generate 20-40 trades in 24h
-- 🎯 **Goal:** Validate infrastructure works before 2+ week production test
-- ⏰ **Timeline:** Revert to conservative settings after 24h validation
+**MULTI-ASSET FORWARD TESTING - INFRASTRUCTURE VALIDATED**
+- ✅ 3 bots running: BTC/USD 1m, SPY 5m, QQQ 15m
+- ✅ 7 critical bugs fixed (position tracking, symbol format, exit logic, stock order handling)
+- ✅ BTC and SPY completing full round-trip trades (entry + exit)
+- ✅ Position sync on restart working (recovers state from Alpaca)
+- ✅ Stock orders use whole shares (no fractional residuals)
+- ✅ Exit state guarded (only resets if order succeeds)
+- 🔬 **Testing Mode Active:** EXTREME 50/50 thresholds, ADX filter disabled
+- 🎯 **Goal:** Validate all 3 assets trade correctly, then revert to conservative settings
+- ⏰ **Timeline:** Monitor overnight, then begin production data collection
 
 ### Server Management
 - **Never stop the server** - bots run 24/7 in background

@@ -1,6 +1,86 @@
-# Recent Git History
+### 2fca3c2 - docs: Document Phase 7 bug fixes and multi-asset validation results (6 seconds ago)
 
-### 11c0cd7 - fix: Critical bug fixes for crypto trading and position sizing (2026-02-05)
+## Phase 7: Position Tracking Bug Fixes (2026-02-05)
+
+7 critical bugs found and fixed during live BTC/SPY/QQQ testing:
+
+1. Position state lost on restart (strategy.position=0 on init)
+   - Fix: Sync with Alpaca after strategy init in runner.py
+2. Zone flags re-trigger while holding (duplicate entries)
+   - Fix: Move zone logic inside position==0 check
+3. Symbol format mismatch BTCUSD vs BTC/USD (exits fail silently)
+   - Fix: Store both formats in broker position cache
+4. Exit qty lookup uses wrong method (returns None)
+   - Fix: Use get_position() which handles both formats
+5. Fractional stock orders need DAY TIF
+   - Fix: Auto-detect and switch TimeInForce
+6. No fractional short selling for stocks + residual positions
+   - Fix: Round ALL stock orders to whole shares
+7. Exit state not guarded on order failure (ghost flat state)
+   - Fix: Only reset position if order returns non-None
+
+## Validation Results
+- BTC: 3+ clean round-trips (entry + exit filling correctly)
+- SPY: 2 clean round-trips (35 whole shares, no residuals)
+- QQQ: Running, waiting for 15m signals
+- All trades verified against Alpaca order history
+
+## Files Modified
+- backend/runner.py (position sync on startup)
+- backend/strategies/stoch_rsi_mean_reversion.py (zone guard, exit guard, get_position)
+- backend/engine/live_broker.py (symbol normalization)
+- backend/engine/alpaca_trader.py (whole shares, DAY TIF)
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+---
+### 3832ae6 - fix: Round all stock orders to whole shares + guard exit state (42 minutes ago)
+
+- Round both buy and sell for stocks (not just sells) to prevent
+  fractional residuals (buy 35.6 → sell 35 → 0.6 orphan)
+- Only reset position state if exit order actually succeeds
+- Prevents ghost state where strategy thinks it exited but didn't
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+---
+### d8e4439 - fix: Round stock sell orders to whole shares (no fractional shorts) (3 hours ago)
+
+Alpaca does not allow fractional short selling for stocks.
+Round sell qty to int for non-crypto symbols.
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+---
+### 4a8ace5 - test: Default skip_adx_filter to True for forward testing validation (3 hours ago)
+
+Avoids need for --parameters JSON via PM2 (which causes quoting
+issues with wrapper scripts). Strategy defaults already have
+EXTREME thresholds (50/50). Will revert after validation.
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+---
+### 7633a95 - fix: Use DAY time-in-force for fractional stock orders (3 hours ago)
+
+Alpaca requires fractional stock orders to use DAY (not GTC).
+Auto-detect fractional qty for non-crypto symbols and switch TIF.
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+---
+### 3af74ad - fix: Fix position tracking bugs for live crypto trading (5 hours ago)
+
+- Sync position state with Alpaca on startup (prevents duplicate entries after restart)
+- Normalize symbol keys in broker cache (BTCUSD + BTC/USD) so lookups don't silently fail
+- Move zone flag logic inside position==0 check (prevents re-triggering while holding)
+- Use get_position() for exit sizing (handles symbol format mismatch, returns actual qty)
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+---
+### 5dd8d99 - fix: Critical bug fixes for crypto trading and position sizing (7 hours ago)
+
 Overnight BTC bot analysis revealed two critical bugs preventing all trades:
 
 Bug #1: Alpaca Bracket Orders Not Supported for Crypto
@@ -32,7 +112,9 @@ Key Learnings:
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### 4edb583 - test: Default skip_adx_filter to True for EXTREME testing (2026-02-05)
+---
+### 4edb583 - test: Default skip_adx_filter to True for EXTREME testing (8 hours ago)
+
 For infrastructure validation testing, disable ADX regime filter
 to ensure trades execute even when market is trending.
 
@@ -45,7 +127,9 @@ Will revert to False after validation complete.
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### 45eaeee - fix: Reduce position sizing cap from 100% to 25% of equity (2026-02-05)
+---
+### 45eaeee - fix: Reduce position sizing cap from 100% to 25% of equity (9 hours ago)
+
 Previous cap (1x leverage = 100% equity) was too aggressive:
 - Caused "insufficient balance" errors when rounding pushed order over cash
 - Left no room for multiple positions or fees
@@ -57,7 +141,9 @@ New cap: 25% of equity per position
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### 6168dd7 - fix: Disable bracket orders for crypto symbols (2026-02-05)
+---
+### 6168dd7 - fix: Disable bracket orders for crypto symbols (9 hours ago)
+
 Alpaca does not support bracket orders (stop_loss/take_profit) for
 crypto assets. Added detection for crypto symbols (containing '/')
 and skip bracket order parameters for these symbols.
@@ -67,7 +153,9 @@ Strategy already has manual stop loss checking, so no functionality lost.
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### fb091f4 - docs: Document EXTREME testing mode + BTC 24/7 validation (2026-02-04)
+---
+### fb091f4 - docs: Document EXTREME testing mode + BTC 24/7 validation (18 hours ago)
+
 Major updates from tonight's testing session (22:00-22:35 UTC):
 
 ## Forward Testing Plan Updates
@@ -93,7 +181,9 @@ Major updates from tonight's testing session (22:00-22:35 UTC):
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### 00af525 - feat: EXTREME testing mode - StochRSI trades every K=50 crossing (2026-02-04)
+---
+### 00af525 - feat: EXTREME testing mode - StochRSI trades every K=50 crossing (18 hours ago)
+
 For rapid infrastructure validation, set ultra-aggressive thresholds:
 - Oversold: 50 (was 40)
 - Overbought: 50 (was 60)
@@ -111,7 +201,9 @@ Will revert to conservative settings after 24h validation.
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### ad234ae - fix: Add generate_signals method to DonchianBreakout for live trading (2026-02-04)
+---
+### ad234ae - fix: Add generate_signals method to DonchianBreakout for live trading (18 hours ago)
+
 DonchianBreakout was designed for backtesting only and lacked the
 generate_signals() method required by the live trading runner.
 
@@ -126,7 +218,9 @@ testing and real-time trend following.
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### 27a1f55 - docs: Document aggressive testing mode deployment and status (2026-02-04)
+---
+### 27a1f55 - docs: Document aggressive testing mode deployment and status (20 hours ago)
+
 Updated both forward_testing_plan.md and recent_history.md to reflect:
 
 ## Forward Testing Plan Updates
@@ -153,7 +247,9 @@ Expected first trade: Within 15-30 minutes (QQQ waiting for K > 50).
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### 9689758 - feat: Enable aggressive testing mode for infrastructure validation (2026-02-04)
+---
+### 9689758 - feat: Enable aggressive testing mode for infrastructure validation (20 hours ago)
+
 Changes for 24-hour testing period to verify system works:
 - Lower overbought threshold: 80 -> 60 (more frequent signals)
 - Raise oversold threshold: 20 -> 40 (more frequent signals)
@@ -171,7 +267,9 @@ After validation, revert to conservative settings for real forward test.
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### 74f9c9a - docs: Update forward testing plan with per-candle logging completion (2026-02-04)
+---
+### 74f9c9a - docs: Update forward testing plan with per-candle logging completion (20 hours ago)
+
 - Documented Phase 3: Per-Candle Logging Enhancement (completed 2026-02-04 20:10)
 - Updated Current Test Status with logging active and live market conditions
 - Marked system as PRODUCTION FORWARD TESTING - STABLE
@@ -181,7 +279,9 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### 4c51f6b - feat: Add per-candle logging for forward testing visibility (2026-02-04)
+---
+### 4c51f6b - feat: Add per-candle logging for forward testing visibility (20 hours ago)
+
 Added print statement to show every candle:
 - Timestamp
 - Symbol and close price
@@ -198,7 +298,9 @@ Output format:
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### 01f0c28 - docs: Update forward testing plan with 4 active strategies (2026-02-04)
+---
+### 01f0c28 - docs: Update forward testing plan with 4 active strategies (26 hours ago)
+
 Current Active Tests:
 - IWM 15m: Production test (15h uptime)
 - QQQ 5m: Champion strategy (just started)
@@ -219,7 +321,9 @@ Updated:
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### 9334029 - docs: Update recent_history.md with bot debugging commits (2026-02-03)
+---
+### 9334029 - docs: Update recent_history.md with bot debugging commits (2 days ago)
+
 Manually added two missing commits to recent_history.md:
 
 1. Resolution of bot auto-stop issue (8ab43d2)
@@ -237,7 +341,9 @@ was bypassed during active debugging.
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### 8ab43d2 - docs: Document resolution of bot auto-stop issue (2026-02-03)
+---
+### 8ab43d2 - docs: Document resolution of bot auto-stop issue (2 days ago)
+
 Root cause identified and fixed:
 - Bash wrapper scripts were causing signal handling issues
 - PM2 → bash → Python process tree caused KeyboardInterrupt
@@ -250,154 +356,4 @@ Verification:
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
-### 6ff4784 - debug: Add logging around strategy initialization (2026-02-03)
-Bot stops after warmup data loading. Adding debug logging to confirm
-strategy __init__ is where it hangs.
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### 1ca2685 - fix: Comment out NFPBreakout strategy to resolve import error (2026-02-03)
-The NFPBreakout strategy depends on backend.data.news_data_loader which
-doesn't exist, causing crash-loop on cloud server.
-
-Temporarily commented out to allow bot to start and test debug logging.
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### 8e970f4 - debug: Add comprehensive logging to live trading loop (2026-02-03)
-Added verbose debug logging to diagnose bot auto-stop issue.
-
-Changes to runner.py:
-- Added loop counter to track iterations
-- Added timestamps at loop start
-- Added debug messages before/after data fetch
-- Added try/catch around data fetch to isolate fetch errors
-- Log when data is None/empty
-- Log when no new bar detected
-- Enhanced exception handling with full traceback
-- Force stdout flush for real-time logging
-
-This will help identify:
-- If data fetching is failing
-- If exceptions are being raised
-- If data becomes None/empty after some iterations
-- Exactly which loop iteration causes the stop
-
-Related to: BTC bot auto-stop issue (stops every 5-10 mins)
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### 127662b - docs: Document BTC bot auto-stop issue and Phase 2.5 progress (2026-02-03)
-Updated forward_testing_plan.md with comprehensive status of forward
-testing setup including critical issues discovered.
-
-## Phase 2.5 Progress (2026-02-03 Evening)
-- Fixed database schema (iteration_index column)
-- Fixed IWM and BTC startup scripts (EOF syntax, directory context)
-- Added BTC 1m bot for 24/7 testing
-- Implemented auto-restart wrapper for reliability
-
-## Critical Issue Discovered
-BTC bot (and potentially others) consistently stops after 5-10 minutes
-with KeyboardInterrupt. Root cause unknown.
-
-Evidence:
-- Bot runs successfully for 5-10 minutes
-- Receives bars, executes trades, logs to database
-- Then cleanly exits with "Live Trading Stopped"
-- Pattern is highly consistent
-
-Possible causes:
-- Alpaca API session timeout
-- SDK connection keepalive issue
-- Rate limiting
-- Memory leak
-- Bug in data fetching loop
-
-Current workaround:
-- Bash wrapper auto-restarts bot within 5 seconds
-- Bot reconnects and fetches existing positions
-- Continues trading after restart
-- 10+ successful trades logged despite restarts
-
-Trade safety analysis:
-- LiveBroker.refresh() fetches positions on startup (good)
-- Risks: orphaned positions if Alpaca unreachable during restart
-- Not production-ready until root cause fixed
-
-## Status Update
-- IWM 15m: Stable, waiting for market open
-- BTC 1m: Running with auto-restart loop (testing mode)
-- Server: europe-west2-a zone
-- Database: 10+ trades logged, schema updated
-
-## Next Priority
-Debug root cause of bot auto-stop behavior before production deployment.
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### 189606f - docs: Update forward testing plan - PM2 setup complete (2026-02-03)
-Updated forward_testing_plan.md to reflect completed PM2 installation
-and successful launch of first forward test.
-
-## Completed Today (Phase 2)
-- Installed PM2 v6.0.14 process manager
-- Started IWM 15m forward test running in background
-- Enabled auto-restart on crash
-- Configured systemd for auto-start on server reboot
-- Verified live trading connection and bar reception
-
-## Current Status
-- **IWM 15m** running live on Google Cloud
-- Session ID: f53b07bc-f9da-42b0-a38a-4c88413c6f76
-- Started: 2026-02-03 13:00 UTC
-- Warmup: 99 bars loaded
-- Status: Online and monitoring
-
-## Next Steps
-- Monitor for 3 days to verify stability
-- Add QQQ 5m and QQQ 4h after verification
-- Run all 3 strategies for 2-4 weeks
-- Download database and measure real Alpaca trading costs
-
-## PM2 Commands Documented
-- pm2 status - Check processes
-- pm2 logs iwm-15m - Watch output
-- pm2 restart/stop/delete - Process management
-
-Bot now runs 24/7 independently, logging all trades to database
-for later analysis of real-world spreads and performance.
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### 037b509 - docs: Document forward testing setup and progress (2026-02-02)
-Created forward_testing_plan.md documenting the complete setup process
-for running multi-week forward tests on Google Cloud.
-
-## Completed Today (Phase 1)
-- Set up Google Cloud e2-micro instance (Ubuntu 22.04)
-- Deployed code and installed all Python dependencies
-- Configured Alpaca API keys for paper trading
-- Successfully tested live trading connection (IWM 15m)
-- Verified trade logging to database
-
-## Server Details
-- Provider: Google Cloud Platform
-- Instance: e2-micro (1 GB RAM, 2 vCPU)
-- Cost: ~$7/month (covered by $300 free credit for 90 days)
-- OS: Ubuntu 22.04 LTS
-- Location: us-central1
-
-## Next Steps (Tomorrow)
-1. Install PM2 process manager for 24/7 background execution
-2. Monitor initial 3-day test run for stability
-3. Add QQQ 5m and QQQ 4h strategies after verification
-4. Run all 3 strategies for 2+ weeks
-5. Download database and analyze real Alpaca trading costs
-
-## Goal
-Measure actual spreads, slippage, and performance to validate
-backtest assumptions and update realistic-test.sh settings with
-real-world data.
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+---
