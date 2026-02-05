@@ -543,6 +543,17 @@ def run_live_trading(args):
     strategy = strategy_class(initial_data, None, params, 100000, broker)
     print(f"[DEBUG] Strategy initialized successfully!")
 
+    # Sync position state with Alpaca (recover position after restart)
+    broker.refresh()
+    positions = broker.get_positions()
+    symbol_clean = args.symbol.replace('/', '')
+    pos = positions.get(args.symbol) or positions.get(symbol_clean)
+    if pos and abs(pos['size']) > 0.0001:
+        strategy.position = 'long' if pos['size'] > 0 else 'short'
+        print(f"[SYNC] Recovered position: {strategy.position} ({pos['size']})")
+    else:
+        print(f"[SYNC] Confirmed flat position")
+
     # 3. Live Loop
     # Force unbuffered output for real-time logging
     import sys

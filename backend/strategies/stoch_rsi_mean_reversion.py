@@ -117,8 +117,7 @@ class StochRSIMeanReversionStrategy(Strategy):
         if self.position == 'long' and self.current_sl:
             if row['Low'] <= self.current_sl:
                 # SL Hit
-                pos = self.broker.get_positions().get(self.symbol)
-                qty = pos['size'] if pos else 0
+                qty = abs(self.broker.get_position(self.symbol))
                 self.sell(price=self.current_sl, size=qty, timestamp=i)
                 self.position = 0
                 self.current_sl = None
@@ -127,8 +126,7 @@ class StochRSIMeanReversionStrategy(Strategy):
         elif self.position == 'short' and self.current_sl:
             if row['High'] >= self.current_sl:
                 # SL Hit
-                pos = self.broker.get_positions().get(self.symbol)
-                qty = abs(pos['size']) if pos else 0
+                qty = abs(self.broker.get_position(self.symbol))
                 self.buy(price=self.current_sl, size=qty, timestamp=i)
                 self.position = 0
                 self.current_sl = None
@@ -139,14 +137,14 @@ class StochRSIMeanReversionStrategy(Strategy):
             # Long Setup
             if prev_k <= self.oversold:  # Fixed: <= instead of < to include exact threshold
                 self.in_oversold_zone = True
-            
+
             if self.in_oversold_zone and current_k > 50:
                 # Dynamic Sizing
                 equity = self.broker.get_equity()
                 risk_amt = equity * 0.02 # 2% Risk
                 atr_val = row[self.atr_col]
                 stop_dist = atr_val * self.sl_atr
-                
+
                 if stop_dist > 0:
                     size = risk_amt / stop_dist
 
@@ -154,28 +152,28 @@ class StochRSIMeanReversionStrategy(Strategy):
                     max_size = (equity * 0.25) / row['Close']
                     size = min(size, max_size)
                     size = round(size, 4)
-                    
+
                     self.current_sl = row['Close'] - stop_dist
                     result = self.buy(price=row['Close'], size=size, timestamp=i, stop_loss=self.current_sl)
                     # Only update position state if order was actually executed
                     if result is not None:
-                        self.in_oversold_zone = False 
+                        self.in_oversold_zone = False
                         self.position = 'long'
-                
+
             if current_k > 50:
                 self.in_oversold_zone = False
- 
+
             # Short Setup
             if prev_k >= self.overbought:  # Fixed: >= instead of > to include exact threshold
                 self.in_overbought_zone = True
-                
+
             if self.in_overbought_zone and current_k < 50:
                 # Dynamic Sizing
                 equity = self.broker.get_equity()
                 risk_amt = equity * 0.02
                 atr_val = row[self.atr_col]
                 stop_dist = atr_val * self.sl_atr
-                
+
                 if stop_dist > 0:
                     size = risk_amt / stop_dist
 
@@ -183,33 +181,28 @@ class StochRSIMeanReversionStrategy(Strategy):
                     max_size = (equity * 0.25) / row['Close']
                     size = min(size, max_size)
                     size = round(size, 4)
-                    
+
                     self.current_sl = row['Close'] + stop_dist
                     result = self.sell(price=row['Close'], size=size, timestamp=i, stop_loss=self.current_sl)
                     # Only update position state if order was actually executed
                     if result is not None:
                         self.in_overbought_zone = False
                         self.position = 'short'
-                
+
             if current_k < 50:
                 self.in_overbought_zone = False
 
         # Exit Logic (Signal Based)
         elif self.position == 'long':
-            # Get current size to close
-            pos = self.broker.get_positions().get(self.symbol)
-            qty = pos['size'] if pos else 0
-            
             if current_k > self.overbought:
-                self.sell(price=row['Close'], size=qty, timestamp=i) 
+                qty = abs(self.broker.get_position(self.symbol))
+                self.sell(price=row['Close'], size=qty, timestamp=i)
                 self.position = 0
                 self.current_sl = None
-                
+
         elif self.position == 'short':
-            pos = self.broker.get_positions().get(self.symbol)
-            qty = abs(pos['size']) if pos else 0
-            
             if current_k < self.oversold:
-                self.buy(price=row['Close'], size=qty, timestamp=i) 
+                qty = abs(self.broker.get_position(self.symbol))
+                self.buy(price=row['Close'], size=qty, timestamp=i)
                 self.position = 0
                 self.current_sl = None

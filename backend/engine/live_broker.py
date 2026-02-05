@@ -52,10 +52,16 @@ class LiveBroker:
                 raw_pos = self.trader.get_open_trades()
                 self.positions = {}
                 for p in raw_pos:
-                    self.positions[p['symbol']] = {
+                    sym = p['symbol']
+                    pos_data = {
                         'size': p['qty'],
                         'price': p['entry_price']
                     }
+                    self.positions[sym] = pos_data
+                    # Also store with slash for crypto (BTCUSD → BTC/USD)
+                    if len(sym) == 6 and sym.endswith('USD'):
+                        slash_sym = sym[:-3] + '/' + sym[-3:]
+                        self.positions[slash_sym] = pos_data
                 return # Success
             except Exception as e:
                 print(f"⚠️ Connection Error in refresh (Attempt {attempt+1}/{max_retries}): {e}")
