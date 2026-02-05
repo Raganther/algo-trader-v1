@@ -20,7 +20,7 @@ class StochRSIMeanReversionStrategy(Strategy):
         self.position_size = float(parameters.get('position_size', 100000.0))
         self.sl_atr = float(parameters.get('sl_atr', 3.0))
         
-        self.skip_adx_filter = parameters.get('skip_adx_filter', False)
+        self.skip_adx_filter = parameters.get('skip_adx_filter', True)  # EXTREME TESTING: Skip ADX filter
         self.atr_col = parameters.get('atr_col', 'atr')
         self.symbol = parameters.get('symbol', 'Unknown')
         
