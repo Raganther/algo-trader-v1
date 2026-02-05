@@ -94,9 +94,15 @@ class AlpacaTrader:
         """
         alpaca_side = OrderSide.BUY if side.lower() == 'buy' else OrderSide.SELL
         alpaca_tif = TimeInForce.GTC # Default
-        
+
         # Clean symbol (BTC/USD -> BTCUSD)
         clean_symbol = symbol.replace('/', '')
+
+        # Alpaca requires fractional stock orders to be DAY type
+        is_crypto = '/' in symbol
+        is_fractional = qty != int(qty)
+        if not is_crypto and is_fractional:
+            alpaca_tif = TimeInForce.DAY
 
         if time_in_force.lower() == 'day':
             alpaca_tif = TimeInForce.DAY
