@@ -126,13 +126,17 @@ class LiveBroker:
         # But wait, I just updated AlpacaTrader to support bracket orders.
         # I should update the Strategy to pass SL to broker.buy()!
         
+        # IMPORTANT: Alpaca does not support bracket orders for crypto
+        # Detect crypto symbols (contain '/') and skip stop_loss/take_profit
+        is_crypto = '/' in self.symbol
+
         print(f"LIVE BUY: {size} shares of {self.symbol}")
         res = self.trader.place_order(
             symbol=self.symbol,
             qty=size,
             side='buy',
-            stop_loss=stop_loss,
-            take_profit=take_profit
+            stop_loss=None if is_crypto else stop_loss,
+            take_profit=None if is_crypto else take_profit
         )
         
         # Poll for fill to get exact price
@@ -155,13 +159,17 @@ class LiveBroker:
         return res
 
     def sell(self, price, size, timestamp=None, stop_loss=None, take_profit=None):
+        # IMPORTANT: Alpaca does not support bracket orders for crypto
+        # Detect crypto symbols (contain '/') and skip stop_loss/take_profit
+        is_crypto = '/' in self.symbol
+
         print(f"LIVE SELL: {size} shares of {self.symbol}")
         res = self.trader.place_order(
-            symbol=self.symbol, 
+            symbol=self.symbol,
             qty=size,
             side='sell',
-            stop_loss=stop_loss,
-            take_profit=take_profit
+            stop_loss=None if is_crypto else stop_loss,
+            take_profit=None if is_crypto else take_profit
         )
         
         # Poll for fill
