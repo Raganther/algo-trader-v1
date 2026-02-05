@@ -149,9 +149,9 @@ class StochRSIMeanReversionStrategy(Strategy):
                 
                 if stop_dist > 0:
                     size = risk_amt / stop_dist
-                    
-                    # Cap to 1x leverage (position value can't exceed equity)
-                    max_size = equity / row['Close']
+
+                    # Cap to 25% of equity per position (leaves room for multiple positions + fees)
+                    max_size = (equity * 0.25) / row['Close']
                     size = min(size, max_size)
                     size = round(size, 4)
                     
@@ -178,9 +178,9 @@ class StochRSIMeanReversionStrategy(Strategy):
                 
                 if stop_dist > 0:
                     size = risk_amt / stop_dist
-                    
-                    # Cap to 1x leverage (position value can't exceed equity)
-                    max_size = equity / row['Close']
+
+                    # Cap to 25% of equity per position (leaves room for multiple positions + fees)
+                    max_size = (equity * 0.25) / row['Close']
                     size = min(size, max_size)
                     size = round(size, 4)
                     
