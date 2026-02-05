@@ -99,15 +99,11 @@ class AlpacaTrader:
         clean_symbol = symbol.replace('/', '')
 
         # Alpaca constraints for stock orders:
-        # - Fractional orders must be DAY type
         # - Fractional short selling is not allowed
+        # - Round all stock orders to whole shares to avoid residual positions
         is_crypto = '/' in symbol
         if not is_crypto:
-            if side.lower() == 'sell':
-                qty = int(qty)  # Round down to whole shares (no fractional shorts)
-            is_fractional = qty != int(qty)
-            if is_fractional:
-                alpaca_tif = TimeInForce.DAY
+            qty = int(qty)
 
         if time_in_force.lower() == 'day':
             alpaca_tif = TimeInForce.DAY

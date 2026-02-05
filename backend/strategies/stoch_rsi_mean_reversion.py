@@ -118,18 +118,22 @@ class StochRSIMeanReversionStrategy(Strategy):
             if row['Low'] <= self.current_sl:
                 # SL Hit
                 qty = abs(self.broker.get_position(self.symbol))
-                self.sell(price=self.current_sl, size=qty, timestamp=i)
-                self.position = 0
-                self.current_sl = None
+                if qty > 0:
+                    result = self.sell(price=self.current_sl, size=qty, timestamp=i)
+                    if result is not None:
+                        self.position = 0
+                        self.current_sl = None
                 return # Exit logic done
 
         elif self.position == 'short' and self.current_sl:
             if row['High'] >= self.current_sl:
                 # SL Hit
                 qty = abs(self.broker.get_position(self.symbol))
-                self.buy(price=self.current_sl, size=qty, timestamp=i)
-                self.position = 0
-                self.current_sl = None
+                if qty > 0:
+                    result = self.buy(price=self.current_sl, size=qty, timestamp=i)
+                    if result is not None:
+                        self.position = 0
+                        self.current_sl = None
                 return # Exit logic done
 
         # Entry Logic
@@ -196,13 +200,17 @@ class StochRSIMeanReversionStrategy(Strategy):
         elif self.position == 'long':
             if current_k > self.overbought:
                 qty = abs(self.broker.get_position(self.symbol))
-                self.sell(price=row['Close'], size=qty, timestamp=i)
-                self.position = 0
-                self.current_sl = None
+                if qty > 0:
+                    result = self.sell(price=row['Close'], size=qty, timestamp=i)
+                    if result is not None:
+                        self.position = 0
+                        self.current_sl = None
 
         elif self.position == 'short':
             if current_k < self.oversold:
                 qty = abs(self.broker.get_position(self.symbol))
-                self.buy(price=row['Close'], size=qty, timestamp=i)
-                self.position = 0
-                self.current_sl = None
+                if qty > 0:
+                    result = self.buy(price=row['Close'], size=qty, timestamp=i)
+                    if result is not None:
+                        self.position = 0
+                        self.current_sl = None
