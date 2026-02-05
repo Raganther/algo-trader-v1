@@ -167,8 +167,9 @@ class StochRSIMeanReversionStrategy(Strategy):
             if current_k > 50:
                 self.in_oversold_zone = False
 
-            # Short Setup
-            if prev_k >= self.overbought:  # Fixed: >= instead of > to include exact threshold
+            # Short Setup (skip for crypto — Alpaca doesn't support crypto shorting)
+            is_crypto = '/' in self.symbol
+            if not is_crypto and prev_k >= self.overbought:  # Fixed: >= instead of > to include exact threshold
                 self.in_overbought_zone = True
 
             if self.in_overbought_zone and current_k < 50:
