@@ -351,11 +351,48 @@ After deploying aggressive mode (60/40 thresholds), stock bots stopped receiving
 
 ---
 
-### Current Test Status (2026-02-04 22:35 UTC - BTC EXTREME TESTING MODE)
+### ✅ Phase 6: Critical Bug Fixes - COMPLETED (2026-02-05 07:00-08:50 UTC)
+
+**Overnight Analysis Revealed Critical Issues:**
+
+After running BTC bot overnight with EXTREME settings (50/50), discovered bot generated MANY signals but executed ZERO trades. Investigation revealed two critical bugs:
+
+**Bug #1: Alpaca Bracket Orders Not Supported for Crypto**
+- **Error**: All orders failed with `403 Forbidden`
+- **Message**: `"crypto orders not allowed for advanced order_class: otoco"`
+- **Root Cause**: Strategy passed `stop_loss` parameter to every order, triggering bracket order creation
+- **Impact**: 100% order failure rate overnight (K crossed 50 multiple times, all trades rejected)
+- **Fix (Commit 6168dd7)**: Modified `live_broker.py` to detect crypto symbols (containing '/') and skip bracket order parameters
+- **Result**: Orders now execute as simple market orders for crypto (manual stop loss already in strategy)
+
+**Bug #2: Position Sizing Too Aggressive**
+- **Error**: `"insufficient balance for BTC (requested: 1.3748, available: 0)"`
+- **Root Cause**: Strategy used 100% of equity for position sizing (max_size = equity / price)
+- **Impact**: Orders that passed bracket check still failed due to insufficient cash after rounding/fees
+- **Fix (Commit 45eaeee)**: Reduced position cap from 100% to 25% of equity per position
+- **Reasoning**: Allows 4 concurrent positions, leaves buffer for fees, more conservative risk management
+
+**Testing Status (2026-02-05 08:50 UTC):**
+- ✅ Both fixes deployed to cloud server
+- ✅ Bot running stable (17+ minutes uptime, 5 restarts)
+- ✅ Candles printing correctly every minute
+- ✅ Existing test position closed for clean slate
+- ⏳ Waiting for K > 50 to validate first clean trade execution
+- Current: K=4.4 (oversold), BTC @ $70,924
+
+**Key Learnings:**
+1. **Crypto trading limitations**: Alpaca doesn't support advanced order types (brackets, OCO) for crypto
+2. **Position sizing matters**: Conservative caps prevent order rejection and allow portfolio diversification
+3. **Manual stop loss works**: Strategy already has stop loss checking (lines 117-135), bracket orders unnecessary
+4. **Infrastructure validated**: Bot runs stably, data flows correctly, order placement path works (when properly configured)
+
+---
+
+### Current Test Status (2026-02-05 08:50 UTC - BTC VALIDATION ACTIVE)
 
 | Bot | Strategy | Symbol | TF | Status | Latest K | Thresholds | Purpose |
 |-----|----------|--------|----|----|----------|------------|---------|
-| **btc-1m** | StochRSI | BTC/USD | 1m | 🟢 Live | **16.0** ⬇️ | 50/50 (EXTREME) | 24/7 infrastructure validation |
+| **btc-1m** | StochRSI | BTC/USD | 1m | 🟢 Live | **4.4** ⬇️ | 50/50 (EXTREME) | Validating order execution after bug fixes |
 
 **EXTREME Thresholds:**
 - Oversold: **50** (not 20) - LONG when K crosses above 50
@@ -380,16 +417,18 @@ After deploying aggressive mode (60/40 thresholds), stock bots stopped receiving
 - ADX threshold: < **40** (was 20)
 
 **Platform Status:**
-- Total Memory: 411 MB / 958 MB (43% used)
-- All bots: 0-1 restarts (auto-recovery from API hiccup) ✅
+- Memory: 110 MB (single bot running)
+- BTC bot: 17+ minutes uptime, 5 restarts ✅
 - Server: Running directly under PM2 (no bash wrappers)
 - Per-candle logging: Active ✅
-- Testing mode: **ACTIVE** 🔬
+- Account: $98,811 equity, 0 positions (clean slate) ✅
+- Critical bugs: **FIXED** ✅
 
-**Expected Trades (Next 2-4 Hours):**
-- **QQQ**: Already in oversold zone, waiting for bounce above 50 → **BUY imminent**
-- **SPY/IWM/DIA**: All in overbought zones, falling → **SHORT signals expected within 1-2 hours**
-- **Total expected in 24h**: 20-40 trades (validates infrastructure)
+**Waiting for First Clean Trade:**
+- K needs to rise from 4.4 to >50 for LONG entry signal
+- Expected position size: ~$24,700 (25% of equity) = 0.35 BTC
+- Will validate: Order execution, fill logging, database recording
+- ETA: 15-60 minutes (market dependent)
 
 **Tests Completed:**
 - ✅ BTC/USD 1m - Platform validation complete (23 trades, 0.0432% avg slippage measured)

@@ -361,3 +361,8 @@
 | **⚪ RANGING** | 78.1% | 2955.14 |
 | **🟣 VOLATILE** | 8.5% | 4498.90 |
 
+
+## New Insights (Auto-Curated)
+- Result: Crypto uses simple market orders, stocks retain bracket functionality
+- Result: Allows 4 concurrent positions, leaves buffer for fees
+
