@@ -1,6 +1,15 @@
 # Recent Git History
 
-### 1142b85 - feat: Implement memory system restructure for reliable context (2026-02-06)
+### fe419ef - fix: Fix KeyError in Donchian stop loss - use correct position dict key (2026-02-06)
+Live broker stores entry price as position['price'] but Donchian strategy
+was using position['avg_price'] (backtest format). Caused KeyError crash
+on every bar when holding a position (204 PM2 restarts).
+
+Fixed both long (line 150) and short (line 163) stop loss lookups.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 7ba8fad - feat: Implement memory system restructure for reliable context (2026-02-06)
 Created new files:
 - .claude/claude.md - Session primer (auto-read by Claude at startup)
 - .claude/hooks/load-context.sh - SessionStart hook shows recent commits
@@ -305,15 +314,5 @@ Expected: 20-40 trades in 24 hours to validate:
 - Multi-bot coordination
 
 After validation, revert to conservative settings for real forward test.
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### 74f9c9a - docs: Update forward testing plan with per-candle logging completion (2026-02-04)
-- Documented Phase 3: Per-Candle Logging Enhancement (completed 2026-02-04 20:10)
-- Updated Current Test Status with logging active and live market conditions
-- Marked system as PRODUCTION FORWARD TESTING - STABLE
-- Updated remaining tasks to reflect current progress (Day 1/14)
-- Added detailed logging examples and benefits
-- Removed outdated auto-stop issue warnings
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
