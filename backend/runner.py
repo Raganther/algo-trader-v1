@@ -22,6 +22,7 @@ from backend.strategies.gamma_scalping import GammaScalping
 from backend.strategies.rapid_fire_test import RapidFireTestStrategy # New
 from backend.strategies.a_golden_cross import AGoldenCrossStrategy
 from backend.strategies.regime_gated_stoch import RegimeGatedStoch # New
+from backend.strategies.swing_breakout import SwingBreakoutStrategy # New
 
 # Strategy Mapping
 STRATEGY_MAP = {
@@ -41,6 +42,7 @@ STRATEGY_MAP = {
     "RapidFireTest": RapidFireTestStrategy,
     "AGoldenCross": AGoldenCrossStrategy,
     "RegimeGatedStoch": RegimeGatedStoch,
+    "SwingBreakout": SwingBreakoutStrategy,
 }
 
 def run_backtest(args):
@@ -207,6 +209,20 @@ def run_backtest(args):
             "adx_period": 14,
             "adx_threshold": 25,
             "sma_period": 200
+        }
+    elif args.strategy == "SwingBreakout":
+        params = {
+            "symbol": args.symbol,
+            "entry_period": 55,
+            "exit_period": 20,
+            "atr_period": 20,
+            "atr_stop_mult": 3.0,
+            "adx_period": 14,
+            "adx_threshold": 20,
+            "bb_period": 20,
+            "bb_std": 2.0,
+            "bb_avg_period": 50,
+            "risk_pct": 0.02
         }
     elif args.strategy == "RegimeGatedStoch":
         params = {

@@ -345,6 +345,35 @@
 
 ---
 
+## 11. SwingBreakout on SPY/QQQ/IWM
+> **Status**: 🔴 Not Viable | **Stability**: N/A
+
+### 📊 Strategy Profile (Iteration 1, `--spread 0.0003 --delay 0`)
+Daily-timeframe swing breakout with triple confirmation:
+- Donchian 55-day breakout + Bollinger width expanding + ADX(14) > 20 rising
+- ATR(20) trailing stop (3x) + Donchian 20-day exit
+- 2% equity risk, whole shares, 1x leverage cap
+
+| Symbol | Return (5yr) | Max DD | Trades | Win Rate | Trades/yr |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **SPY** | **-0.01%** | 4.98% | 13 | 31% | ~2.6 |
+| **QQQ** | **+1.39%** | 4.95% | 18 | 39% | ~3.6 |
+| **IWM** | **-2.24%** | 7.65% | 15 | 47% | ~3.0 |
+
+### Cost Impact Test (SPY)
+| Variant | Return | Difference |
+| :--- | :--- | :--- |
+| Zero cost | +0.18% | baseline |
+| 0.03% spread | -0.01% | -0.19% (negligible) |
+
+### Key Finding
+Strategy designed specifically to minimise cost impact (daily bars, ~3 trades/year).
+Spread cost is negligible as intended, but **the strategy itself generates no alpha**.
+Triple confirmation filter too restrictive (3 trades/year vs target 10-15).
+Confirms that public indicators on liquid US ETFs cannot generate meaningful returns.
+
+---
+
 ## 🌍 Market Regime Analysis
 > **Context**: Analysis of market conditions for key assets.
 

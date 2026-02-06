@@ -1,6 +1,26 @@
 # Recent Git History
 
-### 6e411f5 - fix: Make Donchian position key compatible with both live and backtest (2026-02-06)
+### c5ca461 - feat: Add SwingBreakout strategy + fix percentage-based spread model (2026-02-06)
+Fixed PaperTrader spread from absolute price units to percentage-based:
+  fill_price = base_price * (1 + spread/2) instead of base_price + spread/2
+  --spread 0.0003 now means 0.03% of price ($0.075/side for SPY at $500)
+
+New SwingBreakout strategy (daily timeframe, triple confirmation):
+  - 55-day Donchian breakout + Bollinger width expanding + ADX rising
+  - ATR trailing stop (3x) + Donchian 20-day exit
+  - 2% equity risk, whole shares, 1x leverage cap
+
+Backtest results (2020-2025, --spread 0.0003 --delay 0):
+  SPY: -0.01%, QQQ: +1.39%, IWM: -2.24% (~3 trades/year)
+  Cost impact negligible (0.19% over 5 years) as designed
+  Strategy generates no meaningful alpha on liquid US ETFs
+
+Preliminary finding: public indicators alone cannot generate alpha
+on highly liquid ETFs after realistic transaction costs.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 0e05453 - fix: Make Donchian position key compatible with both live and backtest (2026-02-06)
 Re-ran top 3 backtests with corrected cost model (--spread 0.0003 --delay 0):
 - QQQ 5m StochRSI: +0.99% (was +44.9% with delay=1)
 - IWM 15m StochRSI: -1.13% (was +19.8% with delay=1)
@@ -287,20 +307,5 @@ Expected: 20+ trades in next 2-3 hours
 Purpose: Validate infrastructure works end-to-end
 
 Will revert to conservative settings after 24h validation.
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### ad234ae - fix: Add generate_signals method to DonchianBreakout for live trading (2026-02-04)
-DonchianBreakout was designed for backtesting only and lacked the
-generate_signals() method required by the live trading runner.
-
-Changes:
-- Added generate_signals(df) method that calculates indicators on passed dataframe
-- Returns dataframe with Donchian channels and ATR indicators
-- Maintains backward compatibility with existing _calculate_indicators() for backtesting
-- Enables live trading support for trend-following strategy
-
-This allows DonchianBreakout to work in live trading mode for infrastructure
-testing and real-time trend following.
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>

@@ -11,10 +11,10 @@
 
 ## Latest Achievement
 
-- Slippage analysis complete: SPY 0.032%, QQQ 0.060%, IWM 0.030%
-- 9 critical bugs fixed (position tracking, crypto shorts, API errors, whole shares)
-- 20+ validated trades across SPY/QQQ/IWM
-- Backtest assumptions validated against live execution
+- Fixed PaperTrader spread model: now percentage-based (was absolute price units — meaningless for stocks)
+- Built SwingBreakout strategy: daily 55-day Donchian + BB expansion + ADX triple confirmation
+- SwingBreakout backtests flat: SPY -0.01%, QQQ +1.39%, IWM -2.24% (2020-2025)
+- Preliminary conclusion: indicator-only strategies on liquid US ETFs unlikely to generate alpha
 
 ## Open Positions / Pending
 
@@ -96,20 +96,34 @@ git push origin main
 - [x] Monitor Donchian IWM 5m for first trades (trading as of Feb 6)
 - [x] Check if IWM pending order filled at market open (confirmed)
 - [x] Fix Donchian KeyError bug (`position['avg_price']` → `position['price']`)
+- [x] Fix spread model (percentage-based instead of absolute)
+- [x] Build & test SwingBreakout strategy (daily, triple confirmation)
 - [ ] Fix IWM dual-bot conflict (both iwm-5m and donchian-iwm-5m sell combined position)
 - [ ] Run EXTREME mode for 1 week (target: Feb 13) to collect slippage data
-- [ ] Re-run backtests with corrected params: `--spread 0.0003 --delay 0`
+- [ ] Evaluate pivot: alternative data, less efficient markets, or regime-based allocation
 - [ ] After backtests: revert to conservative 20/80 thresholds
-- [ ] Forward test most promising strategies for 2+ months
 
 ## Critical Finding: Backtest Cost Model
 
 Previous `--spread 0.0001 --delay 1` is misleading for mean reversion:
-- `delay=1` HELPS entries (price continues in signal direction), making backtests optimistic
-- Live fills in ~1 second (same bar), so we miss this delay benefit
-- Corrected params: `--spread 0.0003 --delay 0` (after 1 week of data)
+- `delay=1` fills at same bar's Open (not next bar), capturing intra-bar movement as free profit
+- On 5m bars with 1261 trades/year, this phantom profit was massive
+- Old spread was in absolute price units ($0.0003) — essentially zero for $500 stocks
+- **Fixed**: Spread now percentage-based. `--spread 0.0003` = 0.03% of price
+- Corrected params: `--spread 0.0003 --delay 0`
+
+## Preliminary Finding: Indicator-Only Strategy Viability
+
+Every strategy collapsed when tested with corrected cost model:
+- QQQ 5m StochRSI: 44.9% → 0.99% (delay artifact)
+- IWM 15m StochRSI: 19.8% → -1.13% (delay artifact)
+- QQQ 4h Donchian: 22.6% → -6.38% (delay artifact)
+- SwingBreakout (daily, triple confirmation): essentially flat across SPY/QQQ/IWM
+
+Public indicators on liquid US ETFs appear unable to generate alpha after realistic costs.
+Potential paths forward: alternative data, less efficient markets, regime-based allocation.
 
 ---
 
-*Last updated: 2026-02-06*
+*Last updated: 2026-02-06 (spread fix + SwingBreakout + viability findings)*
 *Update this file when phase changes or major milestones reached*

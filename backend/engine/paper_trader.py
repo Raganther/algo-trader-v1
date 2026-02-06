@@ -9,7 +9,7 @@ class PaperTrader(BrokerAdapter):
         self.equity = initial_capital
         self.cash = initial_capital
         self.spread = spread
-        self.account_currency = account_currency # Spread in price units (e.g. 0.00015 for 1.5 pips)
+        self.account_currency = account_currency # Spread as fraction (e.g. 0.0003 = 0.03%)
         self.positions = {} # {symbol: {'size': float, 'avg_price': float}}
         self.orders = []
         self.trade_history = []
@@ -65,7 +65,7 @@ class PaperTrader(BrokerAdapter):
                 base_price = self.override_price if self.override_price is not None else market_price
                 
                 # Close by Buying at Ask (Base Price + Spread)
-                close_price = base_price + self.spread
+                close_price = base_price * (1 + self.spread)
             
             # PnL = (Close - Entry) * Size
             # Long: (Bid - Entry) * Size
@@ -137,9 +137,9 @@ class PaperTrader(BrokerAdapter):
             base_price = market_price
         
         if side == 'buy':
-            fill_price = base_price + (self.spread / 2)
+            fill_price = base_price * (1 + self.spread / 2)
         else:
-            fill_price = base_price - (self.spread / 2)
+            fill_price = base_price * (1 - self.spread / 2)
 
         if price and order_type == 'limit':
             fill_price = price # Limit orders might ignore spread logic in simple backtest, but let's keep it simple.
