@@ -1,6 +1,34 @@
 # Recent Git History
 
-### 884036b - docs: Document Phase 8 multi-asset expansion and slippage analysis (2026-02-05)
+### 1142b85 - feat: Implement memory system restructure for reliable context (2026-02-06)
+Created new files:
+- .claude/claude.md - Session primer (auto-read by Claude at startup)
+- .claude/hooks/load-context.sh - SessionStart hook shows recent commits
+- .claude/settings.json - Hook configuration
+
+Updated files:
+- system_manual.md - Added forward testing/live trading section
+  - Cloud server management (PM2, deploy flow)
+  - Platform constraints (crypto shorts, whole shares, etc.)
+  - Critical bug fixes reference
+  - Slippage analysis results
+- git_save.md - Simplified workflow, removed non-existent curate_memory.py
+
+Memory architecture:
+- claude.md = Quick status + signposts (150 lines)
+- system_manual.md = Permanent technical reference
+- forward_testing_plan.md = Journey history (unchanged)
+- recent_history.md = Auto-generated from commits
+
+Benefits:
+- Zero manual context loading on new sessions
+- Hook auto-shows last 5 commits + file pointers
+- Claude reads claude.md automatically
+- Clear separation: status vs reference vs history
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+### 1317cd7 - docs: Document Phase 8 multi-asset expansion and slippage analysis (2026-02-05)
 Phase 8 additions:
 - Fixed crypto short selling crash (Alpaca doesn't support crypto shorts)
 - Added API error handling in live_broker.py (prevents loop crashes)
@@ -287,22 +315,5 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 - Updated remaining tasks to reflect current progress (Day 1/14)
 - Added detailed logging examples and benefits
 - Removed outdated auto-stop issue warnings
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### 4c51f6b - feat: Add per-candle logging for forward testing visibility (2026-02-04)
-Added print statement to show every candle:
-- Timestamp
-- Symbol and close price
-- StochRSI K value (current and previous)
-- ADX value
-
-This provides real-time visibility into:
-- What market conditions bots are seeing
-- Why signals are/aren't triggering
-- Current RSI levels vs thresholds
-
-Output format:
-[2026-02-04 15:30:00] QQQ $515.43 | K: 45.2 (prev: 42.1) | ADX: 18.3
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>

@@ -265,18 +265,87 @@ bash .agent/scripts/update_memory.sh
 - ⚠️ Original tests (v1-v10) likely overstated by ~30% (no costs)
 - ⚠️ API keys exposed in .env (CRITICAL: needs fixing)
 
-## 8. Recent System Updates
-- [Feat]: Realistic Testing Standards & Wrapper Script (2026-02-02)
-- [Feat]: Automated Test-and-Sync Workflow (2026-02-02)
-- [Fix]: Resolved data_loader.py IndentationError (2026-02-02)
-- [Validation]: Confirmed 30% cost impact on returns (2026-02-02)
-- [Fix]: Implemented Auto-Retry Logic for Alpaca Connection (2025-12-11)
-- [Feat]: Implemented Forward Test Analysis (Theory vs Reality) (2025-12-11)
-- [Feat]: Implemented Live Trading Logger (2025-12-10)
-- [Feat]: Implemented Unified Memory System (2025-12-10)
-- [Feat]: Verified Strategy Factory & Fixed Execution Pipeline (2025-12-09)
+## 8. Forward Testing / Live Trading
+
+### Architecture
+- **Runner**: `backend/runner.py` with `trade` command starts live trading loop
+- **Broker**: `backend/engine/live_broker.py` wraps Alpaca API
+- **Trader**: `backend/engine/alpaca_trader.py` handles order execution
+- **Position Sync**: Queries Alpaca on startup to recover state after restart
+- **Database**: Logs to `live_trade_log` table in `research.db`
+
+### Cloud Server Management
+
+**Server Details:**
+- Provider: Google Cloud Platform
+- Instance: algotrader2026 (e2-micro, 1GB RAM)
+- Zone: europe-west2-a (London)
+- OS: Ubuntu 22.04 LTS
+
+**Access:**
+```bash
+gcloud compute ssh algotrader2026 --zone=europe-west2-a
+```
+
+**PM2 Commands:**
+```bash
+pm2 status              # Check all bots
+pm2 logs bot-name       # View logs
+pm2 logs bot-name --lines 50 --nostream  # Last 50 lines
+pm2 restart bot-name    # Restart after code change
+pm2 stop bot-name       # Stop bot
+pm2 delete bot-name     # Remove bot
+pm2 save                # Save process list for auto-restart
+```
+
+**Deploy Code Changes:**
+```bash
+# Local: push changes
+git push origin main
+
+# Cloud: pull and restart
+gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="cd algo-trader-v1 && git pull && pm2 restart all"
+```
+
+### Known Platform Constraints
+
+| Constraint | Impact | Solution |
+|------------|--------|----------|
+| Crypto shorts not supported | Alpaca rejects short sells for crypto | Disabled in strategy (`is_crypto` check) |
+| Fractional stock shorts not allowed | Orders rejected | Round ALL stock orders to whole shares |
+| Bracket orders not supported for crypto | 403 Forbidden | Use manual stop-loss in strategy |
+| After-hours data sparse | Bots idle, orders queue | Orders fill at market open |
+| Market hours | 2:30 PM - 9:00 PM Irish | Stocks only trade during session |
+
+### Critical Bug Fixes History (Reference)
+
+These bugs were discovered and fixed during forward testing (2026-02-05):
+
+1. **Position state lost on restart** → Sync with Alpaca after strategy init
+2. **Zone flags re-trigger while holding** → Move logic inside position==0 check
+3. **Symbol format mismatch (BTCUSD vs BTC/USD)** → Store both formats in cache
+4. **Exit qty lookup wrong method** → Use `get_position()` not `get_positions().get()`
+5. **Fractional orders need DAY TIF** → Auto-detect and switch TimeInForce
+6. **Fractional residuals** → Round ALL stock orders to whole shares
+7. **Exit state not guarded** → Only reset position if order returns non-None
+8. **Crypto shorts crash loop** → Disable short entries for crypto symbols
+9. **API errors crash loop** → Wrap in try/except, return None
+
+Full details in `recent_history.md` commits from 2026-02-05.
+
+### Slippage Analysis Results (2026-02-05)
+
+From 20 live trades:
+
+| Symbol | Trades | Avg Slippage | Slippage % |
+|--------|--------|--------------|------------|
+| SPY | 13 | $0.22 | 0.032% |
+| QQQ | 4 | $0.36 | 0.060% |
+| IWM | 3 | $0.08 | 0.030% |
+
+**Finding:** Live slippage within expected range. Backtest assumption of 0.01% is conservative.
 
 ---
 
-**Last Updated:** 2026-02-02
-**System Status:** ✅ Operational | 114 Test Runs | Alpaca API Connected
+**Last Updated:** 2026-02-06
+**System Status:** ✅ Operational | Forward Testing Phase 8 | 4 Bots Active
