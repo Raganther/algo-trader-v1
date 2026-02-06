@@ -1,6 +1,15 @@
 # Recent Git History
 
-### c5ca461 - feat: Add SwingBreakout strategy + fix percentage-based spread model (2026-02-06)
+### 2751c37 - docs: Add research on event-driven and macro strategy avenues (2026-02-06)
+Comprehensive analysis of alternatives to indicator-only strategies:
+- Economic announcement trading (NFP/CPI/FOMC) as top opportunity
+- VIX term structure regime filter
+- Sector rotation momentum, PEAD, credit spread overlay
+- Ranked tiers, data sources, and phased build order
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 3c34b5d - feat: Add SwingBreakout strategy + fix percentage-based spread model (2026-02-06)
 Fixed PaperTrader spread from absolute price units to percentage-based:
   fill_price = base_price * (1 + spread/2) instead of base_price + spread/2
   --spread 0.0003 now means 0.03% of price ($0.075/side for SPY at $500)
@@ -289,23 +298,5 @@ Major updates from tonight's testing session (22:00-22:35 UTC):
 - Stock bots: Paused (after-hours data gaps)
 - Resume: Tomorrow 2:30 PM Irish (regular market hours)
 - Purpose: Validate infrastructure before 2-week production test
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### 00af525 - feat: EXTREME testing mode - StochRSI trades every K=50 crossing (2026-02-04)
-For rapid infrastructure validation, set ultra-aggressive thresholds:
-- Oversold: 50 (was 40)
-- Overbought: 50 (was 60)
-- ADX threshold: 50 (was 40)
-
-This means:
-- LONG when K crosses ABOVE 50 (from below)
-- SHORT when K crosses BELOW 50 (from above)
-- Trades every single reversal at the midpoint
-
-Expected: 20+ trades in next 2-3 hours
-Purpose: Validate infrastructure works end-to-end
-
-Will revert to conservative settings after 24h validation.
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
