@@ -1,6 +1,21 @@
 # Recent Git History
 
-### b815dee - docs: Correct slippage analysis and backtest cost model findings (2026-02-06)
+### 6e411f5 - fix: Make Donchian position key compatible with both live and backtest (2026-02-06)
+Re-ran top 3 backtests with corrected cost model (--spread 0.0003 --delay 0):
+- QQQ 5m StochRSI: +0.99% (was +44.9% with delay=1)
+- IWM 15m StochRSI: -1.13% (was +19.8% with delay=1)
+- QQQ 4h Donchian: -6.38% (was +22.6% with delay=1)
+
+The delay=1 parameter was flattering mean reversion entries by giving
+an extra bar of price continuation. With delay=0 (matching live fills),
+all strategies are near breakeven or negative over 2020-2025.
+
+Also fixed Donchian position dict key to use .get() fallback so it
+works with both live_broker (key='price') and paper_trader (key='avg_price').
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 7cb65b4 - docs: Correct slippage analysis and backtest cost model findings (2026-02-06)
 Updated slippage data with 70+ trades (up from 20):
 - SPY: 0.024% (39 trades), QQQ: 0.049% (7), IWM: 0.029% (24)
 - Fill delay: avg 1.15 seconds (negligible for 5m/15m)
@@ -287,32 +302,5 @@ Changes:
 
 This allows DonchianBreakout to work in live trading mode for infrastructure
 testing and real-time trend following.
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### 27a1f55 - docs: Document aggressive testing mode deployment and status (2026-02-04)
-Updated both forward_testing_plan.md and recent_history.md to reflect:
-
-## Forward Testing Plan Updates
-- Added Phase 4: Aggressive Testing Mode section (deployed 20:32 UTC)
-- Updated Current Test Status with new thresholds and K values
-- Changed system status to "AGGRESSIVE TESTING MODE - VALIDATING INFRASTRUCTURE"
-- Updated Next Steps with 24h validation timeline
-- Updated Remaining Tasks to reflect testing phase
-
-## Recent History Updates
-- Added entry for 9689758: Aggressive testing mode deployment
-- Added entry for 4c51f6b: Per-candle logging addition
-- Added entry for 74f9c9a: Forward testing plan documentation
-- Documented problem (no trades after 6 hours with conservative settings)
-- Documented solution (lower thresholds, fix >= bug, 24h test)
-- Documented immediate market response (QQQ in oversold zone)
-
-## Current Status (20:32 UTC)
-Testing mode active with aggressive thresholds to generate 20-40 trades
-in 24 hours to validate infrastructure before reverting to conservative
-settings for 2+ week production forward test.
-
-Expected first trade: Within 15-30 minutes (QQQ waiting for K > 50).
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>

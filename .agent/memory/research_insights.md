@@ -31,6 +31,7 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **2** | 5m | **39.03%** | Raw | - | `{}` |
 | **1** | 15m | **18.59%** | Raw | - | `{"rsi_period": 7}` |
+| **5** | 5m | **0.99%** | Raw | - | `{}` |
 | **3** | 1h | **-0.88%** | Real | - | `{}` |
 
 ---
@@ -68,6 +69,7 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **2** | 15m | **65.20%** | Raw | - | `{"rsi_period": 7}` |
 | **3** | 15m | **19.79%** | Real | - | `{}` |
+| **4** | 15m | **-1.13%** | Raw | - | `{}` |
 
 ---
 
@@ -159,13 +161,13 @@
 > **Status**: 🟢 Verified Strategy | **Stability**: Moderate (Score: 1.4)
 
 ### 🧪 Reality Check (Forward Test)
-> **Cumulative Reality**: 2 Sessions | **Gap**: 🔴 -66.0% (Win Rate)
+> **Cumulative Reality**: 6 Sessions | **Gap**: 🔴 -51.7% (Win Rate)
 
 | Metric | Theory (Backtest) | Reality (Live) | Delta |
 | :--- | :--- | :--- | :--- |
-| **Win Rate** | **66.0%** | **0.0%** | -66.0% |
-| **Return** | 8.32% (Avg Yr) | -0.01% (Realized) | N/A |
-| **Trades** | 2 Years | 40 Trades | -
+| **Win Rate** | **66.0%** | **14.3%** | -51.7% |
+| **Return** | 8.32% (Avg Yr) | -0.36% (Realized) | N/A |
+| **Trades** | 2 Years | 75 Trades | -
 
 ### 📊 Strategy Profile (Iteration 2)
 | Metric | Value | Notes |
@@ -223,6 +225,7 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **3** | 4h | **22.61%** | Real | - | `{"entry_period": 20, "exit_period": 10, "stop_loss_atr": 2.0, "atr_period": 20}` |
 | **1** | 1h | **13.62%** | Raw | - | `{"entry_period": 20, "exit_period": 10, "stop_loss_atr": 2.0, "atr_period": 20}` |
+| **4** | 4h | **-6.38%** | Raw | - | `{"entry_period": 20, "exit_period": 10, "stop_loss_atr": 2.0, "atr_period": 20}` |
 
 ---
 
@@ -348,21 +351,16 @@
 ### SPY (5 Years)
 | Regime | % of Time | Avg Daily Volatility (ATR) |
 | :--- | :--- | :--- |
-| **🟢 BULL_TREND** | 19.5% | 4.48 |
+| **🟢 BULL_TREND** | 19.3% | 4.49 |
 | **🔴 BEAR_TREND** | 3.5% | 9.99 |
-| **⚪ RANGING** | 67.3% | 5.90 |
+| **⚪ RANGING** | 67.6% | 5.90 |
 | **🟣 VOLATILE** | 9.6% | 10.60 |
 
 ### BTC/USD (2 Years)
 | Regime | % of Time | Avg Daily Volatility (ATR) |
 | :--- | :--- | :--- |
 | **🟢 BULL_TREND** | 5.5% | 3314.75 |
-| **🔴 BEAR_TREND** | 7.9% | 3672.82 |
-| **⚪ RANGING** | 78.1% | 2955.14 |
+| **🔴 BEAR_TREND** | 8.3% | 3748.26 |
+| **⚪ RANGING** | 77.7% | 2963.30 |
 | **🟣 VOLATILE** | 8.5% | 4498.90 |
-
-
-## New Insights (Auto-Curated)
-- Result: Crypto uses simple market orders, stocks retain bracket functionality
-- Result: Allows 4 concurrent positions, leaves buffer for fees
 

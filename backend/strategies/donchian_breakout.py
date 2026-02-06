@@ -147,7 +147,7 @@ class DonchianBreakoutStrategy(Strategy):
             
             # Check Hard Stop Loss (ATR based) - Optional, Turtle usually just reversed or exited
             # But let's implement the 2N stop
-            entry_price = position['price']
+            entry_price = position.get('price', position.get('avg_price'))
             stop_price = entry_price - (row[self.atr_col] * self.stop_loss_atr)
             if row['Low'] < stop_price:
                  self.broker.place_order(self.symbol, 'sell', current_qty, price=stop_price, timestamp=i)
@@ -160,7 +160,7 @@ class DonchianBreakoutStrategy(Strategy):
                 self.broker.place_order(self.symbol, 'buy', current_qty, price=row['Close'], timestamp=i) # Close position
             
             # Check Hard Stop Loss
-            entry_price = position['price']
+            entry_price = position.get('price', position.get('avg_price'))
             stop_price = entry_price + (row[self.atr_col] * self.stop_loss_atr)
             if row['High'] > stop_price:
                 self.broker.place_order(self.symbol, 'buy', current_qty, price=stop_price, timestamp=i)
