@@ -93,11 +93,21 @@ git push origin main
 
 ## Next Steps
 
-- [ ] Monitor Donchian IWM 5m for first trades
-- [ ] Check if IWM pending order filled at market open
-- [ ] After validation: revert to conservative 20/80 thresholds
-- [ ] Begin 2+ week production data collection
-- [ ] Consider enabling Alpaca bracket orders for stocks (server-side stops)
+- [x] Monitor Donchian IWM 5m for first trades (trading as of Feb 6)
+- [x] Check if IWM pending order filled at market open (confirmed)
+- [x] Fix Donchian KeyError bug (`position['avg_price']` → `position['price']`)
+- [ ] Fix IWM dual-bot conflict (both iwm-5m and donchian-iwm-5m sell combined position)
+- [ ] Run EXTREME mode for 1 week (target: Feb 13) to collect slippage data
+- [ ] Re-run backtests with corrected params: `--spread 0.0003 --delay 0`
+- [ ] After backtests: revert to conservative 20/80 thresholds
+- [ ] Forward test most promising strategies for 2+ months
+
+## Critical Finding: Backtest Cost Model
+
+Previous `--spread 0.0001 --delay 1` is misleading for mean reversion:
+- `delay=1` HELPS entries (price continues in signal direction), making backtests optimistic
+- Live fills in ~1 second (same bar), so we miss this delay benefit
+- Corrected params: `--spread 0.0003 --delay 0` (after 1 week of data)
 
 ---
 

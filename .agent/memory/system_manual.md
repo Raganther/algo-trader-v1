@@ -333,17 +333,34 @@ These bugs were discovered and fixed during forward testing (2026-02-05):
 
 Full details in `recent_history.md` commits from 2026-02-05.
 
-### Slippage Analysis Results (2026-02-05)
+### Slippage Analysis Results (Updated 2026-02-06)
 
-From 20 live trades:
+From 70+ live stock trades (Feb 5-6):
 
-| Symbol | Trades | Avg Slippage | Slippage % |
-|--------|--------|--------------|------------|
-| SPY | 13 | $0.22 | 0.032% |
-| QQQ | 4 | $0.36 | 0.060% |
-| IWM | 3 | $0.08 | 0.030% |
+| Symbol | Trades | Avg Slippage | Median | Max |
+|--------|--------|--------------|--------|-----|
+| SPY | 39 | 0.024% | 0.014% | 0.127% |
+| QQQ | 7 | 0.049% | 0.059% | 0.091% |
+| IWM | 24 | 0.029% | 0.017% | 0.090% |
 
-**Finding:** Live slippage within expected range. Backtest assumption of 0.01% is conservative.
+Fill delay: avg 1.15 seconds (0-5s range). Negligible for 5m/15m strategies.
+
+**CRITICAL FINDING (2026-02-06):** Previous claim that "backtest assumption of 0.01% is conservative" was WRONG.
+
+The backtest uses `--spread 0.0001 --delay 1`. The `delay=1` (execute next bar) actually
+HELPS mean reversion entries — price often continues in signal direction for 1 more bar,
+giving a better fill. In live trading, we fill in ~1 second (same bar), missing this benefit.
+
+Evidence: 3 of 4 "realistic" backtests OUTPERFORM no-cost versions:
+- QQQ 5m: 44.9% (realistic) vs 39.0% (no cost) — delay helped +5.9%
+- IWM 15m: 19.8% vs 9.3% avg — delay helped +10.5%
+- QQQ 4h Donchian: 22.6% vs 4.3% avg — delay helped +18.3%
+- SPY 15m: -8.6% vs 4.9% avg — delay hurt -13.5% (only exception)
+
+**Corrected backtest parameters (to run after 1-week data collection):**
+- `--spread 0.0003` (3bp — matching live measurements)
+- `--delay 0` (fills are effectively same-bar in live)
+- This will give a TRUE picture of expected live performance
 
 ---
 

@@ -1,6 +1,24 @@
 # Recent Git History
 
-### fe419ef - fix: Fix KeyError in Donchian stop loss - use correct position dict key (2026-02-06)
+### b815dee - docs: Correct slippage analysis and backtest cost model findings (2026-02-06)
+Updated slippage data with 70+ trades (up from 20):
+- SPY: 0.024% (39 trades), QQQ: 0.049% (7), IWM: 0.029% (24)
+- Fill delay: avg 1.15 seconds (negligible for 5m/15m)
+
+CRITICAL CORRECTION: Previous claim that backtest 0.01% spread was
+"conservative" was wrong. The --delay 1 parameter actually HELPS
+mean reversion entries (price continues in signal direction for 1
+more bar). 3 of 4 "realistic" backtests outperform no-cost versions.
+
+In live trading we fill in ~1 second (same bar), missing this benefit.
+Corrected backtest params for after data collection: --spread 0.0003
+--delay 0 to match actual live execution characteristics.
+
+Updated next steps in claude.md with revised roadmap.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 16a8027 - fix: Fix KeyError in Donchian stop loss - use correct position dict key (2026-02-06)
 Live broker stores entry price as position['price'] but Donchian strategy
 was using position['avg_price'] (backtest format). Caused KeyError crash
 on every bar when holding a position (204 PM2 restarts).
@@ -296,23 +314,5 @@ in 24 hours to validate infrastructure before reverting to conservative
 settings for 2+ week production forward test.
 
 Expected first trade: Within 15-30 minutes (QQQ waiting for K > 50).
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### 9689758 - feat: Enable aggressive testing mode for infrastructure validation (2026-02-04)
-Changes for 24-hour testing period to verify system works:
-- Lower overbought threshold: 80 -> 60 (more frequent signals)
-- Raise oversold threshold: 20 -> 40 (more frequent signals)
-- Raise ADX threshold: 20 -> 40 (allow more trending markets)
-- Fix threshold bug: Use >= and <= instead of > and < to include exact values
-
-Expected: 20-40 trades in 24 hours to validate:
-- Order execution on Alpaca
-- Position open/close mechanics
-- Database logging
-- Slippage measurement
-- Multi-bot coordination
-
-After validation, revert to conservative settings for real forward test.
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
