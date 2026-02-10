@@ -4,29 +4,43 @@
 
 ## Current Status
 
-- **Phase:** 8 - Multi-Asset Expansion & Slippage Analysis
-- **Active Bots:** 4 (SPY 5m, QQQ 15m, IWM 5m, Donchian IWM 5m)
+- **Phase:** 9 - Strategy Direction Decision
+- **Active Bots:** 3 (SPY 5m, QQQ 15m, IWM 5m) — all StochRSI EXTREME mode
 - **Server:** europe-west2-a (algotrader2026)
 - **Mode:** EXTREME testing (50/50 thresholds, ADX disabled)
+- **Infrastructure:** Fully validated. Bots stable 5+ days, 100+ trades executed, no crashes.
 
-## Latest Achievement
+## Where We Left Off (Feb 10)
 
-- Fixed PaperTrader spread model: now percentage-based (was absolute price units — meaningless for stocks)
-- Built SwingBreakout strategy: daily 55-day Donchian + BB expansion + ADX triple confirmation
-- SwingBreakout backtests flat: SPY -0.01%, QQQ +1.39%, IWM -2.24% (2020-2025)
-- Preliminary conclusion: indicator-only strategies on liquid US ETFs unlikely to generate alpha
+**Decision point reached:** Should we continue iterating on indicator-based strategies, or pivot to alternative approaches?
 
-## Open Positions / Pending
+### What's been proven:
+1. **Infrastructure works perfectly** — bots run for days, orders fill reliably, position sync works
+2. **Backtester is now trustworthy** — `--spread 0.0003 --delay 0` matches live execution
+3. **Live trading confirms backtest findings** — trades net roughly zero, consistent with corrected backtests
+4. **Indicator-only strategies on SPY/QQQ/IWM produce no alpha** after realistic costs
 
-- Check Alpaca dashboard for current positions
-- IWM may have pending market order (fills at market open 2:30 PM Irish)
+### What hasn't been tried (indicator-based):
+- Less efficient assets (small-cap ETFs, sector ETFs like XLE/XBI, emerging markets)
+- Volume-based indicators (OBV, VWAP — everything tested so far is price-only)
+- Multi-timeframe confluence (e.g. 5m signals only when daily trend aligns)
+- Crypto markets (RegimeGatedStoch on BTC showed small positive: +1.74% ann.)
+
+### Alternative approaches documented in research.md:
+- **Tier 1:** Economic announcement events (FOMC/NFP/CPI), VIX term structure regime filter
+- **Tier 2:** Sector rotation momentum, post-earnings drift (PEAD), credit spread overlay
+- NFPBreakoutStrategy skeleton exists but untested
+
+### Owner's position:
+Interested in continuing indicator experimentation now that backtester is accurate, before giving up entirely. The corrected backtester is a reliable tool — any strategy showing profit with `delay=0` has a real chance of working live.
 
 ## Read These Files for Details
 
 1. `.agent/memory/recent_history.md` - Last 20 commits with full context
-2. `.agent/workflows/forward_testing_plan.md` - Complete forward test journey
+2. `.agent/workflows/forward_testing_plan.md` - Complete forward test journey (Phases 1-9)
 3. `.agent/memory/system_manual.md` - Technical reference (backtesting + live)
-4. `.agent/memory/research_insights.md` - Strategy backtest performance
+4. `.agent/memory/research_insights.md` - Strategy backtest performance (auto-generated)
+5. `.agent/memory/research.md` - Alternative strategy research + live validation findings
 
 ## Quick Commands
 
@@ -79,51 +93,70 @@ git push origin main
 - API error handling (returns None, doesn't crash)
 - Symbol normalization (BTCUSD + BTC/USD both work)
 
+## Backtest Settings (CORRECT — validated against live)
+
+```bash
+# These settings match live execution characteristics
+--spread 0.0003 --delay 0
+
+# spread 0.0003 = 0.03% of price (~$0.21 on $700 stock)
+# delay 0 = fill at bar's Close (matches live: bot sees close, places market order immediately)
+```
+
+**WARNING:** `--delay 1` is broken — it fills at same bar's Open (not next bar's Open), creating phantom profit for mean reversion. Never use delay=1.
+
 ## Current Testing Settings
 
-**EXTREME Mode (for infrastructure validation):**
+**EXTREME Mode (active — for slippage data collection):**
 - Oversold: 50 (trades at midpoint)
 - Overbought: 50 (trades every reversal)
 - ADX filter: DISABLED (`skip_adx_filter=True`)
 
-**Production Mode (after validation):**
+**Production Mode (if reverting):**
 - Oversold: 20
 - Overbought: 80
 - ADX filter: ENABLED
 
 ## Next Steps
 
-- [x] Monitor Donchian IWM 5m for first trades (trading as of Feb 6)
-- [x] Check if IWM pending order filled at market open (confirmed)
-- [x] Fix Donchian KeyError bug (`position['avg_price']` → `position['price']`)
-- [x] Fix spread model (percentage-based instead of absolute)
-- [x] Build & test SwingBreakout strategy (daily, triple confirmation)
-- [ ] Fix IWM dual-bot conflict (both iwm-5m and donchian-iwm-5m sell combined position)
-- [ ] Run EXTREME mode for 1 week (target: Feb 13) to collect slippage data
-- [ ] Evaluate pivot: alternative data, less efficient markets, or regime-based allocation
-- [ ] After backtests: revert to conservative 20/80 thresholds
+- [x] Fix IWM dual-bot conflict (stopped donchian-iwm-5m, keeping iwm-5m only)
+- [x] Validate live trading confirms corrected backtest findings (confirmed: trades net ~zero)
+- [ ] Decide direction: more indicator experiments vs alternative data approaches
+- [ ] If indicators: test on less efficient assets, add volume indicators, try multi-TF confluence
+- [ ] If alternative: build economic calendar integration (NFP/CPI/FOMC event trading)
+- [ ] Run EXTREME mode through Feb 13 to finish slippage data collection
+- [ ] After direction chosen: revert to conservative 20/80 thresholds or deploy new strategy
 
-## Critical Finding: Backtest Cost Model
+## Strategies Tested (with corrected costs)
 
-Previous `--spread 0.0001 --delay 1` is misleading for mean reversion:
-- `delay=1` fills at same bar's Open (not next bar), capturing intra-bar movement as free profit
-- On 5m bars with 1261 trades/year, this phantom profit was massive
-- Old spread was in absolute price units ($0.0003) — essentially zero for $500 stocks
-- **Fixed**: Spread now percentage-based. `--spread 0.0003` = 0.03% of price
-- Corrected params: `--spread 0.0003 --delay 0`
+| Strategy | Asset | TF | Result | Status |
+|---|---|---|---|---|
+| StochRSI | QQQ | 5m | 0.99% | No alpha |
+| StochRSI | IWM | 15m | -1.13% | No alpha |
+| StochRSI | SPY | 15m | -8.61% | No alpha |
+| Donchian | QQQ | 4h | -6.38% | No alpha |
+| SwingBreakout | SPY/QQQ/IWM | Daily | -0.01% to +1.39% | No alpha |
+| MACD+Bollinger | QQQ | 1h | +1.03% ann. | Marginal |
+| RegimeGatedStoch | SPY | 1h | +2.01% ann. | Marginal |
+| RegimeGatedStoch | BTC | 1h | +1.74% ann. | Small positive |
 
-## Preliminary Finding: Indicator-Only Strategy Viability
+**Live trading (EXTREME mode, 100+ trades):** Confirms ~zero net returns on SPY/QQQ/IWM.
 
-Every strategy collapsed when tested with corrected cost model:
-- QQQ 5m StochRSI: 44.9% → 0.99% (delay artifact)
-- IWM 15m StochRSI: 19.8% → -1.13% (delay artifact)
-- QQQ 4h Donchian: 22.6% → -6.38% (delay artifact)
-- SwingBreakout (daily, triple confirmation): essentially flat across SPY/QQQ/IWM
+## Available Indicators (in codebase)
 
-Public indicators on liquid US ETFs appear unable to generate alpha after realistic costs.
-Potential paths forward: alternative data, less efficient markets, regime-based allocation.
+StochRSI, RSI, MACD, ADX, Bollinger Bands, Donchian Channels, ATR, SMA, CHOP
+**Not yet used in strategies:** CHOP (Choppiness Index)
+**Not yet implemented:** OBV, VWAP, volume-based indicators
+
+## Existing Strategy Code (20 strategies in backend/strategies/)
+
+Core: StochRSIMeanReversion, DonchianBreakout, SwingBreakout, MACDBollinger
+Variants: StochRSILimit, StochRSINextOpen, StochRSIQuant, StochRSISniper
+Regime: HybridRegime, HybridRegimeV2, RegimeGatedStoch
+Donchian variants: DonchianADX, DonchianReversal, DonchianTrend
+Other: SimpleSMA, BollingerBreakout, GoldenCross, NFPBreakout (skeleton), GammaScalping (skeleton), RapidFireTest
 
 ---
 
-*Last updated: 2026-02-06 (spread fix + SwingBreakout + viability findings)*
+*Last updated: 2026-02-10 (dual-bot fix, live validation complete, strategy direction decision point)*
 *Update this file when phase changes or major milestones reached*

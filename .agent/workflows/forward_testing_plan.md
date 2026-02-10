@@ -473,15 +473,15 @@ Deep analysis of overnight BTC trading revealed 4 critical position tracking bug
 
 ---
 
-### Current Test Status (2026-02-05 20:30 UTC - 4 BOTS ACTIVE)
+### Current Test Status (2026-02-10 - 3 BOTS ACTIVE)
 
 | Bot | Strategy | Symbol | TF | Status | Trades | Notes |
 |-----|----------|--------|----|----|--------|-------|
 | **btc-1m** | StochRSI | BTC/USD | 1m | ⏸️ Stopped | 22+ round-trips | Long-only (no crypto shorts), validated |
-| **spy-5m** | StochRSI | SPY | 5m | 🟢 Live | 13 trades | Whole shares, 0.032% slippage |
-| **qqq-15m** | StochRSI | QQQ | 15m | 🟢 Live | 4 trades | 15m bars, 0.060% slippage |
-| **iwm-5m** | StochRSI | IWM | 5m | 🟢 Live | 3 trades | Best slippage (0.030%) |
-| **donchian-iwm-5m** | Donchian | IWM | 5m | 🟢 Live | 0 (new) | Trend-following comparison |
+| **spy-5m** | StochRSI | SPY | 5m | 🟢 Live | 50+ trades | Whole shares, 5 days uptime, 0 restarts |
+| **qqq-15m** | StochRSI | QQQ | 15m | 🟢 Live | 10+ trades | 5 days uptime, 4 restarts (early, now stable) |
+| **iwm-5m** | StochRSI | IWM | 5m | 🟢 Live | 30+ trades | 4 days uptime, 0 restarts |
+| **donchian-iwm-5m** | Donchian | IWM | 5m | ❌ Deleted | N/A | Removed Feb 10 — dual-bot conflict |
 
 **Settings (all bots):**
 - Thresholds: 50/50 (EXTREME — trades every K=50 crossing)
@@ -493,12 +493,53 @@ Deep analysis of overnight BTC trading revealed 4 critical position tracking bug
 - Server: Running directly under PM2 (no bash wrappers)
 - Per-candle logging: Active
 - All 7 bugs fixed and validated
-- Commits: 3af74ad, 7633a95, 4a8ace5, d8e4439, 3832ae6
+- pm2 save run after donchian deletion (persists across reboot)
 
 **Server Details:**
 - Location: europe-west2-a (London)
 - Instance: algotrader2026
 - Access: `gcloud compute ssh algotrader2026 --zone=europe-west2-a`
+
+---
+
+### ✅ Phase 9: Dual-Bot Fix + Live Validation Complete (2026-02-10)
+
+**IWM Dual-Bot Conflict Resolved:**
+- Two bots (iwm-5m StochRSI + donchian-iwm-5m Donchian) shared one Alpaca IWM position
+- Caused: sell order rejections ("insufficient qty"), wash trade detection, one bot closing other's position
+- donchian-iwm-5m had 206 PM2 restarts from repeated errors
+- **Fix**: Stopped and deleted donchian-iwm-5m, pm2 saved. IWM now managed solely by iwm-5m
+- Rationale: Donchian was experimental, StochRSI matches other bots (SPY, QQQ)
+
+**Live Trading Validates Corrected Backtest Findings:**
+After 100+ trades across SPY/QQQ/IWM over 5 days:
+- SPY trades net roughly zero (example: buy 695.49 → sell 694.24 = -$1.25/share)
+- IWM trades net roughly zero (buy/sell prices within cents of each other)
+- Pattern matches corrected backtest prediction: ~0% returns before costs, slightly negative after spread
+- **Conclusion confirmed**: indicator-only strategies on liquid US ETFs do not generate alpha
+
+**Backtest Delay Bug Fully Understood:**
+The `delay=1` bug in backtester.py was traced to code ordering:
+1. `strategy.on_data()` runs → sees bar N's Close → broker fills order immediately
+2. THEN `set_execution_override()` is set for next iteration
+3. So bar N's order fills at bar N's Open (set by previous iteration's override)
+4. Strategy sees Close, but fills at Open of same bar — time travel
+5. On mean reversion, this creates phantom profit per trade that compounds over 1000+ trades/year
+Live bots fill at Close (market order placed immediately when bar closes) — no phantom edge.
+
+**Infrastructure Status: FULLY VALIDATED**
+- 3 bots running 4-5 days continuously, zero restarts on iwm-5m and spy-5m
+- All 7 critical bugs from Phase 7 remain fixed
+- Order execution reliable, position sync works, error handling prevents crashes
+- Slippage data: SPY 0.024%, QQQ 0.049%, IWM 0.029% (70+ trades)
+
+**Decision Point Reached:**
+Owner wants to explore whether more indicator combinations could work now that backtester is accurate.
+Options discussed:
+1. Continue indicator experiments on less efficient assets (sector ETFs, small caps, crypto)
+2. Try untested indicator types (volume-based: OBV, VWAP; multi-timeframe confluence)
+3. Pivot to alternative approaches (economic events, VIX regime, sector rotation)
+4. Hybrid: quick indicator sweep on new assets, then build event-driven if nothing found
 
 ---
 
@@ -606,20 +647,23 @@ gcloud compute scp algotrader2026:~/algo-trader-v1/backend/research.db ~/Downloa
 - [x] QQQ round-trip trades validated ✅ (2026-02-05)
 - [x] All trades verified against Alpaca order history ✅
 
-**Phase 4: Multi-Asset Expansion + Slippage Analysis - ACTIVE**
+**Phase 4: Multi-Asset Expansion + Slippage Analysis - COMPLETE**
 - [x] Fixed crypto short selling crash (disabled shorts for crypto) ✅
 - [x] Added error handling for API rejections ✅
 - [x] Added IWM 5m bot (StochRSI) ✅
 - [x] Added DonchianBreakout IWM 5m bot (trend-following comparison) ✅
-- [x] Slippage analysis completed (SPY 0.032%, QQQ 0.060%, IWM 0.030%) ✅
+- [x] Slippage analysis completed (SPY 0.024%, QQQ 0.049%, IWM 0.029%) ✅
 - [x] Confirmed backtest assumptions are valid (live slippage within expected range) ✅
-- [ ] Monitor DonchianBreakout for first trades
-- [ ] Monitor for 24 hours of stable 4-bot trading
-- [ ] Revert to conservative settings after validation
-- [ ] Begin 2+ week production data collection
-- [ ] Download database and analyze results
+- [x] Fixed IWM dual-bot conflict (deleted donchian-iwm-5m) ✅
+- [x] Live trading validates corrected backtest findings (100+ trades, ~zero net returns) ✅
+
+**Phase 5: Strategy Direction - PENDING**
+- [ ] Decide: more indicator experiments vs alternative data approaches
+- [ ] If indicators: test less efficient assets, volume indicators, multi-TF confluence
+- [ ] If alternative: build economic calendar integration (NFP/CPI/FOMC)
+- [ ] Revert to conservative 20/80 thresholds or deploy new strategy
+- [ ] Download database and run full slippage analysis
 - [ ] Update realistic-test.sh with measured values
-- [ ] Document findings in research insights
 
 ---
 
@@ -678,13 +722,13 @@ Then analyze locally or merge with backtest database.
 
 ## Expected Outcome
 
-**Best Case**: Strategies perform close to backtests → Deploy to real money
+~~**Best Case**: Strategies perform close to backtests → Deploy to real money~~
 
-**Likely Case**: Some strategies fail reality check → Filter to robust ones only
+~~**Likely Case**: Some strategies fail reality check → Filter to robust ones only~~
 
-**Worst Case**: All strategies fail → Need better strategy design
+**Actual Outcome (2026-02-10)**: All indicator-only strategies on liquid US ETFs produce ~zero returns after realistic costs. Infrastructure fully validated. Backtester now trustworthy with corrected settings (`--spread 0.0003 --delay 0`).
 
-**Either way**: We'll know the TRUTH about our strategies before risking real money.
+**Path forward**: Either find edge on less efficient assets with indicators, or pivot to event-driven / alternative data strategies. Infrastructure is ready for either direction.
 
 ---
 

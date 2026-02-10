@@ -1,6 +1,24 @@
 # Recent Git History
 
-### 2751c37 - docs: Add research on event-driven and macro strategy avenues (2026-02-06)
+### 6794368 - docs: Update memory files with live validation findings and strategy direction (2026-02-10)
+Phase 9 documented: dual-bot conflict resolved (donchian-iwm-5m deleted),
+live trading (100+ trades) confirms corrected backtest findings — indicator-only
+strategies on liquid US ETFs produce ~zero returns after realistic costs.
+
+CLAUDE.md: Updated to Phase 9, 3 bots, added strategy inventory,
+backtest settings reference, decision point context for next session.
+
+forward_testing_plan.md: Added Phase 9 section, updated bot status table,
+marked Phase 4 complete, added Phase 5 pending tasks, updated expected outcome.
+
+research.md: Added live validation section with sample trade P&L,
+updated slippage data, documented delay=1 bug mechanism, added untested
+indicator directions (less efficient assets, volume indicators, multi-TF,
+crypto) with probability assessments alongside existing alternative tiers.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### b60946a - docs: Add research on event-driven and macro strategy avenues (2026-02-06)
 Comprehensive analysis of alternatives to indicator-only strategies:
 - Economic announcement trading (NFP/CPI/FOMC) as top opportunity
 - VIX term structure regime filter
@@ -272,31 +290,5 @@ and skip bracket order parameters for these symbols.
 
 This allows BTC/USD trading while retaining bracket orders for stocks.
 Strategy already has manual stop loss checking, so no functionality lost.
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### fb091f4 - docs: Document EXTREME testing mode + BTC 24/7 validation (2026-02-04)
-Major updates from tonight's testing session (22:00-22:35 UTC):
-
-## Forward Testing Plan Updates
-- Added Phase 5: EXTREME Testing + BTC Validation
-- Documented Alpaca after-hours data gap discovery
-- Escalated to 50/50 thresholds (trades every K=50 crossing)
-- Switched from stocks to BTC/USD 1m for continuous testing
-- Updated Current Test Status to show BTC bot running
-- Stock bots paused until tomorrow's market open
-
-## Recent History Updates
-- Added detailed entry for EXTREME mode deployment
-- Documented BTC market progression (K: 100→16 in 5 minutes)
-- Validated infrastructure works (data matches Alpaca chart)
-- Noted key learning: After-hours stock data unreliable
-- Expected 10-30 trades overnight for validation
-
-## Current Status (22:35 UTC)
-- BTC 1m bot: Running with 50/50 thresholds
-- Stock bots: Paused (after-hours data gaps)
-- Resume: Tomorrow 2:30 PM Irish (regular market hours)
-- Purpose: Validate infrastructure before 2-week production test
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>

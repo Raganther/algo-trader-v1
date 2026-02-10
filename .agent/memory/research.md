@@ -1,6 +1,6 @@
-# Research: Beyond Indicator-Only Strategies
+# Research: Strategy Direction & Alternative Approaches
 
-> Last updated: 2026-02-06
+> Last updated: 2026-02-10
 
 ## Context
 
@@ -11,11 +11,89 @@ After extensive backtesting with corrected cost model (`--spread 0.0003 --delay 
 | QQQ 5m StochRSI | 44.9% | 0.99% | delay=1 phantom profit |
 | IWM 15m StochRSI | 19.8% | -1.13% | delay=1 phantom profit |
 | QQQ 4h Donchian | 22.6% | -6.38% | delay=1 phantom profit |
+| SPY 15m StochRSI | 54.36% | -8.61% | delay=1 phantom profit |
 | SwingBreakout (daily, triple confirm) | N/A | -0.01% to +1.39% | No alpha to begin with |
+| MACD+Bollinger QQQ 1h | N/A | +1.03% ann. | Marginal, not worth trading |
+| RegimeGatedStoch SPY 1h | N/A | +2.01% ann. | Marginal |
+| RegimeGatedStoch BTC 1h | N/A | +1.74% ann. | Small positive (less efficient market) |
 
 **Conclusion:** Public indicators (RSI, MACD, Bollinger, Donchian) on SPY/QQQ/IWM cannot generate alpha after realistic costs. These markets are too efficient and the signals too widely known.
 
 **Key insight:** The edge for retail isn't in WHAT you trade, but WHEN and WHY you trade.
+
+---
+
+## Live Trading Validation (Feb 5-10, 2026)
+
+### Confirmation: 100+ live trades match corrected backtests
+
+After running 3 bots (SPY 5m, QQQ 15m, IWM 5m) in EXTREME mode (50/50 thresholds) for 5 days:
+
+**SPY sample round-trips:**
+| Buy | Sell | Per-share P&L |
+|-----|------|--------------|
+| $695.49 | $694.24 | -$1.25 |
+| $695.37 | $695.37 | ~$0.00 |
+| $694.14 | $693.39 | -$0.75 |
+| $689.78 | $689.59 | -$0.19 |
+
+Pattern: trades are essentially random around breakeven, bid-ask spread eats any theoretical edge.
+
+**Updated slippage data (70+ trades):**
+| Symbol | Trades | Avg Slippage | Fill Delay |
+|---|---|---|---|
+| SPY | 39+ | 0.024% | ~1 sec |
+| QQQ | 7+ | 0.049% | ~1 sec |
+| IWM | 24+ | 0.029% | ~1 sec |
+
+**Key finding:** Live results are consistent with corrected backtest showing ~0% returns. The backtester with `--spread 0.0003 --delay 0` is now a **trustworthy tool** — any strategy showing meaningful profit under these settings has a real chance of working live.
+
+### The delay=1 bug explained
+
+In `backtester.py`, the execution override is set AFTER `on_data()` already executed the order:
+1. Previous iteration set `override_price = data[N]['Open']`
+2. Current iteration: `strategy.on_data(N)` runs → sees bar N's Close → broker fills at bar N's Open (the override)
+3. Current iteration then sets override for N+1
+
+Result: strategy sees the Close price and decides to trade, but fills at the Open of the same bar. On mean reversion with 1000+ trades/year, this timing shift creates phantom profit that compounds massively. With `delay=0`, orders fill at Close (matching live behavior), and all profit disappears.
+
+---
+
+## Untested Indicator-Based Directions
+
+The backtester is now accurate. These areas haven't been explored and could potentially yield results:
+
+### 1. Less Efficient Assets
+- **Sector ETFs:** XLE (energy), XBI (biotech), XHB (homebuilders) — less institutional coverage
+- **Small-cap ETFs:** IJR, IWO — wider spreads but potentially more signal
+- **Emerging markets:** EEM, VWO — less efficient, more momentum persistence
+- **Why it might work:** SPY/QQQ are the most efficient markets. Less traded ETFs have wider spreads but signals may still have edge after costs
+
+### 2. Volume-Based Indicators
+- **OBV (On-Balance Volume):** Measures buying/selling pressure — NOT in current codebase
+- **VWAP:** Volume-weighted average price — NOT implemented
+- **Volume profile:** Price levels with highest trading volume
+- **Why it might work:** Everything tested so far uses only OHLC price data. Volume carries fundamentally different information about supply/demand
+
+### 3. Multi-Timeframe Confluence
+- Take 5m StochRSI signals ONLY when daily trend aligns (e.g. price above 200 SMA)
+- Or: use weekly Donchian direction to filter 15m mean reversion entries
+- **Why it might work:** Single-timeframe signals are noisy. Multi-TF confirmation reduces false signals
+
+### 4. Crypto Markets
+- RegimeGatedStoch on BTC showed +1.74% annualised — small but positive
+- Crypto is demonstrably less efficient than US equities
+- Limitation: Alpaca doesn't support crypto shorts
+- **Why it might work:** Less institutional competition, 24/7 trading, higher volatility
+
+### Assessment
+Expected probability of finding meaningful alpha (>5% annually) on indicator-only strategies:
+- On SPY/QQQ/IWM: **Very low** (~5%) — exhaustively tested, all collapsed
+- On sector/small-cap ETFs: **Low-moderate** (~15-20%) — untested, slightly less efficient
+- On crypto: **Moderate** (~25%) — less efficient, but long-only constraint limits potential
+- With volume indicators: **Low** (~10%) — volume data is also public, but at least it's different information
+
+These are worth testing as quick experiments (1-2 days each) given the backtester is now trustworthy, but expectations should be calibrated accordingly.
 
 ---
 
