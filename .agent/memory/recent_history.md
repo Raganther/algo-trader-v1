@@ -1,6 +1,16 @@
 # Recent Git History
 
-### 26989ff - feat: Phase 1 — Add sweep engine for parameter optimisation (2026-02-11)
+### e08380a - fix: Suppress strategy debug prints during sweep backtests (2026-02-11)
+Strategies print per-bar debug output (e.g. StochRSI prints K/D/ADX
+every bar). With 8000+ bars × 324 combos = millions of print lines,
+this was making sweeps extremely slow and output unmanageable.
+
+Added suppress_stdout() context manager around bt.run() calls.
+Sweep progress/summary still prints normally.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 0b0b53f - feat: Phase 1 — Add sweep engine for parameter optimisation (2026-02-11)
 New files:
 
 backend/engine/data_utils.py — clean data loading with resampling
@@ -301,13 +311,5 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ### 7633a95 - fix: Use DAY time-in-force for fractional stock orders (2026-02-05)
 Alpaca requires fractional stock orders to use DAY (not GTC).
 Auto-detect fractional qty for non-crypto symbols and switch TIF.
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### 3af74ad - fix: Fix position tracking bugs for live crypto trading (2026-02-05)
-- Sync position state with Alpaca on startup (prevents duplicate entries after restart)
-- Normalize symbol keys in broker cache (BTCUSD + BTC/USD) so lookups don't silently fail
-- Move zone flag logic inside position==0 check (prevents re-triggering while holding)
-- Use get_position() for exit sizing (handles symbol format mismatch, returns actual qty)
 
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>

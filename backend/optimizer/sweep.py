@@ -5,13 +5,28 @@ different parameter combinations, scores results, and saves to the
 experiments table via ExperimentTracker.
 """
 
+import os
+import sys
 import time
+from contextlib import contextmanager
 from itertools import product
 
 from backend.engine.backtester import Backtester
 from backend.engine.data_utils import load_backtest_data
 from backend.optimizer.scoring import calc_sharpe, score_result
 from backend.optimizer.experiment_tracker import ExperimentTracker
+
+
+@contextmanager
+def suppress_stdout():
+    """Suppress stdout during backtests (strategies print on every bar)."""
+    old_stdout = sys.stdout
+    sys.stdout = open(os.devnull, "w")
+    try:
+        yield
+    finally:
+        sys.stdout.close()
+        sys.stdout = old_stdout
 
 
 # Hardcoded — validated against live execution. No exceptions.
@@ -104,7 +119,9 @@ class SweepEngine:
                     execution_delay=EXECUTION_DELAY,
                     interval=timeframe,
                 )
-                result = bt.run()
+                # Suppress strategy per-bar debug prints
+                with suppress_stdout():
+                    result = bt.run()
 
                 # Score
                 equity_curve = result.get("equity_curve", [])
