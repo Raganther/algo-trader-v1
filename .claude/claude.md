@@ -4,7 +4,7 @@
 
 ## Current Status
 
-- **Phase:** 9 - Strategy Direction Decision
+- **Phase:** 10 - Strategy Discovery Engine (design complete, implementation next)
 - **Active Bots:** 3 (SPY 5m, QQQ 15m, IWM 5m) — all StochRSI EXTREME mode
 - **Server:** europe-west2-a (algotrader2026)
 - **Mode:** EXTREME testing (50/50 thresholds, ADX disabled)
@@ -12,35 +12,31 @@
 
 ## Where We Left Off (Feb 10)
 
-**Decision point reached:** Should we continue iterating on indicator-based strategies, or pivot to alternative approaches?
+**Direction chosen:** Build an automated Strategy Discovery Engine that systematically searches for alpha using the proven backtester infrastructure.
 
 ### What's been proven:
 1. **Infrastructure works perfectly** — bots run for days, orders fill reliably, position sync works
 2. **Backtester is now trustworthy** — `--spread 0.0003 --delay 0` matches live execution
 3. **Live trading confirms backtest findings** — trades net roughly zero, consistent with corrected backtests
-4. **Indicator-only strategies on SPY/QQQ/IWM produce no alpha** after realistic costs
+4. **Indicator-only strategies on SPY/QQQ/IWM produce no alpha** after realistic costs (manual testing)
 
-### What hasn't been tried (indicator-based):
-- Less efficient assets (small-cap ETFs, sector ETFs like XLE/XBI, emerging markets)
-- Volume-based indicators (OBV, VWAP — everything tested so far is price-only)
-- Multi-timeframe confluence (e.g. 5m signals only when daily trend aligns)
-- Crypto markets (RegimeGatedStoch on BTC showed small positive: +1.74% ann.)
-
-### Alternative approaches documented in research.md:
-- **Tier 1:** Economic announcement events (FOMC/NFP/CPI), VIX term structure regime filter
-- **Tier 2:** Sector rotation momentum, post-earnings drift (PEAD), credit spread overlay
-- NFPBreakoutStrategy skeleton exists but untested
-
-### Owner's position:
-Interested in continuing indicator experimentation now that backtester is accurate, before giving up entirely. The corrected backtester is a reliable tool — any strategy showing profit with `delay=0` has a real chance of working live.
+### Strategy Discovery Engine (designed, not yet built):
+- **Full build plan:** `.agent/workflows/strategy_discovery_engine.md`
+- **Phase 1:** Sweep Engine — parameter optimization across existing strategies + new assets
+- **Phase 2:** Validation Framework — walk-forward, out-of-sample, multi-asset overfitting checks
+- **Phase 3:** Composable Strategies — auto-generate novel indicator combinations
+- **Phase 4:** LLM Agent — Claude analyses results, generates new strategy code, iterates
+- **Data strategy:** New `experiments` table (clean, separate from legacy `test_runs`). `ExperimentTracker` replaces `research_insights.md` and `analyze_results.py`.
+- **Key insight:** The system learns from failures via database queries, not markdown files. LLM prompt is built dynamically from experiment data each iteration.
 
 ## Read These Files for Details
 
-1. `.agent/memory/recent_history.md` - Last 20 commits with full context
-2. `.agent/workflows/forward_testing_plan.md` - Complete forward test journey (Phases 1-9)
-3. `.agent/memory/system_manual.md` - Technical reference (backtesting + live)
-4. `.agent/memory/research_insights.md` - Strategy backtest performance (auto-generated)
+1. `.agent/workflows/strategy_discovery_engine.md` - **START HERE** — full build plan for automated strategy search
+2. `.agent/memory/recent_history.md` - Last 20 commits with full context
+3. `.agent/workflows/forward_testing_plan.md` - Complete forward test journey (Phases 1-9)
+4. `.agent/memory/system_manual.md` - Technical reference (backtesting + live)
 5. `.agent/memory/research.md` - Alternative strategy research + live validation findings
+6. `.agent/memory/research_insights.md` - RETIRED (contaminated with delay=1 results, replaced by ExperimentTracker)
 
 ## Quick Commands
 
@@ -121,11 +117,15 @@ git push origin main
 
 - [x] Fix IWM dual-bot conflict (stopped donchian-iwm-5m, keeping iwm-5m only)
 - [x] Validate live trading confirms corrected backtest findings (confirmed: trades net ~zero)
-- [ ] Decide direction: more indicator experiments vs alternative data approaches
-- [ ] If indicators: test on less efficient assets, add volume indicators, try multi-TF confluence
-- [ ] If alternative: build economic calendar integration (NFP/CPI/FOMC event trading)
+- [x] Decide direction → Build automated Strategy Discovery Engine
+- [x] Design build plan (4 phases, data strategy, file map) → `strategy_discovery_engine.md`
+- [ ] **Phase 0:** Add `experiments` table + `ExperimentTracker` class
+- [ ] **Phase 1:** Build sweep engine (`data_utils.py`, `sweep.py`, `scoring.py`)
+- [ ] **Phase 2:** Build validation framework (walk-forward, holdout, multi-asset)
+- [ ] **Phase 3:** Build composable strategy framework (building blocks + generator)
+- [ ] **Phase 4:** Build LLM agent loop (prompt builder, code validator, iteration loop)
 - [ ] Run EXTREME mode through Feb 13 to finish slippage data collection
-- [ ] After direction chosen: revert to conservative 20/80 thresholds or deploy new strategy
+- [ ] After discovery engine built: stop EXTREME bots or deploy winning strategy
 
 ## Strategies Tested (with corrected costs)
 

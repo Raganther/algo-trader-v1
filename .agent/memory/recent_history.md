@@ -1,6 +1,27 @@
 # Recent Git History
 
-### 6794368 - docs: Update memory files with live validation findings and strategy direction (2026-02-10)
+### 73d7079 - docs: Add Strategy Discovery Engine build plan + update session primer (2026-02-11)
+New file: .agent/workflows/strategy_discovery_engine.md
+- Full 4-phase build plan for automated strategy search system
+- Phase 0: experiments table + ExperimentTracker class
+- Phase 1: Sweep engine (parameter optimization across strategies/assets)
+- Phase 2: Validation framework (walk-forward, holdout, multi-asset)
+- Phase 3: Composable strategies (auto-generate indicator combinations)
+- Phase 4: LLM agent loop (analyse results, generate code, iterate)
+- Data strategy: separate experiments table (clean, not contaminated)
+- ExperimentTracker replaces research_insights.md and analyze_results.py
+- Detailed code references for all 9 indicators, strategy patterns, database
+- Implementation order, file map, risk analysis
+
+Updated: .claude/claude.md
+- Phase 10: Strategy Discovery Engine (design complete, implementation next)
+- Updated file references (strategy_discovery_engine.md = START HERE)
+- Marked research_insights.md as RETIRED (contaminated with delay=1 results)
+- New next steps: Phase 0-4 implementation tasks
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### d5d3896 - docs: Update memory files with live validation findings and strategy direction (2026-02-10)
 Phase 9 documented: dual-bot conflict resolved (donchian-iwm-5m deleted),
 live trading (100+ trades) confirms corrected backtest findings — indicator-only
 strategies on liquid US ETFs produce ~zero returns after realistic costs.
@@ -280,15 +301,5 @@ New cap: 25% of equity per position
 - Allows 4 concurrent positions
 - Leaves buffer for fees and slippage
 - More conservative risk management
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### 6168dd7 - fix: Disable bracket orders for crypto symbols (2026-02-05)
-Alpaca does not support bracket orders (stop_loss/take_profit) for
-crypto assets. Added detection for crypto symbols (containing '/')
-and skip bracket order parameters for these symbols.
-
-This allows BTC/USD trading while retaining bracket orders for stocks.
-Strategy already has manual stop loss checking, so no functionality lost.
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
