@@ -4,22 +4,31 @@
 
 ## Current Status
 
-- **Phase:** 10 - Strategy Discovery Engine (Phases 0-3 complete, GLD forward testing)
+- **Phase:** 10 - Strategy Discovery Engine (Phases 0-3 complete, overnight orchestrator built)
 - **Active Bots:** 1 (GLD 1h StochRSI — PAPER mode, validated params)
 - **Server:** europe-west2-a (algotrader2026)
-- **Discovery Engine:** Phase 0 (DB) ✓, Phase 1 (sweeps) ✓, Phase 2 (validation) ✓, Phase 3 (composable) ✓
+- **Discovery Engine:** Phase 0 (DB) ✓, Phase 1 (sweeps) ✓, Phase 2 (validation) ✓, Phase 3 (composable) ✓, Overnight orchestrator ✓
 - **Key Finding:** GLD 1h StochRSI — Sharpe 1.44, + new composable combos (MACD+ATR Sharpe 1.14)
-- **Experiments DB:** 1,800 experiments (1,332 parameter sweeps + 458 composable combos)
+- **Experiments DB:** 1,800+ experiments (growing via overnight runs)
 
-## Where We Left Off (Feb 10)
+## Where We Left Off (Feb 11)
 
-**Phases 0-3 complete. GLD forward test deployed. Composable sweep found new combos.**
+**Overnight orchestrator built. Phases 0-3 complete. GLD forward test deployed.**
 
 ### What's been built:
 1. **Phase 0 — Experiments DB:** `experiments` table + `ExperimentTracker` class
 2. **Phase 1 — Sweep Engine:** 1,332 param sweeps across GLD/XLE/XBI/TLT
 3. **Phase 2 — Validation:** holdout, walk-forward, multi-asset — 18/18 passed
 4. **Phase 3 — Composable Strategies:** 458 indicator combos tested on GLD 1h
+5. **Overnight Orchestrator:** `run_overnight.py` — chains all phases for unattended runs
+
+### Overnight orchestrator (`backend/optimizer/run_overnight.py`):
+- **4 passes:** Broad sweep → Filter → Validate → Expand winners
+- **CLI:** `python -m backend.optimizer.run_overnight [--quick] [--max-hours N] [--skip-composable]`
+- **Time budget:** Global timer, graceful stop at each pass when expired
+- **Crash recovery:** `skip_tested=True` everywhere, re-run picks up where left off
+- **Priority targets:** GLD other TFs, gold-correlated (SLV/IAU/GDX), XLE/XBI/TLT, broad market
+- **Quick mode:** Reduced grids + 6 targets, < 1 hour
 
 ### GLD forward test (deployed):
 - **Bot:** gld-1h on cloud, PAPER mode, StochRSI with validated params
@@ -36,10 +45,8 @@
 | MACD cross + Donchian exit + SMA uptrend | +10.9% | 75% | 67% (2/3) | 176 |
 | RSI extreme + Trailing ATR 3x | +4.9% | 75% | 67% (2/3) | 252 |
 
-- **Best new find:** RSI extreme + trailing ATR 3x — no train/test degradation, 252 trades
-- Original StochRSI strategy (Sharpe 1.44, 18/18 passed) still strongest overall
-
 ### What to decide next:
+- Run full overnight: `python -m backend.optimizer.run_overnight --max-hours 10`
 - Monitor GLD forward test (paper trading, deployed)
 - Consider forward testing validated composable strategies
 - Phase 4 (LLM agent) — optional given current results
@@ -138,6 +145,8 @@ git push origin main
 - [x] Deploy GLD 1h StochRSI to cloud (PAPER mode, validated params)
 - [x] Stop old EXTREME bots (SPY/QQQ/IWM)
 - [x] Run Phase 2 validation on top composable candidates — 3/10 passed, 7 rejected
+- [x] Build overnight orchestrator — `run_overnight.py` chains all phases unattended
+- [ ] Run full overnight discovery: `python -m backend.optimizer.run_overnight --max-hours 10`
 - [ ] Monitor GLD forward test (paper trading)
 - [ ] **Phase 4:** Build LLM agent loop (optional — may not be needed)
 
@@ -177,5 +186,5 @@ Other: SimpleSMA, BollingerBreakout, GoldenCross, NFPBreakout (skeleton), GammaS
 
 ---
 
-*Last updated: 2026-02-11 (Phase 3 composable validated: 3/10 passed, GLD forward test live)*
+*Last updated: 2026-02-11 (Overnight orchestrator built, first quick run in progress)*
 *Update this file when phase changes or major milestones reached*

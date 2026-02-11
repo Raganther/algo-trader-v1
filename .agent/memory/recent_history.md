@@ -1,6 +1,28 @@
 # Recent Git History
 
-### 93f887a - feat: Validate composable strategies — 3/10 passed, 7 rejected (2026-02-11)
+### c3bffcf - feat: Add overnight strategy discovery orchestrator (2026-02-11)
+Single script (run_overnight.py) chains all discovery phases for
+unattended overnight runs. 4 passes: broad sweep across priority-
+ordered asset/TF combos → filter promising candidates from DB →
+validate via holdout/walk-forward/multi-asset → expand winners to
+adjacent timeframes and related assets.
+
+Features:
+- TimeBudget class with global time limit (default 10h)
+- --quick mode for smoke testing (reduced grids, <1h)
+- --skip-composable to skip slow composable sweeps
+- skip_tested=True everywhere for crash recovery
+- Per-sweep error handling (logs and continues)
+- Priority targets: GLD other TFs, gold-correlated (SLV/IAU/GDX),
+  XLE/XBI/TLT, broad market (SPY/QQQ/IWM/DIA)
+- Final report with timing, new experiments, validation results,
+  and top 10 all-time performers
+
+No existing files modified — wires existing Phase 0-3 APIs together.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 8c4de0d - feat: Validate composable strategies — 3/10 passed, 7 rejected (2026-02-11)
 Added validate_composable.py to bridge composable building blocks
 with the Phase 2 validation pipeline. Maps stored block names back
 to callables and runs full validation chain.
@@ -341,13 +363,5 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 - backend/strategies/stoch_rsi_mean_reversion.py (zone guard, exit guard, get_position)
 - backend/engine/live_broker.py (symbol normalization)
 - backend/engine/alpaca_trader.py (whole shares, DAY TIF)
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### 3832ae6 - fix: Round all stock orders to whole shares + guard exit state (2026-02-05)
-- Round both buy and sell for stocks (not just sells) to prevent
-  fractional residuals (buy 35.6 → sell 35 → 0.6 orphan)
-- Only reset position state if exit order actually succeeds
-- Prevents ghost state where strategy thinks it exited but didn't
 
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>

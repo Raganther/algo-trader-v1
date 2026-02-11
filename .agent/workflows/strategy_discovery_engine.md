@@ -1423,6 +1423,61 @@ These are never configurable in the sweep engine. Every experiment uses the same
 
 ---
 
+---
+
+## Overnight Orchestrator (built 2026-02-11)
+
+Chains Phases 1-3 into a single unattended run. New file: `backend/optimizer/run_overnight.py`.
+
+### Usage
+
+```bash
+python -m backend.optimizer.run_overnight              # Full overnight (~10h)
+python -m backend.optimizer.run_overnight --quick       # Smoke test (<1h)
+python -m backend.optimizer.run_overnight --max-hours 6 # Custom budget
+python -m backend.optimizer.run_overnight --skip-composable  # Param sweeps only
+```
+
+### 4 Passes
+
+| Pass | What | Time |
+|------|------|------|
+| 1. Broad Sweep | Priority-ordered param sweeps + composable sweeps on new symbol/TF combos | ~6-8h |
+| 2. Filter | DB query: Sharpe > 0.5, 30+ trades, unvalidated | Instant |
+| 3. Validate | Full pipeline (holdout + walk-forward + multi-asset) on candidates | ~1h |
+| 4. Expand | Winners tested on adjacent timeframes + related assets | ~1h |
+
+### Priority targets (Pass 1)
+
+1. GLD on 15m, 4h, 1d (strongest edge, untested timeframes)
+2. SLV, IAU, GDX on 1h (gold-correlated)
+3. XLE on 15m, 4h, 1d
+4. XBI, TLT on 15m, 4h
+5. SPY, QQQ, IWM on 1h, 4h
+6. DIA on 1h, 4h
+
+### Key design
+
+- `TimeBudget` class: global timer, every loop checks `is_expired()`
+- `skip_tested=True` everywhere: crash recovery is automatic (re-run picks up where left off)
+- Per-sweep try/except: logs error, continues to next combo
+- SQLite commits per-experiment: no data lost on crash
+- Wires existing APIs only — no modifications to Phase 0-3 code
+
+### Reused imports
+
+| What | From |
+|------|------|
+| `SweepEngine` | `sweep.py` |
+| `PARAM_GRIDS`, `STRATEGY_MAP` | `run_sweep.py` |
+| `run_composable_sweep` | `run_composable.py` |
+| `validate_candidate`, `STRATEGY_CLASS_MAP` | `pipeline.py` |
+| `rebuild_params` | `validate_composable.py` |
+| `ExperimentTracker` | `experiment_tracker.py` |
+| `get_related_symbols` | `validation.py` |
+
+---
+
 *Created: 2026-02-10*
-*Updated: 2026-02-11 — added extensibility section, phase-by-phase assessment approach*
-*Status: Design document — not yet implemented. Build iteratively, assess each phase before proceeding.*
+*Updated: 2026-02-11 — Phases 0-3 implemented, overnight orchestrator built*
+*Status: Phases 0-3 complete and tested. Overnight orchestrator built, first quick run in progress.*
