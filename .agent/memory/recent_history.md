@@ -1,6 +1,27 @@
 # Recent Git History
 
-### c595d74 - docs: Add extensibility & iterative build approach to discovery engine plan (2026-02-11)
+### ccd607c - feat: Phase 0 — Add experiments table + ExperimentTracker class (2026-02-11)
+New experiments table in research.db (clean, separate from test_runs):
+  - All rows guaranteed spread=0.0003, delay=0
+  - Adds fields missing from test_runs: sharpe, score, annualised_return,
+    trades_per_year, profit_factor, validation_status, strategy_source,
+    parent_experiment_id (for LLM iteration lineage)
+
+New ExperimentTracker class (backend/optimizer/experiment_tracker.py):
+  - save() — write backtest results with auto-calculated annualised return
+  - get_top_candidates() — rank by score, filter by min trades + validation
+  - get_failures_for_strategy() — what didn't work (for LLM learning)
+  - get_untested_combinations() — gap finder for search space coverage
+  - has_been_tested() — dedup by params hash to avoid repeat work
+  - get_summary_for_llm() — concise text summary replacing research_insights.md
+  - update_validation() — update validation status after Phase 2 checks
+  - count() — total experiments
+
+All methods tested end-to-end, test data cleaned up.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 4fe11c6 - docs: Add extensibility & iterative build approach to discovery engine plan (2026-02-11)
 - New section: Extensibility (adding indicators, economic data, event-driven trading)
   - Indicator library designed to grow (vectorized + stateful patterns)
   - 5 indicators to add before first sweep (OBV, VWAP, EMA, CCI, Williams %R)
@@ -290,18 +311,5 @@ Key Learnings:
 - Manual stop loss in strategy works fine (lines 117-135)
 - Conservative position sizing prevents rejections and enables diversification
 - Infrastructure validated: bot stability, data flow, order placement path works
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### 4edb583 - test: Default skip_adx_filter to True for EXTREME testing (2026-02-05)
-For infrastructure validation testing, disable ADX regime filter
-to ensure trades execute even when market is trending.
-
-This allows testing of:
-- Order placement with crypto (no bracket orders)
-- Position sizing (25% cap)
-- Fill logging and slippage measurement
-
-Will revert to False after validation complete.
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>

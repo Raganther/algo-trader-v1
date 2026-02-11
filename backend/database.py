@@ -93,7 +93,38 @@ class DatabaseManager:
                 pnl REAL
             )
         ''')
-        
+
+        # 5. Experiments Table (Strategy Discovery Engine — clean, separate from test_runs)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS experiments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                experiment_id TEXT,
+                strategy TEXT,
+                strategy_source TEXT,
+                symbol TEXT,
+                timeframe TEXT,
+                parameters TEXT,
+                return_pct REAL,
+                annualised_return REAL,
+                max_drawdown REAL,
+                total_trades INTEGER,
+                trades_per_year REAL,
+                win_rate REAL,
+                profit_factor REAL,
+                sharpe REAL,
+                score REAL,
+                train_period TEXT,
+                test_period TEXT,
+                test_return_pct REAL,
+                validation_status TEXT DEFAULT 'pending',
+                validation_details TEXT,
+                parent_experiment_id TEXT,
+                created_at TEXT,
+                spread REAL DEFAULT 0.0003,
+                execution_delay INTEGER DEFAULT 0
+            )
+        ''')
+
         conn.commit()
         conn.close()
         print("Database initialized.")
