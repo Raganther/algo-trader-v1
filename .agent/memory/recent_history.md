@@ -1,6 +1,36 @@
 # Recent Git History
 
-### ccd607c - feat: Phase 0 — Add experiments table + ExperimentTracker class (2026-02-11)
+### 26989ff - feat: Phase 1 — Add sweep engine for parameter optimisation (2026-02-11)
+New files:
+
+backend/engine/data_utils.py — clean data loading with resampling
+  - Extracts duplicated resampling logic from runner.py
+  - Handles 5m/15m (fetch 1m, resample), 4h (fetch 1h, resample), direct TFs
+  - Single function: load_backtest_data(symbol, timeframe, start, end)
+
+backend/optimizer/scoring.py — Sharpe ratio + composite scoring
+  - calc_sharpe() from equity curve with auto-detected periods/year
+  - score_result() returns Sharpe as primary score, -999 for <10 trades
+
+backend/optimizer/sweep.py — SweepEngine class
+  - Fetches data once per symbol/timeframe, runs Backtester N times
+  - Cartesian product of param grid, scores each result
+  - Saves all results to experiments table via ExperimentTracker
+  - run_multi_sweep() for batch across strategies/symbols/timeframes
+  - Skip-tested dedup to avoid repeat work across runs
+  - Hardcoded spread=0.0003, delay=0 (validated against live)
+
+backend/optimizer/run_sweep.py — CLI entry point
+  - python -m backend.optimizer.run_sweep --quick (smoke test)
+  - python -m backend.optimizer.run_sweep --strategy X --symbol Y --timeframe Z
+  - Default param grids for StochRSI, Donchian, MACDBollinger
+  - Summary output with top 10 ranked results
+
+Tested: 4 real backtests on SPY 1h via Alpaca, all saved to DB correctly.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 62d75f1 - feat: Phase 0 — Add experiments table + ExperimentTracker class (2026-02-11)
 New experiments table in research.db (clean, separate from test_runs):
   - All rows guaranteed spread=0.0003, delay=0
   - Adds fields missing from test_runs: sharpe, score, annualised_return,
@@ -281,35 +311,3 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 - Use get_position() for exit sizing (handles symbol format mismatch, returns actual qty)
 
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### 5dd8d99 - fix: Critical bug fixes for crypto trading and position sizing (2026-02-05)
-Overnight BTC bot analysis revealed two critical bugs preventing all trades:
-
-Bug #1: Alpaca Bracket Orders Not Supported for Crypto
-- Error: 403 Forbidden - 'crypto orders not allowed for advanced order_class: otoco'
-- Cause: Strategy passed stop_loss parameter triggering bracket order creation
-- Impact: 100% order failure rate (K crossed 50 multiple times, all rejected)
-- Fix: Modified live_broker.py to detect crypto symbols (/) and skip bracket orders
-- Result: Crypto uses simple market orders, stocks retain bracket functionality
-
-Bug #2: Position Sizing Too Aggressive (100% Equity Cap)
-- Error: 'insufficient balance for BTC (requested: 1.3748, available: 0)'
-- Cause: max_size = equity / price allowed 100% equity per position
-- Impact: Orders that passed bracket check failed due to rounding/fees
-- Fix: Reduced cap from 100% to 25% equity per position
-- Result: Allows 4 concurrent positions, leaves buffer for fees
-
-Testing Results:
-- Both fixes deployed to cloud server (commits 6168dd7, 45eaeee)
-- Bot running stable (17+ min uptime, processing bars correctly)
-- Closed existing position for clean slate (,811 cash)
-- Waiting for K>50 to validate first clean trade execution
-- Current: K=4.4 (oversold), BTC @ $70,924
-
-Key Learnings:
-- Alpaca crypto doesn't support advanced order types (brackets/OCO)
-- Manual stop loss in strategy works fine (lines 117-135)
-- Conservative position sizing prevents rejections and enables diversification
-- Infrastructure validated: bot stability, data flow, order placement path works
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
