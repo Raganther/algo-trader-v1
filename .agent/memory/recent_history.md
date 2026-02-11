@@ -1,6 +1,20 @@
 # Recent Git History
 
-### 73d7079 - docs: Add Strategy Discovery Engine build plan + update session primer (2026-02-11)
+### c595d74 - docs: Add extensibility & iterative build approach to discovery engine plan (2026-02-11)
+- New section: Extensibility (adding indicators, economic data, event-driven trading)
+  - Indicator library designed to grow (vectorized + stateful patterns)
+  - 5 indicators to add before first sweep (OBV, VWAP, EMA, CCI, Williams %R)
+  - Economic calendar slots in at any phase via existing on_event() wiring
+  - Modularity/debugging properties per phase
+
+- New section: Build Approach — assess each phase before proceeding
+  - Phase-by-phase decision points with concrete criteria
+  - No blind build of all 4 phases; results inform what to build next
+  - New indicators/data added when results reveal the need
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 5976bd2 - docs: Add Strategy Discovery Engine build plan + update session primer (2026-02-11)
 New file: .agent/workflows/strategy_discovery_engine.md
 - Full 4-phase build plan for automated strategy search system
 - Phase 0: experiments table + ExperimentTracker class
@@ -289,17 +303,5 @@ This allows testing of:
 - Fill logging and slippage measurement
 
 Will revert to False after validation complete.
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-
-### 45eaeee - fix: Reduce position sizing cap from 100% to 25% of equity (2026-02-05)
-Previous cap (1x leverage = 100% equity) was too aggressive:
-- Caused "insufficient balance" errors when rounding pushed order over cash
-- Left no room for multiple positions or fees
-
-New cap: 25% of equity per position
-- Allows 4 concurrent positions
-- Leaves buffer for fees and slippage
-- More conservative risk management
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>

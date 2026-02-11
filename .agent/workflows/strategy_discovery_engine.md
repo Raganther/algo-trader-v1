@@ -1262,6 +1262,123 @@ backend/
 
 ---
 
+## Extensibility: Adding Indicators, Data Sources & Economic Events
+
+### Adding New Indicators
+
+The indicator library is designed to grow. Two patterns exist — adding a new indicator follows whichever fits:
+
+**Vectorized** (majority of indicators): Write a function `(series) -> pd.Series`, drop it in `backend/indicators/`. Add one entry to `indicator_calculator.py`'s registry. Every composable strategy combination can immediately use it.
+
+```python
+# Example: adding OBV takes ~15 lines
+# backend/indicators/obv.py
+def obv(close: pd.Series, volume: pd.Series) -> pd.Series:
+    direction = np.sign(close.diff())
+    return (volume * direction).cumsum()
+```
+
+**Stateful** (for indicators needing bar-by-bar state): Write a class with `.update(price)` and `.ready`. Same pattern as `StochRSI`.
+
+**Indicators to add before first big sweep:**
+- OBV (On-Balance Volume) — volume confirmation for breakouts
+- VWAP (Volume-Weighted Average Price) — institutional fair value
+- EMA (Exponential Moving Average) — trend filter, faster than SMA
+- CCI (Commodity Channel Index) — overbought/oversold alternative to RSI
+- Williams %R — momentum, similar to StochRSI but different calculation
+
+Each new indicator multiplies the composable strategy search space (Phase 3) and gives the LLM agent (Phase 4) more tools to work with.
+
+### Incorporating Economic Data & Event-Driven Trading
+
+The Strategy base class already has `on_event(self, event)` wired in — every strategy must implement it, and the `events` DataFrame is passed at construction. The NFPBreakout skeleton strategy uses this pattern. The plumbing exists.
+
+**What needs to be added (can be done at any phase):**
+
+1. **Economic calendar data source** — CSV or API providing FOMC/NFP/CPI dates with actual/expected/previous values
+2. **Backtester integration** — feed event data alongside OHLCV so strategies can react to announcements
+3. **Event-aware building blocks** (Phase 3) — e.g. `enter_before_nfp`, `avoid_fomc_week`, `fade_cpi_surprise`
+
+**How it slots in without redesigning anything:**
+- `indicator_calculator.py` merges event data into the DataFrame alongside technical indicators
+- Composable building blocks in `building_blocks.py` can reference event columns like any other indicator
+- The sweep engine and validation pipeline don't change — they test whatever strategies are given
+- The LLM agent prompt gets an "Available Data Sources" section listing economic data; it can immediately reason about combining technicals with event timing
+
+**Example of what becomes possible:**
+> "StochRSI mean reversion fails during FOMC weeks because volatility spikes break the mean reversion assumption. Gate entries to non-event weeks only." — This is exactly the structural reasoning the LLM agent (Phase 4) is designed for.
+
+### Modularity & Debugging
+
+Each phase is a separate set of files in `backend/optimizer/`. Key debugging properties:
+
+| Phase | Debugging | How |
+|---|---|---|
+| Phase 1 (sweeps) | Easy | Run one combination in isolation, check results dict |
+| Phase 2 (validation) | Easy | Each check (holdout, walk-forward, multi-asset) is a standalone function |
+| Phase 3 (composable) | Moderate | Every experiment records exactly which building blocks were used; query by block |
+| Phase 4 (LLM) | Harder | Non-deterministic output; full audit trail (prompt + code + results) saved to DB |
+
+**Every experiment row in SQLite records the full parameter set, strategy source, and results.** You can always query "show me every run of DonchianBreakout on XLE" and trace what happened.
+
+---
+
+## Build Approach: Assess Each Phase Before Proceeding
+
+**We do NOT blindly build all 4 phases.** Each phase is assessed for results and debugged before deciding whether to proceed to the next.
+
+### Phase-by-Phase Decision Points
+
+```
+Phase 0: experiments table + ExperimentTracker
+  → Assess: Does the tracker work? Can we save/query results cleanly?
+  → Decision: Proceed to Phase 1
+
+Phase 1: Sweep Engine
+  → Run first sweeps across existing strategies + new assets
+  → Assess: Did any strategy show promising results on new assets?
+            Are the sweep results consistent and trustworthy?
+            How long do sweeps take? Do we need to optimise?
+  → Decision: If promising candidates exist → Phase 2 to validate them
+              If nothing promising → consider adding indicators first,
+              or skip to Phase 3 (composable) to expand search space
+
+Phase 2: Validation Framework
+  → Validate Phase 1 winners
+  → Assess: Do any strategies survive walk-forward + multi-asset checks?
+            What's the rejection rate? (If 100% rejected → overfitting)
+            What patterns distinguish survivors from rejects?
+  → Decision: If validated strategies exist → forward-test on cloud
+              If nothing survives → Phase 3 to try novel combinations
+              Findings from validation inform what Phase 3/4 should target
+
+Phase 3: Composable Strategies
+  → Generate and test indicator combinations
+  → Assess: Do novel combinations outperform existing strategies?
+            Which building blocks appear most often in winners?
+            Is the search space too large? Do we need better filters?
+  → Decision: If strong candidates → validate (Phase 2) → forward-test
+              If results suggest structural changes needed → Phase 4 (LLM)
+              If economic data looks promising → add it before Phase 4
+
+Phase 4: LLM Agent
+  → Let Claude analyse all results and generate new strategies
+  → Assess: Is the LLM generating valid, testable code?
+            Are its hypotheses reasonable? Are iterations improving?
+            Is it finding things the systematic search missed?
+  → Decision: Based on cumulative results across all phases
+```
+
+### Why This Matters
+
+- **No wasted effort** — if Phase 1 sweeps find alpha on sector ETFs, we validate and deploy before building the composable framework
+- **Debugging in context** — we fix issues in Phase 1 before they compound into Phase 3
+- **Data-driven decisions** — each phase produces real results that inform what to build next
+- **Economic data timing** — we add it when the results tell us we need it, not upfront
+- **New indicators** — added based on what gaps the sweep results reveal
+
+---
+
 ## Risk: Overfitting Is the Primary Threat
 
 This entire system is an overfitting machine if not handled carefully. The more combinations you test, the more likely you are to find spurious edges.
@@ -1307,4 +1424,5 @@ These are never configurable in the sweep engine. Every experiment uses the same
 ---
 
 *Created: 2026-02-10*
-*Status: Design document — not yet implemented*
+*Updated: 2026-02-11 — added extensibility section, phase-by-phase assessment approach*
+*Status: Design document — not yet implemented. Build iteratively, assess each phase before proceeding.*
