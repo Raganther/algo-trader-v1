@@ -4,30 +4,39 @@
 
 ## Current Status
 
-- **Phase:** 10 - Strategy Discovery Engine (design complete, implementation next)
+- **Phase:** 10 - Strategy Discovery Engine (Phases 0-2 complete, GLD edge validated)
 - **Active Bots:** 3 (SPY 5m, QQQ 15m, IWM 5m) — all StochRSI EXTREME mode
 - **Server:** europe-west2-a (algotrader2026)
-- **Mode:** EXTREME testing (50/50 thresholds, ADX disabled)
-- **Infrastructure:** Fully validated. Bots stable 5+ days, 100+ trades executed, no crashes.
+- **Discovery Engine:** Phase 0 (DB) ✓, Phase 1 (sweeps) ✓, Phase 2 (validation) ✓
+- **Key Finding:** GLD 1h StochRSI — 18.3% ann, Sharpe 1.44, passed all validation checks
+- **Experiments DB:** 1,332 experiments across GLD/XLE/XBI/TLT
 
 ## Where We Left Off (Feb 10)
 
-**Direction chosen:** Build an automated Strategy Discovery Engine that systematically searches for alpha using the proven backtester infrastructure.
+**Phases 0-2 of Strategy Discovery Engine complete. GLD edge validated.**
 
-### What's been proven:
-1. **Infrastructure works perfectly** — bots run for days, orders fill reliably, position sync works
-2. **Backtester is now trustworthy** — `--spread 0.0003 --delay 0` matches live execution
-3. **Live trading confirms backtest findings** — trades net roughly zero, consistent with corrected backtests
-4. **Indicator-only strategies on SPY/QQQ/IWM produce no alpha** after realistic costs (manual testing)
+### What's been built:
+1. **Phase 0 — Experiments DB:** `experiments` table + `ExperimentTracker` class (save, query, dedup, LLM summaries)
+2. **Phase 1 — Sweep Engine:** `sweep.py`, `scoring.py`, `data_utils.py`, `run_sweep.py` — ran 1,332 experiments across GLD/XLE/XBI/TLT
+3. **Phase 2 — Validation Framework:** `disqualify.py`, `validation.py`, `pipeline.py` — holdout, walk-forward, multi-asset checks
 
-### Strategy Discovery Engine (designed, not yet built):
-- **Full build plan:** `.agent/workflows/strategy_discovery_engine.md`
-- **Phase 1:** Sweep Engine — parameter optimization across existing strategies + new assets
-- **Phase 2:** Validation Framework — walk-forward, out-of-sample, multi-asset overfitting checks
-- **Phase 3:** Composable Strategies — auto-generate novel indicator combinations
-- **Phase 4:** LLM Agent — Claude analyses results, generates new strategy code, iterates
-- **Data strategy:** New `experiments` table (clean, separate from legacy `test_runs`). `ExperimentTracker` replaces `research_insights.md` and `analyze_results.py`.
-- **Key insight:** The system learns from failures via database queries, not markdown files. LLM prompt is built dynamically from experiment data each iteration.
+### Key discovery results:
+- **GLD 1h StochRSI:** 92% of 324 param combos profitable. Best: Sharpe 1.44, 18.3% ann return
+- **XLE 1h StochRSI:** 88% profitable. Best: Sharpe 1.11
+- **XBI 1h StochRSI:** 62% profitable. Best: Sharpe 0.90
+- **TLT 1h StochRSI:** 55% profitable. Best: Sharpe 0.85
+
+### Phase 2 validation results (18/18 passed):
+- 17 GLD + 1 XLE candidates validated
+- **100% walk-forward pass rate** across all candidates (positive in every rolling test window)
+- **100% multi-asset consistency** (GLD edge generalises to SLV and IAU)
+- Best out-of-sample return: **10.5%** on 2024-2025 holdout data
+- Best params: RSI 21, Stoch 7, OB 80, OS 15, ATR stop 3x, ADX filter on
+
+### What to decide next:
+- **Option A:** Forward-test best GLD strategy live (deploy to cloud, monitor)
+- **Option B:** Phase 3 — composable strategies to refine/combine indicators
+- **Option C:** Both in parallel
 
 ## Read These Files for Details
 
@@ -119,13 +128,14 @@ git push origin main
 - [x] Validate live trading confirms corrected backtest findings (confirmed: trades net ~zero)
 - [x] Decide direction → Build automated Strategy Discovery Engine
 - [x] Design build plan (4 phases, data strategy, file map) → `strategy_discovery_engine.md`
-- [ ] **Phase 0:** Add `experiments` table + `ExperimentTracker` class
-- [ ] **Phase 1:** Build sweep engine (`data_utils.py`, `sweep.py`, `scoring.py`)
-- [ ] **Phase 2:** Build validation framework (walk-forward, holdout, multi-asset)
+- [x] **Phase 0:** Add `experiments` table + `ExperimentTracker` class
+- [x] **Phase 1:** Build sweep engine + run 1,332 experiments across GLD/XLE/XBI/TLT
+- [x] **Phase 2:** Build validation framework — 18/18 top candidates passed all checks
+- [ ] **Decide:** Forward-test GLD live vs Phase 3 composable strategies vs both
 - [ ] **Phase 3:** Build composable strategy framework (building blocks + generator)
 - [ ] **Phase 4:** Build LLM agent loop (prompt builder, code validator, iteration loop)
 - [ ] Run EXTREME mode through Feb 13 to finish slippage data collection
-- [ ] After discovery engine built: stop EXTREME bots or deploy winning strategy
+- [ ] Deploy validated GLD strategy to cloud for live forward testing
 
 ## Strategies Tested (with corrected costs)
 
@@ -139,8 +149,13 @@ git push origin main
 | MACD+Bollinger | QQQ | 1h | +1.03% ann. | Marginal |
 | RegimeGatedStoch | SPY | 1h | +2.01% ann. | Marginal |
 | RegimeGatedStoch | BTC | 1h | +1.74% ann. | Small positive |
+| **StochRSI** | **GLD** | **1h** | **+18.3% ann, Sharpe 1.44** | **VALIDATED** |
+| StochRSI | XLE | 1h | +11.1% ann, Sharpe 1.11 | Validated |
+| StochRSI | XBI | 1h | +9.0% ann, Sharpe 0.90 | Sweep positive |
+| StochRSI | TLT | 1h | +8.5% ann, Sharpe 0.85 | Sweep positive |
 
 **Live trading (EXTREME mode, 100+ trades):** Confirms ~zero net returns on SPY/QQQ/IWM.
+**Discovery Engine (1,332 experiments):** GLD/XLE edges validated through holdout, walk-forward, multi-asset checks.
 
 ## Available Indicators (in codebase)
 
@@ -158,5 +173,5 @@ Other: SimpleSMA, BollingerBreakout, GoldenCross, NFPBreakout (skeleton), GammaS
 
 ---
 
-*Last updated: 2026-02-10 (dual-bot fix, live validation complete, strategy direction decision point)*
+*Last updated: 2026-02-10 (Discovery Engine Phases 0-2 complete, GLD edge validated, 18/18 passed)*
 *Update this file when phase changes or major milestones reached*

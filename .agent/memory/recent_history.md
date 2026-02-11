@@ -1,6 +1,23 @@
 # Recent Git History
 
-### e08380a - fix: Suppress strategy debug prints during sweep backtests (2026-02-11)
+### 2df590c - feat: Phase 2 — Add validation framework + validate GLD edge (2026-02-11)
+Built three-stage validation pipeline:
+- disqualify.py: Hard filters (min trades, drawdown, profit factor, win rate)
+- validation.py: Holdout (2020-23 train, 2024-25 test), walk-forward
+  (rolling 2yr/1yr), multi-asset consistency (GLD→SLV,IAU)
+- pipeline.py: Chains all checks, updates experiments DB with results
+
+Validated top 20 candidates from Phase 1 sweeps:
+- 18/18 passed (17 GLD + 1 XLE), 0 rejected
+- 100% walk-forward pass rate across all candidates
+- 100% multi-asset consistency (edge generalises to SLV and IAU)
+- Best: GLD 1h StochRSI, Sharpe 1.44, 10.5% out-of-sample return
+
+Updated claude.md with Phase 2 results and discovery engine findings.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 1c72e44 - fix: Suppress strategy debug prints during sweep backtests (2026-02-11)
 Strategies print per-bar debug output (e.g. StochRSI prints K/D/ADX
 every bar). With 8000+ bars × 324 combos = millions of print lines,
 this was making sweeps extremely slow and output unmanageable.
@@ -305,11 +322,5 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 Avoids need for --parameters JSON via PM2 (which causes quoting
 issues with wrapper scripts). Strategy defaults already have
 EXTREME thresholds (50/50). Will revert after validation.
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### 7633a95 - fix: Use DAY time-in-force for fractional stock orders (2026-02-05)
-Alpaca requires fractional stock orders to use DAY (not GTC).
-Auto-detect fractional qty for non-crypto symbols and switch TIF.
 
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
