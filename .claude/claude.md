@@ -4,39 +4,40 @@
 
 ## Current Status
 
-- **Phase:** 10 - Strategy Discovery Engine (Phases 0-2 complete, GLD edge validated)
-- **Active Bots:** 3 (SPY 5m, QQQ 15m, IWM 5m) — all StochRSI EXTREME mode
+- **Phase:** 10 - Strategy Discovery Engine (Phases 0-3 complete, GLD forward testing)
+- **Active Bots:** 1 (GLD 1h StochRSI — PAPER mode, validated params)
 - **Server:** europe-west2-a (algotrader2026)
-- **Discovery Engine:** Phase 0 (DB) ✓, Phase 1 (sweeps) ✓, Phase 2 (validation) ✓
-- **Key Finding:** GLD 1h StochRSI — 18.3% ann, Sharpe 1.44, passed all validation checks
-- **Experiments DB:** 1,332 experiments across GLD/XLE/XBI/TLT
+- **Discovery Engine:** Phase 0 (DB) ✓, Phase 1 (sweeps) ✓, Phase 2 (validation) ✓, Phase 3 (composable) ✓
+- **Key Finding:** GLD 1h StochRSI — Sharpe 1.44, + new composable combos (MACD+ATR Sharpe 1.14)
+- **Experiments DB:** 1,800 experiments (1,332 parameter sweeps + 458 composable combos)
 
 ## Where We Left Off (Feb 10)
 
-**Phases 0-2 of Strategy Discovery Engine complete. GLD edge validated.**
+**Phases 0-3 complete. GLD forward test deployed. Composable sweep found new combos.**
 
 ### What's been built:
-1. **Phase 0 — Experiments DB:** `experiments` table + `ExperimentTracker` class (save, query, dedup, LLM summaries)
-2. **Phase 1 — Sweep Engine:** `sweep.py`, `scoring.py`, `data_utils.py`, `run_sweep.py` — ran 1,332 experiments across GLD/XLE/XBI/TLT
-3. **Phase 2 — Validation Framework:** `disqualify.py`, `validation.py`, `pipeline.py` — holdout, walk-forward, multi-asset checks
+1. **Phase 0 — Experiments DB:** `experiments` table + `ExperimentTracker` class
+2. **Phase 1 — Sweep Engine:** 1,332 param sweeps across GLD/XLE/XBI/TLT
+3. **Phase 2 — Validation:** holdout, walk-forward, multi-asset — 18/18 passed
+4. **Phase 3 — Composable Strategies:** 458 indicator combos tested on GLD 1h
 
-### Key discovery results:
-- **GLD 1h StochRSI:** 92% of 324 param combos profitable. Best: Sharpe 1.44, 18.3% ann return
-- **XLE 1h StochRSI:** 88% profitable. Best: Sharpe 1.11
-- **XBI 1h StochRSI:** 62% profitable. Best: Sharpe 0.90
-- **TLT 1h StochRSI:** 55% profitable. Best: Sharpe 0.85
+### GLD forward test (deployed):
+- **Bot:** gld-1h on cloud, PAPER mode, StochRSI with validated params
+- **Params:** RSI 21, Stoch 7, OB 80, OS 15, ADX threshold 25, ATR stop 3x
+- **Script:** `scripts/run_gld.sh` — old EXTREME bots stopped
 
-### Phase 2 validation results (18/18 passed):
-- 17 GLD + 1 XLE candidates validated
-- **100% walk-forward pass rate** across all candidates (positive in every rolling test window)
-- **100% multi-asset consistency** (GLD edge generalises to SLV and IAU)
-- Best out-of-sample return: **10.5%** on 2024-2025 holdout data
-- Best params: RSI 21, Stoch 7, OB 80, OS 15, ATR stop 3x, ADX filter on
+### Phase 3 composable results (top combos on GLD 1h):
+| Sharpe | Return | Trades | Entry | Exit | Filter |
+|--------|--------|--------|-------|------|--------|
+| 1.137 | +34.0% | 12 | MACD cross | ATR stop 3x | none |
+| 1.113 | +33.3% | 14 | Bollinger bounce | ATR stop 3x | none |
+| 0.797 | +7.3% | 263 | RSI extreme | Opposite zone | none |
+| 0.661 | +8.8% | 176 | MACD cross | Donchian exit | SMA uptrend |
 
 ### What to decide next:
-- **Option A:** Forward-test best GLD strategy live (deploy to cloud, monitor)
-- **Option B:** Phase 3 — composable strategies to refine/combine indicators
-- **Option C:** Both in parallel
+- Run Phase 2 validation on top composable candidates
+- Monitor GLD forward test for live confirmation
+- Phase 4 (LLM agent) — optional given current results
 
 ## Read These Files for Details
 
@@ -112,15 +113,12 @@ git push origin main
 
 ## Current Testing Settings
 
-**EXTREME Mode (active — for slippage data collection):**
-- Oversold: 50 (trades at midpoint)
-- Overbought: 50 (trades every reversal)
-- ADX filter: DISABLED (`skip_adx_filter=True`)
-
-**Production Mode (if reverting):**
-- Oversold: 20
-- Overbought: 80
-- ADX filter: ENABLED
+**GLD Forward Test (active):**
+- RSI period: 21, Stoch period: 7
+- Oversold: 15, Overbought: 80
+- ADX threshold: 25 (filter ON)
+- ATR stop: 3x
+- Mode: PAPER
 
 ## Next Steps
 
@@ -131,11 +129,12 @@ git push origin main
 - [x] **Phase 0:** Add `experiments` table + `ExperimentTracker` class
 - [x] **Phase 1:** Build sweep engine + run 1,332 experiments across GLD/XLE/XBI/TLT
 - [x] **Phase 2:** Build validation framework — 18/18 top candidates passed all checks
-- [ ] **Decide:** Forward-test GLD live vs Phase 3 composable strategies vs both
-- [ ] **Phase 3:** Build composable strategy framework (building blocks + generator)
-- [ ] **Phase 4:** Build LLM agent loop (prompt builder, code validator, iteration loop)
-- [ ] Run EXTREME mode through Feb 13 to finish slippage data collection
-- [ ] Deploy validated GLD strategy to cloud for live forward testing
+- [x] **Phase 3:** Build composable framework — 458 combos on GLD, new edges found
+- [x] Deploy GLD 1h StochRSI to cloud (PAPER mode, validated params)
+- [x] Stop old EXTREME bots (SPY/QQQ/IWM)
+- [ ] Run Phase 2 validation on top composable candidates
+- [ ] Monitor GLD forward test (paper trading)
+- [ ] **Phase 4:** Build LLM agent loop (optional — may not be needed)
 
 ## Strategies Tested (with corrected costs)
 
@@ -155,12 +154,12 @@ git push origin main
 | StochRSI | TLT | 1h | +8.5% ann, Sharpe 0.85 | Sweep positive |
 
 **Live trading (EXTREME mode, 100+ trades):** Confirms ~zero net returns on SPY/QQQ/IWM.
-**Discovery Engine (1,332 experiments):** GLD/XLE edges validated through holdout, walk-forward, multi-asset checks.
+**Discovery Engine (1,800 experiments):** GLD/XLE edges validated. Composable sweep found MACD+ATR and Bollinger+ATR combos.
 
 ## Available Indicators (in codebase)
 
 StochRSI, RSI, MACD, ADX, Bollinger Bands, Donchian Channels, ATR, SMA, CHOP
-**Not yet used in strategies:** CHOP (Choppiness Index)
+**Now used in composable strategies:** CHOP (as filter), all indicators composable via building_blocks.py
 **Not yet implemented:** OBV, VWAP, volume-based indicators
 
 ## Existing Strategy Code (20 strategies in backend/strategies/)
@@ -173,5 +172,5 @@ Other: SimpleSMA, BollingerBreakout, GoldenCross, NFPBreakout (skeleton), GammaS
 
 ---
 
-*Last updated: 2026-02-10 (Discovery Engine Phases 0-2 complete, GLD edge validated, 18/18 passed)*
+*Last updated: 2026-02-11 (Phase 3 composable sweep complete, GLD forward test deployed, 1,800 experiments)*
 *Update this file when phase changes or major milestones reached*

@@ -1,6 +1,27 @@
 # Recent Git History
 
-### 2df590c - feat: Phase 2 — Add validation framework + validate GLD edge (2026-02-11)
+### 55ff6bd - feat: Phase 3 — Composable strategy framework + GLD forward test (2026-02-11)
+Built composable strategy system with pluggable building blocks:
+- indicator_calculator.py: Pre-computes all 9 indicators in one pass
+- building_blocks.py: 7 entries, 7 exits, 6 filters, 3 sizers
+- composable_strategy.py: Generic Strategy class wiring blocks together
+- combination_generator.py: Cartesian product with compatibility rules
+- run_composable.py: CLI sweep runner with experiment tracking
+
+Ran 458 compatible combinations on GLD 1h (31.5 minutes):
+- 156 positive (34%), best Sharpe 1.137 (MACD cross + ATR stop 3x)
+- New combos found: Bollinger bounce + ATR stop (Sharpe 1.113),
+  RSI extreme + opposite zone (263 trades, 2% DD)
+- Top composable candidates need Phase 2 validation next
+
+Deployed GLD 1h StochRSI forward test to cloud (PAPER mode):
+- Stopped all old EXTREME bots (SPY/QQQ/IWM)
+- Validated params: RSI 21, Stoch 7, OB 80, OS 15, ADX 25, ATR 3x
+- scripts/run_gld.sh for PM2 management
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### ad05fb0 - feat: Phase 2 — Add validation framework + validate GLD edge (2026-02-11)
 Built three-stage validation pipeline:
 - disqualify.py: Hard filters (min trades, drawdown, profit factor, win rate)
 - validation.py: Holdout (2020-23 train, 2024-25 test), walk-forward
@@ -315,12 +336,5 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ### d8e4439 - fix: Round stock sell orders to whole shares (no fractional shorts) (2026-02-05)
 Alpaca does not allow fractional short selling for stocks.
 Round sell qty to int for non-crypto symbols.
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### 4a8ace5 - test: Default skip_adx_filter to True for forward testing validation (2026-02-05)
-Avoids need for --parameters JSON via PM2 (which causes quoting
-issues with wrapper scripts). Strategy defaults already have
-EXTREME thresholds (50/50). Will revert after validation.
 
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
