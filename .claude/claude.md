@@ -26,17 +26,22 @@
 - **Params:** RSI 21, Stoch 7, OB 80, OS 15, ADX threshold 25, ATR stop 3x
 - **Script:** `scripts/run_gld.sh` — old EXTREME bots stopped
 
-### Phase 3 composable results (top combos on GLD 1h):
-| Sharpe | Return | Trades | Entry | Exit | Filter |
-|--------|--------|--------|-------|------|--------|
-| 1.137 | +34.0% | 12 | MACD cross | ATR stop 3x | none |
-| 1.113 | +33.3% | 14 | Bollinger bounce | ATR stop 3x | none |
-| 0.797 | +7.3% | 263 | RSI extreme | Opposite zone | none |
-| 0.661 | +8.8% | 176 | MACD cross | Donchian exit | SMA uptrend |
+### Phase 3 composable results (458 combos → 3 validated):
+- 7 of top 10 **REJECTED** — high-Sharpe/low-trade combos were overfit noise
+- 3 **PASSED** full validation (holdout + walk-forward + multi-asset):
+
+| Combo | Test Return | WF Pass | Multi-Asset | Trades |
+|-------|-----------|---------|-------------|--------|
+| RSI extreme + Opposite zone | +0.3% | 75% | 100% (3/3) | 263 |
+| MACD cross + Donchian exit + SMA uptrend | +10.9% | 75% | 67% (2/3) | 176 |
+| RSI extreme + Trailing ATR 3x | +4.9% | 75% | 67% (2/3) | 252 |
+
+- **Best new find:** RSI extreme + trailing ATR 3x — no train/test degradation, 252 trades
+- Original StochRSI strategy (Sharpe 1.44, 18/18 passed) still strongest overall
 
 ### What to decide next:
-- Run Phase 2 validation on top composable candidates
-- Monitor GLD forward test for live confirmation
+- Monitor GLD forward test (paper trading, deployed)
+- Consider forward testing validated composable strategies
 - Phase 4 (LLM agent) — optional given current results
 
 ## Read These Files for Details
@@ -132,7 +137,7 @@ git push origin main
 - [x] **Phase 3:** Build composable framework — 458 combos on GLD, new edges found
 - [x] Deploy GLD 1h StochRSI to cloud (PAPER mode, validated params)
 - [x] Stop old EXTREME bots (SPY/QQQ/IWM)
-- [ ] Run Phase 2 validation on top composable candidates
+- [x] Run Phase 2 validation on top composable candidates — 3/10 passed, 7 rejected
 - [ ] Monitor GLD forward test (paper trading)
 - [ ] **Phase 4:** Build LLM agent loop (optional — may not be needed)
 
@@ -172,5 +177,5 @@ Other: SimpleSMA, BollingerBreakout, GoldenCross, NFPBreakout (skeleton), GammaS
 
 ---
 
-*Last updated: 2026-02-11 (Phase 3 composable sweep complete, GLD forward test deployed, 1,800 experiments)*
+*Last updated: 2026-02-11 (Phase 3 composable validated: 3/10 passed, GLD forward test live)*
 *Update this file when phase changes or major milestones reached*

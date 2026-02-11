@@ -1,6 +1,25 @@
 # Recent Git History
 
-### 55ff6bd - feat: Phase 3 — Composable strategy framework + GLD forward test (2026-02-11)
+### 93f887a - feat: Validate composable strategies — 3/10 passed, 7 rejected (2026-02-11)
+Added validate_composable.py to bridge composable building blocks
+with the Phase 2 validation pipeline. Maps stored block names back
+to callables and runs full validation chain.
+
+Results on top 10 composable candidates (GLD 1h):
+- 7 REJECTED: high-Sharpe combos had too few trades (<30) or low
+  profit factor — overfit noise caught by disqualification filters
+- 3 PASSED full validation:
+  1. RSI extreme + opposite zone: 263 trades, 75% WF, 100% multi-asset
+  2. MACD cross + Donchian exit + SMA uptrend: +10.9% OOS, 75% WF
+  3. RSI extreme + trailing ATR 3x: +4.9% OOS, no degradation, 252 trades
+
+Key insight: validation correctly filtered overfit combos. The low-trade
+high-Sharpe strategies (MACD+ATR, Bollinger+ATR) were statistical noise.
+Original StochRSI strategy (Sharpe 1.44) remains the strongest edge.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### a371af6 - feat: Phase 3 — Composable strategy framework + GLD forward test (2026-02-11)
 Built composable strategy system with pluggable building blocks:
 - indicator_calculator.py: Pre-computes all 9 indicators in one pass
 - building_blocks.py: 7 entries, 7 exits, 6 filters, 3 sizers
@@ -330,11 +349,5 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
   fractional residuals (buy 35.6 → sell 35 → 0.6 orphan)
 - Only reset position state if exit order actually succeeds
 - Prevents ghost state where strategy thinks it exited but didn't
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### d8e4439 - fix: Round stock sell orders to whole shares (no fractional shorts) (2026-02-05)
-Alpaca does not allow fractional short selling for stocks.
-Round sell qty to int for non-crypto symbols.
 
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
