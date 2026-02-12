@@ -125,6 +125,68 @@ QUICK_GRIDS = {
     },
 }
 
+# Medium mode: covers edge cases without exhaustive search
+# StochRSI: 3*3*3*3*3*2*2 = 972 combos (vs 3,456 full, 32 quick)
+# Donchian: 4*2*2*2 = 32 combos
+# MACD: 2*2*2*2*2*2 = 64 combos
+MEDIUM_GRIDS = {
+    "StochRSIMeanReversion": {
+        "rsi_period": [7, 14, 21],
+        "stoch_period": [7, 14, 21],
+        "overbought": [70, 80, 85],
+        "oversold": [15, 20, 30],
+        "sl_atr": [1.5, 2.0, 3.0],
+        "skip_adx_filter": [True, False],
+        "adx_threshold": [20, 25],
+    },
+    "DonchianBreakout": {
+        "entry_period": [10, 20, 30, 55],
+        "exit_period": [5, 10],
+        "stop_loss_atr": [1.5, 3.0],
+        "atr_period": [14, 20],
+    },
+    "MACDBollinger": {
+        "macd_fast": [8, 12],
+        "macd_slow": [21, 26],
+        "macd_signal": [9, 12],
+        "bb_period": [15, 20],
+        "bb_std": [1.5, 2.0],
+        "sl_atr": [1.5, 2.0],
+    },
+}
+
+# Scan mode: coarse sweep to detect edges quickly (~8 combos per strategy)
+# Just enough to answer "does this asset/timeframe have any edge at all?"
+# StochRSI: 2*1*2*2*1*1*1 = 8 combos
+# Donchian: 2*1*1*1 = 2 combos
+# MACD: 1*1*1*1*1*1 = 1 combo
+# Total per target: 11 combos (~5 seconds)
+SCAN_GRIDS = {
+    "StochRSIMeanReversion": {
+        "rsi_period": [14, 21],
+        "stoch_period": [14],
+        "overbought": [75, 80],
+        "oversold": [20, 25],
+        "sl_atr": [2.0],
+        "skip_adx_filter": [False],
+        "adx_threshold": [25],
+    },
+    "DonchianBreakout": {
+        "entry_period": [20, 55],
+        "exit_period": [10],
+        "stop_loss_atr": [2.0],
+        "atr_period": [14],
+    },
+    "MACDBollinger": {
+        "macd_fast": [12],
+        "macd_slow": [26],
+        "macd_signal": [9],
+        "bb_period": [20],
+        "bb_std": [2.0],
+        "sl_atr": [2.0],
+    },
+}
+
 START_DATE = "2020-01-01"
 END_DATE = "2025-12-31"
 
@@ -171,19 +233,10 @@ def pass1_broad_sweep(engine, budget, targets, strategies, grids,
                     start=START_DATE,
                     end=END_DATE,
                     skip_tested=True,
-                    verbose=False,
+                    verbose=True,
                 )
                 total_sweeps += 1
                 total_results += len(results)
-
-                if results:
-                    best = results[0]
-                    print(f"  {strat_name} {symbol} {tf}: "
-                          f"{len(results)} new | "
-                          f"best Sharpe {best['sharpe']:.3f}, "
-                          f"{best['return_pct']:.1f}%")
-                else:
-                    print(f"  {strat_name} {symbol} {tf}: all skipped")
 
             except Exception as e:
                 print(f"  ERROR {strat_name} {symbol} {tf}: {e}")
@@ -567,12 +620,24 @@ def main():
                         help="Smoke test with reduced grids (< 1 hour)")
     parser.add_argument("--max-hours", type=float, default=10,
                         help="Time limit in hours (default: 10)")
+    parser.add_argument("--scan", action="store_true",
+                        help="Coarse scan (~11 combos per target, detect edges fast)")
+    parser.add_argument("--medium", action="store_true",
+                        help="Medium grids (~1,000 combos, balanced coverage)")
     parser.add_argument("--skip-composable", action="store_true",
                         help="Skip composable strategy sweeps")
+    parser.add_argument("--skip-sweep", action="store_true",
+                        help="Skip Pass 1 (broad sweep)")
+    parser.add_argument("--skip-validation", action="store_true",
+                        help="Skip Pass 3 (validation)")
+    parser.add_argument("--symbols", type=str, default=None,
+                        help="Comma-separated symbols to target (e.g. GLD,IAU,SLV)")
+    parser.add_argument("--timeframes", type=str, default=None,
+                        help="Comma-separated timeframes to target (e.g. 15m,1h,4h)")
     args = parser.parse_args()
 
-    if args.quick:
-        args.max_hours = min(args.max_hours, 1.0)
+    if args.quick and args.max_hours == 10:  # only cap if user didn't specify
+        args.max_hours = 1.0
 
     budget = TimeBudget(args.max_hours)
     tracker = ExperimentTracker()
@@ -584,26 +649,64 @@ def main():
     print(f"{'='*60}")
     print(f"Started:          {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Time budget:      {args.max_hours}h")
-    print(f"Quick mode:       {args.quick}")
+    grid_mode = "scan" if args.scan else "quick" if args.quick else "medium" if args.medium else "full"
+    print(f"Grid mode:        {grid_mode}")
     print(f"Skip composable:  {args.skip_composable}")
+    print(f"Skip sweep:       {args.skip_sweep}")
+    print(f"Skip validation:  {args.skip_validation}")
     print(f"Experiments in DB: {count_before}")
 
-    grids = QUICK_GRIDS if args.quick else PARAM_GRIDS
-    targets = SWEEP_TARGETS[:6] if args.quick else SWEEP_TARGETS
+    if args.scan:
+        grids = SCAN_GRIDS
+        targets = SWEEP_TARGETS
+    elif args.quick:
+        grids = QUICK_GRIDS
+        targets = SWEEP_TARGETS[:6]
+    elif args.medium:
+        grids = MEDIUM_GRIDS
+        targets = SWEEP_TARGETS
+    else:
+        grids = PARAM_GRIDS
+        targets = SWEEP_TARGETS
+
+    # Filter targets by --symbols and --timeframes if specified
+    if args.symbols:
+        allowed_symbols = [s.strip().upper() for s in args.symbols.split(",")]
+        targets = [(s, tf) for s, tf in targets if s in allowed_symbols]
+    if args.timeframes:
+        allowed_tfs = [t.strip() for t in args.timeframes.split(",")]
+        targets = [(s, tf) for s, tf in targets if tf in allowed_tfs]
 
     # Pass 1: Broad sweep
-    pass1_broad_sweep(
-        engine, budget, targets, SWEEP_STRATEGIES, grids,
-        quick=args.quick, skip_composable=args.skip_composable,
-    )
+    if not args.skip_sweep:
+        pass1_broad_sweep(
+            engine, budget, targets, SWEEP_STRATEGIES, grids,
+            quick=args.quick, skip_composable=args.skip_composable,
+        )
+    else:
+        print(f"\n*** Skipping Pass 1 (sweep) ***")
 
-    # Pass 2: Filter candidates from DB
-    existing, composable = pass2_filter(budget)
+    # Pass 2 & 3: Filter and validate
+    validation_results = {"passed": [], "marginal": [], "rejected": []}
+    if not args.skip_validation:
+        existing, composable = pass2_filter(budget)
+        validation_results = pass3_validate(existing, composable, tracker, budget)
+    else:
+        print(f"\n*** Skipping Pass 2-3 (filter/validation) ***")
 
-    # Pass 3: Validate candidates
-    validation_results = pass3_validate(existing, composable, tracker, budget)
+    # Pass 4: Expand winners — pull from DB if no winners from this run
+    winners_from_run = validation_results["passed"] + validation_results["marginal"]
+    if not winners_from_run:
+        # Load already-passed strategies from DB for expansion
+        db_winners = tracker.get_top_candidates(n=30, min_trades=30,
+                                                 validation_status="passed")
+        for exp in db_winners:
+            validation_results["passed"].append(_winner_entry(
+                exp["strategy"], exp["symbol"], exp["timeframe"],
+                exp.get("sharpe", 0), {"status": "PASSED"},
+            ))
+        print(f"\n  Loaded {len(db_winners)} passed strategies from DB for expansion")
 
-    # Pass 4: Expand winners
     pass4_expand(
         validation_results, engine, budget, grids,
         skip_composable=args.skip_composable,

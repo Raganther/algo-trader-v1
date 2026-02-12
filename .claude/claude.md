@@ -59,6 +59,7 @@
 4. `.agent/memory/system_manual.md` - Technical reference (backtesting + live)
 5. `.agent/memory/research.md` - Alternative strategy research + live validation findings
 6. `.agent/memory/research_insights.md` - RETIRED (contaminated with delay=1 results, replaced by ExperimentTracker)
+7. `.agent/memory/ideas.md` - **DO NOT auto-read.** Future ideas log (hedging, pairs trading, regime detection, etc). Only reference when user explicitly asks to explore or develop an idea.
 
 ## Quick Commands
 

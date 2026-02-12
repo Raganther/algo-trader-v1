@@ -1,6 +1,19 @@
 # Recent Git History
 
-### c3bffcf - feat: Add overnight strategy discovery orchestrator (2026-02-11)
+### 58fa33c - feat: Add scan/medium grid modes, symbol filtering, and ideas log (2026-02-12)
+- Added --scan (11 combos), --medium (972 combos) grid tiers for faster iteration
+- Added --symbols and --timeframes CLI filters to focus runs on promising targets
+- Added --skip-sweep and --skip-validation flags for independent pass execution
+- Fixed --quick not respecting explicit --max-hours override
+- Pass 4 now loads winners from DB when skipping validation
+- Enabled verbose output during sweeps for progress visibility
+- Created .agent/memory/ideas.md for future strategy concepts (drawdown analysis,
+  regime rotation, pairs trading, beta hedging, portfolio diversification, dashboard)
+- Updated claude.md with ideas.md reference (DO NOT auto-read)
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### de52b94 - feat: Add overnight strategy discovery orchestrator (2026-02-11)
 Single script (run_overnight.py) chains all discovery phases for
 unattended overnight runs. 4 passes: broad sweep across priority-
 ordered asset/TF combos → filter promising candidates from DB →
@@ -329,39 +342,5 @@ the entire live trading loop, causing PM2 restarts.
 Now catches exceptions, logs the rejection, and returns None.
 Strategy already guards with `if result is not None:` so position
 state stays correct.
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### bd7738a - docs: Document Phase 7 bug fixes and multi-asset validation results (2026-02-05)
-## Phase 7: Position Tracking Bug Fixes (2026-02-05)
-
-7 critical bugs found and fixed during live BTC/SPY/QQQ testing:
-
-1. Position state lost on restart (strategy.position=0 on init)
-   - Fix: Sync with Alpaca after strategy init in runner.py
-2. Zone flags re-trigger while holding (duplicate entries)
-   - Fix: Move zone logic inside position==0 check
-3. Symbol format mismatch BTCUSD vs BTC/USD (exits fail silently)
-   - Fix: Store both formats in broker position cache
-4. Exit qty lookup uses wrong method (returns None)
-   - Fix: Use get_position() which handles both formats
-5. Fractional stock orders need DAY TIF
-   - Fix: Auto-detect and switch TimeInForce
-6. No fractional short selling for stocks + residual positions
-   - Fix: Round ALL stock orders to whole shares
-7. Exit state not guarded on order failure (ghost flat state)
-   - Fix: Only reset position if order returns non-None
-
-## Validation Results
-- BTC: 3+ clean round-trips (entry + exit filling correctly)
-- SPY: 2 clean round-trips (35 whole shares, no residuals)
-- QQQ: Running, waiting for 15m signals
-- All trades verified against Alpaca order history
-
-## Files Modified
-- backend/runner.py (position sync on startup)
-- backend/strategies/stoch_rsi_mean_reversion.py (zone guard, exit guard, get_position)
-- backend/engine/live_broker.py (symbol normalization)
-- backend/engine/alpaca_trader.py (whole shares, DAY TIF)
 
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
