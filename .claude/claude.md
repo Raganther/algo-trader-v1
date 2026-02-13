@@ -5,15 +5,15 @@
 ## Current Status
 
 - **Phase:** 10 - Strategy Discovery Engine (Phases 0-3 complete, overnight orchestrator built)
-- **Active Bots:** 1 (GLD 1h StochRSI — PAPER mode, validated params)
+- **Active Bots:** 1 (GLD 15m StochRSI — PAPER mode, validated params)
 - **Server:** europe-west2-a (algotrader2026)
 - **Discovery Engine:** Phase 0 (DB) ✓, Phase 1 (sweeps) ✓, Phase 2 (validation) ✓, Phase 3 (composable) ✓, Overnight orchestrator ✓
 - **Key Finding:** GLD 15m StochRSI — Sharpe 1.66, VALIDATED (best edge). GLD 1h Sharpe 1.44 also validated.
 - **Experiments DB:** 5,300+ experiments, 90 validated passes (growing via overnight runs)
 
-## Where We Left Off (Feb 12)
+## Where We Left Off (Feb 13)
 
-**GLD 15m validated as best edge. 5,300+ experiments. Medium grid sweeps + validation runs complete.**
+**Switched bot from GLD 1h to GLD 15m (best edge). Validation run in progress for remaining candidates. Edge enhancement plan created.**
 
 ### What's been built:
 1. **Phase 0 — Experiments DB:** `experiments` table + `ExperimentTracker` class
@@ -31,8 +31,8 @@
 - **Priority targets:** GLD other TFs, gold-correlated (SLV/IAU/GDX), XLE/XBI/TLT, broad market
 
 ### GLD forward test (deployed):
-- **Bot:** gld-1h on cloud, PAPER mode, StochRSI with validated params
-- **Params:** RSI 21, Stoch 7, OB 80, OS 15, ADX threshold 25, ATR stop 3x
+- **Bot:** gld-15m on cloud, PAPER mode, StochRSI with validated params (switched from 1h on Feb 13)
+- **Params:** RSI 7, Stoch 14, OB 80, OS 15, ADX threshold 20, ATR stop 2x
 - **Script:** `scripts/run_gld.sh` — old EXTREME bots stopped
 
 ### Phase 3 composable results (458 combos → 3 validated):
@@ -52,22 +52,30 @@
 - **Reality check:** "20% annualised" is compounded total; actual yearly returns are 2-7%
 - **Holdout test (unseen data):** +10.1% — lower than training, suggesting some edge decay
 
-### What to decide next:
-- Explore spread betting (IG API) for small-account gold trading (see ideas.md #11)
-- Consider deploying GLD 15m bot alongside GLD 1h on paper
-- Run more medium grid sweeps on remaining symbols
-- Monitor GLD 1h forward test (paper trading, deployed)
-- Phase 4 (LLM agent) — optional given current results
+### Validation run (in progress, Feb 13):
+- Running `--skip-sweep --max-hours 3` to validate top 150 pending candidates
+- Covers 7 unvalidated symbol/TF combos: SLV 15m, GLD 1d, OIH 1h, XBI 15m, XLE 15m, TLT 1h, XBI 4h
+- Results auto-saved to experiments DB
+
+### Edge Enhancement Plan (next):
+- See `.agent/workflows/edge_enhancement_plan.md`
+- Phase 1: Enrich trade records (entry time, exit reason, ATR at entry)
+- Phase 2: Diagnostic analysis (time-of-day, volatility regime, exit patterns)
+- Phase 3: Build targeted filters (only what analysis flags)
+- Phase 4: A/B sweep (~50 variants vs baseline)
+- Phase 5: Stack winners + validate
+- **Key gap found:** backtester doesn't store entry timestamps or exit reasons — needs enrichment first
 
 ## Read These Files for Details
 
-1. `.agent/workflows/strategy_discovery_engine.md` - **START HERE** — full build plan for automated strategy search
-2. `.agent/memory/recent_history.md` - Last 20 commits with full context
-3. `.agent/workflows/forward_testing_plan.md` - Complete forward test journey (Phases 1-9)
-4. `.agent/memory/system_manual.md` - Technical reference (backtesting + live)
-5. `.agent/memory/research.md` - Alternative strategy research + live validation findings
-6. `.agent/memory/research_insights.md` - RETIRED (contaminated with delay=1 results, replaced by ExperimentTracker)
-7. `.agent/memory/ideas.md` - **DO NOT auto-read.** Future ideas log (hedging, pairs trading, regime detection, etc). Only reference when user explicitly asks to explore or develop an idea.
+1. `.agent/workflows/edge_enhancement_plan.md` - **ACTIVE** — plan to improve validated edges (time filters, exits, vol scaling)
+2. `.agent/workflows/strategy_discovery_engine.md` - Full build plan for automated strategy search (Phases 0-3 complete)
+3. `.agent/memory/recent_history.md` - Last 20 commits with full context
+4. `.agent/workflows/forward_testing_plan.md` - Complete forward test journey (Phases 1-9)
+5. `.agent/memory/system_manual.md` - Technical reference (backtesting + live)
+6. `.agent/memory/research.md` - Alternative strategy research + live validation findings
+7. `.agent/memory/research_insights.md` - RETIRED (contaminated with delay=1 results, replaced by ExperimentTracker)
+8. `.agent/memory/ideas.md` - **DO NOT auto-read.** Future ideas log (#1-17: hedging, pairs trading, regime detection, time filters, exits, etc). Only reference when user explicitly asks.
 
 ## Quick Commands
 
@@ -134,11 +142,11 @@ git push origin main
 
 ## Current Testing Settings
 
-**GLD Forward Test (active):**
-- RSI period: 21, Stoch period: 7
+**GLD Forward Test (active — switched to 15m on Feb 13):**
+- RSI period: 7, Stoch period: 14
 - Oversold: 15, Overbought: 80
-- ADX threshold: 25 (filter ON)
-- ATR stop: 3x
+- ADX threshold: 20 (filter ON)
+- ATR stop: 2x
 - Mode: PAPER
 
 ## Next Steps
@@ -157,10 +165,11 @@ git push origin main
 - [x] Build overnight orchestrator — `run_overnight.py` chains all phases unattended
 - [x] Run scan + medium grid sweeps across 21 symbol/TF combos (5,300+ experiments)
 - [x] Validate top candidates — 90 passed, GLD 15m Sharpe 1.66 is best
+- [x] Deploy GLD 15m bot on paper (replaced GLD 1h on Feb 13)
+- [ ] **Edge Enhancement:** Enrich trade records → diagnostic analysis → targeted filters (see edge_enhancement_plan.md)
+- [ ] Review validation run results (150 candidates, running Feb 13)
 - [ ] Explore spread betting / IG API for small-account trading (ideas.md #11)
-- [ ] Deploy GLD 15m bot on paper alongside GLD 1h
-- [ ] Continue medium grid sweeps on remaining symbols (SLV, XBI, XLE, OIH)
-- [ ] Monitor GLD 1h forward test (paper trading)
+- [ ] Monitor GLD 15m forward test (paper trading)
 - [ ] **Phase 4:** Build LLM agent loop (optional — may not be needed)
 
 ## Strategies Tested (with corrected costs)
@@ -201,5 +210,5 @@ Other: SimpleSMA, BollingerBreakout, GoldenCross, NFPBreakout (skeleton), GammaS
 
 ---
 
-*Last updated: 2026-02-12 (GLD 15m Sharpe 1.66 validated as best edge, 5,300+ experiments)*
+*Last updated: 2026-02-13 (GLD 15m deployed, validation run in progress, edge enhancement plan created)*
 *Update this file when phase changes or major milestones reached*

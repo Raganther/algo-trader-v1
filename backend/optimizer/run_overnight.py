@@ -292,7 +292,7 @@ def pass2_filter(budget):
           AND validation_status = 'pending'
           AND strategy_source != 'composable'
         ORDER BY sharpe DESC
-        LIMIT 50
+        LIMIT 150
     ''').fetchall()
 
     composable_rows = conn.execute('''
@@ -305,7 +305,7 @@ def pass2_filter(budget):
           AND validation_status = 'pending'
           AND strategy_source = 'composable'
         ORDER BY sharpe DESC
-        LIMIT 20
+        LIMIT 30
     ''').fetchall()
 
     conn.close()

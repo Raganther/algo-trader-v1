@@ -1,6 +1,35 @@
 # Recent Git History
 
-### 409dfc5 - docs: Update with GLD 15m validation results and new strategy ideas (2026-02-13)
+### 12d95c1 - docs: Add edge enhancement plan and update session context (2026-02-13)
+New file: .agent/workflows/edge_enhancement_plan.md
+- 5-phase plan to improve validated edges (GLD 15m Sharpe 1.66)
+- Phase 1: Enrich trade records (entry time, exit reason, ATR at entry)
+- Phase 2: Diagnostic analysis (time-of-day, vol regime, exit patterns)
+- Phase 3: Build targeted filters based on analysis findings
+- Phase 4: A/B sweep (~50 variants vs baseline)
+- Phase 5: Stack winners + validate through walk-forward
+
+Key finding: backtester doesn't store entry timestamps or exit reasons,
+needs enrichment before analysis can begin.
+
+Updated ideas.md with 5 new ideas (#13-17): time-of-day filtering,
+exit optimisation, limit order entries, vol-scaled sizing, news blackout.
+
+Updated claude.md: GLD 15m bot deployed (replaced 1h), validation run
+in progress (150 candidates), edge enhancement as next priority.
+
+Raised validation candidate limit from 50 to 150 in run_overnight.py
+to cover all unvalidated symbol/TF combos in a single run.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 29d2cfc - feat: Switch GLD bot from 1h to 15m (Sharpe 1.66, best validated edge) (2026-02-13)
+GLD 15m params: RSI 7, Stoch 14, OB 80, OS 15, ADX 20, ATR stop 2x
+Replaces GLD 1h (Sharpe 1.44) with higher-edge 15m strategy.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### b63e070 - docs: Update with GLD 15m validation results and new strategy ideas (2026-02-13)
 - GLD 15m StochRSI (Sharpe 1.66) validated as best edge — yearly returns 2-7%
 - 5,300+ experiments, 90 validated passes across GLD/IAU/XLE
 - Added ideas #7-12: position sizing, GDX amplification, multi-TF confirmation,
@@ -311,34 +340,5 @@ Benefits:
 - Hook auto-shows last 5 commits + file pointers
 - Claude reads claude.md automatically
 - Clear separation: status vs reference vs history
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### 1317cd7 - docs: Document Phase 8 multi-asset expansion and slippage analysis (2026-02-05)
-Phase 8 additions:
-- Fixed crypto short selling crash (Alpaca doesn't support crypto shorts)
-- Added API error handling in live_broker.py (prevents loop crashes)
-- Added IWM 5m bot (StochRSIMeanReversion)
-- Added DonchianBreakout IWM 5m bot (trend-following comparison)
-
-Slippage Analysis (20 trades):
-- SPY: 0.032% avg slippage (13 trades)
-- QQQ: 0.060% avg slippage (4 trades)
-- IWM: 0.030% avg slippage (3 trades)
-
-Key finding: Live slippage is within expected range, backtest
-assumptions validated. IWM has tightest execution.
-
-Current status: 4 bots active (SPY, QQQ, IWM StochRSI + IWM Donchian)
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### d5665f0 - fix: Disable short entries for crypto symbols (2026-02-05)
-Alpaca doesn't support crypto short selling. Every short attempt was
-crashing the live loop (40 crashes, 57 PM2 restarts). The bot appeared
-to work because PM2 kept restarting it and position sync recovered.
-
-Now skips the overbought zone flag for crypto symbols (containing '/')
-so short entries are never attempted. Stocks retain full long/short.
 
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>

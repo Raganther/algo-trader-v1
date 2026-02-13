@@ -194,5 +194,57 @@ If adapting to a forex broker (OANDA), run the discovery engine on forex pairs. 
 
 ---
 
-*Last updated: 2026-02-12*
+## 13. Time-of-Day Filtering
+*Discussed: 2026-02-13*
+
+Gold trades differently at London open vs NY open vs overlap. The 15m strategy fires ~230 trades/year indiscriminately. Analyse which hours produce the best win rate and filter out noise hours.
+
+**Approach:** Run diagnostic backtest, dump all trades with entry hour, bucket by hour, identify dead zones. Then add simple hour guard to strategy (~5 lines).
+
+**Key insight:** This is pure analysis first, zero code needed to identify the signal. Only build if data shows a clear pattern.
+
+---
+
+## 14. Exit Optimisation (Trailing Stop / Time Exit)
+*Discussed: 2026-02-13*
+
+Current exit is fixed 2x ATR stop OR signal-based (StochRSI crosses overbought). No trailing, no time-based exit. Likely leaving money on the table.
+
+**Options:**
+- Trailing ATR stop — lock in profits on winners
+- Time-based exit — close after N bars if not profitable (cuts slow bleeders)
+- Partial profit-taking — close half at 1x ATR, let rest run
+
+**Requires:** Adding `exit_reason` tracking to trade records to understand current stop vs signal split.
+
+---
+
+## 15. Limit Order Entries
+*Discussed: 2026-02-13*
+
+Instead of market order at signal bar close, place limit order slightly below (for longs). Improves average entry by a few cents per trade. Over 1,155 trades that compounds.
+
+**Risk:** Some trades won't fill (limit not reached). Need to check if missed trades were winners.
+
+---
+
+## 16. Volatility-Scaled Position Sizing
+*Discussed: 2026-02-13*
+
+Scale position size inversely to ATR. Low vol = larger position (mean reversion works best in calm markets). High vol = smaller position (more noise). ATR already calculated in strategy.
+
+**Different from Kelly (#7):** Kelly is about overall capital allocation. This adapts size trade-by-trade based on current conditions.
+
+---
+
+## 17. News/Event Blackout
+*Discussed: 2026-02-13*
+
+Avoid entries around FOMC, NFP, CPI releases. Gold whipsaws on macro events and mean reversion signals become noise. A simple calendar filter could cut worst losing trades.
+
+**Implementation:** Static calendar of known dates, or external API. Buffer of N hours before/after event.
+
+---
+
+*Last updated: 2026-02-13*
 *Add new ideas as they come up during sessions*
