@@ -1,6 +1,15 @@
 # Recent Git History
 
-### 58fa33c - feat: Add scan/medium grid modes, symbol filtering, and ideas log (2026-02-12)
+### 409dfc5 - docs: Update with GLD 15m validation results and new strategy ideas (2026-02-13)
+- GLD 15m StochRSI (Sharpe 1.66) validated as best edge — yearly returns 2-7%
+- 5,300+ experiments, 90 validated passes across GLD/IAU/XLE
+- Added ideas #7-12: position sizing, GDX amplification, multi-TF confirmation,
+  cross-asset signals, spread betting/IG API for small accounts, forex discovery
+- Updated next steps: explore IG API for €100 starting capital
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### a91cf41 - feat: Add scan/medium grid modes, symbol filtering, and ideas log (2026-02-12)
 - Added --scan (11 combos), --medium (972 combos) grid tiers for faster iteration
 - Added --symbols and --timeframes CLI filters to focus runs on promising targets
 - Added --skip-sweep and --skip-validation flags for independent pass execution
@@ -331,16 +340,5 @@ to work because PM2 kept restarting it and position sync recovered.
 
 Now skips the overbought zone flag for crypto symbols (containing '/')
 so short entries are never attempted. Stocks retain full long/short.
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### 2df6fd6 - fix: Catch API errors in buy/sell to prevent live loop crashes (2026-02-05)
-Alpaca APIError (insufficient balance, rejected orders) was unhandled
-in LiveBroker.buy() and sell(). Exception propagated up and crashed
-the entire live trading loop, causing PM2 restarts.
-
-Now catches exceptions, logs the rejection, and returns None.
-Strategy already guards with `if result is not None:` so position
-state stays correct.
 
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>

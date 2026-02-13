@@ -8,27 +8,27 @@
 - **Active Bots:** 1 (GLD 1h StochRSI — PAPER mode, validated params)
 - **Server:** europe-west2-a (algotrader2026)
 - **Discovery Engine:** Phase 0 (DB) ✓, Phase 1 (sweeps) ✓, Phase 2 (validation) ✓, Phase 3 (composable) ✓, Overnight orchestrator ✓
-- **Key Finding:** GLD 1h StochRSI — Sharpe 1.44, + new composable combos (MACD+ATR Sharpe 1.14)
-- **Experiments DB:** 1,800+ experiments (growing via overnight runs)
+- **Key Finding:** GLD 15m StochRSI — Sharpe 1.66, VALIDATED (best edge). GLD 1h Sharpe 1.44 also validated.
+- **Experiments DB:** 5,300+ experiments, 90 validated passes (growing via overnight runs)
 
-## Where We Left Off (Feb 11)
+## Where We Left Off (Feb 12)
 
-**Overnight orchestrator built. Phases 0-3 complete. GLD forward test deployed.**
+**GLD 15m validated as best edge. 5,300+ experiments. Medium grid sweeps + validation runs complete.**
 
 ### What's been built:
 1. **Phase 0 — Experiments DB:** `experiments` table + `ExperimentTracker` class
-2. **Phase 1 — Sweep Engine:** 1,332 param sweeps across GLD/XLE/XBI/TLT
-3. **Phase 2 — Validation:** holdout, walk-forward, multi-asset — 18/18 passed
+2. **Phase 1 — Sweep Engine:** 5,300+ param sweeps across 21 symbol/TF combos
+3. **Phase 2 — Validation:** holdout, walk-forward, multi-asset — 90 passed
 4. **Phase 3 — Composable Strategies:** 458 indicator combos tested on GLD 1h
 5. **Overnight Orchestrator:** `run_overnight.py` — chains all phases for unattended runs
 
 ### Overnight orchestrator (`backend/optimizer/run_overnight.py`):
 - **4 passes:** Broad sweep → Filter → Validate → Expand winners
-- **CLI:** `python -m backend.optimizer.run_overnight [--quick] [--max-hours N] [--skip-composable]`
+- **CLI:** `python -m backend.optimizer.run_overnight [--scan|--quick|--medium] [--max-hours N] [--skip-composable] [--skip-sweep] [--skip-validation] [--symbols X,Y] [--timeframes 15m,1h]`
+- **Grid tiers:** scan (11 combos), quick (32), medium (972), full (3,456) per target
 - **Time budget:** Global timer, graceful stop at each pass when expired
 - **Crash recovery:** `skip_tested=True` everywhere, re-run picks up where left off
 - **Priority targets:** GLD other TFs, gold-correlated (SLV/IAU/GDX), XLE/XBI/TLT, broad market
-- **Quick mode:** Reduced grids + 6 targets, < 1 hour
 
 ### GLD forward test (deployed):
 - **Bot:** gld-1h on cloud, PAPER mode, StochRSI with validated params
@@ -45,10 +45,18 @@
 | MACD cross + Donchian exit + SMA uptrend | +10.9% | 75% | 67% (2/3) | 176 |
 | RSI extreme + Trailing ATR 3x | +4.9% | 75% | 67% (2/3) | 252 |
 
+### Best validated edge — GLD 15m StochRSI (Sharpe 1.66):
+- **Params:** RSI 7, Stoch 14, OB 80, OS 15, ADX threshold 20, ATR stop 2x
+- **Yearly returns (backtested):** 2020: -0.3%, 2021: +4.3%, 2022: +2.8%, 2023: +2.1%, 2024: +6.8%, 2025: +3.0%
+- **Max drawdown:** 1.7%, **Win rate:** 47%, **Trades:** 1,155 over 5 years
+- **Reality check:** "20% annualised" is compounded total; actual yearly returns are 2-7%
+- **Holdout test (unseen data):** +10.1% — lower than training, suggesting some edge decay
+
 ### What to decide next:
-- Run full overnight: `python -m backend.optimizer.run_overnight --max-hours 10`
-- Monitor GLD forward test (paper trading, deployed)
-- Consider forward testing validated composable strategies
+- Explore spread betting (IG API) for small-account gold trading (see ideas.md #11)
+- Consider deploying GLD 15m bot alongside GLD 1h on paper
+- Run more medium grid sweeps on remaining symbols
+- Monitor GLD 1h forward test (paper trading, deployed)
 - Phase 4 (LLM agent) — optional given current results
 
 ## Read These Files for Details
@@ -147,8 +155,12 @@ git push origin main
 - [x] Stop old EXTREME bots (SPY/QQQ/IWM)
 - [x] Run Phase 2 validation on top composable candidates — 3/10 passed, 7 rejected
 - [x] Build overnight orchestrator — `run_overnight.py` chains all phases unattended
-- [ ] Run full overnight discovery: `python -m backend.optimizer.run_overnight --max-hours 10`
-- [ ] Monitor GLD forward test (paper trading)
+- [x] Run scan + medium grid sweeps across 21 symbol/TF combos (5,300+ experiments)
+- [x] Validate top candidates — 90 passed, GLD 15m Sharpe 1.66 is best
+- [ ] Explore spread betting / IG API for small-account trading (ideas.md #11)
+- [ ] Deploy GLD 15m bot on paper alongside GLD 1h
+- [ ] Continue medium grid sweeps on remaining symbols (SLV, XBI, XLE, OIH)
+- [ ] Monitor GLD 1h forward test (paper trading)
 - [ ] **Phase 4:** Build LLM agent loop (optional — may not be needed)
 
 ## Strategies Tested (with corrected costs)
@@ -163,13 +175,15 @@ git push origin main
 | MACD+Bollinger | QQQ | 1h | +1.03% ann. | Marginal |
 | RegimeGatedStoch | SPY | 1h | +2.01% ann. | Marginal |
 | RegimeGatedStoch | BTC | 1h | +1.74% ann. | Small positive |
+| **StochRSI** | **GLD** | **15m** | **Sharpe 1.66, 2-7%/yr, 1155 trades** | **VALIDATED (best edge)** |
 | **StochRSI** | **GLD** | **1h** | **+18.3% ann, Sharpe 1.44** | **VALIDATED** |
+| StochRSI | IAU | 1h | +11.6% ann, Sharpe 1.22 | Validated |
 | StochRSI | XLE | 1h | +11.1% ann, Sharpe 1.11 | Validated |
 | StochRSI | XBI | 1h | +9.0% ann, Sharpe 0.90 | Sweep positive |
 | StochRSI | TLT | 1h | +8.5% ann, Sharpe 0.85 | Sweep positive |
 
 **Live trading (EXTREME mode, 100+ trades):** Confirms ~zero net returns on SPY/QQQ/IWM.
-**Discovery Engine (1,800 experiments):** GLD/XLE edges validated. Composable sweep found MACD+ATR and Bollinger+ATR combos.
+**Discovery Engine (5,300+ experiments, 90 validated):** GLD 15m (Sharpe 1.66) is best edge. GLD/IAU/XLE 1h also validated. Composable sweep found MACD+ATR and Bollinger+ATR combos.
 
 ## Available Indicators (in codebase)
 
@@ -187,5 +201,5 @@ Other: SimpleSMA, BollingerBreakout, GoldenCross, NFPBreakout (skeleton), GammaS
 
 ---
 
-*Last updated: 2026-02-11 (Overnight orchestrator built, first quick run in progress)*
+*Last updated: 2026-02-12 (GLD 15m Sharpe 1.66 validated as best edge, 5,300+ experiments)*
 *Update this file when phase changes or major milestones reached*

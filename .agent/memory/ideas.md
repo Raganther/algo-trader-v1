@@ -105,5 +105,94 @@ Delete current frontend, rebuild to visualise experiments DB. Key views:
 
 ---
 
-*Last updated: 2026-02-11*
+## 7. Position Sizing / Leverage Optimisation
+*Discussed: 2026-02-12*
+
+GLD 15m strategy has backtested max drawdown of only 1.7% — room to increase position size for higher returns.
+
+**Kelly Criterion approach:**
+- Calculate optimal fraction of capital to risk per trade based on win rate (47%) and avg win/loss ratio
+- Full Kelly is too aggressive — use fractional Kelly (0.25-0.5x) for safety
+
+**Practical scaling:**
+| Sizing | Est. Max Drawdown | Est. Annual Return |
+|--------|-------------------|-------------------|
+| 1x     | 1.7%              | 2-7%              |
+| 2x     | ~3.4%             | 4-14%             |
+| 3x     | ~5.1%             | 6-21%             |
+
+**Caution:** Backtested drawdowns understate live drawdowns (gap risk, slippage, black swans). Start at 1.5-2x, validate live, scale up gradually.
+
+---
+
+## 8. Gold Sector Amplification (GDX)
+*Discussed: 2026-02-12*
+
+GDX (gold miners ETF) moves 2-3x gold's daily moves due to operating leverage. Use GLD StochRSI signal but execute on GDX for amplified returns without margin.
+
+**Steps:** Backtest StochRSI on GDX with same params → compare Sharpe/drawdown to GLD → if edge transfers, deploy.
+
+**Risk:** Miners have idiosyncratic risk (management, costs, strikes) that can decouple from gold.
+
+---
+
+## 9. Multi-Timeframe Confirmation
+*Discussed: 2026-02-12*
+
+Combine 15m and 1h StochRSI signals on GLD. Only enter when both timeframes show oversold simultaneously.
+
+**Expected benefits:**
+- Higher win rate (filter out noise trades from 47% baseline)
+- Larger per-trade return
+- Fewer trades (reduced costs)
+
+**Implementation:** New strategy class that reads two data feeds. Moderate effort.
+
+---
+
+## 10. Cross-Asset Signal Confirmation
+*Discussed: 2026-02-12*
+
+When GLD, SLV, and IAU all show oversold StochRSI simultaneously, trade with 2-3x normal size. Correlated assets confirming = higher conviction.
+
+**Simpler version:** Just check GLD + SLV agreement before entry.
+
+---
+
+## 11. Spread Betting / IG API Integration
+*Discussed: 2026-02-12*
+
+**Problem:** €100 starting capital too small for Alpaca (GLD = $180/share, whole shares only).
+
+**Solution:** Spread betting via IG (or similar):
+- Tax-free profits in Ireland
+- Trade gold directly at €0.50/point — €100 is workable
+- Same gold edge, same StochRSI signals
+- IG has REST API for automation
+- Scale gradually: €0.50/point → €1 → €5
+
+**Implementation:** Adapt execution layer from Alpaca API to IG API. Strategy logic / indicators / signals unchanged — only the broker interface changes.
+
+**Other small-account options considered:**
+- Forex via OANDA (micro/nano lots, good API, but taxable)
+- CFDs (fractional exposure, taxable)
+- Crypto on Alpaca (fractional, but no validated edge yet)
+
+**Verdict:** Spread betting on gold via IG is most compelling path for small accounts in Ireland (tax-free + validated edge + small minimums).
+
+---
+
+## 12. Forex Strategy Discovery
+*Discussed: 2026-02-12*
+
+If adapting to a forex broker (OANDA), run the discovery engine on forex pairs. StochRSI mean reversion may work on ranging pairs.
+
+**Candidate pairs:** EUR/CHF (range-bound), AUD/NZD, EUR/GBP
+**Avoid:** Trending pairs like GBP/JPY, USD/JPY
+
+**Advantage:** 24/5 market = more 15m bars = more trades = more data.
+
+---
+
+*Last updated: 2026-02-12*
 *Add new ideas as they come up during sessions*
