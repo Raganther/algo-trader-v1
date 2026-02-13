@@ -32,17 +32,17 @@ class Strategy(ABC):
         """
         pass
 
-    def buy(self, price, size=1.0, timestamp=None, stop_loss=None, take_profit=None):
+    def buy(self, price, size=1.0, timestamp=None, stop_loss=None, take_profit=None, exit_reason=None):
         if self.broker:
-            return self.broker.place_order(symbol=self.parameters.get('symbol', 'Unknown'), side='buy', quantity=size, price=price, timestamp=timestamp, stop_loss=stop_loss, take_profit=take_profit)
+            return self.broker.place_order(symbol=self.parameters.get('symbol', 'Unknown'), side='buy', quantity=size, price=price, timestamp=timestamp, stop_loss=stop_loss, take_profit=take_profit, exit_reason=exit_reason)
         else:
             # Legacy fallback
             self._place_order('buy', price, size, timestamp)
             return True
 
-    def sell(self, price, size=1.0, timestamp=None, stop_loss=None, take_profit=None):
+    def sell(self, price, size=1.0, timestamp=None, stop_loss=None, take_profit=None, exit_reason=None):
         if self.broker:
-            return self.broker.place_order(symbol=self.parameters.get('symbol', 'Unknown'), side='sell', quantity=size, price=price, timestamp=timestamp, stop_loss=stop_loss, take_profit=take_profit)
+            return self.broker.place_order(symbol=self.parameters.get('symbol', 'Unknown'), side='sell', quantity=size, price=price, timestamp=timestamp, stop_loss=stop_loss, take_profit=take_profit, exit_reason=exit_reason)
         else:
             # Legacy fallback
             self._place_order('sell', price, size, timestamp)

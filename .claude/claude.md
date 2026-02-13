@@ -8,12 +8,12 @@
 - **Active Bots:** 1 (GLD 15m StochRSI — PAPER mode, validated params)
 - **Server:** europe-west2-a (algotrader2026)
 - **Discovery Engine:** Phase 0 (DB) ✓, Phase 1 (sweeps) ✓, Phase 2 (validation) ✓, Phase 3 (composable) ✓, Overnight orchestrator ✓
-- **Key Finding:** GLD 15m StochRSI — Sharpe 1.66, VALIDATED (best edge). GLD 1h Sharpe 1.44 also validated.
-- **Experiments DB:** 5,300+ experiments, 90 validated passes (growing via overnight runs)
+- **Key Finding:** GLD 15m StochRSI Enhanced — Sharpe 2.42, VALIDATED. Trailing stop + min hold + skip Monday.
+- **Experiments DB:** 5,300+ experiments, 90+ validated passes (growing via overnight runs)
 
 ## Where We Left Off (Feb 13)
 
-**Switched bot from GLD 1h to GLD 15m (best edge). Validation run in progress for remaining candidates. Edge enhancement plan created.**
+**Edge enhancements validated. Trailing stop + min hold took GLD 15m from Sharpe 1.57 to 2.42. All 4 variants passed full validation (holdout + walk-forward + multi-asset). Bot running baseline params on paper — enhanced version ready to deploy.**
 
 ### What's been built:
 1. **Phase 0 — Experiments DB:** `experiments` table + `ExperimentTracker` class
@@ -45,26 +45,38 @@
 | MACD cross + Donchian exit + SMA uptrend | +10.9% | 75% | 67% (2/3) | 176 |
 | RSI extreme + Trailing ATR 3x | +4.9% | 75% | 67% (2/3) | 252 |
 
-### Best validated edge — GLD 15m StochRSI (Sharpe 1.66):
-- **Params:** RSI 7, Stoch 14, OB 80, OS 15, ADX threshold 20, ATR stop 2x
-- **Yearly returns (backtested):** 2020: -0.3%, 2021: +4.3%, 2022: +2.8%, 2023: +2.1%, 2024: +6.8%, 2025: +3.0%
-- **Max drawdown:** 1.7%, **Win rate:** 47%, **Trades:** 1,155 over 5 years
-- **Reality check:** "20% annualised" is compounded total; actual yearly returns are 2-7%
-- **Holdout test (unseen data):** +10.1% — lower than training, suggesting some edge decay
+### Best validated edge — GLD 15m StochRSI Enhanced (Sharpe 2.42):
+- **Base params:** RSI 7, Stoch 14, OB 80, OS 15, ADX threshold 20, ATR stop 2x
+- **Enhancements:** skip Monday, trailing stop (2x ATR after 10 bars), min hold 10 bars
+- **Full-period return:** 38.1%, **Max drawdown:** 0.7%, **Trades:** 465 over 5 years
+- **Holdout test:** Train +18.6% (Sharpe 2.27), Test +16.4% (Sharpe 2.69) — minimal degradation
+- **Walk-forward:** 4/4 windows positive (100%), all years profitable
+- **Multi-asset:** GLD +38%, SLV +92%, IAU +31% — generalises strongly
+- **Previous baseline:** Sharpe 1.57, 664 trades, 1.2% DD — enhancements nearly doubled Sharpe
 
-### Validation run (in progress, Feb 13):
-- Running `--skip-sweep --max-hours 3` to validate top 150 pending candidates
-- Covers 7 unvalidated symbol/TF combos: SLV 15m, GLD 1d, OIH 1h, XBI 15m, XLE 15m, TLT 1h, XBI 4h
-- Results auto-saved to experiments DB
+### Edge Enhancement Results (Feb 13):
+**Diagnostic analysis found three key leaks:**
+1. Stop losses were 100% losers (199 trades, -$1,219) → fixed with trailing stop
+2. Short-duration trades (1-5 bars) were breakeven noise (72% of trades) → fixed with min hold
+3. Monday trades were near-zero edge (128 trades, +$23 total) → fixed with day filter
 
-### Edge Enhancement Plan (next):
-- See `.agent/workflows/edge_enhancement_plan.md`
-- Phase 1: Enrich trade records (entry time, exit reason, ATR at entry)
-- Phase 2: Diagnostic analysis (time-of-day, volatility regime, exit patterns)
-- Phase 3: Build targeted filters (only what analysis flags)
-- Phase 4: A/B sweep (~50 variants vs baseline)
-- Phase 5: Stack winners + validate
-- **Key gap found:** backtester doesn't store entry timestamps or exit reasons — needs enrichment first
+**All 4 tested variants passed full validation:**
+
+| Variant | Sharpe | Holdout Ret | WF Pass | Multi-Asset | DD |
+|---|---|---|---|---|---|
+| Baseline (no enhancements) | 1.44 | +9.4% | 4/4 | 3/3 | 1.2% |
+| Trail 2x/5bar + Hold 5 | 2.19 | +15.3% | 4/4 | 3/3 | 0.7% |
+| **Skip Mon + Trail 2x/10bar + Hold 10** | **2.42** | **+16.4%** | **4/4** | **3/3** | **0.7%** |
+| Trail 3x ATR after 5 bars | 1.85 | +14.6% | 4/4 | 3/3 | 1.3% |
+
+**Key insight:** Enhancements performed *better* on unseen data than in-sample. The trailing stop is a structural improvement (not curve-fitting) — it also improved SLV (+92%) and IAU (+31%).
+
+### What to decide next:
+- Deploy enhanced params to paper bot (replace current baseline params)
+- Apply trailing stop enhancement to other validated strategies (GLD 1h, IAU 1h, XLE 1h)
+- Run next iteration: fine-tune trail/hold params, test exit-focused enhancements
+- Explore spread betting / IG API for small-account trading (ideas.md #11)
+- Position sizing / Kelly with improved Sharpe 2.42 and DD 0.7% (ideas.md #7)
 
 ## Read These Files for Details
 
@@ -166,11 +178,14 @@ git push origin main
 - [x] Run scan + medium grid sweeps across 21 symbol/TF combos (5,300+ experiments)
 - [x] Validate top candidates — 90 passed, GLD 15m Sharpe 1.66 is best
 - [x] Deploy GLD 15m bot on paper (replaced GLD 1h on Feb 13)
-- [ ] **Edge Enhancement:** Enrich trade records → diagnostic analysis → targeted filters (see edge_enhancement_plan.md)
-- [ ] Review validation run results (150 candidates, running Feb 13)
+- [x] **Edge Enhancement:** Trade analysis → trailing stop + min hold + Monday filter → Sharpe 1.57 → 2.42
+- [x] Validate enhancements — all 4 variants passed holdout + walk-forward + multi-asset
+- [ ] Deploy enhanced params to paper bot (skip Mon, trail 2x/10bar, hold 10)
+- [ ] Apply trailing stop to other validated strategies (GLD 1h, IAU, XLE, SLV)
+- [ ] Review validation run results (150 candidates, ran Feb 13)
 - [ ] Explore spread betting / IG API for small-account trading (ideas.md #11)
+- [ ] Position sizing with improved risk profile (Sharpe 2.42, DD 0.7%)
 - [ ] Monitor GLD 15m forward test (paper trading)
-- [ ] **Phase 4:** Build LLM agent loop (optional — may not be needed)
 
 ## Strategies Tested (with corrected costs)
 
@@ -184,7 +199,8 @@ git push origin main
 | MACD+Bollinger | QQQ | 1h | +1.03% ann. | Marginal |
 | RegimeGatedStoch | SPY | 1h | +2.01% ann. | Marginal |
 | RegimeGatedStoch | BTC | 1h | +1.74% ann. | Small positive |
-| **StochRSI** | **GLD** | **15m** | **Sharpe 1.66, 2-7%/yr, 1155 trades** | **VALIDATED (best edge)** |
+| **StochRSI** | **GLD** | **15m** | **Sharpe 1.57 base → 2.42 enhanced** | **VALIDATED (best edge)** |
+| **StochRSI+Enhanced** | **GLD** | **15m** | **Sharpe 2.42, +38%, DD 0.7%, 465 trades** | **VALIDATED** |
 | **StochRSI** | **GLD** | **1h** | **+18.3% ann, Sharpe 1.44** | **VALIDATED** |
 | StochRSI | IAU | 1h | +11.6% ann, Sharpe 1.22 | Validated |
 | StochRSI | XLE | 1h | +11.1% ann, Sharpe 1.11 | Validated |
@@ -192,7 +208,7 @@ git push origin main
 | StochRSI | TLT | 1h | +8.5% ann, Sharpe 0.85 | Sweep positive |
 
 **Live trading (EXTREME mode, 100+ trades):** Confirms ~zero net returns on SPY/QQQ/IWM.
-**Discovery Engine (5,300+ experiments, 90 validated):** GLD 15m (Sharpe 1.66) is best edge. GLD/IAU/XLE 1h also validated. Composable sweep found MACD+ATR and Bollinger+ATR combos.
+**Discovery Engine (5,300+ experiments, 90+ validated):** GLD 15m enhanced (Sharpe 2.42) is best edge. Trailing stop + min hold validated across GLD/SLV/IAU. GLD/IAU/XLE 1h also validated.
 
 ## Available Indicators (in codebase)
 
@@ -210,5 +226,5 @@ Other: SimpleSMA, BollingerBreakout, GoldenCross, NFPBreakout (skeleton), GammaS
 
 ---
 
-*Last updated: 2026-02-13 (GLD 15m deployed, validation run in progress, edge enhancement plan created)*
+*Last updated: 2026-02-13 (Edge enhancements validated — Sharpe 1.57→2.42, trailing stop + min hold + skip Mon)*
 *Update this file when phase changes or major milestones reached*

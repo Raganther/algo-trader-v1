@@ -15,6 +15,7 @@ class PaperTrader(BrokerAdapter):
         self.trade_history = []
         self.override_price = None # For forcing execution price (e.g. Next Open)
         self.trades = [] # List of trade dictionaries
+        self._entry_metadata = {} # {symbol: {...}} — stored at entry, merged into trade on close
         
         # Simulated Market Data (Updated via update_price)
         self.current_prices = {} 
@@ -101,7 +102,11 @@ class PaperTrader(BrokerAdapter):
 
     # ... (omitted methods) ...
 
-    def place_order(self, symbol: str, side: str, quantity: float, order_type: str = "market", price: float = None, stop_loss: float = None, take_profit: float = None, timestamp=None) -> dict:
+    def set_entry_metadata(self, symbol: str, metadata: dict):
+        """Store metadata at trade entry (time, ATR, etc). Merged into trade_history on close."""
+        self._entry_metadata[symbol] = metadata
+
+    def place_order(self, symbol: str, side: str, quantity: float, order_type: str = "market", price: float = None, stop_loss: float = None, take_profit: float = None, timestamp=None, exit_reason: str = None) -> dict:
         """
         Execute a simulated order.
         For MVP, we assume immediate fill at current price (Market).
@@ -177,16 +182,21 @@ class PaperTrader(BrokerAdapter):
             
             self.cash += realized_pnl
             
-            # Record Trade
-            self.trade_history.append({
+            # Record Trade (with entry metadata if available)
+            trade_record = {
                 'symbol': symbol,
                 'side': side,
                 'qty': closed_qty,
                 'entry': current_pos['avg_price'],
                 'exit': fill_price,
                 'pnl': realized_pnl,
-                'timestamp': timestamp
-            })
+                'timestamp': timestamp,
+                'exit_reason': exit_reason,
+            }
+            # Merge entry metadata (entry_time, atr_at_entry, etc)
+            entry_meta = self._entry_metadata.pop(symbol, {})
+            trade_record.update(entry_meta)
+            self.trade_history.append(trade_record)
 
         # Update Avg Price (Weighted Average)
         if new_size != 0:

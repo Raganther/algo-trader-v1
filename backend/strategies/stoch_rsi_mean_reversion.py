@@ -23,12 +23,21 @@ class StochRSIMeanReversionStrategy(Strategy):
         self.skip_adx_filter = parameters.get('skip_adx_filter', True)  # Default True for forward testing validation
         self.atr_col = parameters.get('atr_col', 'atr')
         self.symbol = parameters.get('symbol', 'Unknown')
-        
+
+        # Enhancement params (all off by default — no impact on existing behaviour)
+        self.skip_days = parameters.get('skip_days', [])  # e.g. [0] to skip Monday (0=Mon, 4=Fri)
+        self.trailing_stop = parameters.get('trailing_stop', False)  # Enable trailing stop
+        self.trail_after_bars = int(parameters.get('trail_after_bars', 0))  # Start trailing after N bars in profit
+        self.trail_atr = float(parameters.get('trail_atr', self.sl_atr))  # Trailing ATR multiplier
+        self.min_hold_bars = int(parameters.get('min_hold_bars', 0))  # Minimum bars before signal exit allowed
+
         # State
         self.in_oversold_zone = False
         self.in_overbought_zone = False
         self.bar_index = 0
         self.current_sl = None
+        self.entry_bar = None  # bar index at entry (for duration calc)
+        self.entry_price = None  # for trailing stop breakeven check
         
         self.generate_signals(self.data)
 
@@ -81,6 +90,26 @@ class StochRSIMeanReversionStrategy(Strategy):
         # Print every bar for monitoring (FORWARD TESTING VISIBILITY)
         print(f"[{row.name}] {self.symbol} ${row['Close']:.2f} | K: {current_k:.1f} (prev: {prev_k:.1f}) | ADX: {current_adx:.1f}")
 
+        # Day-of-week filter (skip entries on specified days, but allow exits)
+        skip_entry = False
+        if self.skip_days and hasattr(row.name, 'dayofweek'):
+            if row.name.dayofweek in self.skip_days:
+                skip_entry = True
+
+        # Trailing stop update (move stop to lock in profits)
+        if self.trailing_stop and self.entry_bar is not None and self.current_sl is not None:
+            bars_held = i - self.entry_bar
+            atr_val = row[self.atr_col]
+            if bars_held >= self.trail_after_bars and atr_val > 0:
+                if self.position == 'long':
+                    new_sl = row['Close'] - (atr_val * self.trail_atr)
+                    if new_sl > self.current_sl:
+                        self.current_sl = new_sl
+                elif self.position == 'short':
+                    new_sl = row['Close'] + (atr_val * self.trail_atr)
+                    if new_sl < self.current_sl:
+                        self.current_sl = new_sl
+
         # Regime Filter: Only trade if Market is Ranging (ADX < Threshold)
         # Skip this check when called from HybridRegime (which already filtered by ADX)
         if not self.skip_adx_filter:
@@ -119,10 +148,11 @@ class StochRSIMeanReversionStrategy(Strategy):
                 # SL Hit
                 qty = abs(self.broker.get_position(self.symbol))
                 if qty > 0:
-                    result = self.sell(price=self.current_sl, size=qty, timestamp=i)
+                    result = self.sell(price=self.current_sl, size=qty, timestamp=i, exit_reason='stop')
                     if result is not None:
                         self.position = 0
                         self.current_sl = None
+                        self.entry_bar = None
                 return # Exit logic done
 
         elif self.position == 'short' and self.current_sl:
@@ -130,10 +160,11 @@ class StochRSIMeanReversionStrategy(Strategy):
                 # SL Hit
                 qty = abs(self.broker.get_position(self.symbol))
                 if qty > 0:
-                    result = self.buy(price=self.current_sl, size=qty, timestamp=i)
+                    result = self.buy(price=self.current_sl, size=qty, timestamp=i, exit_reason='stop')
                     if result is not None:
                         self.position = 0
                         self.current_sl = None
+                        self.entry_bar = None
                 return # Exit logic done
 
         # Entry Logic
@@ -142,7 +173,7 @@ class StochRSIMeanReversionStrategy(Strategy):
             if prev_k <= self.oversold:  # Fixed: <= instead of < to include exact threshold
                 self.in_oversold_zone = True
 
-            if self.in_oversold_zone and current_k > 50:
+            if self.in_oversold_zone and current_k > 50 and not skip_entry:
                 # Dynamic Sizing
                 equity = self.broker.get_equity()
                 risk_amt = equity * 0.02 # 2% Risk
@@ -163,6 +194,16 @@ class StochRSIMeanReversionStrategy(Strategy):
                     if result is not None:
                         self.in_oversold_zone = False
                         self.position = 'long'
+                        self.entry_bar = i
+                        self.entry_price = row['Close']
+                        self.broker.set_entry_metadata(self.symbol, {
+                            'entry_time': str(row.name),
+                            'entry_bar': i,
+                            'entry_hour': row.name.hour if hasattr(row.name, 'hour') else None,
+                            'entry_dow': row.name.dayofweek if hasattr(row.name, 'dayofweek') else None,
+                            'atr_at_entry': float(atr_val),
+                            'direction': 'long',
+                        })
 
             if current_k > 50:
                 self.in_oversold_zone = False
@@ -172,7 +213,7 @@ class StochRSIMeanReversionStrategy(Strategy):
             if not is_crypto and prev_k >= self.overbought:  # Fixed: >= instead of > to include exact threshold
                 self.in_overbought_zone = True
 
-            if self.in_overbought_zone and current_k < 50:
+            if self.in_overbought_zone and current_k < 50 and not skip_entry:
                 # Dynamic Sizing
                 equity = self.broker.get_equity()
                 risk_amt = equity * 0.02
@@ -193,25 +234,41 @@ class StochRSIMeanReversionStrategy(Strategy):
                     if result is not None:
                         self.in_overbought_zone = False
                         self.position = 'short'
+                        self.entry_bar = i
+                        self.entry_price = row['Close']
+                        self.broker.set_entry_metadata(self.symbol, {
+                            'entry_time': str(row.name),
+                            'entry_bar': i,
+                            'entry_hour': row.name.hour if hasattr(row.name, 'hour') else None,
+                            'entry_dow': row.name.dayofweek if hasattr(row.name, 'dayofweek') else None,
+                            'atr_at_entry': float(atr_val),
+                            'direction': 'short',
+                        })
 
             if current_k < 50:
                 self.in_overbought_zone = False
 
-        # Exit Logic (Signal Based)
+        # Exit Logic (Signal Based) — respect min_hold_bars
         elif self.position == 'long':
-            if current_k > self.overbought:
+            bars_held = (i - self.entry_bar) if self.entry_bar is not None else 999
+            if current_k > self.overbought and bars_held >= self.min_hold_bars:
                 qty = abs(self.broker.get_position(self.symbol))
                 if qty > 0:
-                    result = self.sell(price=row['Close'], size=qty, timestamp=i)
+                    result = self.sell(price=row['Close'], size=qty, timestamp=i, exit_reason='signal')
                     if result is not None:
                         self.position = 0
                         self.current_sl = None
+                        self.entry_bar = None
+                        self.entry_price = None
 
         elif self.position == 'short':
-            if current_k < self.oversold:
+            bars_held = (i - self.entry_bar) if self.entry_bar is not None else 999
+            if current_k < self.oversold and bars_held >= self.min_hold_bars:
                 qty = abs(self.broker.get_position(self.symbol))
                 if qty > 0:
-                    result = self.buy(price=row['Close'], size=qty, timestamp=i)
+                    result = self.buy(price=row['Close'], size=qty, timestamp=i, exit_reason='signal')
                     if result is not None:
                         self.position = 0
                         self.current_sl = None
+                        self.entry_bar = None
+                        self.entry_price = None

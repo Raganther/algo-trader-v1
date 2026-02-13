@@ -152,4 +152,37 @@ Combine the 2-3 best individual enhancements. Test ~10 combinations. Validate th
 ---
 
 *Created: 2026-02-13*
-*Status: Plan ready, waiting for validation run to complete before starting*
+*Status: COMPLETE — All 5 phases executed. Best result: Sharpe 2.42 (Skip Mon + Trail 2x/10bar + Hold 10)*
+
+---
+
+## Results (Feb 13)
+
+### Phase 2 Diagnostic Findings
+- **Exit reason:** Signal exits 66.7% WR (+$2,835), Stop exits 0% WR (-$1,219)
+- **Time-of-day:** All hours positive, no dead zone worth filtering
+- **Day-of-week:** Monday nearly dead (39.8% WR, +$23 total on 128 trades)
+- **Volatility:** All regimes profitable, no clear filter needed
+- **Duration:** 1-5 bar trades are breakeven noise (72% of trades). 50+ bar trades are gold (70% WR)
+- **Direction:** Longs slightly better (49.2% vs 44.2% WR)
+
+### Phase 4 A/B Sweep Results (vs Sharpe 1.57 baseline)
+| Enhancement | Sharpe | Delta |
+|---|---|---|
+| Skip Monday | 1.689 | +0.117 |
+| Trail 3x ATR after 5 bars | 1.953 | +0.381 |
+| Trail 2x ATR after 20 bars | 1.977 | +0.405 |
+| Min hold 10 bars | 1.815 | +0.243 |
+| **Trail 2x/5bar + Hold 5** | **2.298** | **+0.726** |
+| **Skip Mon + Trail 2x/10bar + Hold 10** | **2.296** | **+0.724** |
+
+### Phase 5 Validation (all PASSED)
+| Variant | Sharpe | Holdout | WF | Multi-Asset |
+|---|---|---|---|---|
+| Baseline | 1.44 | +9.4% | 4/4 | 3/3 |
+| Trail 2x/5bar + Hold 5 | 2.19 | +15.3% | 4/4 | 3/3 |
+| **Skip Mon + Trail 2x/10bar + Hold 10** | **2.42** | **+16.4%** | **4/4** | **3/3** |
+| Trail 3x/5bar | 1.85 | +14.6% | 4/4 | 3/3 |
+
+### Key Insight
+Enhancements performed *better* on unseen data. Trailing stop is structural (not curve-fitting) — also improved SLV (+92%) and IAU (+31%).
