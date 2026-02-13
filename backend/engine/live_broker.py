@@ -108,6 +108,20 @@ class LiveBroker:
         self.new_trades = []
         return trades_to_return
 
+    def set_entry_metadata(self, symbol, metadata):
+        """
+        Updates the last trade for the symbol with metadata.
+        This is called by strategies to attach analysis data (e.g. regime, atr) to the trade.
+        """
+        # Find partial trade in new_trades
+        if self.new_trades:
+            # Assuming the last trade is the one we just made
+            # We could filter by symbol if needed, but usually execution is sequential.
+            self.new_trades[-1].update(metadata)
+        else:
+            # This might happen if order failed or wasn't tracked
+            print(f"⚠️ Warning: set_entry_metadata called but no new trades found for {symbol}")
+
     def _wait_for_fill(self, order_id, retries=5):
         """Polls Alpaca for order fill."""
         import time
