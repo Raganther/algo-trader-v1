@@ -87,6 +87,17 @@ class IGDataLoader:
         if symbol_upper in self.EPIC_MAP:
             return self.EPIC_MAP[symbol_upper]
 
+        # If it looks like an epic (contains dots), verify it directly
+        if '.' in symbol:
+            try:
+                self._connect()
+                # fast check - just see if we can get details
+                details = self.ig_service.fetch_market_by_epic(symbol)
+                if details:
+                    return symbol
+            except Exception:
+                pass # Fall back to search if validation fails
+
         # Fall back to search
         print(f"Epic not in map for '{symbol}', searching IG...")
         self._connect()
@@ -127,22 +138,31 @@ class IGDataLoader:
         else:
             end_dt = end_date
 
-        # IG API date format: "YYYY:MM:DD-HH:MM:SS"
-        start_str = start_dt.strftime('%Y:%m:%d-%H:%M:%S')
-        end_str = end_dt.strftime('%Y:%m:%d-%H:%M:%S')
-
-        print(f"Fetching IG data: {symbol} ({epic}) | {timeframe} ({resolution}) | {start_str} to {end_str}")
+        # Try passing datetime objects directly first
+        print(f"Fetching IG data: {symbol} ({epic}) | {timeframe} ({resolution}) | {start_dt} to {end_dt}")
 
         try:
             response = self.ig_service.fetch_historical_prices_by_epic_and_date_range(
                 epic=epic,
                 resolution=resolution,
-                start_date=start_str,
-                end_date=end_str,
+                start_date=start_dt,
+                end_date=end_dt,
             )
         except Exception as e:
-            print(f"❌ IG API error: {e}")
-            return pd.DataFrame()
+            # Fallback: Try "YYYY/MM/DD HH:MM:SS" format
+            print(f"⚠️ Datetime object failed ({e}), trying string format...")
+            start_str = start_dt.strftime('%Y/%m/%d %H:%M:%S')
+            end_str = end_dt.strftime('%Y/%m/%d %H:%M:%S')
+            try:
+                response = self.ig_service.fetch_historical_prices_by_epic_and_date_range(
+                    epic=epic,
+                    resolution=resolution,
+                    start_date=start_str,
+                    end_date=end_str,
+                )
+            except Exception as e2:
+                print(f"❌ IG API error: {e2}")
+                return pd.DataFrame()
 
         if response is None or 'prices' not in response:
             print("⚠️ No price data returned from IG")
@@ -172,16 +192,17 @@ class IGDataLoader:
 
         if isinstance(df.columns, pd.MultiIndex):
             # Multi-level columns
-            if 'last' in df.columns.get_level_values(0):
-                # Use 'last' traded prices
-                for col in ['Open', 'High', 'Low', 'Close']:
-                    result[col] = pd.to_numeric(df[('last', col)], errors='coerce')
-            elif 'bid' in df.columns.get_level_values(0) and 'ask' in df.columns.get_level_values(0):
+            # Prioritize mid-price (Bid/Ask) for Forex/CFDs/Gold
+            if 'bid' in df.columns.get_level_values(0) and 'ask' in df.columns.get_level_values(0):
                 # Calculate mid price
                 for col in ['Open', 'High', 'Low', 'Close']:
                     bid = pd.to_numeric(df[('bid', col)], errors='coerce')
                     ask = pd.to_numeric(df[('ask', col)], errors='coerce')
                     result[col] = (bid + ask) / 2
+            elif 'last' in df.columns.get_level_values(0):
+                # Use 'last' traded prices (e.g. for stocks if Bid/Ask missing)
+                for col in ['Open', 'High', 'Low', 'Close']:
+                    result[col] = pd.to_numeric(df[('last', col)], errors='coerce')
             elif 'bid' in df.columns.get_level_values(0):
                 for col in ['Open', 'High', 'Low', 'Close']:
                     result[col] = pd.to_numeric(df[('bid', col)], errors='coerce')

@@ -377,9 +377,9 @@ results = loader.search_epic('Gold')  # discover IG epic codes
 
 **Dependencies:** `pip install trading-ig`
 
-**Status:** Built and tested. Blocked on IG demo provisioning (instruments empty, price history 500 error). Will work once IG support resolves or live account KYC approved.
+**Status:** ✅ Verified (Prototype). Demo account provisioned. `IGDataLoader` successfully fetches OHLCV (Gold 15m verified). Bid/Ask mid-price logic implemented.
 
 ---
 
 **Last Updated:** 2026-02-14
-**System Status:** ✅ Operational | Forward Testing Phase 8 | 4 Bots Active | IG Integration WIP
+**System Status:** ✅ Operational | Forward Testing Phase 8 | 4 Bots Active | IG Data Loader Verified

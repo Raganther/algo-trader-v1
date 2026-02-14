@@ -253,13 +253,14 @@ Avoid entries around FOMC, NFP, CPI releases. Gold whipsaws on macro events and 
 
 **Built:** `backend/engine/ig_loader.py` — mirrors `AlpacaDataLoader` interface, uses `trading-ig` library. Supports Gold (XAUUSD), EUR/USD, GBP/USD, Silver and more via IG epic codes.
 
-**Status: BLOCKED on IG infrastructure.** Demo account authenticates and categories exist (COMMODITIES, FX, etc.) but instruments return empty and price history returns `500 error.price-history.io-error`. Emailed IG support. Live account requires KYC verification (document upload).
+**Status: WORKING (Prototype)**
+- ✅ Demo account provisioned and working (found `CS.D.CFDGOLD.CFDGC.IP`)
+- ✅ `IGDataLoader` successfully fetches historical OHLCV (verified Gold 15m)
+- ✅ `logging` and `pricing` logic patched for Forex/CFD structure (Bid/Ask mid-price)
 
 **Next steps:**
-1. Wait for IG support reply or live account KYC approval
-2. Once unblocked, test gold 15m data fetch (code ready)
-3. Build `IGBroker` class for live trading (same pattern as `LiveBroker`/`AlpacaTrader`)
-4. Integrate with `runner.py` via `--source ig` flag
+1. Build `IGBroker` class for live trading (execution)
+2. Integrate with `runner.py` via `--source ig` flag
 
 **Key IG API details:**
 - Auth: username + password + API key → CST + X-SECURITY-TOKEN headers

@@ -1,6 +1,17 @@
 # Recent Git History
 
-### b518600 - feat: Add IG spread betting data loader (2026-02-14)
+### 8066957 - fix: Patch IGDataLoader date format and epic resolution (2026-02-14)
+Fixes for IG Demo API interaction:
+- Reverted date format to ISO 8601 (YYYY-MM-DDTHH:MM:SS) which prevents error.malformed.date
+- Added datetime object passing to trading-ig for robustness
+- Updated _process_df to prioritize 'bid'/'ask' mid-price calculation over 'last' (which was NaN for CFDs/Gold)
+- Updated test script to use dynamically discovered epic from search
+- Updated memory files (ideas.md, system_manual.md) to reflect working status
+
+Verification:
+- Successfully fetched 93 rows of Gold 15m data on Demo account
+
+### ea719c6 - feat: Add IG spread betting data loader (2026-02-14)
 New files:
 - backend/engine/ig_loader.py: IGDataLoader class mirroring AlpacaDataLoader interface
   for fetching historical OHLCV data from IG REST API (gold, forex, indices)
@@ -318,14 +329,5 @@ research.md: Added live validation section with sample trade P&L,
 updated slippage data, documented delay=1 bug mechanism, added untested
 indicator directions (less efficient assets, volume indicators, multi-TF,
 crypto) with probability assessments alongside existing alternative tiers.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### b60946a - docs: Add research on event-driven and macro strategy avenues (2026-02-06)
-Comprehensive analysis of alternatives to indicator-only strategies:
-- Economic announcement trading (NFP/CPI/FOMC) as top opportunity
-- VIX term structure regime filter
-- Sector rotation momentum, PEAD, credit spread overlay
-- Ranked tiers, data sources, and phased build order
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>

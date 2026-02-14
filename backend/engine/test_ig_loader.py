@@ -12,7 +12,13 @@ for r in results[:5]:
 
 # Step 2: Fetch 2 days of 15m gold data
 print("\n=== Fetching Gold 15m Data ===")
-df = loader.fetch_data('GOLD', '15m', '2026-02-12', '2026-02-13')
+if results:
+    epic = results[0]['epic']
+    print(f"Using epic: {epic}")
+    df = loader.fetch_data(epic, '15m', '2026-02-12', '2026-02-13')
+else:
+    print("⚠️ No epic found, trying default 'GOLD'...")
+    df = loader.fetch_data('GOLD', '15m', '2026-02-12', '2026-02-13')
 
 if not df.empty:
     print(f"\nRows: {len(df)}")
