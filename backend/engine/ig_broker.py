@@ -35,6 +35,13 @@ class IGBroker:
         'USDJPY': 'CS.D.USDJPY.MINI.IP',
     }
 
+    # Currency code per instrument (IG requires matching currency)
+    CURRENCY_MAP = {
+        'GOLD': 'USD', 'GLD': 'USD', 'XAUUSD': 'USD', 'IAU': 'USD',
+        'SILVER': 'USD', 'SLV': 'USD', 'XAGUSD': 'USD',
+        'EURUSD': 'USD', 'GBPUSD': 'USD', 'USDJPY': 'JPY',
+    }
+
     def __init__(self, symbol, paper=True, iteration_index=None):
         self.symbol = symbol
         self.paper = paper
@@ -49,10 +56,11 @@ class IGBroker:
         if not all([self.api_key, self.username, self.password]):
             raise ValueError("IG credentials not found in .env (need IG_API_KEY, IG_USERNAME, IG_PASSWORD)")
 
-        # Resolve epic
+        # Resolve epic and currency
         self.epic = self.EPIC_MAP.get(symbol.upper())
         if not self.epic:
             raise ValueError(f"No IG epic mapping for symbol '{symbol}'. Add it to IGBroker.EPIC_MAP.")
+        self.currency = self.CURRENCY_MAP.get(symbol.upper(), 'GBP')
 
         # Connect
         self.ig_service = None
@@ -207,39 +215,39 @@ class IGBroker:
             limit_distance = None
 
             if stop_loss and price and price > 0:
-                stop_distance = abs(price - stop_loss)
-                # Round to nearest 0.1 for IG (minimum increment)
-                stop_distance = round(stop_distance, 1)
+                stop_distance = round(abs(price - stop_loss), 1)
                 if stop_distance < 0.1:
-                    stop_distance = None  # Too small, skip
+                    stop_distance = None
 
             if take_profit and price and price > 0:
-                limit_distance = abs(take_profit - price)
-                limit_distance = round(limit_distance, 1)
+                limit_distance = round(abs(take_profit - price), 1)
                 if limit_distance < 0.1:
                     limit_distance = None
 
-            # Build order params
-            order_params = {
-                'epic': self.epic,
-                'direction': direction,
-                'size': round(size, 2),
-                'order_type': 'MARKET',
-                'currency_code': 'GBP',  # Spread betting is in GBP
-                'expiry': 'DFB',  # Daily Funded Bet (no expiry)
-                'force_open': True,
-                'guaranteed_stop': False,
-            }
+            # IG create_open_position requires ALL positional args
+            # CFD accounts use expiry='-', spread bet accounts use 'DFB'
+            expiry = '-' if self.acc_type == 'DEMO' else 'DFB'
 
-            if stop_distance:
-                order_params['stop_distance'] = stop_distance
-            if limit_distance:
-                order_params['limit_distance'] = limit_distance
+            result = self.ig_service.create_open_position(
+                currency_code=self.currency,
+                direction=direction,
+                epic=self.epic,
+                expiry=expiry,
+                force_open=True,
+                guaranteed_stop=False,
+                level=None,                 # None for market orders
+                limit_distance=limit_distance,
+                limit_level=None,           # Use distance instead
+                order_type='MARKET',
+                quote_id=None,              # Not needed for market orders
+                size=round(size, 2),
+                stop_distance=stop_distance,
+                stop_level=None,            # Use distance instead
+                trailing_stop=False,
+                trailing_stop_increment=None,
+            )
 
-            # Execute via trading-ig
-            result = self.ig_service.create_open_position(**order_params)
-
-            deal_ref = result.get('dealReference', 'unknown')
+            deal_ref = result.get('dealReference', 'unknown') if isinstance(result, dict) else str(result)
             print(f"📋 Order submitted: {deal_ref}")
 
             # Confirm the deal
@@ -252,7 +260,6 @@ class IGBroker:
                 if deal_status == 'ACCEPTED':
                     print(f"✅ IG {direction} FILLED: {level} (deal: {deal_id})")
 
-                    # Log trade
                     self.new_trades.append({
                         'symbol': self.symbol,
                         'side': direction.lower(),
@@ -264,7 +271,6 @@ class IGBroker:
                         'timestamp': datetime.now().isoformat(),
                     })
 
-                    # Refresh positions
                     self.refresh()
                     return {'id': deal_id, 'status': 'filled', 'filled_avg_price': level}
                 else:

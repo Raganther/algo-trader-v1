@@ -1,6 +1,16 @@
 # Recent Git History
 
-### 1f07f6f - feat: Add IGBroker for live trading + hour filter for strategy (2026-02-14)
+### 4429430 - fix: IGBroker order placement — currency, expiry, and arg fixes (2026-02-14)
+Fixed 3 issues found during demo testing:
+1. create_open_position requires all positional args (not just kwargs)
+2. Gold CFD uses currency_code='USD' not 'GBP' (added CURRENCY_MAP)
+3. CFD demo account needs expiry='-' not 'DFB' (spread bet expiry)
+
+Order flow verified end-to-end on IG demo:
+- Connect ✅, Place order ✅, Get deal ref ✅, Confirm deal ✅
+- Final rejection 'MARKET_CLOSED_WITH_EDITS' = expected (Saturday)
+
+### 40e000c - feat: Add IGBroker for live trading + hour filter for strategy (2026-02-14)
 New: backend/engine/ig_broker.py
 - Matches LiveBroker interface (buy, sell, place_order, get_position, refresh, etc.)
 - Uses trading-ig create_open_position() with deal confirmation
@@ -265,22 +275,5 @@ Deployed GLD 1h StochRSI forward test to cloud (PAPER mode):
 - Stopped all old EXTREME bots (SPY/QQQ/IWM)
 - Validated params: RSI 21, Stoch 7, OB 80, OS 15, ADX 25, ATR 3x
 - scripts/run_gld.sh for PM2 management
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### ad05fb0 - feat: Phase 2 — Add validation framework + validate GLD edge (2026-02-11)
-Built three-stage validation pipeline:
-- disqualify.py: Hard filters (min trades, drawdown, profit factor, win rate)
-- validation.py: Holdout (2020-23 train, 2024-25 test), walk-forward
-  (rolling 2yr/1yr), multi-asset consistency (GLD→SLV,IAU)
-- pipeline.py: Chains all checks, updates experiments DB with results
-
-Validated top 20 candidates from Phase 1 sweeps:
-- 18/18 passed (17 GLD + 1 XLE), 0 rejected
-- 100% walk-forward pass rate across all candidates
-- 100% multi-asset consistency (edge generalises to SLV and IAU)
-- Best: GLD 1h StochRSI, Sharpe 1.44, 10.5% out-of-sample return
-
-Updated claude.md with Phase 2 results and discovery engine findings.
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
