@@ -10,11 +10,12 @@
 - **Discovery Engine:** Phase 0 (DB) ✓, Phase 1 (sweeps) ✓, Phase 2 (validation) ✓, Phase 3 (composable) ✓, Overnight orchestrator ✓
 - **Key Finding:** GLD 15m StochRSI Enhanced — Sharpe 2.42, VALIDATED. Trailing stop + min hold + skip Monday.
 - **Experiments DB:** 5,300+ experiments, 90+ validated passes (growing via overnight runs)
-- **IG Integration:** ✅ Data loader built (`--source ig`). Demo account working. Backtest verified on Gold CFD. IGBroker for live trading not yet built.
+- **IG Integration:** ✅ Phase 1-2 done (data loader + IGBroker). Demo data limits make IG impractical for backtesting. IG best used for execution only if needed.
+- **Fractional Shares:** ✅ Alpaca fractional orders enabled — can trade GLD with €100 (min $1 order).
 
 ## Where We Left Off (Feb 14)
 
-**IG spread betting integration complete (Phase 1). `IGDataLoader` built and verified — fetches Gold/Forex OHLCV from IG REST API. Runner supports `--source ig` for backtesting. Cross-validation shows GLD and IG Gold correlate but IG's 24hr trading generates different results (148 vs 56 trades). Need hour filter or re-optimisation for IG-specific trading.**
+**IG integration fully built (data + broker + hour filter) but IG demo has severe data limits — exhausts quota after one backtest, blocking even live data. Decision: stick with Alpaca for all backtesting + forward testing + live trading. Fractional shares now enabled — can start real trading with €100-200 on GLD.**
 
 ### What's been built:
 1. **Phase 0 — Experiments DB:** `experiments` table + `ExperimentTracker` class
@@ -188,9 +189,13 @@ git push origin main
 - [x] IG spread betting data loader built (`backend/engine/ig_loader.py`)
 - [x] Runner supports `--source ig` for backtesting
 - [x] Cross-validated GLD vs IG Gold (Feb 2026) — correlates but 24hr trading adds extra trades
-- [ ] Build `IGBroker` for live order execution on IG
-- [ ] Add NYSE-hours filter for IG Gold trading (replicate GLD conditions)
-- [ ] Position sizing with improved risk profile (Sharpe 2.42, DD 0.7%)
+- [x] Built `IGBroker` for live order execution (`backend/engine/ig_broker.py`) — tested on demo, order flow works
+- [x] Added `trading_hours` filter to strategy (e.g. `[14,21]` for NYSE hours only)
+- [x] Enabled fractional share trading on Alpaca (`alpaca_trader.py` — was int(), now round(,4))
+- [x] Memory cleanup — consolidated all files under `.claude/`, deleted retired research files
+- [ ] Deploy enhanced params to paper bot (skip Mon, trail 2x/10bar, hold 10)
+- [ ] Start real-money micro trading on Alpaca with €100-200 (fractional GLD)
+- [ ] Apply trailing stop to other validated strategies (GLD 1h, IAU, XLE, SLV)
 - [ ] Monitor GLD 15m forward test (paper trading)
 
 ## Strategies Tested (with corrected costs)
@@ -232,5 +237,5 @@ Other: SimpleSMA, BollingerBreakout, GoldenCross, NFPBreakout (skeleton), GammaS
 
 ---
 
-*Last updated: 2026-02-14 (IG integration Phase 1 complete, memory cleanup — deleted research_insights.md & research.md)*
+*Last updated: 2026-02-14 (IG Phase 1-2 complete, fractional shares enabled, memory consolidated under .claude/)*
 *Update this file when phase changes or major milestones reached*

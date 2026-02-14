@@ -1,6 +1,14 @@
 # Recent Git History
 
-### de0670c - feat: Enable fractional share trading on Alpaca (2026-02-14)
+### 191fd43 - docs: Update claude.md with full Feb 14 session findings (2026-02-14)
+Updated:
+- IG status: Phase 1-2 complete, demo data limits documented
+- Fractional shares: enabled on Alpaca (min $1 order)
+- Where We Left Off: revised strategy — Alpaca over IG for now
+- Checklist: 4 new completed items, 4 updated next steps
+- Decision: stay on Alpaca, use fractional shares for small-capital real trading
+
+### 7c5c212 - feat: Enable fractional share trading on Alpaca (2026-02-14)
 Changed int(qty) to round(qty, 4) in AlpacaTrader.place_order().
 Enables trading with small accounts (e.g. €100 buying 0.05 shares of GLD at $460).
 Alpaca supports fractional shares down to $1 minimum order.
@@ -243,24 +251,5 @@ Features:
   and top 10 all-time performers
 
 No existing files modified — wires existing Phase 0-3 APIs together.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 8c4de0d - feat: Validate composable strategies — 3/10 passed, 7 rejected (2026-02-11)
-Added validate_composable.py to bridge composable building blocks
-with the Phase 2 validation pipeline. Maps stored block names back
-to callables and runs full validation chain.
-
-Results on top 10 composable candidates (GLD 1h):
-- 7 REJECTED: high-Sharpe combos had too few trades (<30) or low
-  profit factor — overfit noise caught by disqualification filters
-- 3 PASSED full validation:
-  1. RSI extreme + opposite zone: 263 trades, 75% WF, 100% multi-asset
-  2. MACD cross + Donchian exit + SMA uptrend: +10.9% OOS, 75% WF
-  3. RSI extreme + trailing ATR 3x: +4.9% OOS, no degradation, 252 trades
-
-Key insight: validation correctly filtered overfit combos. The low-trade
-high-Sharpe strategies (MACD+ATR, Bollinger+ATR) were statistical noise.
-Original StochRSI strategy (Sharpe 1.44) remains the strongest edge.
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
