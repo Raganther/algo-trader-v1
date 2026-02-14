@@ -81,12 +81,12 @@
 
 ## Read These Files for Details
 
-1. `.claude/system_manual.md` - Technical reference (CLI, backtesting, live trading, IG API docs)
-2. `.claude/recent_history.md` - Last 20 commits with full context (auto-generated)
-3. `.claude/ideas.md` - **DO NOT auto-read.** Future ideas log (#1-18). Only reference when user explicitly asks.
-4. `.agent/workflows/edge_enhancement_plan.md` - Plan to improve validated edges
-5. `.agent/workflows/strategy_discovery_engine.md` - Full build plan for automated strategy search
-6. `.agent/workflows/forward_testing_plan.md` - Complete forward test journey (Phases 1-9)
+1. `.claude/memory/system_manual.md` - Technical reference (CLI, backtesting, live trading, IG API docs)
+2. `.claude/memory/recent_history.md` - Last 20 commits with full context (auto-generated)
+3. `.claude/memory/ideas.md` - **DO NOT auto-read.** Future ideas log (#1-18). Only reference when user explicitly asks.
+4. `.claude/archive/edge_enhancement_plan.md` - Plan to improve validated edges
+5. `.claude/archive/strategy_discovery_engine.md` - Full build plan for automated strategy search
+6. `.claude/archive/forward_testing_plan.md` - Complete forward test journey (Phases 1-9)
 
 ## Quick Commands
 

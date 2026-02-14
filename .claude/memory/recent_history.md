@@ -1,6 +1,15 @@
 # Recent Git History
 
-### 3a0a155 - refactor: Move memory files from .agent/memory/ to .claude/ (2026-02-14)
+### 885eb93 - refactor: Reorganize .claude/ into memory/, workflows/, archive/ (2026-02-14)
+Final structure:
+  .claude/claude.md (master primer)
+  .claude/memory/ (system_manual, ideas, recent_history)
+  .claude/workflows/ (git_save - active)
+  .claude/archive/ (edge_enhancement, forward_testing, strategy_discovery - completed)
+
+Updated all path references in claude.md, update_memory.sh, load-context.sh, git_save.md
+
+### adafde5 - refactor: Move memory files from .agent/memory/ to .claude/ (2026-02-14)
 Consolidates all memory/context files under .claude/:
 - Moved ideas.md, recent_history.md, system_manual.md
 - Updated update_memory.sh output path
@@ -289,26 +298,5 @@ backend/optimizer/run_sweep.py — CLI entry point
   - Summary output with top 10 ranked results
 
 Tested: 4 real backtests on SPY 1h via Alpaca, all saved to DB correctly.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 62d75f1 - feat: Phase 0 — Add experiments table + ExperimentTracker class (2026-02-11)
-New experiments table in research.db (clean, separate from test_runs):
-  - All rows guaranteed spread=0.0003, delay=0
-  - Adds fields missing from test_runs: sharpe, score, annualised_return,
-    trades_per_year, profit_factor, validation_status, strategy_source,
-    parent_experiment_id (for LLM iteration lineage)
-
-New ExperimentTracker class (backend/optimizer/experiment_tracker.py):
-  - save() — write backtest results with auto-calculated annualised return
-  - get_top_candidates() — rank by score, filter by min trades + validation
-  - get_failures_for_strategy() — what didn't work (for LLM learning)
-  - get_untested_combinations() — gap finder for search space coverage
-  - has_been_tested() — dedup by params hash to avoid repeat work
-  - get_summary_for_llm() — concise text summary replacing research_insights.md
-  - update_validation() — update validation status after Phase 2 checks
-  - count() — total experiments
-
-All methods tested end-to-end, test data cleaned up.
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
