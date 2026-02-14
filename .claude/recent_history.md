@@ -1,6 +1,16 @@
 # Recent Git History
 
-### 1ac1676 - chore: Clean up memory files, update claude.md with IG integration (2026-02-14)
+### 3a0a155 - refactor: Move memory files from .agent/memory/ to .claude/ (2026-02-14)
+Consolidates all memory/context files under .claude/:
+- Moved ideas.md, recent_history.md, system_manual.md
+- Updated update_memory.sh output path
+- Updated claude.md file references
+- Updated load-context.sh hook
+- Updated git_save.md workflow
+
+All memory now lives in .claude/ alongside claude.md
+
+### e08e71b - chore: Clean up memory files, update claude.md with IG integration (2026-02-14)
 Deleted:
 - .agent/memory/research_insights.md (RETIRED, contaminated with delay=1 results)
 - .agent/memory/research.md (outdated, findings already in claude.md)
@@ -300,19 +310,5 @@ New ExperimentTracker class (backend/optimizer/experiment_tracker.py):
   - count() — total experiments
 
 All methods tested end-to-end, test data cleaned up.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 4fe11c6 - docs: Add extensibility & iterative build approach to discovery engine plan (2026-02-11)
-- New section: Extensibility (adding indicators, economic data, event-driven trading)
-  - Indicator library designed to grow (vectorized + stateful patterns)
-  - 5 indicators to add before first sweep (OBV, VWAP, EMA, CCI, Williams %R)
-  - Economic calendar slots in at any phase via existing on_event() wiring
-  - Modularity/debugging properties per phase
-
-- New section: Build Approach — assess each phase before proceeding
-  - Phase-by-phase decision points with concrete criteria
-  - No blind build of all 4 phases; results inform what to build next
-  - New indicators/data added when results reveal the need
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>

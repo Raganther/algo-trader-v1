@@ -20,8 +20,7 @@ echo ""
 # Remind about key files
 echo "📂 Key context files:"
 echo "  → .claude/claude.md (session primer - READ FIRST)"
-echo "  → .agent/memory/recent_history.md (last 20 commits)"
-echo "  → .agent/workflows/forward_testing_plan.md (current phase)"
+echo "  → .claude/recent_history.md (last 20 commits)"
 echo ""
 
 # Check if we can reach cloud (quick timeout)

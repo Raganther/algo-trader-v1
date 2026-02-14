@@ -1,0 +1,44 @@
+============================================================
+OVERNIGHT STRATEGY DISCOVERY
+============================================================
+Started:          2026-02-13 09:32:55
+Time budget:      3.0h
+Grid mode:        full
+Skip composable:  False
+Skip sweep:       True
+Skip validation:  False
+Experiments in DB: 5369
+
+*** Skipping Pass 1 (sweep) ***
+
+============================================================
+PASS 2: FILTER CANDIDATES
+============================================================
+  Existing candidates:   150
+  Composable candidates: 21
+
+============================================================
+PASS 3: VALIDATE CANDIDATES
+============================================================
+Candidates: 150 existing + 21 composable
+Time remaining: 2h 59m
+  [1/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.377)... -> PASSED
+  [2/150] DonchianBreakoutStrategy GLD 15m (Sharpe 1.372)... -> REJECTED
+  [3/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.369)... -> PASSED
+  [4/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.369)... -> PASSED
+  [5/150] StochRSIMeanReversionStrategy GLD 1d (Sharpe 1.367)... -> PASSED
+  [6/150] StochRSIMeanReversionStrategy GLD 1d (Sharpe 1.367)... -> PASSED
+  [7/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.358)... -> PASSED
+  [8/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.358)... -> PASSED
+  [9/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.357)... -> PASSED
+  [10/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.357)... -> PASSED
+  [11/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.351)... -> PASSED
+  [12/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.351)... -> PASSED
+  [13/150] DonchianBreakoutStrategy GLD 15m (Sharpe 1.333)... -> REJECTED
+  [14/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.331)... -> PASSED
+  [15/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.331)... -> PASSED
+  [16/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.317)... -> PASSED
+  [17/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.317)... -> PASSED
+  [18/150] StochRSIMeanReversionStrategy SLV 15m (Sharpe 1.313)... -> PASSED
+  [19/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.307)... -> PASSED
+  [20/150] StochRSIMeanReversionStrategy GLD 15m (Sharpe 1.307)... 

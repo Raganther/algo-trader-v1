@@ -17,7 +17,7 @@ git commit -m "type: Short description" -m "Detailed body with context..."
 ./scripts/update_memory.sh
 
 # 3. Amend to include history update
-git add .agent/memory/recent_history.md
+git add .claude/recent_history.md
 git commit --amend --no-edit
 
 # 4. Push
@@ -60,12 +60,12 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 ./scripts/update_memory.sh
 ```
 
-This auto-generates `.agent/memory/recent_history.md` from the last 20 commits.
+This auto-generates `.claude/recent_history.md` from the last 20 commits.
 
 ### 4. Amend Commit to Include History
 
 ```bash
-git add .agent/memory/recent_history.md
+git add .claude/recent_history.md
 git commit --amend --no-edit
 ```
 
@@ -84,7 +84,7 @@ Update when:
 - Active bots change
 - Critical context changes
 
-### `.agent/memory/system_manual.md` (Technical Reference)
+### `.claude/system_manual.md` (Technical Reference)
 Update when:
 - Architecture changes
 - New CLI commands added
