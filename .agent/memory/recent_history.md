@@ -1,6 +1,17 @@
 # Recent Git History
 
-### 8066957 - fix: Patch IGDataLoader date format and epic resolution (2026-02-14)
+### 65bb606 - feat: Add --source ig to runner.py for IG data backtesting (2026-02-14)
+Phase 1 of IG integration:
+- Added 'ig' as third data source option (alongside csv/alpaca) in backtest, matrix, and trade commands
+- Added IG data loading branches in run_backtest() and worker_task()
+- Added GLD/SLV/IAU ETF ticker → IG Gold/Silver CFD epic mappings
+- Updated Gold epic from DFB (CS.D.USCGC.TODAY.IP) to CFD (CS.D.CFDGOLD.CFDGC.IP) which works on demo
+
+Verification: Ran 'backtest --source ig --symbol GLD --timeframe 15m' with Enhanced StochRSI params.
+Result: -1.85% return, 148 trades, 60% win rate, 2.42% max DD over 6 weeks of IG demo Gold data.
+Strategy executes correctly on IG data — no changes needed to strategy code.
+
+### 4f9e37d - fix: Patch IGDataLoader date format and epic resolution (2026-02-14)
 Fixes for IG Demo API interaction:
 - Reverted date format to ISO 8601 (YYYY-MM-DDTHH:MM:SS) which prevents error.malformed.date
 - Added datetime object passing to trading-ig for robustness
@@ -311,23 +322,5 @@ Updated: .claude/claude.md
 - Updated file references (strategy_discovery_engine.md = START HERE)
 - Marked research_insights.md as RETIRED (contaminated with delay=1 results)
 - New next steps: Phase 0-4 implementation tasks
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### d5d3896 - docs: Update memory files with live validation findings and strategy direction (2026-02-10)
-Phase 9 documented: dual-bot conflict resolved (donchian-iwm-5m deleted),
-live trading (100+ trades) confirms corrected backtest findings — indicator-only
-strategies on liquid US ETFs produce ~zero returns after realistic costs.
-
-CLAUDE.md: Updated to Phase 9, 3 bots, added strategy inventory,
-backtest settings reference, decision point context for next session.
-
-forward_testing_plan.md: Added Phase 9 section, updated bot status table,
-marked Phase 4 complete, added Phase 5 pending tasks, updated expected outcome.
-
-research.md: Added live validation section with sample trade P&L,
-updated slippage data, documented delay=1 bug mechanism, added untested
-indicator directions (less efficient assets, volume indicators, multi-TF,
-crypto) with probability assessments alongside existing alternative tiers.
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>

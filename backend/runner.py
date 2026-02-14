@@ -4,6 +4,7 @@ import json
 import os
 from backend.engine.data_loader import DataLoader
 from backend.engine.alpaca_loader import AlpacaDataLoader # New
+from backend.engine.ig_loader import IGDataLoader # IG spread betting data
 from backend.engine.backtester import Backtester
 from backend.database import DatabaseManager
 from backend.strategies.donchian_breakout import DonchianBreakoutStrategy
@@ -50,7 +51,13 @@ def run_backtest(args):
     
     # 1. Load Data
     # 1. Load Data
-    if args.source == 'alpaca':
+    if args.source == 'ig':
+        print("Using IG Data Source...")
+        loader = IGDataLoader()
+        # IG supports 15m natively, so no resampling needed for common timeframes
+        data = loader.fetch_data(args.symbol, args.timeframe, args.start, args.end)
+
+    elif args.source == 'alpaca':
         print("Using Alpaca Data Source...")
         loader = AlpacaDataLoader()
         
@@ -437,7 +444,7 @@ def main():
     bt_parser.add_argument('--end', type=str, default='2024-12-31', help='End Date')
     bt_parser.add_argument("--spread", type=float, default=0.0, help="Spread in price units (default 0.0)")
     bt_parser.add_argument("--delay", type=int, default=0, help="Execution Delay (0=Instant, 1=Next Bar)")
-    bt_parser.add_argument("--source", type=str, default="csv", choices=["csv", "alpaca"], help="Data Source (csv or alpaca)")
+    bt_parser.add_argument("--source", type=str, default="csv", choices=["csv", "alpaca", "ig"], help="Data Source (csv, alpaca, or ig)")
     bt_parser.add_argument("--parameters", type=str, help="JSON string of parameters to override defaults")
     bt_parser.add_argument("--tag", type=str, help="Optional tag to identify this run variation")
     bt_parser.add_argument("--iteration", type=int, help="Specific Iteration Index to link (Optional)")
@@ -450,7 +457,7 @@ def main():
     matrix_parser.add_argument("--spread", type=float, default=0.0, help="Spread in price units (default 0.0)")
     matrix_parser.add_argument("--delay", type=int, default=0, help="Execution Delay (0=Instant, 1=Next Bar)")
     matrix_parser.add_argument("--timeframes", type=str, default="1h,4h", help="Comma-separated timeframes (default 1h,4h)")
-    matrix_parser.add_argument("--source", type=str, default="csv", choices=["csv", "alpaca"], help="Data Source (csv or alpaca)")
+    matrix_parser.add_argument("--source", type=str, default="csv", choices=["csv", "alpaca", "ig"], help="Data Source (csv, alpaca, or ig)")
     matrix_parser.add_argument("--tag", type=str, help="Optional tag to identify this run variation")
     
     # Trade Command (Paper/Live)
@@ -739,7 +746,11 @@ def run_matrix(args):
 
 def worker_task(task_config):
     try:
-        if task_config.get('source') == 'alpaca':
+        if task_config.get('source') == 'ig':
+            from backend.engine.ig_loader import IGDataLoader
+            loader = IGDataLoader()
+            data = loader.fetch_data(task_config['symbol'], task_config['timeframe'], task_config['start'], task_config['end'])
+        elif task_config.get('source') == 'alpaca':
             # Lazy import to avoid circular dep issues in multiprocessing if any
             from backend.engine.alpaca_loader import AlpacaDataLoader
             loader = AlpacaDataLoader()

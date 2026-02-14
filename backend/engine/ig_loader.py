@@ -31,14 +31,17 @@ class IGDataLoader:
 
     # Common epic shortcuts (can be overridden via search)
     EPIC_MAP = {
-        'GOLD': 'CS.D.USCGC.TODAY.IP',       # Spot Gold (USD) — DFB
-        'XAUUSD': 'CS.D.USCGC.TODAY.IP',
+        'GOLD': 'CS.D.CFDGOLD.CFDGC.IP',    # Spot Gold CFD (USD)
+        'GLD': 'CS.D.CFDGOLD.CFDGC.IP',      # Map GLD ETF → IG Gold CFD
+        'XAUUSD': 'CS.D.CFDGOLD.CFDGC.IP',
         'EURUSD': 'CS.D.EURUSD.MINI.IP',     # EUR/USD Mini
         'GBPUSD': 'CS.D.GBPUSD.MINI.IP',     # GBP/USD Mini
         'USDJPY': 'CS.D.USDJPY.MINI.IP',     # USD/JPY Mini
         'EURGBP': 'CS.D.EURGBP.MINI.IP',     # EUR/GBP Mini
         'SILVER': 'CS.D.USCSI.TODAY.IP',      # Spot Silver
+        'SLV': 'CS.D.USCSI.TODAY.IP',         # Map SLV ETF → IG Silver
         'XAGUSD': 'CS.D.USCSI.TODAY.IP',
+        'IAU': 'CS.D.CFDGOLD.CFDGC.IP',      # Map IAU ETF → IG Gold CFD
     }
 
     def __init__(self):
