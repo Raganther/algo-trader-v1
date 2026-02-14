@@ -354,15 +354,32 @@ giving a better fill. In live trading, we fill in ~1 second (same bar), missing 
 Evidence: 3 of 4 "realistic" backtests OUTPERFORM no-cost versions:
 - QQQ 5m: 44.9% (realistic) vs 39.0% (no cost) — delay helped +5.9%
 - IWM 15m: 19.8% vs 9.3% avg — delay helped +10.5%
-- QQQ 4h Donchian: 22.6% vs 4.3% avg — delay helped +18.3%
-- SPY 15m: -8.6% vs 4.9% avg — delay hurt -13.5% (only exception)
+---
 
-**Corrected backtest parameters (to run after 1-week data collection):**
-- `--spread 0.0003` (3bp — matching live measurements)
-- `--delay 0` (fills are effectively same-bar in live)
-- This will give a TRUE picture of expected live performance
+## IG Spread Betting API Integration
+
+### Data Loader: `backend/engine/ig_loader.py`
+Drop-in alternative to `AlpacaDataLoader` for gold/forex via IG.
+
+```python
+from backend.engine.ig_loader import IGDataLoader
+loader = IGDataLoader()  # reads IG_API_KEY, IG_USERNAME, IG_PASSWORD, IG_ACC_TYPE from .env
+df = loader.fetch_data('GOLD', '15m', '2026-01-01', '2026-02-01')
+df = loader.get_data('EURUSD', '1h', limit=200)  # convenience: last N bars
+results = loader.search_epic('Gold')  # discover IG epic codes
+```
+
+**Environment variables** (in `.env`):
+- `IG_API_KEY` — API key from IG settings
+- `IG_USERNAME` — IG login username
+- `IG_PASSWORD` — IG login password
+- `IG_ACC_TYPE` — `LIVE` or `DEMO`
+
+**Dependencies:** `pip install trading-ig`
+
+**Status:** Built and tested. Blocked on IG demo provisioning (instruments empty, price history 500 error). Will work once IG support resolves or live account KYC approved.
 
 ---
 
-**Last Updated:** 2026-02-06
-**System Status:** ✅ Operational | Forward Testing Phase 8 | 4 Bots Active
+**Last Updated:** 2026-02-14
+**System Status:** ✅ Operational | Forward Testing Phase 8 | 4 Bots Active | IG Integration WIP

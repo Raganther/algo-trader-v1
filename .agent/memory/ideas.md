@@ -246,5 +246,30 @@ Avoid entries around FOMC, NFP, CPI releases. Gold whipsaws on macro events and 
 
 ---
 
-*Last updated: 2026-02-13*
+## 18. IG Spread Betting Integration
+*Discussed: 2026-02-13*
+
+**Motivation:** Alpaca's minimum trade unit (1 share) prevents precise Kelly sizing on small accounts (€100). Spread betting via IG allows sub-unit position sizing (e.g. €0.50/point), enabling proper compounding. Profits tax-free in Ireland.
+
+**Built:** `backend/engine/ig_loader.py` — mirrors `AlpacaDataLoader` interface, uses `trading-ig` library. Supports Gold (XAUUSD), EUR/USD, GBP/USD, Silver and more via IG epic codes.
+
+**Status: BLOCKED on IG infrastructure.** Demo account authenticates and categories exist (COMMODITIES, FX, etc.) but instruments return empty and price history returns `500 error.price-history.io-error`. Emailed IG support. Live account requires KYC verification (document upload).
+
+**Next steps:**
+1. Wait for IG support reply or live account KYC approval
+2. Once unblocked, test gold 15m data fetch (code ready)
+3. Build `IGBroker` class for live trading (same pattern as `LiveBroker`/`AlpacaTrader`)
+4. Integrate with `runner.py` via `--source ig` flag
+
+**Key IG API details:**
+- Auth: username + password + API key → CST + X-SECURITY-TOKEN headers
+- Demo base: `https://demo-api.ig.com/gateway/deal`
+- Live base: `https://api.ig.com/gateway/deal`
+- Epics: `CS.D.USCGC.TODAY.IP` (Gold), `CS.D.EURUSD.MINI.IP` (EUR/USD)
+- Expiry: `DFB` (Daily Funded Bet) for spot positions
+- Resolutions: `1Min`, `5Min`, `15Min`, `1H`, `4H`, `D`
+
+---
+
+*Last updated: 2026-02-14*
 *Add new ideas as they come up during sessions*

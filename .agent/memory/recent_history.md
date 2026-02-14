@@ -1,6 +1,47 @@
 # Recent Git History
 
-### a822f97 - feat: Edge enhancements — trailing stop + min hold take Sharpe from 1.57 to 2.42 (2026-02-13)
+### b518600 - feat: Add IG spread betting data loader (2026-02-14)
+New files:
+- backend/engine/ig_loader.py: IGDataLoader class mirroring AlpacaDataLoader interface
+  for fetching historical OHLCV data from IG REST API (gold, forex, indices)
+- backend/engine/test_ig_loader.py: Quick test script for IG API connection
+
+Changes:
+- .env: Added IG_API_KEY, IG_USERNAME, IG_PASSWORD, IG_ACC_TYPE (demo)
+- ideas.md: Added idea #18 documenting IG spread betting integration
+  motivation (Kelly sizing on small accounts, tax-free in Ireland)
+- system_manual.md: Added IG loader usage docs and API reference
+
+Status: IGDataLoader built and tested. Authentication works on demo
+but IG demo environment has no instruments/price data provisioned
+(search returns 0, price history returns 500 error). Emailed IG support.
+Code will work once IG resolves demo provisioning or live KYC approved.
+
+Key technical details:
+- Uses trading-ig Python library (pip install trading-ig)
+- Epics: CS.D.USCGC.TODAY.IP (Gold), CS.D.EURUSD.MINI.IP (EUR/USD)
+- Resolutions: 1Min, 5Min, 15Min, 1H, 4H, D
+- REST API for history/orders, Streaming (Lightstreamer) for live prices
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+
+### 0700679 - fix(broker): add set_entry_metadata to LiveBroker to prevent crash on trade (2026-02-13)
+
+### 8e0dac0 - test: Add temporary aggressive-params test bot for piping verification (2026-02-13)
+OB 60/OS 40, ADX 50, trail after 3 bars, min hold 3 bars.
+Generates high trade frequency to verify trailing stop, min hold,
+and skip_days mechanics are working in live paper trading.
+Delete after verification.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### d44665c - feat: Deploy enhanced GLD 15m strategy (Sharpe 2.42) (2026-02-13)
+Skip Monday + trailing stop (2x ATR after 10 bars) + min hold 10 bars.
+Replaces baseline params (Sharpe 1.57) with validated enhanced version.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 0558c89 - feat: Edge enhancements — trailing stop + min hold take Sharpe from 1.57 to 2.42 (2026-02-13)
 Trade analysis revealed three key leaks in GLD 15m StochRSI:
 - Stop losses were 100% losers (199 trades, -$1,219 total)
 - Short-duration trades (1-5 bars, 72% of trades) were breakeven noise
@@ -286,67 +327,5 @@ Comprehensive analysis of alternatives to indicator-only strategies:
 - VIX term structure regime filter
 - Sector rotation momentum, PEAD, credit spread overlay
 - Ranked tiers, data sources, and phased build order
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 3c34b5d - feat: Add SwingBreakout strategy + fix percentage-based spread model (2026-02-06)
-Fixed PaperTrader spread from absolute price units to percentage-based:
-  fill_price = base_price * (1 + spread/2) instead of base_price + spread/2
-  --spread 0.0003 now means 0.03% of price ($0.075/side for SPY at $500)
-
-New SwingBreakout strategy (daily timeframe, triple confirmation):
-  - 55-day Donchian breakout + Bollinger width expanding + ADX rising
-  - ATR trailing stop (3x) + Donchian 20-day exit
-  - 2% equity risk, whole shares, 1x leverage cap
-
-Backtest results (2020-2025, --spread 0.0003 --delay 0):
-  SPY: -0.01%, QQQ: +1.39%, IWM: -2.24% (~3 trades/year)
-  Cost impact negligible (0.19% over 5 years) as designed
-  Strategy generates no meaningful alpha on liquid US ETFs
-
-Preliminary finding: public indicators alone cannot generate alpha
-on highly liquid ETFs after realistic transaction costs.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 0e05453 - fix: Make Donchian position key compatible with both live and backtest (2026-02-06)
-Re-ran top 3 backtests with corrected cost model (--spread 0.0003 --delay 0):
-- QQQ 5m StochRSI: +0.99% (was +44.9% with delay=1)
-- IWM 15m StochRSI: -1.13% (was +19.8% with delay=1)
-- QQQ 4h Donchian: -6.38% (was +22.6% with delay=1)
-
-The delay=1 parameter was flattering mean reversion entries by giving
-an extra bar of price continuation. With delay=0 (matching live fills),
-all strategies are near breakeven or negative over 2020-2025.
-
-Also fixed Donchian position dict key to use .get() fallback so it
-works with both live_broker (key='price') and paper_trader (key='avg_price').
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 7cb65b4 - docs: Correct slippage analysis and backtest cost model findings (2026-02-06)
-Updated slippage data with 70+ trades (up from 20):
-- SPY: 0.024% (39 trades), QQQ: 0.049% (7), IWM: 0.029% (24)
-- Fill delay: avg 1.15 seconds (negligible for 5m/15m)
-
-CRITICAL CORRECTION: Previous claim that backtest 0.01% spread was
-"conservative" was wrong. The --delay 1 parameter actually HELPS
-mean reversion entries (price continues in signal direction for 1
-more bar). 3 of 4 "realistic" backtests outperform no-cost versions.
-
-In live trading we fill in ~1 second (same bar), missing this benefit.
-Corrected backtest params for after data collection: --spread 0.0003
---delay 0 to match actual live execution characteristics.
-
-Updated next steps in claude.md with revised roadmap.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 16a8027 - fix: Fix KeyError in Donchian stop loss - use correct position dict key (2026-02-06)
-Live broker stores entry price as position['price'] but Donchian strategy
-was using position['avg_price'] (backtest format). Caused KeyError crash
-on every bar when holding a position (204 PM2 restarts).
-
-Fixed both long (line 150) and short (line 163) stop loss lookups.
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
