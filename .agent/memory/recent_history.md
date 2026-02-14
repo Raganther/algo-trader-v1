@@ -1,6 +1,19 @@
 # Recent Git History
 
-### 65bb606 - feat: Add --source ig to runner.py for IG data backtesting (2026-02-14)
+### 1ac1676 - chore: Clean up memory files, update claude.md with IG integration (2026-02-14)
+Deleted:
+- .agent/memory/research_insights.md (RETIRED, contaminated with delay=1 results)
+- .agent/memory/research.md (outdated, findings already in claude.md)
+
+Updated claude.md:
+- Added IG integration status line
+- Updated 'Where We Left Off' to Feb 14 (IG Phase 1 complete)
+- Added IG backtest command to Quick Commands
+- Cleaned Read These Files section (3 memory + 3 workflow files)
+- Updated Next Steps with IG milestones (3 checked, 2 remaining)
+- Removed references to deleted files
+
+### ea83500 - feat: Add --source ig to runner.py for IG data backtesting (2026-02-14)
 Phase 1 of IG integration:
 - Added 'ig' as third data source option (alongside csv/alpaca) in backtest, matrix, and trade commands
 - Added IG data loading branches in run_backtest() and worker_task()
@@ -301,26 +314,5 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
   - Phase-by-phase decision points with concrete criteria
   - No blind build of all 4 phases; results inform what to build next
   - New indicators/data added when results reveal the need
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 5976bd2 - docs: Add Strategy Discovery Engine build plan + update session primer (2026-02-11)
-New file: .agent/workflows/strategy_discovery_engine.md
-- Full 4-phase build plan for automated strategy search system
-- Phase 0: experiments table + ExperimentTracker class
-- Phase 1: Sweep engine (parameter optimization across strategies/assets)
-- Phase 2: Validation framework (walk-forward, holdout, multi-asset)
-- Phase 3: Composable strategies (auto-generate indicator combinations)
-- Phase 4: LLM agent loop (analyse results, generate code, iterate)
-- Data strategy: separate experiments table (clean, not contaminated)
-- ExperimentTracker replaces research_insights.md and analyze_results.py
-- Detailed code references for all 9 indicators, strategy patterns, database
-- Implementation order, file map, risk analysis
-
-Updated: .claude/claude.md
-- Phase 10: Strategy Discovery Engine (design complete, implementation next)
-- Updated file references (strategy_discovery_engine.md = START HERE)
-- Marked research_insights.md as RETIRED (contaminated with delay=1 results)
-- New next steps: Phase 0-4 implementation tasks
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>

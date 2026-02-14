@@ -10,10 +10,11 @@
 - **Discovery Engine:** Phase 0 (DB) ✓, Phase 1 (sweeps) ✓, Phase 2 (validation) ✓, Phase 3 (composable) ✓, Overnight orchestrator ✓
 - **Key Finding:** GLD 15m StochRSI Enhanced — Sharpe 2.42, VALIDATED. Trailing stop + min hold + skip Monday.
 - **Experiments DB:** 5,300+ experiments, 90+ validated passes (growing via overnight runs)
+- **IG Integration:** ✅ Data loader built (`--source ig`). Demo account working. Backtest verified on Gold CFD. IGBroker for live trading not yet built.
 
-## Where We Left Off (Feb 13)
+## Where We Left Off (Feb 14)
 
-**Edge enhancements validated. Trailing stop + min hold took GLD 15m from Sharpe 1.57 to 2.42. All 4 variants passed full validation (holdout + walk-forward + multi-asset). Bot running baseline params on paper — enhanced version ready to deploy.**
+**IG spread betting integration complete (Phase 1). `IGDataLoader` built and verified — fetches Gold/Forex OHLCV from IG REST API. Runner supports `--source ig` for backtesting. Cross-validation shows GLD and IG Gold correlate but IG's 24hr trading generates different results (148 vs 56 trades). Need hour filter or re-optimisation for IG-specific trading.**
 
 ### What's been built:
 1. **Phase 0 — Experiments DB:** `experiments` table + `ExperimentTracker` class
@@ -75,19 +76,17 @@
 - Deploy enhanced params to paper bot (replace current baseline params)
 - Apply trailing stop enhancement to other validated strategies (GLD 1h, IAU 1h, XLE 1h)
 - Run next iteration: fine-tune trail/hold params, test exit-focused enhancements
-- Explore spread betting / IG API for small-account trading (ideas.md #11)
+- IG live trading: Build `IGBroker` for order execution, add hour filter for NYSE-hours-only trading
 - Position sizing / Kelly with improved Sharpe 2.42 and DD 0.7% (ideas.md #7)
 
 ## Read These Files for Details
 
-1. `.agent/workflows/edge_enhancement_plan.md` - **ACTIVE** — plan to improve validated edges (time filters, exits, vol scaling)
-2. `.agent/workflows/strategy_discovery_engine.md` - Full build plan for automated strategy search (Phases 0-3 complete)
-3. `.agent/memory/recent_history.md` - Last 20 commits with full context
-4. `.agent/workflows/forward_testing_plan.md` - Complete forward test journey (Phases 1-9)
-5. `.agent/memory/system_manual.md` - Technical reference (backtesting + live)
-6. `.agent/memory/research.md` - Alternative strategy research + live validation findings
-7. `.agent/memory/research_insights.md` - RETIRED (contaminated with delay=1 results, replaced by ExperimentTracker)
-8. `.agent/memory/ideas.md` - **DO NOT auto-read.** Future ideas log (#1-17: hedging, pairs trading, regime detection, time filters, exits, etc). Only reference when user explicitly asks.
+1. `.agent/memory/system_manual.md` - Technical reference (CLI, backtesting, live trading, IG API docs)
+2. `.agent/memory/recent_history.md` - Last 20 commits with full context (auto-generated)
+3. `.agent/memory/ideas.md` - **DO NOT auto-read.** Future ideas log (#1-18). Only reference when user explicitly asks.
+4. `.agent/workflows/edge_enhancement_plan.md` - Plan to improve validated edges
+5. `.agent/workflows/strategy_discovery_engine.md` - Full build plan for automated strategy search
+6. `.agent/workflows/forward_testing_plan.md` - Complete forward test journey (Phases 1-9)
 
 ## Quick Commands
 
@@ -101,6 +100,9 @@ gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="pm2 logs spy-
 # Deploy code changes
 git push origin main
 gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="cd algo-trader-v1 && git pull && pm2 restart all"
+
+# Backtest on IG Gold data
+python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD --timeframe 15m --start 2026-01-01 --end 2026-02-13 --source ig --spread 0.0003 --delay 0 --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"stop_loss_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold":10,"skip_days":[0]}'
 ```
 
 ## Git Save Protocol
@@ -183,7 +185,11 @@ git push origin main
 - [ ] Deploy enhanced params to paper bot (skip Mon, trail 2x/10bar, hold 10)
 - [ ] Apply trailing stop to other validated strategies (GLD 1h, IAU, XLE, SLV)
 - [ ] Review validation run results (150 candidates, ran Feb 13)
-- [ ] Explore spread betting / IG API for small-account trading (ideas.md #11)
+- [x] IG spread betting data loader built (`backend/engine/ig_loader.py`)
+- [x] Runner supports `--source ig` for backtesting
+- [x] Cross-validated GLD vs IG Gold (Feb 2026) — correlates but 24hr trading adds extra trades
+- [ ] Build `IGBroker` for live order execution on IG
+- [ ] Add NYSE-hours filter for IG Gold trading (replicate GLD conditions)
 - [ ] Position sizing with improved risk profile (Sharpe 2.42, DD 0.7%)
 - [ ] Monitor GLD 15m forward test (paper trading)
 
@@ -226,5 +232,5 @@ Other: SimpleSMA, BollingerBreakout, GoldenCross, NFPBreakout (skeleton), GammaS
 
 ---
 
-*Last updated: 2026-02-13 (Edge enhancements validated — Sharpe 1.57→2.42, trailing stop + min hold + skip Mon)*
+*Last updated: 2026-02-14 (IG integration Phase 1 complete, memory cleanup — deleted research_insights.md & research.md)*
 *Update this file when phase changes or major milestones reached*
