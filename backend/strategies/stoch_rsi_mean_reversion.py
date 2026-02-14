@@ -26,6 +26,7 @@ class StochRSIMeanReversionStrategy(Strategy):
 
         # Enhancement params (all off by default — no impact on existing behaviour)
         self.skip_days = parameters.get('skip_days', [])  # e.g. [0] to skip Monday (0=Mon, 4=Fri)
+        self.trading_hours = parameters.get('trading_hours', [])  # e.g. [14, 21] = only trade 14:00-21:00 UTC
         self.trailing_stop = parameters.get('trailing_stop', False)  # Enable trailing stop
         self.trail_after_bars = int(parameters.get('trail_after_bars', 0))  # Start trailing after N bars in profit
         self.trail_atr = float(parameters.get('trail_atr', self.sl_atr))  # Trailing ATR multiplier
@@ -94,6 +95,12 @@ class StochRSIMeanReversionStrategy(Strategy):
         skip_entry = False
         if self.skip_days and hasattr(row.name, 'dayofweek'):
             if row.name.dayofweek in self.skip_days:
+                skip_entry = True
+
+        # Hour-of-day filter (skip entries outside trading hours, but allow exits)
+        if self.trading_hours and hasattr(row.name, 'hour') and len(self.trading_hours) == 2:
+            start_hour, end_hour = self.trading_hours
+            if not (start_hour <= row.name.hour < end_hour):
                 skip_entry = True
 
         # Trailing stop update (move stop to lock in profits)
