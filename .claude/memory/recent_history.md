@@ -1,6 +1,14 @@
 # Recent Git History
 
-### 4429430 - fix: IGBroker order placement — currency, expiry, and arg fixes (2026-02-14)
+### de0670c - feat: Enable fractional share trading on Alpaca (2026-02-14)
+Changed int(qty) to round(qty, 4) in AlpacaTrader.place_order().
+Enables trading with small accounts (e.g. €100 buying 0.05 shares of GLD at $460).
+Alpaca supports fractional shares down to $1 minimum order.
+
+Previously: int(qty) rounded 0.05 → 0 shares (couldn't trade)
+Now: round(qty, 4) keeps 0.05 shares (valid fractional order)
+
+### b5e51e4 - fix: IGBroker order placement — currency, expiry, and arg fixes (2026-02-14)
 Fixed 3 issues found during demo testing:
 1. create_open_position requires all positional args (not just kwargs)
 2. Gold CFD uses currency_code='USD' not 'GBP' (added CURRENCY_MAP)
@@ -254,26 +262,5 @@ Results on top 10 composable candidates (GLD 1h):
 Key insight: validation correctly filtered overfit combos. The low-trade
 high-Sharpe strategies (MACD+ATR, Bollinger+ATR) were statistical noise.
 Original StochRSI strategy (Sharpe 1.44) remains the strongest edge.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### a371af6 - feat: Phase 3 — Composable strategy framework + GLD forward test (2026-02-11)
-Built composable strategy system with pluggable building blocks:
-- indicator_calculator.py: Pre-computes all 9 indicators in one pass
-- building_blocks.py: 7 entries, 7 exits, 6 filters, 3 sizers
-- composable_strategy.py: Generic Strategy class wiring blocks together
-- combination_generator.py: Cartesian product with compatibility rules
-- run_composable.py: CLI sweep runner with experiment tracking
-
-Ran 458 compatible combinations on GLD 1h (31.5 minutes):
-- 156 positive (34%), best Sharpe 1.137 (MACD cross + ATR stop 3x)
-- New combos found: Bollinger bounce + ATR stop (Sharpe 1.113),
-  RSI extreme + opposite zone (263 trades, 2% DD)
-- Top composable candidates need Phase 2 validation next
-
-Deployed GLD 1h StochRSI forward test to cloud (PAPER mode):
-- Stopped all old EXTREME bots (SPY/QQQ/IWM)
-- Validated params: RSI 21, Stoch 7, OB 80, OS 15, ADX 25, ATR 3x
-- scripts/run_gld.sh for PM2 management
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
