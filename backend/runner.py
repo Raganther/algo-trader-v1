@@ -467,6 +467,7 @@ def main():
     trade_parser.add_argument('--timeframe', type=str, default='5m', help='Timeframe')
     trade_parser.add_argument('--paper', action='store_true', default=True, help='Use Paper Trading (Default: True)')
     trade_parser.add_argument('--live', action='store_false', dest='paper', help='Use Live Trading')
+    trade_parser.add_argument("--source", type=str, default="alpaca", choices=["alpaca", "ig"], help="Broker source (alpaca or ig)")
     trade_parser.add_argument("--parameters", type=str, help="JSON string of parameters")
     trade_parser.add_argument("--iteration", type=int, help="Specific Iteration Index to link (Optional)")
     
@@ -507,9 +508,18 @@ def run_live_trading(args):
     else:
         print(f"Using Specified Iteration: v{iteration_index}")
 
-    # Use LiveBroker for logging and interface compatibility
-    broker = LiveBroker(symbol=args.symbol, paper=args.paper, iteration_index=iteration_index)
-    loader = AlpacaDataLoader()
+    # Use LiveBroker (Alpaca) or IGBroker depending on source
+    source = getattr(args, 'source', 'alpaca')
+    if source == 'ig':
+        from backend.engine.ig_broker import IGBroker
+        from backend.engine.ig_loader import IGDataLoader
+        broker = IGBroker(symbol=args.symbol, paper=args.paper, iteration_index=iteration_index)
+        loader = IGDataLoader()
+        print(f"Using IG source ({broker.acc_type})")
+    else:
+        broker = LiveBroker(symbol=args.symbol, paper=args.paper, iteration_index=iteration_index)
+        loader = AlpacaDataLoader()
+        print("Using Alpaca source")
     
     # Initialize DB Logger
     session_id = str(uuid.uuid4())

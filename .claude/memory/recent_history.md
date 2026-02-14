@@ -1,6 +1,30 @@
 # Recent Git History
 
-### 885eb93 - refactor: Reorganize .claude/ into memory/, workflows/, archive/ (2026-02-14)
+### 1f07f6f - feat: Add IGBroker for live trading + hour filter for strategy (2026-02-14)
+New: backend/engine/ig_broker.py
+- Matches LiveBroker interface (buy, sell, place_order, get_position, refresh, etc.)
+- Uses trading-ig create_open_position() with deal confirmation
+- Handles stop distance calculation, position tracking, trade logging
+- EPIC_MAP for Gold/Silver/Forex symbols
+
+Modified: backend/runner.py
+- Added --source ig|alpaca to trade command
+- Auto-selects IGBroker+IGDataLoader when --source ig
+
+Modified: backend/strategies/stoch_rsi_mean_reversion.py
+- Added trading_hours parameter (committed earlier)
+
+Usage: python3 -m backend.runner trade --strategy StochRSIMeanReversion --symbol GLD --source ig --timeframe 15m --paper
+
+### 42d5e5f - feat: Add trading_hours filter to StochRSI strategy (2026-02-14)
+Adds 'trading_hours' parameter (e.g. [14, 21] for NYSE hours 14:30-21:00 UTC).
+Entries blocked outside specified hours, exits always allowed (same pattern as skip_days).
+Default: empty list (no filtering - backward compatible).
+
+Verified: Alpaca GLD Jan-Feb 2026 — 50 trades with filter vs 56 without, same 2.04% return.
+Key use case: restrict IG 24hr Gold to NYSE hours only to replicate GLD-validated conditions.
+
+### cd4c6a9 - refactor: Reorganize .claude/ into memory/, workflows/, archive/ (2026-02-14)
 Final structure:
   .claude/claude.md (master primer)
   .claude/memory/ (system_manual, ideas, recent_history)
@@ -258,45 +282,5 @@ Validated top 20 candidates from Phase 1 sweeps:
 - Best: GLD 1h StochRSI, Sharpe 1.44, 10.5% out-of-sample return
 
 Updated claude.md with Phase 2 results and discovery engine findings.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 1c72e44 - fix: Suppress strategy debug prints during sweep backtests (2026-02-11)
-Strategies print per-bar debug output (e.g. StochRSI prints K/D/ADX
-every bar). With 8000+ bars × 324 combos = millions of print lines,
-this was making sweeps extremely slow and output unmanageable.
-
-Added suppress_stdout() context manager around bt.run() calls.
-Sweep progress/summary still prints normally.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 0b0b53f - feat: Phase 1 — Add sweep engine for parameter optimisation (2026-02-11)
-New files:
-
-backend/engine/data_utils.py — clean data loading with resampling
-  - Extracts duplicated resampling logic from runner.py
-  - Handles 5m/15m (fetch 1m, resample), 4h (fetch 1h, resample), direct TFs
-  - Single function: load_backtest_data(symbol, timeframe, start, end)
-
-backend/optimizer/scoring.py — Sharpe ratio + composite scoring
-  - calc_sharpe() from equity curve with auto-detected periods/year
-  - score_result() returns Sharpe as primary score, -999 for <10 trades
-
-backend/optimizer/sweep.py — SweepEngine class
-  - Fetches data once per symbol/timeframe, runs Backtester N times
-  - Cartesian product of param grid, scores each result
-  - Saves all results to experiments table via ExperimentTracker
-  - run_multi_sweep() for batch across strategies/symbols/timeframes
-  - Skip-tested dedup to avoid repeat work across runs
-  - Hardcoded spread=0.0003, delay=0 (validated against live)
-
-backend/optimizer/run_sweep.py — CLI entry point
-  - python -m backend.optimizer.run_sweep --quick (smoke test)
-  - python -m backend.optimizer.run_sweep --strategy X --symbol Y --timeframe Z
-  - Default param grids for StochRSI, Donchian, MACDBollinger
-  - Summary output with top 10 ranked results
-
-Tested: 4 real backtests on SPY 1h via Alpaca, all saved to DB correctly.
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
