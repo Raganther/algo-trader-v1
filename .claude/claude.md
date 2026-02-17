@@ -5,7 +5,7 @@
 ## Current Status
 
 - **Phase:** 10 - Strategy Discovery Engine (Phases 0-3 complete, overnight orchestrator built)
-- **Active Bots:** 1 (GLD 15m StochRSI — PAPER mode, validated params)
+- **Active Bots:** 2 (gld-test + iau-test — PAPER mode, aggressive params to verify enhancement mechanics)
 - **Server:** europe-west2-a (algotrader2026)
 - **Discovery Engine:** Phase 0 (DB) ✓, Phase 1 (sweeps) ✓, Phase 2 (validation) ✓, Phase 3 (composable) ✓, Overnight orchestrator ✓
 - **Key Finding:** GLD 15m StochRSI Enhanced — Sharpe 2.42, VALIDATED. Trailing stop + min hold + skip Monday.
@@ -13,9 +13,9 @@
 - **IG Integration:** ✅ Phase 1-2 done (data loader + IGBroker). Demo data limits make IG impractical for backtesting. IG best used for execution only if needed.
 - **Fractional Shares:** ✅ Alpaca fractional orders enabled — can trade GLD with €100 (min $1 order).
 
-## Where We Left Off (Feb 14)
+## Where We Left Off (Feb 17)
 
-**IG integration fully built (data + broker + hour filter) but IG demo has severe data limits — exhausts quota after one backtest, blocking even live data. Decision: stick with Alpaca for all backtesting + forward testing + live trading. Fractional shares now enabled — can start real trading with €100-200 on GLD.**
+**Fixed critical crash-loop bug in gld-test bot (set_entry_metadata crash). Added defensive hasattr checks. Discovered two bots on same symbol cause position conflicts on Alpaca (one shared position per symbol). Stopped gld-15m-enhanced, kept gld-test for GLD, added iau-test on IAU to test enhancements on both without conflicts. Paper account lost ~$4k from crash-loop churning (now $96k). Markets closed Presidents' Day — real testing starts Feb 18.**
 
 ### What's been built:
 1. **Phase 0 — Experiments DB:** `experiments` table + `ExperimentTracker` class
@@ -32,10 +32,12 @@
 - **Crash recovery:** `skip_tested=True` everywhere, re-run picks up where left off
 - **Priority targets:** GLD other TFs, gold-correlated (SLV/IAU/GDX), XLE/XBI/TLT, broad market
 
-### GLD forward test (deployed):
-- **Bot:** gld-15m on cloud, PAPER mode, StochRSI with validated params (switched from 1h on Feb 13)
-- **Params:** RSI 7, Stoch 14, OB 80, OS 15, ADX threshold 20, ATR stop 2x
-- **Script:** `scripts/run_gld.sh` — old EXTREME bots stopped
+### Enhancement Verification Bots (deployed Feb 17):
+- **gld-test:** GLD 15m, aggressive params (OB 60/OS 40, ADX 50, trail 3 bars, hold 3, skip Mon)
+- **iau-test:** IAU 15m, same aggressive params — tests enhancements on second gold ETF
+- **gld-15m-enhanced:** STOPPED — will resume once enhancement mechanics are verified
+- **Scripts:** `scripts/run_gld_test.sh`, `scripts/run_iau_test.sh`
+- **Key lesson:** Two bots on same symbol conflict (Alpaca = one shared position per symbol). Must use different symbols or accounts.
 
 ### Phase 3 composable results (458 combos → 3 validated):
 - 7 of top 10 **REJECTED** — high-Sharpe/low-trade combos were overfit noise
@@ -136,6 +138,7 @@ git push origin main
 - **Stock orders:** Whole shares only (no fractional)
 - **Bracket orders:** Not supported for crypto
 - **Market hours:** 2:30 PM - 9:00 PM Irish time (9:30 AM - 4:00 PM ET)
+- **One position per symbol:** Alpaca has one shared position per symbol per account. Multiple bots on same symbol WILL conflict. Use different symbols (e.g. GLD + IAU) or separate accounts.
 
 ### What Works
 - Position sync on restart (recovers state from Alpaca)
@@ -157,11 +160,13 @@ git push origin main
 
 ## Current Testing Settings
 
-**GLD Forward Test (active — switched to 15m on Feb 13):**
+**Enhancement Verification (active — 2 bots, aggressive params for more trades):**
 - RSI period: 7, Stoch period: 14
-- Oversold: 15, Overbought: 80
-- ADX threshold: 20 (filter ON)
-- ATR stop: 2x
+- Oversold: 40, Overbought: 60 (wide — triggers more signals)
+- ADX threshold: 50
+- ATR stop: 2x, trailing stop: 2x ATR after 3 bars, min hold: 3 bars
+- Skip days: Monday
+- Symbols: GLD (gld-test) + IAU (iau-test)
 - Mode: PAPER
 
 ## Next Steps
@@ -193,10 +198,12 @@ git push origin main
 - [x] Added `trading_hours` filter to strategy (e.g. `[14,21]` for NYSE hours only)
 - [x] Enabled fractional share trading on Alpaca (`alpaca_trader.py` — was int(), now round(,4))
 - [x] Memory cleanup — consolidated all files under `.claude/`, deleted retired research files
-- [ ] Deploy enhanced params to paper bot (skip Mon, trail 2x/10bar, hold 10)
+- [x] Fix set_entry_metadata crash in live trading (defensive hasattr guard)
+- [x] Deploy IAU test bot (iau-test) to verify enhancements on second gold ETF
+- [ ] Monitor gld-test + iau-test for correct trailing stop / min hold / skip Monday behaviour
+- [ ] Once verified: switch to validated params (OB 80/OS 15, trail 10 bars, hold 10)
 - [ ] Start real-money micro trading on Alpaca with €100-200 (fractional GLD)
-- [ ] Apply trailing stop to other validated strategies (GLD 1h, IAU, XLE, SLV)
-- [ ] Monitor GLD 15m forward test (paper trading)
+- [ ] Apply trailing stop to other validated strategies (GLD 1h, XLE, SLV)
 
 ## Strategies Tested (with corrected costs)
 
@@ -237,5 +244,5 @@ Other: SimpleSMA, BollingerBreakout, GoldenCross, NFPBreakout (skeleton), GammaS
 
 ---
 
-*Last updated: 2026-02-14 (IG Phase 1-2 complete, fractional shares enabled, memory consolidated under .claude/)*
+*Last updated: 2026-02-17 (Fixed crash-loop bug, added IAU test bot, documented position conflict constraint)*
 *Update this file when phase changes or major milestones reached*
