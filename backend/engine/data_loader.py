@@ -189,3 +189,71 @@ class DataLoader:
             import traceback
             traceback.print_exc()
             return pd.DataFrame()
+
+    def get_event_blackout_times(self, start_date: str, end_date: str, currency: str = "USD",
+                                 event_keywords: list = None) -> set:
+        """
+        Return a set of event datetimes (timezone-naive UTC) for high-impact events.
+        Unlike fetch_economic_events(), this does NOT require actual/forecast values —
+        we just need the scheduled times for blackout purposes.
+
+        Args:
+            start_date: Start date string (YYYY-MM-DD)
+            end_date: End date string (YYYY-MM-DD)
+            currency: Currency filter (default USD)
+            event_keywords: List of substrings to match event names.
+                           Default: gold-relevant USD events (NFP, FOMC, CPI, Fed Funds)
+
+        Returns:
+            Set of pd.Timestamp (timezone-naive UTC)
+        """
+        if event_keywords is None:
+            event_keywords = [
+                'Non-Farm Employment',
+                'Nonfarm Payrolls',
+                'FOMC',
+                'Federal Funds Rate',
+                'CPI m/m',
+                'CPI y/y',
+                'Core CPI',
+                'Unemployment Rate',
+            ]
+
+        csv_path = 'backend/data_csv/economic_calendar.csv'
+        if not os.path.exists(csv_path):
+            print(f"Economic calendar CSV not found at {csv_path}")
+            return set()
+
+        try:
+            df = pd.read_csv(csv_path)
+            df['DateTime'] = pd.to_datetime(df['DateTime'], utc=True).dt.tz_localize(None)
+
+            # Filter by date range
+            mask = (df['DateTime'] >= pd.to_datetime(start_date)) & (df['DateTime'] <= pd.to_datetime(end_date))
+            df = df.loc[mask]
+
+            # Filter by currency
+            if currency:
+                currencies = [c.strip() for c in currency.split(',')]
+                df = df[df['Currency'].isin(currencies)]
+
+            # Filter by high impact
+            df = df[df['Impact'].str.contains("High", case=False, na=False)]
+
+            # Filter by event keywords
+            if event_keywords:
+                pattern = '|'.join(event_keywords)
+                df = df[df['Event'].str.contains(pattern, case=False, na=False)]
+
+            event_times = set(df['DateTime'].values)
+            # Convert numpy datetime64 to pd.Timestamp for consistent comparison
+            event_times = {pd.Timestamp(t) for t in event_times}
+
+            print(f"Loaded {len(event_times)} high-impact event times for blackout ({start_date} to {end_date})")
+            return event_times
+
+        except Exception as e:
+            print(f"Error loading event blackout times: {e}")
+            import traceback
+            traceback.print_exc()
+            return set()

@@ -15,7 +15,7 @@
 
 ## Where We Left Off (Feb 17)
 
-**Fixed critical crash-loop bug in gld-test bot (set_entry_metadata crash). Added defensive hasattr checks. Discovered two bots on same symbol cause position conflicts on Alpaca (one shared position per symbol). Stopped gld-15m-enhanced, kept gld-test for GLD, added iau-test on IAU to test enhancements on both without conflicts. Paper account lost ~$4k from crash-loop churning (now $96k). Markets closed Presidents' Day — real testing starts Feb 18.**
+**Built economic calendar integration for event blackout filtering (idea #17). Added `get_event_blackout_times()` to DataLoader (loads FOMC/NFP/CPI/Unemployment from 83k-row CSV), `event_blackout_hours` param to StochRSI strategy, `--event-blackout N` CLI flag to runner. Diagnostic analysis on 1,381 GLD 15m trades (2020-2025) showed event trades within ±1h are net losers (-$1.13 avg vs +$2.23 clean), but full backtest with blackout enabled actually reduces total return (28% → 23% with 1h, 21% with 2h) because some filtered event trades were winners. Feature built and available (off by default) — data doesn't support enabling it yet. Foundation laid for future event-driven strategies (actual vs forecast surprise trading).**
 
 ### What's been built:
 1. **Phase 0 — Experiments DB:** `experiments` table + `ExperimentTracker` class
@@ -23,6 +23,7 @@
 3. **Phase 2 — Validation:** holdout, walk-forward, multi-asset — 90 passed
 4. **Phase 3 — Composable Strategies:** 458 indicator combos tested on GLD 1h
 5. **Overnight Orchestrator:** `run_overnight.py` — chains all phases for unattended runs
+6. **Economic Calendar Integration:** `get_event_blackout_times()`, `event_blackout_hours` param, `--event-blackout` CLI, diagnostic script
 
 ### Overnight orchestrator (`backend/optimizer/run_overnight.py`):
 - **4 passes:** Broad sweep → Filter → Validate → Expand winners
@@ -81,6 +82,14 @@
 - Run next iteration: fine-tune trail/hold params, test exit-focused enhancements
 - IG live trading: Build `IGBroker` for order execution, add hour filter for NYSE-hours-only trading
 - Position sizing / Kelly with improved Sharpe 2.42 and DD 0.7% (ideas.md #7)
+- Event-driven strategies: use actual vs forecast surprise data (83k-row calendar) for directional gold trades
+
+### Economic Calendar Analysis (Feb 17):
+- **Diagnostic:** 1,381 GLD 15m trades tagged by proximity to FOMC/NFP/CPI (385 events, 2020-2025)
+- **±1h trades:** 81 trades, avg PnL -$1.13 (losers), avg win $6.60 vs $14.88 clean
+- **±2h trades:** 141 trades, avg PnL +$0.94 (still worse than +$2.15 clean)
+- **Backtest with blackout ON:** Return drops (28% → 23% at 1h, 21% at 2h) — filter removes some winners too
+- **Conclusion:** Blunt avoidance hurts more than helps. Future: targeted event-type filtering or directional event trading
 
 ## Read These Files for Details
 
@@ -200,10 +209,12 @@ git push origin main
 - [x] Memory cleanup — consolidated all files under `.claude/`, deleted retired research files
 - [x] Fix set_entry_metadata crash in live trading (defensive hasattr guard)
 - [x] Deploy IAU test bot (iau-test) to verify enhancements on second gold ETF
+- [x] **Economic Calendar Integration:** event blackout filter built, diagnostic run, backtest comparison done
 - [ ] Monitor gld-test + iau-test for correct trailing stop / min hold / skip Monday behaviour
 - [ ] Once verified: switch to validated params (OB 80/OS 15, trail 10 bars, hold 10)
 - [ ] Start real-money micro trading on Alpaca with €100-200 (fractional GLD)
 - [ ] Apply trailing stop to other validated strategies (GLD 1h, XLE, SLV)
+- [ ] Explore event-driven strategies (actual vs forecast surprise → directional gold trades)
 
 ## Strategies Tested (with corrected costs)
 
@@ -244,5 +255,5 @@ Other: SimpleSMA, BollingerBreakout, GoldenCross, NFPBreakout (skeleton), GammaS
 
 ---
 
-*Last updated: 2026-02-17 (Fixed crash-loop bug, added IAU test bot, documented position conflict constraint)*
+*Last updated: 2026-02-17 (Economic calendar integration — event blackout filter built, diagnostic analysed, backtest compared)*
 *Update this file when phase changes or major milestones reached*

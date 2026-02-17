@@ -1,6 +1,48 @@
-# Recent Git History
+### dea4e4d - feat: Economic calendar integration — event blackout filter for StochRSI (10 seconds ago)
 
-### 191fd43 - docs: Update claude.md with full Feb 14 session findings (2026-02-14)
+Added event blackout filtering to skip entries near high-impact USD events
+(FOMC, NFP, CPI, Unemployment Rate). Uses 83k-row economic calendar CSV.
+
+New code:
+- DataLoader.get_event_blackout_times() — loads event datetimes filtered by
+  currency, impact, and event keywords (NFP/FOMC/CPI/Fed Funds/Unemployment)
+- StochRSI event_blackout_hours param — precomputes blackout bar timestamps
+  at init for O(1) lookup in on_bar, follows existing skip_days pattern
+- Runner --event-blackout N CLI flag for backtest and live trading paths
+- backend/scripts/event_trade_analysis.py — diagnostic script
+
+Diagnostic results (1,381 GLD 15m trades, 2020-2025, 385 events):
+- ±1h: 81 event trades avg PnL -$1.13 vs +$2.23 clean (event trades are losers)
+- But full backtest with blackout ON reduces return (28% → 23% at 1h, 21% at 2h)
+- Blunt avoidance filters out some winning trades too
+- Feature built and available (off by default, event_blackout_hours=0)
+- Foundation for future event-driven strategies (actual vs forecast surprise)
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+---
+### d1ad7d8 - docs: Update session primer for Feb 17 — test bots, crash fix, position conflict (2 hours ago)
+
+- Fixed set_entry_metadata crash-loop (defensive hasattr guard deployed)
+- Added IAU test bot alongside GLD test bot for parallel enhancement testing
+- Stopped gld-15m-enhanced to avoid same-symbol position conflicts
+- Documented Alpaca constraint: one shared position per symbol per account
+- Updated active bots, testing params, and next steps
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+---
+### 980d596 - fix: Defensive hasattr check for set_entry_metadata in strategy (2 hours ago)
+
+Prevents crash loop when broker doesn't have the method (e.g. stale
+Python process). The gld-test bot was crashing on every trade, churning
+orders and losing ~$4k in paper account from the restart cycle.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+---
+### 76e7c2d - docs: Update claude.md with full Feb 14 session findings (3 days ago)
+
 Updated:
 - IG status: Phase 1-2 complete, demo data limits documented
 - Fractional shares: enabled on Alpaca (min $1 order)
@@ -8,7 +50,9 @@ Updated:
 - Checklist: 4 new completed items, 4 updated next steps
 - Decision: stay on Alpaca, use fractional shares for small-capital real trading
 
-### 7c5c212 - feat: Enable fractional share trading on Alpaca (2026-02-14)
+---
+### 7c5c212 - feat: Enable fractional share trading on Alpaca (3 days ago)
+
 Changed int(qty) to round(qty, 4) in AlpacaTrader.place_order().
 Enables trading with small accounts (e.g. €100 buying 0.05 shares of GLD at $460).
 Alpaca supports fractional shares down to $1 minimum order.
@@ -16,7 +60,9 @@ Alpaca supports fractional shares down to $1 minimum order.
 Previously: int(qty) rounded 0.05 → 0 shares (couldn't trade)
 Now: round(qty, 4) keeps 0.05 shares (valid fractional order)
 
-### b5e51e4 - fix: IGBroker order placement — currency, expiry, and arg fixes (2026-02-14)
+---
+### b5e51e4 - fix: IGBroker order placement — currency, expiry, and arg fixes (3 days ago)
+
 Fixed 3 issues found during demo testing:
 1. create_open_position requires all positional args (not just kwargs)
 2. Gold CFD uses currency_code='USD' not 'GBP' (added CURRENCY_MAP)
@@ -26,7 +72,9 @@ Order flow verified end-to-end on IG demo:
 - Connect ✅, Place order ✅, Get deal ref ✅, Confirm deal ✅
 - Final rejection 'MARKET_CLOSED_WITH_EDITS' = expected (Saturday)
 
-### 40e000c - feat: Add IGBroker for live trading + hour filter for strategy (2026-02-14)
+---
+### 40e000c - feat: Add IGBroker for live trading + hour filter for strategy (3 days ago)
+
 New: backend/engine/ig_broker.py
 - Matches LiveBroker interface (buy, sell, place_order, get_position, refresh, etc.)
 - Uses trading-ig create_open_position() with deal confirmation
@@ -42,7 +90,9 @@ Modified: backend/strategies/stoch_rsi_mean_reversion.py
 
 Usage: python3 -m backend.runner trade --strategy StochRSIMeanReversion --symbol GLD --source ig --timeframe 15m --paper
 
-### 42d5e5f - feat: Add trading_hours filter to StochRSI strategy (2026-02-14)
+---
+### 42d5e5f - feat: Add trading_hours filter to StochRSI strategy (3 days ago)
+
 Adds 'trading_hours' parameter (e.g. [14, 21] for NYSE hours 14:30-21:00 UTC).
 Entries blocked outside specified hours, exits always allowed (same pattern as skip_days).
 Default: empty list (no filtering - backward compatible).
@@ -50,7 +100,9 @@ Default: empty list (no filtering - backward compatible).
 Verified: Alpaca GLD Jan-Feb 2026 — 50 trades with filter vs 56 without, same 2.04% return.
 Key use case: restrict IG 24hr Gold to NYSE hours only to replicate GLD-validated conditions.
 
-### cd4c6a9 - refactor: Reorganize .claude/ into memory/, workflows/, archive/ (2026-02-14)
+---
+### cd4c6a9 - refactor: Reorganize .claude/ into memory/, workflows/, archive/ (3 days ago)
+
 Final structure:
   .claude/claude.md (master primer)
   .claude/memory/ (system_manual, ideas, recent_history)
@@ -59,7 +111,9 @@ Final structure:
 
 Updated all path references in claude.md, update_memory.sh, load-context.sh, git_save.md
 
-### adafde5 - refactor: Move memory files from .agent/memory/ to .claude/ (2026-02-14)
+---
+### adafde5 - refactor: Move memory files from .agent/memory/ to .claude/ (3 days ago)
+
 Consolidates all memory/context files under .claude/:
 - Moved ideas.md, recent_history.md, system_manual.md
 - Updated update_memory.sh output path
@@ -69,7 +123,9 @@ Consolidates all memory/context files under .claude/:
 
 All memory now lives in .claude/ alongside claude.md
 
-### e08e71b - chore: Clean up memory files, update claude.md with IG integration (2026-02-14)
+---
+### e08e71b - chore: Clean up memory files, update claude.md with IG integration (3 days ago)
+
 Deleted:
 - .agent/memory/research_insights.md (RETIRED, contaminated with delay=1 results)
 - .agent/memory/research.md (outdated, findings already in claude.md)
@@ -82,7 +138,9 @@ Updated claude.md:
 - Updated Next Steps with IG milestones (3 checked, 2 remaining)
 - Removed references to deleted files
 
-### ea83500 - feat: Add --source ig to runner.py for IG data backtesting (2026-02-14)
+---
+### ea83500 - feat: Add --source ig to runner.py for IG data backtesting (3 days ago)
+
 Phase 1 of IG integration:
 - Added 'ig' as third data source option (alongside csv/alpaca) in backtest, matrix, and trade commands
 - Added IG data loading branches in run_backtest() and worker_task()
@@ -93,7 +151,9 @@ Verification: Ran 'backtest --source ig --symbol GLD --timeframe 15m' with Enhan
 Result: -1.85% return, 148 trades, 60% win rate, 2.42% max DD over 6 weeks of IG demo Gold data.
 Strategy executes correctly on IG data — no changes needed to strategy code.
 
-### 4f9e37d - fix: Patch IGDataLoader date format and epic resolution (2026-02-14)
+---
+### 4f9e37d - fix: Patch IGDataLoader date format and epic resolution (3 days ago)
+
 Fixes for IG Demo API interaction:
 - Reverted date format to ISO 8601 (YYYY-MM-DDTHH:MM:SS) which prevents error.malformed.date
 - Added datetime object passing to trading-ig for robustness
@@ -104,7 +164,9 @@ Fixes for IG Demo API interaction:
 Verification:
 - Successfully fetched 93 rows of Gold 15m data on Demo account
 
-### ea719c6 - feat: Add IG spread betting data loader (2026-02-14)
+---
+### ea719c6 - feat: Add IG spread betting data loader (4 days ago)
+
 New files:
 - backend/engine/ig_loader.py: IGDataLoader class mirroring AlpacaDataLoader interface
   for fetching historical OHLCV data from IG REST API (gold, forex, indices)
@@ -129,9 +191,13 @@ Key technical details:
 
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
-### 0700679 - fix(broker): add set_entry_metadata to LiveBroker to prevent crash on trade (2026-02-13)
+---
+### 0700679 - fix(broker): add set_entry_metadata to LiveBroker to prevent crash on trade (4 days ago)
 
-### 8e0dac0 - test: Add temporary aggressive-params test bot for piping verification (2026-02-13)
+
+---
+### 8e0dac0 - test: Add temporary aggressive-params test bot for piping verification (4 days ago)
+
 OB 60/OS 40, ADX 50, trail after 3 bars, min hold 3 bars.
 Generates high trade frequency to verify trailing stop, min hold,
 and skip_days mechanics are working in live paper trading.
@@ -139,13 +205,17 @@ Delete after verification.
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 
-### d44665c - feat: Deploy enhanced GLD 15m strategy (Sharpe 2.42) (2026-02-13)
+---
+### d44665c - feat: Deploy enhanced GLD 15m strategy (Sharpe 2.42) (4 days ago)
+
 Skip Monday + trailing stop (2x ATR after 10 bars) + min hold 10 bars.
 Replaces baseline params (Sharpe 1.57) with validated enhanced version.
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 
-### 0558c89 - feat: Edge enhancements — trailing stop + min hold take Sharpe from 1.57 to 2.42 (2026-02-13)
+---
+### 0558c89 - feat: Edge enhancements — trailing stop + min hold take Sharpe from 1.57 to 2.42 (4 days ago)
+
 Trade analysis revealed three key leaks in GLD 15m StochRSI:
 - Stop losses were 100% losers (199 trades, -$1,219 total)
 - Short-duration trades (1-5 bars, 72% of trades) were breakeven noise
@@ -181,7 +251,9 @@ New files:
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 
-### b065f82 - docs: Add edge enhancement plan and update session context (2026-02-13)
+---
+### b065f82 - docs: Add edge enhancement plan and update session context (4 days ago)
+
 New file: .agent/workflows/edge_enhancement_plan.md
 - 5-phase plan to improve validated edges (GLD 15m Sharpe 1.66)
 - Phase 1: Enrich trade records (entry time, exit reason, ATR at entry)
@@ -204,52 +276,12 @@ to cover all unvalidated symbol/TF combos in a single run.
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 
-### 29d2cfc - feat: Switch GLD bot from 1h to 15m (Sharpe 1.66, best validated edge) (2026-02-13)
+---
+### 29d2cfc - feat: Switch GLD bot from 1h to 15m (Sharpe 1.66, best validated edge) (4 days ago)
+
 GLD 15m params: RSI 7, Stoch 14, OB 80, OS 15, ADX 20, ATR stop 2x
 Replaces GLD 1h (Sharpe 1.44) with higher-edge 15m strategy.
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 
-### b63e070 - docs: Update with GLD 15m validation results and new strategy ideas (2026-02-13)
-- GLD 15m StochRSI (Sharpe 1.66) validated as best edge — yearly returns 2-7%
-- 5,300+ experiments, 90 validated passes across GLD/IAU/XLE
-- Added ideas #7-12: position sizing, GDX amplification, multi-TF confirmation,
-  cross-asset signals, spread betting/IG API for small accounts, forex discovery
-- Updated next steps: explore IG API for €100 starting capital
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### a91cf41 - feat: Add scan/medium grid modes, symbol filtering, and ideas log (2026-02-12)
-- Added --scan (11 combos), --medium (972 combos) grid tiers for faster iteration
-- Added --symbols and --timeframes CLI filters to focus runs on promising targets
-- Added --skip-sweep and --skip-validation flags for independent pass execution
-- Fixed --quick not respecting explicit --max-hours override
-- Pass 4 now loads winners from DB when skipping validation
-- Enabled verbose output during sweeps for progress visibility
-- Created .agent/memory/ideas.md for future strategy concepts (drawdown analysis,
-  regime rotation, pairs trading, beta hedging, portfolio diversification, dashboard)
-- Updated claude.md with ideas.md reference (DO NOT auto-read)
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### de52b94 - feat: Add overnight strategy discovery orchestrator (2026-02-11)
-Single script (run_overnight.py) chains all discovery phases for
-unattended overnight runs. 4 passes: broad sweep across priority-
-ordered asset/TF combos → filter promising candidates from DB →
-validate via holdout/walk-forward/multi-asset → expand winners to
-adjacent timeframes and related assets.
-
-Features:
-- TimeBudget class with global time limit (default 10h)
-- --quick mode for smoke testing (reduced grids, <1h)
-- --skip-composable to skip slow composable sweeps
-- skip_tested=True everywhere for crash recovery
-- Per-sweep error handling (logs and continues)
-- Priority targets: GLD other TFs, gold-correlated (SLV/IAU/GDX),
-  XLE/XBI/TLT, broad market (SPY/QQQ/IWM/DIA)
-- Final report with timing, new experiments, validation results,
-  and top 10 all-time performers
-
-No existing files modified — wires existing Phase 0-3 APIs together.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+---

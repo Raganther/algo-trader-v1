@@ -264,6 +264,13 @@ def run_backtest(args):
             print("Error: Invalid JSON in --parameters")
             return
     
+    # 2b. Event blackout — load event times and inject into params
+    event_blackout = getattr(args, 'event_blackout', 0)
+    if event_blackout > 0:
+        params['event_blackout_hours'] = event_blackout
+        event_loader = DataLoader()
+        params['_event_times'] = event_loader.get_event_blackout_times(args.start, args.end, currency='USD')
+
     # 3. Run Backtest
     # Initialize Backtester
     print(f"DEBUG: Data Shape: {data.shape}")
@@ -280,6 +287,9 @@ def run_backtest(args):
     )
     results = backtester.run()
     
+    # Strip non-serializable internal params before saving
+    params.pop('_event_times', None)
+
     # 4. Report
     print("\n=== RESULTS ===")
     print(f"Return: {results['return_pct']}%")
@@ -448,6 +458,7 @@ def main():
     bt_parser.add_argument("--parameters", type=str, help="JSON string of parameters to override defaults")
     bt_parser.add_argument("--tag", type=str, help="Optional tag to identify this run variation")
     bt_parser.add_argument("--iteration", type=int, help="Specific Iteration Index to link (Optional)")
+    bt_parser.add_argument("--event-blackout", type=int, default=0, help="Event blackout hours (0=off, e.g. 2=skip entries within 2h of high-impact event)")
     
     # Matrix Command
     matrix_parser = subparsers.add_parser('matrix', help='Run matrix research')
@@ -470,6 +481,7 @@ def main():
     trade_parser.add_argument("--source", type=str, default="alpaca", choices=["alpaca", "ig"], help="Broker source (alpaca or ig)")
     trade_parser.add_argument("--parameters", type=str, help="JSON string of parameters")
     trade_parser.add_argument("--iteration", type=int, help="Specific Iteration Index to link (Optional)")
+    trade_parser.add_argument("--event-blackout", type=int, default=0, help="Event blackout hours (0=off)")
     
     args = parser.parse_args()
     
@@ -570,6 +582,19 @@ def run_live_trading(args):
         initial_data = initial_data.resample('5min').agg(ohlc_dict).dropna()
         
     print(f"Warmup Data: {len(initial_data)} bars")
+
+    # Event blackout — load event times for live trading
+    event_blackout = getattr(args, 'event_blackout', 0)
+    if event_blackout > 0:
+        params['event_blackout_hours'] = event_blackout
+        from backend.engine.data_loader import DataLoader as EventLoader
+        event_loader = EventLoader()
+        # Load events for a wide range (current year ± 1) for live trading
+        from datetime import datetime as dt_cls
+        ev_start = f"{dt_cls.now().year - 1}-01-01"
+        ev_end = f"{dt_cls.now().year + 1}-12-31"
+        event_times = event_loader.get_event_blackout_times(ev_start, ev_end, currency='USD')
+        params['_event_times'] = event_times
 
     # Initialize Strategy
     print(f"[DEBUG] Initializing {args.strategy} strategy...")

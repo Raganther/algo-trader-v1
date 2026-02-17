@@ -3,6 +3,7 @@ from backend.indicators.stoch_rsi import StochRSI
 from backend.indicators.adx import adx
 from backend.indicators.atr import atr
 import pandas as pd
+from datetime import timedelta
 
 class StochRSIMeanReversionStrategy(Strategy):
     def __init__(self, data, events, parameters, initial_cash=10000.0, broker=None):
@@ -31,6 +32,29 @@ class StochRSIMeanReversionStrategy(Strategy):
         self.trail_after_bars = int(parameters.get('trail_after_bars', 0))  # Start trailing after N bars in profit
         self.trail_atr = float(parameters.get('trail_atr', self.sl_atr))  # Trailing ATR multiplier
         self.min_hold_bars = int(parameters.get('min_hold_bars', 0))  # Minimum bars before signal exit allowed
+        self.event_blackout_hours = int(parameters.get('event_blackout_hours', 0))  # Skip entries within N hours of high-impact event (0=off)
+        self.blackout_times = set()  # precomputed set of bar timestamps in blackout windows
+
+        # Precompute blackout bar timestamps if enabled
+        if self.event_blackout_hours > 0:
+            event_times = parameters.get('_event_times', set())  # injected by runner
+            if event_times and data is not None and not data.empty:
+                buffer = timedelta(hours=self.event_blackout_hours)
+                # Normalize all timestamps to tz-naive for comparison
+                has_tz = data.index.tz is not None
+                bar_times = set(data.index.tz_localize(None)) if has_tz else set(data.index)
+                for evt in event_times:
+                    evt_ts = pd.Timestamp(evt)
+                    if evt_ts.tzinfo is not None:
+                        evt_ts = evt_ts.tz_localize(None)
+                    for bt in bar_times:
+                        if abs(bt - evt_ts) <= buffer:
+                            # Store in original form (with tz if data has tz) for on_bar lookup
+                            if has_tz:
+                                self.blackout_times.add(bt.tz_localize(data.index.tz))
+                            else:
+                                self.blackout_times.add(bt)
+                print(f"[EVENT BLACKOUT] {len(self.blackout_times)} bars in blackout zones ({self.event_blackout_hours}h buffer, {len(event_times)} events)")
 
         # State
         self.in_oversold_zone = False
@@ -102,6 +126,10 @@ class StochRSIMeanReversionStrategy(Strategy):
             start_hour, end_hour = self.trading_hours
             if not (start_hour <= row.name.hour < end_hour):
                 skip_entry = True
+
+        # Event blackout filter (skip entries near high-impact economic events, but allow exits)
+        if self.event_blackout_hours > 0 and row.name in self.blackout_times:
+            skip_entry = True
 
         # Trailing stop update (move stop to lock in profits)
         if self.trailing_stop and self.entry_bar is not None and self.current_sl is not None:
