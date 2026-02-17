@@ -203,14 +203,15 @@ class StochRSIMeanReversionStrategy(Strategy):
                         self.position = 'long'
                         self.entry_bar = i
                         self.entry_price = row['Close']
-                        self.broker.set_entry_metadata(self.symbol, {
-                            'entry_time': str(row.name),
-                            'entry_bar': i,
-                            'entry_hour': row.name.hour if hasattr(row.name, 'hour') else None,
-                            'entry_dow': row.name.dayofweek if hasattr(row.name, 'dayofweek') else None,
-                            'atr_at_entry': float(atr_val),
-                            'direction': 'long',
-                        })
+                        if hasattr(self.broker, 'set_entry_metadata'):
+                            self.broker.set_entry_metadata(self.symbol, {
+                                'entry_time': str(row.name),
+                                'entry_bar': i,
+                                'entry_hour': row.name.hour if hasattr(row.name, 'hour') else None,
+                                'entry_dow': row.name.dayofweek if hasattr(row.name, 'dayofweek') else None,
+                                'atr_at_entry': float(atr_val),
+                                'direction': 'long',
+                            })
 
             if current_k > 50:
                 self.in_oversold_zone = False
@@ -243,14 +244,15 @@ class StochRSIMeanReversionStrategy(Strategy):
                         self.position = 'short'
                         self.entry_bar = i
                         self.entry_price = row['Close']
-                        self.broker.set_entry_metadata(self.symbol, {
-                            'entry_time': str(row.name),
-                            'entry_bar': i,
-                            'entry_hour': row.name.hour if hasattr(row.name, 'hour') else None,
-                            'entry_dow': row.name.dayofweek if hasattr(row.name, 'dayofweek') else None,
-                            'atr_at_entry': float(atr_val),
-                            'direction': 'short',
-                        })
+                        if hasattr(self.broker, 'set_entry_metadata'):
+                            self.broker.set_entry_metadata(self.symbol, {
+                                'entry_time': str(row.name),
+                                'entry_bar': i,
+                                'entry_hour': row.name.hour if hasattr(row.name, 'hour') else None,
+                                'entry_dow': row.name.dayofweek if hasattr(row.name, 'dayofweek') else None,
+                                'atr_at_entry': float(atr_val),
+                                'direction': 'short',
+                            })
 
             if current_k < 50:
                 self.in_overbought_zone = False
