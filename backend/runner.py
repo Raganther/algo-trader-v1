@@ -24,6 +24,7 @@ from backend.strategies.rapid_fire_test import RapidFireTestStrategy # New
 from backend.strategies.a_golden_cross import AGoldenCrossStrategy
 from backend.strategies.regime_gated_stoch import RegimeGatedStoch # New
 from backend.strategies.swing_breakout import SwingBreakoutStrategy # New
+from backend.strategies.event_surprise import EventSurpriseStrategy # New
 
 # Strategy Mapping
 STRATEGY_MAP = {
@@ -44,6 +45,7 @@ STRATEGY_MAP = {
     "AGoldenCross": AGoldenCrossStrategy,
     "RegimeGatedStoch": RegimeGatedStoch,
     "SwingBreakout": SwingBreakoutStrategy,
+    "EventSurprise": EventSurpriseStrategy,
 }
 
 def run_backtest(args):
@@ -249,11 +251,23 @@ def run_backtest(args):
             "sma_slow": 200,
             "vol_multiplier": 1.5
         }
+    elif args.strategy == "EventSurprise":
+        params = {
+            "symbol": args.symbol,
+            "event_types": ["CPI m/m", "CPI y/y"],
+            "hold_bars": 4,
+            "stop_pct": 0.5,
+            "entry_delay": 1,
+            "risk_pct": 0.02,
+            "trade_beats": False,
+            "surprise_threshold": 0.5,
+            "dedup_minutes": 5,
+        }
     else:
         params = {
             "symbol": args.symbol
         }
-        
+
     # Override with CLI parameters if provided
     if args.parameters:
         try:
