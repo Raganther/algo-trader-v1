@@ -40,7 +40,7 @@
 
 | Strategy | File | Status | Summary |
 |---|---|---|---|
-| **StochRSI Enhanced GLD** | `strategies/stochrsi_enhanced_gld.md` | VALIDATED (Sharpe 2.42) | Best edge. Params, validation, enhancement analysis, bot config |
+| **StochRSI Enhanced GLD** | `strategies/stochrsi_enhanced_gld.md` | VALIDATED (Sharpe 2.42) | Best edge. 43% / 0.69% DD / all years positive. Correct param names documented. |
 | **EventSurprise** | `strategies/event_surprise.md` | BUILT (backtest positive) | CPI/NFP surprise trading. Research findings, direction mappings, results |
 | **Composable Results** | `strategies/composable_results.md` | Complete (3 validated) | Phase 3 combo results, building blocks reference |
 
@@ -48,7 +48,7 @@
 
 | Strategy | Asset | TF | Result | Status |
 |---|---|---|---|---|
-| **StochRSI Enhanced** | **GLD** | **15m** | **Sharpe 2.42, +38%, DD 0.7%** | **VALIDATED (best)** |
+| **StochRSI Enhanced** | **GLD** | **15m** | **Sharpe 2.42, +43%, DD 0.69%** | **VALIDATED (best)** |
 | **EventSurprise (CPI)** | **GLD** | **15m** | **+2.36%, 86% WR, 14 trades** | **Built** |
 | StochRSI | GLD | 1h | Sharpe 1.44 | Validated |
 | StochRSI | IAU | 1h | Sharpe 1.22 | Validated |
@@ -80,8 +80,8 @@ gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="pm2 logs spy-
 git push origin main
 gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="cd algo-trader-v1 && git pull && pm2 restart all"
 
-# Backtest StochRSI Enhanced
-python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD --timeframe 15m --start 2020-01-01 --end 2025-12-31 --source alpaca --spread 0.0003 --delay 0 --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"stop_loss_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold":10,"skip_days":[0]}'
+# Backtest StochRSI Enhanced (CORRECT param names — verified Feb 26)
+python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD --timeframe 15m --start 2020-01-01 --end 2025-12-31 --source alpaca --spread 0.0003 --delay 0 --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 
 # Backtest EventSurprise (CPI-only)
 python3 -m backend.runner backtest --strategy EventSurprise --symbol GLD --timeframe 15m --start 2020-01-01 --end 2025-12-31 --source alpaca --spread 0.0003 --delay 0 --parameters '{"event_types":["CPI m/m","CPI y/y"],"hold_bars":4,"stop_pct":0.5,"entry_delay":1}'

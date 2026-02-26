@@ -1,6 +1,14 @@
 # Recent Git History
 
-### 71a6d2c - docs: git save — Feb 26 session (2026-02-26)
+### 71928b0 - docs: git save — Feb 26 session (strategy analysis + frontend idea) (2026-02-26)
+- Fixed backtest command in CLAUDE.md: wrong param names (min_hold→min_hold_bars, stop_loss_atr→sl_atr, missing skip_adx_filter:false) were silently producing wrong results (5.61%/1996 trades vs 43%/689 trades)
+- Re-verified GLD 15m StochRSI Enhanced with correct params: 43.03% total return, 0.69% DD, all 6 years profitable
+- Added year-by-year breakdown to stochrsi_enhanced_gld.md (2020-2025, best year 2024 +7.90%)
+- Added profit projection table by position sizing (2%→20% risk/trade) for €100/€1000 accounts
+- Added WARNING note about silent param fallbacks in strategy memory file
+- Updated ideas.md #6: refined frontend rebuild vision — personal strategy reference dashboard, two pages (index + detail), verified strategies sorted by Sharpe, research notes rendered from markdown
+
+### 9992f8f - docs: git save — Feb 26 session (2026-02-26)
 - Update claude.md: document DAY TIF fix, system audit findings, next steps
 - Stage deletion of .agent/scripts/update_memory.sh (moved to scripts/)
 
@@ -217,11 +225,3 @@ Key technical details:
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 ### 0700679 - fix(broker): add set_entry_metadata to LiveBroker to prevent crash on trade (2026-02-13)
-
-### 8e0dac0 - test: Add temporary aggressive-params test bot for piping verification (2026-02-13)
-OB 60/OS 40, ADX 50, trail after 3 bars, min hold 3 bars.
-Generates high trade frequency to verify trailing stop, min hold,
-and skip_days mechanics are working in live paper trading.
-Delete after verification.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>

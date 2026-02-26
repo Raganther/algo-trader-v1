@@ -89,19 +89,51 @@ Run uncorrelated strategies simultaneously on different assets. Combined equity 
 
 ---
 
-## 6. Frontend Dashboard Rebuild
-*Discussed: 2026-02-11*
+## 6. Strategy Reference Dashboard (Frontend Rebuild)
+*Discussed: 2026-02-11, refined 2026-02-26*
 
-Delete current frontend, rebuild to visualise experiments DB. Key views:
+**Vision:** Simple personal reference tool. At a glance — what strategies exist, how good are they, what's their status. Click in for full notes. Not a research tool, not for others — just a fast visual reference for the operator.
 
-- **Heatmap** — asset x timeframe, colored by best Sharpe
-- **Validation funnel** — sweep → filtered → validated → passed
-- **Drawdown distribution plots** — per strategy/asset, histogram of duration + depth with percentile markers
-- **Equity curve overlay** — compare top N validated strategies
-- **Parameter sensitivity** — scatter plot of param values vs Sharpe per strategy/asset
-- **Discovery timeline** — cumulative experiments, are we still finding new edges?
+**Wipe existing frontend** (`/frontend`) and rebuild from scratch. Keep Next.js + dark theme stack. Remove all experiment matrix / raw sweep noise.
 
-**Data source:** All reads from `research.db` directly.
+### Page 1 — Strategy Index (/)
+Single page, strategies sorted by quality (best Sharpe at top).
+
+Two tiers visible:
+- **Verified** — validated through backtest + walk-forward. Show Sharpe, return, DD, status badge (PAPER / LIVE)
+- **Promising** — backtested positive but not fully validated. Show return + status badge (RESEARCHED / TESTING)
+
+Each strategy = a card. Click card → detail page.
+
+### Page 2 — Strategy Detail (/strategy/[name])
+Everything we know about that strategy:
+- Key stats panel (Sharpe, return, DD, win rate, trades/month)
+- Year-by-year performance table
+- Equity curve + drawdown chart (from experiments DB)
+- Research notes (rendered from `.claude/memory/strategies/<name>.md`)
+- Parameters table (with correct code names)
+- Forward test log — actual live trades from paper bots
+- Testing plan / next steps
+
+### Data sources
+- `experiments.db` — backtest results, yearly breakdowns, equity curves
+- Alpaca API or trade log — forward test trades
+- `.claude/memory/strategies/*.md` — research notes (rendered as markdown)
+
+### What it replaces
+The existing frontend had: experiments matrix, edges view, equity curves. Good visual foundation but wrong focus — it showed raw sweep data not curated strategy research.
+
+### Tech decisions
+- Next.js (keep existing stack)
+- Read strategy markdown files server-side and render them
+- SQLite reads direct from `experiments.db` via API routes
+- No auth needed (local / cloud, personal only)
+- Dark theme, minimal — data density over decoration
+
+### Not included
+- Live bot status (separate concern, use pm2 / CLI for now)
+- Position sizing calculators
+- Raw experiment sweep data
 
 ---
 
@@ -272,5 +304,5 @@ Avoid entries around FOMC, NFP, CPI releases. Gold whipsaws on macro events and 
 
 ---
 
-*Last updated: 2026-02-14*
+*Last updated: 2026-02-26*
 *Add new ideas as they come up during sessions*
