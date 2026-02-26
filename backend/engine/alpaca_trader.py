@@ -93,7 +93,6 @@ class AlpacaTrader:
         take_profit: float price
         """
         alpaca_side = OrderSide.BUY if side.lower() == 'buy' else OrderSide.SELL
-        alpaca_tif = TimeInForce.GTC # Default
 
         # Clean symbol (BTC/USD -> BTCUSD)
         clean_symbol = symbol.replace('/', '')
@@ -101,9 +100,13 @@ class AlpacaTrader:
         # Alpaca constraints for stock orders:
         # - Fractional short selling is not allowed (new short positions)
         # - Fractional buying and closing IS supported (min $1 order)
+        # - Fractional stock orders MUST be DAY orders (not GTC)
         is_crypto = '/' in symbol
         if not is_crypto:
             qty = round(qty, 4)  # Fractional shares OK for buys and closing positions
+            alpaca_tif = TimeInForce.DAY  # Alpaca requires DAY for fractional stock orders
+        else:
+            alpaca_tif = TimeInForce.GTC  # Crypto uses GTC
 
         if time_in_force.lower() == 'day':
             alpaca_tif = TimeInForce.DAY
