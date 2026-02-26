@@ -1,6 +1,28 @@
 # Recent Git History
 
-### b383c81 - feat: EventSurprise strategy + memory restructure into per-strategy files (2026-02-17)
+### 71a6d2c - docs: git save — Feb 26 session (2026-02-26)
+- Update claude.md: document DAY TIF fix, system audit findings, next steps
+- Stage deletion of .agent/scripts/update_memory.sh (moved to scripts/)
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### ce79ac8 - chore: system audit — commit missing iau script, update claude.md (2026-02-26)
+- Add scripts/run_iau_test.sh (existed on cloud, never committed to git)
+- Update CLAUDE.md: document Feb 26 DAY TIF fix, update next steps
+- Audit confirmed: all memory files accurate, codebase matches docs
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### 4361d59 - fix: fractional stock orders must use DAY not GTC on Alpaca (2026-02-26)
+All GLD/IAU orders rejected since Feb 13 with:
+'fractional orders must be DAY orders' (code 42210000)
+
+Fix: non-crypto symbols now default to TimeInForce.DAY.
+Crypto keeps GTC as before.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### eb208c3 - feat: EventSurprise strategy + memory restructure into per-strategy files (2026-02-17)
 New strategy: EventSurpriseStrategy trades GLD on CPI/NFP/Unemployment
 surprise direction. Loads 83k-row economic calendar, matches events to
 bars via bisect, deduplicates co-releases, classifies surprises using
@@ -201,70 +223,5 @@ OB 60/OS 40, ADX 50, trail after 3 bars, min hold 3 bars.
 Generates high trade frequency to verify trailing stop, min hold,
 and skip_days mechanics are working in live paper trading.
 Delete after verification.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### d44665c - feat: Deploy enhanced GLD 15m strategy (Sharpe 2.42) (2026-02-13)
-Skip Monday + trailing stop (2x ATR after 10 bars) + min hold 10 bars.
-Replaces baseline params (Sharpe 1.57) with validated enhanced version.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 0558c89 - feat: Edge enhancements — trailing stop + min hold take Sharpe from 1.57 to 2.42 (2026-02-13)
-Trade analysis revealed three key leaks in GLD 15m StochRSI:
-- Stop losses were 100% losers (199 trades, -$1,219 total)
-- Short-duration trades (1-5 bars, 72% of trades) were breakeven noise
-- Monday trades had near-zero edge (128 trades, +$23 total)
-
-Enhancements added to StochRSIMeanReversion (all optional, off by default):
-- skip_days: filter entries on specified days (e.g. [0] for Monday)
-- trailing_stop + trail_after_bars + trail_atr: move stop to lock in profits
-- min_hold_bars: prevent signal exits before N bars held
-
-Enriched trade records (entry_time, exit_reason, atr_at_entry, direction,
-entry_hour, entry_dow) for diagnostic analysis. Added set_entry_metadata()
-to PaperTrader, exit_reason passthrough in Strategy base class.
-
-A/B sweep results (18 variants vs baseline):
-- Skip Monday: Sharpe +0.12 (removes dead trades)
-- Trail 2x ATR after 20 bars: Sharpe +0.41 (best single enhancement)
-- Trail 2x/5bar + Hold 5: Sharpe 2.30 (+0.73, best combo)
-- Skip Mon + Trail 2x/10bar + Hold 10: Sharpe 2.42 (+0.72)
-
-Full validation — ALL 4 variants PASSED (holdout + walk-forward + multi-asset):
-- Best: Skip Mon + Trail 2x/10bar + Hold 10 → Sharpe 2.42
-- Holdout: +16.4% (train +18.6%, only 2.2% degradation)
-- Walk-forward: 4/4 windows positive (100%)
-- Multi-asset: GLD +38%, SLV +92%, IAU +31%
-
-Key insight: Enhancements performed BETTER on unseen data. Trailing stop
-is structural (not curve-fitting) — generalises across gold assets.
-
-New files:
-- backend/optimizer/trade_analysis.py — diagnostic backtest + trade slicing
-- backend/optimizer/enhancement_sweep.py — A/B sweep framework
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### b065f82 - docs: Add edge enhancement plan and update session context (2026-02-13)
-New file: .agent/workflows/edge_enhancement_plan.md
-- 5-phase plan to improve validated edges (GLD 15m Sharpe 1.66)
-- Phase 1: Enrich trade records (entry time, exit reason, ATR at entry)
-- Phase 2: Diagnostic analysis (time-of-day, vol regime, exit patterns)
-- Phase 3: Build targeted filters based on analysis findings
-- Phase 4: A/B sweep (~50 variants vs baseline)
-- Phase 5: Stack winners + validate through walk-forward
-
-Key finding: backtester doesn't store entry timestamps or exit reasons,
-needs enrichment before analysis can begin.
-
-Updated ideas.md with 5 new ideas (#13-17): time-of-day filtering,
-exit optimisation, limit order entries, vol-scaled sizing, news blackout.
-
-Updated claude.md: GLD 15m bot deployed (replaced 1h), validation run
-in progress (150 candidates), edge enhancement as next priority.
-
-Raised validation candidate limit from 50 to 150 in run_overnight.py
-to cover all unvalidated symbol/TF combos in a single run.
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>

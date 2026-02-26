@@ -13,9 +13,11 @@
 - **IG Integration:** ✅ Phase 1-2 done (data loader + IGBroker). IG best used for execution only.
 - **Fractional Shares:** ✅ Alpaca fractional orders enabled — can trade GLD with €100 (min $1 order).
 
-## Where We Left Off (Feb 17)
+## Where We Left Off (Feb 26)
 
-**Built EventSurprise strategy — trades GLD on CPI/NFP/Unemployment surprise direction. CPI miss -> gold UP is the strongest signal (86% win rate, 14 trades, +2.36%). Strategy built, backtested, bot script ready. Also built economic calendar blackout filter for StochRSI (off by default — blunt avoidance hurts more than helps).**
+**Fixed critical Alpaca order bug: all GLD/IAU orders had been silently failing since ~Feb 14 with "fractional orders must be DAY orders" (code 42210000). Root cause: `alpaca_trader.py` was using GTC by default; Alpaca requires DAY for fractional stock orders. Fixed in `backend/engine/alpaca_trader.py` — non-crypto now uses `TimeInForce.DAY`. Bots restarted and accepting orders again. Also audited system: everything in sync. `run_iau_test.sh` was on cloud but not in git — committed it.**
+
+**Previously (Feb 17): Built EventSurprise strategy — trades GLD on CPI/NFP/Unemployment surprise direction. CPI miss -> gold UP is the strongest signal (86% win rate, 14 trades, +2.36%). Strategy built, backtested, bot script ready.**
 
 ### What's been built:
 1. **Phase 0 — Experiments DB:** `experiments` table + `ExperimentTracker` class
@@ -152,8 +154,8 @@ git push origin main
 
 ## Next Steps
 
-- [ ] Monitor gld-test + iau-test for correct trailing stop / min hold / skip Monday behaviour
-- [ ] Once verified: switch to validated params (OB 80/OS 15, trail 10 bars, hold 10)
+- [ ] Monitor gld-test + iau-test for trades now that DAY TIF fix is deployed (orders were broken Feb 14–26)
+- [ ] Once enhancement mechanics verified: switch to validated params (OB 80/OS 15, trail 10 bars, hold 10)
 - [ ] Start real-money micro trading on Alpaca with €100-200 (fractional GLD)
 - [ ] Apply trailing stop to other validated strategies (GLD 1h, IAU, XLE, SLV)
 - [ ] Paper test EventSurprise (CPI-only) on cloud
@@ -175,5 +177,5 @@ StochRSI, RSI, MACD, ADX, Bollinger Bands, Donchian Channels, ATR, SMA, CHOP
 
 ---
 
-*Last updated: 2026-02-17 (EventSurprise strategy built, memory restructured into per-strategy files)*
+*Last updated: 2026-02-26 (Fixed Alpaca DAY TIF bug, audited system, committed run_iau_test.sh)*
 *Update this file when phase changes or major milestones reached*
