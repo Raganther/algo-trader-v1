@@ -145,21 +145,24 @@ export function getYearlyRuns(
   const db = getDb()
   const strat = testRunsStrategy(strategy)
 
-  // Pick the iteration_index that has the best total return across years
+  // Pick the iteration_index with the most years of data.
+  // If all iterations have 1 year each (runs were done year-by-year independently),
+  // fall back to collecting one row per year across all iterations.
   const bestIteration = db
-    .prepare<[string, string, string], { iteration_index: number; total: number }>(
-      `SELECT iteration_index, SUM(return_pct) as total
+    .prepare<[string, string, string], { iteration_index: number; cnt: number }>(
+      `SELECT iteration_index, COUNT(*) as cnt
        FROM test_runs
        WHERE strategy = ? AND symbol = ? AND timeframe = ?
        GROUP BY iteration_index
-       ORDER BY total DESC
+       ORDER BY cnt DESC, SUM(return_pct) DESC
        LIMIT 1`,
     )
     .get(strat, symbol, timeframe)
 
   let rows: TestRunRow[] = []
 
-  if (bestIteration) {
+  if (bestIteration && bestIteration.cnt > 1) {
+    // Multi-year iteration — use it directly
     rows = db
       .prepare<[string, string, string, number], TestRunRow>(
         `SELECT test_id, start_date, return_pct, max_drawdown, win_rate, total_trades
@@ -168,6 +171,23 @@ export function getYearlyRuns(
          ORDER BY start_date ASC`,
       )
       .all(strat, symbol, timeframe, bestIteration.iteration_index)
+  } else if (bestIteration) {
+    // Each year was run separately — take one row per calendar year (highest return)
+    rows = db
+      .prepare<[string, string, string], TestRunRow>(
+        `SELECT test_id, start_date, return_pct, max_drawdown, win_rate, total_trades
+         FROM test_runs t
+         WHERE strategy = ? AND symbol = ? AND timeframe = ?
+           AND return_pct = (
+             SELECT MAX(t2.return_pct) FROM test_runs t2
+             WHERE t2.strategy = t.strategy AND t2.symbol = t.symbol
+               AND t2.timeframe = t.timeframe
+               AND strftime('%Y', t2.start_date) = strftime('%Y', t.start_date)
+           )
+         GROUP BY strftime('%Y', start_date)
+         ORDER BY start_date ASC`,
+      )
+      .all(strat, symbol, timeframe)
   }
 
   db.close()
@@ -207,12 +227,12 @@ export function getEquityCurve(strategy: string, symbol: string, timeframe: stri
   const strat = testRunsStrategy(strategy)
 
   const bestIteration = db
-    .prepare<[string, string, string], { iteration_index: number }>(
-      `SELECT iteration_index, SUM(return_pct) as total
+    .prepare<[string, string, string], { iteration_index: number; cnt: number }>(
+      `SELECT iteration_index, COUNT(*) as cnt
        FROM test_runs
        WHERE strategy = ? AND symbol = ? AND timeframe = ?
        GROUP BY iteration_index
-       ORDER BY total DESC
+       ORDER BY cnt DESC, SUM(return_pct) DESC
        LIMIT 1`,
     )
     .get(strat, symbol, timeframe)
@@ -222,14 +242,35 @@ export function getEquityCurve(strategy: string, symbol: string, timeframe: stri
     return []
   }
 
-  const testIds = db
-    .prepare<[string, string, string, number], TestIdRow>(
-      `SELECT test_id FROM test_runs
-       WHERE strategy = ? AND symbol = ? AND timeframe = ? AND iteration_index = ?
-       ORDER BY start_date ASC`,
-    )
-    .all(strat, symbol, timeframe, bestIteration.iteration_index)
-    .map((r) => r.test_id)
+  let testIds: string[]
+
+  if (bestIteration.cnt > 1) {
+    testIds = db
+      .prepare<[string, string, string, number], TestIdRow>(
+        `SELECT test_id FROM test_runs
+         WHERE strategy = ? AND symbol = ? AND timeframe = ? AND iteration_index = ?
+         ORDER BY start_date ASC`,
+      )
+      .all(strat, symbol, timeframe, bestIteration.iteration_index)
+      .map((r) => r.test_id)
+  } else {
+    // One row per iteration — take one test_id per calendar year (highest return)
+    testIds = db
+      .prepare<[string, string, string], TestIdRow>(
+        `SELECT test_id FROM test_runs t
+         WHERE strategy = ? AND symbol = ? AND timeframe = ?
+           AND return_pct = (
+             SELECT MAX(t2.return_pct) FROM test_runs t2
+             WHERE t2.strategy = t.strategy AND t2.symbol = t.symbol
+               AND t2.timeframe = t.timeframe
+               AND strftime('%Y', t2.start_date) = strftime('%Y', t.start_date)
+           )
+         GROUP BY strftime('%Y', start_date)
+         ORDER BY start_date ASC`,
+      )
+      .all(strat, symbol, timeframe)
+      .map((r) => r.test_id)
+  }
 
   const allPoints: EquityPoint[] = []
   let lastEquity = 10000

@@ -1,6 +1,42 @@
 # Recent Git History
 
-### 71928b0 - docs: git save — Feb 26 session (strategy analysis + frontend idea) (2026-02-26)
+### fbfbcca - feat: dashboard fixes + memory update — Feb 27 (2026-02-27)
+Frontend fixes:
+- DB query: when years were run independently (one iteration per year),
+  collect all years via per-year MAX subquery instead of picking single best
+  iteration (was showing only 2025 for GLD 1h)
+- Markdown map: changed to exact Strategy|SYMBOL|TF keys — GLD 15m notes
+  no longer leak onto GLD 1h and other strategy pages
+- Detail page: uses getMarkdownFile(strategy, symbol, timeframe) for exact lookup
+
+DB changes (research.db — not in git):
+- Inserted enhanced GLD 15m experiment (trailing stop + min hold + skip Mon)
+  into experiments as passed, Sharpe=2.54 computed from equity curves
+- Ran GLD 1h year-by-year backtests 2020-2025 (rsi:21, stoch:7, OB:80, OS:15,
+  sl_atr:3.0), stored in test_runs — detail page now shows full 6-year breakdown
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### 23b34b9 - feat: strategy dashboard — DB-driven auto-generated cards (2026-02-26)
+Replaces hard-coded strategy registry with fully automatic card generation.
+Any experiment that passes validation (status='passed') with Sharpe ≥ 1.0
+gets a card on the index, sorted by Sharpe descending. No manual step needed
+when the overnight engine validates a new edge.
+
+- registry.ts: stripped to markdown file map + status thresholds only
+- db.ts: getValidatedStrategies() queries experiments table directly;
+  auto-picks best iteration from test_runs for year table + equity curve
+- page.tsx: reads from DB, splits into Verified (≥1.3) / Promising sections
+- StrategyCard: shows symbol, TF, Sharpe, annualised return, max DD from DB
+- Detail page: resolves slug via DB lookup, shows stats + notes if md exists
+- Threshold: Sharpe ≥ 1.3 = validated badge, ≥ 1.0 = promising badge
+
+Current validated edges (7): GLD 15m, GLD 1h, GLD 1d, SLV 15m, IAU 1h,
+XLE 1h, GLD 4h — all StochRSIMeanReversion, auto-surfaced from experiments DB.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### f551364 - docs: git save — Feb 26 session (strategy analysis + frontend idea) (2026-02-26)
 - Fixed backtest command in CLAUDE.md: wrong param names (min_hold→min_hold_bars, stop_loss_atr→sl_atr, missing skip_adx_filter:false) were silently producing wrong results (5.61%/1996 trades vs 43%/689 trades)
 - Re-verified GLD 15m StochRSI Enhanced with correct params: 43.03% total return, 0.69% DD, all 6 years profitable
 - Added year-by-year breakdown to stochrsi_enhanced_gld.md (2020-2025, best year 2024 +7.90%)
@@ -198,30 +234,3 @@ Fixes for IG Demo API interaction:
 
 Verification:
 - Successfully fetched 93 rows of Gold 15m data on Demo account
-
-### ea719c6 - feat: Add IG spread betting data loader (2026-02-14)
-New files:
-- backend/engine/ig_loader.py: IGDataLoader class mirroring AlpacaDataLoader interface
-  for fetching historical OHLCV data from IG REST API (gold, forex, indices)
-- backend/engine/test_ig_loader.py: Quick test script for IG API connection
-
-Changes:
-- .env: Added IG_API_KEY, IG_USERNAME, IG_PASSWORD, IG_ACC_TYPE (demo)
-- ideas.md: Added idea #18 documenting IG spread betting integration
-  motivation (Kelly sizing on small accounts, tax-free in Ireland)
-- system_manual.md: Added IG loader usage docs and API reference
-
-Status: IGDataLoader built and tested. Authentication works on demo
-but IG demo environment has no instruments/price data provisioned
-(search returns 0, price history returns 500 error). Emailed IG support.
-Code will work once IG resolves demo provisioning or live KYC approved.
-
-Key technical details:
-- Uses trading-ig Python library (pip install trading-ig)
-- Epics: CS.D.USCGC.TODAY.IP (Gold), CS.D.EURUSD.MINI.IP (EUR/USD)
-- Resolutions: 1Min, 5Min, 15Min, 1H, 4H, D
-- REST API for history/orders, Streaming (Lightstreamer) for live prices
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-
-### 0700679 - fix(broker): add set_entry_metadata to LiveBroker to prevent crash on trade (2026-02-13)

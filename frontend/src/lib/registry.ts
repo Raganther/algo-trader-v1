@@ -1,11 +1,20 @@
-// Markdown file mapping: experiments.strategy → .md filename
+// Markdown file mapping: "Strategy|SYMBOL|TF" → .md filename
+// Key = strategy class name (from experiments) + "|" + symbol + "|" + timeframe
+// Falls back to strategy-only key if symbol/TF-specific key doesn't exist.
 // Add an entry here when you write research notes for a strategy.
-// If no entry exists, the detail page just shows DB stats with no notes.
 export const MARKDOWN_MAP: Record<string, string> = {
-  StochRSIMeanReversionStrategy: 'stochrsi_enhanced_gld.md',
-  StochRSIMeanReversion: 'stochrsi_enhanced_gld.md',
-  EventSurprise: 'event_surprise.md',
-  ComposableStrategy: 'composable_results.md',
+  // Keyed by "Strategy|SYMBOL|TF" — must be exact match, no fallback
+  'StochRSIMeanReversionStrategy|GLD|15m': 'stochrsi_enhanced_gld.md',
+  'EventSurprise|GLD|15m': 'event_surprise.md',
+  'ComposableStrategy|GLD|1h': 'composable_results.md',
+}
+
+export function getMarkdownFile(strategy: string, symbol: string, timeframe: string): string | null {
+  return (
+    MARKDOWN_MAP[`${strategy}|${symbol}|${timeframe}`] ??
+    MARKDOWN_MAP[strategy] ??
+    null
+  )
 }
 
 // Status badge derived from Sharpe

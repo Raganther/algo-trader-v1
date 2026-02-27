@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getValidatedStrategies, getStrategyStats, getYearlyRuns, getEquityCurve } from '@/lib/db'
-import { MARKDOWN_MAP, getStatus } from '@/lib/registry'
+import { getMarkdownFile, getStatus } from '@/lib/registry'
 import { readStrategyMarkdown } from '@/lib/markdown'
 import StatsPanel from '@/components/StatsPanel'
 import YearlyTable from '@/components/YearlyTable'
@@ -31,7 +31,7 @@ export default async function StrategyDetailPage({ params }: Props) {
   if (!strategy) notFound()
 
   const status = getStatus(strategy.sharpe)
-  const markdownFile = MARKDOWN_MAP[strategy.strategy]
+  const markdownFile = getMarkdownFile(strategy.strategy, strategy.symbol, strategy.timeframe)
 
   const stats = getStrategyStats(strategy.strategy, strategy.symbol, strategy.timeframe)
   const yearlyRuns = getYearlyRuns(strategy.strategy, strategy.symbol, strategy.timeframe)
