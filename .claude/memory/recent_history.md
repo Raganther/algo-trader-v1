@@ -1,6 +1,26 @@
 # Recent Git History
 
-### 8343567 - docs: GLD 15m full audit + strategy memory update (Feb 27) (2026-02-27)
+### c1b20eb - feat: validate SLV + GDX 15m edges — precious metals thesis confirmed (2026-02-27)
+Three validated 15m edges now confirmed:
+- GLD 15m: Sharpe 2.54 (existing)
+- SLV 15m: Sharpe 2.54 — +105.3%, DD 2.00%, 4/4 WF pass
+- GDX 15m: Sharpe 2.41 — +114.1%, DD 2.02%, 4/4 WF pass
+
+Key findings:
+- Params transferred from GLD unchanged — no tuning needed
+- Confirms thesis: precious metals mean-revert at 15m within a trend
+- trail_atr sweep (1.0-2.5) ran: 1.5 marginal vs 2.0 on holdout, keeping 2.0
+
+Files added:
+- scripts/run_focused_tests.py — targeted backtest runner
+- scripts/run_validation.py — holdout + walk-forward validator
+- .claude/memory/strategies/stochrsi_enhanced_slv.md — SLV strategy card
+- .claude/memory/strategies/stochrsi_enhanced_gdx.md — GDX strategy card
+- frontend/src/lib/registry.ts — SLV + GDX entries added for dashboard notes
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### 3f5c853 - docs: GLD 15m full audit + strategy memory update (Feb 27) (2026-02-27)
 Full audit of best edge — GLD 15m StochRSI Enhanced:
 - Data quality: 36,075 bars, Alpaca IEX 1m→15m resampled, clean
 - Full period (2020–Feb 2026): 44.7%, DD 0.69%, 710 trades
@@ -227,14 +247,3 @@ Updated claude.md:
 - Cleaned Read These Files section (3 memory + 3 workflow files)
 - Updated Next Steps with IG milestones (3 checked, 2 remaining)
 - Removed references to deleted files
-
-### ea83500 - feat: Add --source ig to runner.py for IG data backtesting (2026-02-14)
-Phase 1 of IG integration:
-- Added 'ig' as third data source option (alongside csv/alpaca) in backtest, matrix, and trade commands
-- Added IG data loading branches in run_backtest() and worker_task()
-- Added GLD/SLV/IAU ETF ticker → IG Gold/Silver CFD epic mappings
-- Updated Gold epic from DFB (CS.D.USCGC.TODAY.IP) to CFD (CS.D.CFDGOLD.CFDGC.IP) which works on demo
-
-Verification: Ran 'backtest --source ig --symbol GLD --timeframe 15m' with Enhanced StochRSI params.
-Result: -1.85% return, 148 trades, 60% win rate, 2.42% max DD over 6 weeks of IG demo Gold data.
-Strategy executes correctly on IG data — no changes needed to strategy code.

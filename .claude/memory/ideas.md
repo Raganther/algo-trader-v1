@@ -1,6 +1,7 @@
 # Strategy Ideas & Concepts
 
 > Running log of ideas discussed during sessions. Reference back when ready to explore or implement.
+> **Format:** Ideas are hypotheses derived from confirmed findings in strategy cards or the experiments DB. Once tested, results go back into the relevant strategy card and the idea is removed.
 
 ---
 
@@ -78,103 +79,63 @@ When StochRSI goes long GLD, simultaneously short proportional SLV/IAU to neutra
 
 Run uncorrelated strategies simultaneously on different assets. Combined equity curve is smoother than any individual strategy.
 
-**Example portfolio:**
-- StochRSI mean reversion on GLD (range-bound gold)
-- Donchian breakout on TLT (trending bonds)
-- Mean reversion on XLE (range-bound energy)
+**Current validated edges to combine:**
+- StochRSI Enhanced — GLD 15m (Sharpe 2.54)
+- StochRSI — GLD 1h (Sharpe 1.44)
+- StochRSI — IAU 1h (Sharpe 1.22)
+- StochRSI — XLE 1h (Sharpe 1.11)
 
-**Key metric:** Correlation of drawdown periods across strategies. If drawdowns don't overlap, portfolio drawdown is much shallower and shorter.
+**Goal:** Find edges on assets uncorrelated with gold (e.g. TLT, XLE) so drawdown periods don't overlap.
 
-**Already possible:** Run multiple bots on cloud today. The experiments DB tells us which strategy/asset combos are uncorrelated.
+**Key metric:** Correlation of drawdown periods across strategies. If drawdowns don't overlap, portfolio drawdown is much shallower.
 
----
-
-## 6. Strategy Reference Dashboard (Frontend Rebuild)
-*Discussed: 2026-02-11, refined 2026-02-26*
-
-**Vision:** Simple personal reference tool. At a glance — what strategies exist, how good are they, what's their status. Click in for full notes. Not a research tool, not for others — just a fast visual reference for the operator.
-
-**Wipe existing frontend** (`/frontend`) and rebuild from scratch. Keep Next.js + dark theme stack. Remove all experiment matrix / raw sweep noise.
-
-### Page 1 — Strategy Index (/)
-Single page, strategies sorted by quality (best Sharpe at top).
-
-Two tiers visible:
-- **Verified** — validated through backtest + walk-forward. Show Sharpe, return, DD, status badge (PAPER / LIVE)
-- **Promising** — backtested positive but not fully validated. Show return + status badge (RESEARCHED / TESTING)
-
-Each strategy = a card. Click card → detail page.
-
-### Page 2 — Strategy Detail (/strategy/[name])
-Everything we know about that strategy:
-- Key stats panel (Sharpe, return, DD, win rate, trades/month)
-- Year-by-year performance table
-- Equity curve + drawdown chart (from experiments DB)
-- Research notes (rendered from `.claude/memory/strategies/<name>.md`)
-- Parameters table (with correct code names)
-- Forward test log — actual live trades from paper bots
-- Testing plan / next steps
-
-### Data sources
-- `experiments.db` — backtest results, yearly breakdowns, equity curves
-- Alpaca API or trade log — forward test trades
-- `.claude/memory/strategies/*.md` — research notes (rendered as markdown)
-
-### What it replaces
-The existing frontend had: experiments matrix, edges view, equity curves. Good visual foundation but wrong focus — it showed raw sweep data not curated strategy research.
-
-### Tech decisions
-- Next.js (keep existing stack)
-- Read strategy markdown files server-side and render them
-- SQLite reads direct from `experiments.db` via API routes
-- No auth needed (local / cloud, personal only)
-- Dark theme, minimal — data density over decoration
-
-### Not included
-- Live bot status (separate concern, use pm2 / CLI for now)
-- Position sizing calculators
-- Raw experiment sweep data
+**Already possible:** Run multiple bots on cloud today. Experiments DB tells us which combos are uncorrelated.
 
 ---
 
-## 7. Position Sizing / Leverage Optimisation
+## 6. Position Sizing / Leverage Optimisation
 *Discussed: 2026-02-12*
 
-GLD 15m strategy has backtested max drawdown of only 1.7% — room to increase position size for higher returns.
+GLD 15m strategy has backtested max drawdown of only 0.69% — significant room to increase position size.
+
+**Derived from:** Strategy card — 0.69% DD with 2% risk/trade implies 10-20% risk/trade stays within acceptable DD.
 
 **Kelly Criterion approach:**
-- Calculate optimal fraction of capital to risk per trade based on win rate (47%) and avg win/loss ratio
+- Calculate optimal fraction of capital to risk per trade based on win rate (43%) and avg win/loss ratio
 - Full Kelly is too aggressive — use fractional Kelly (0.25-0.5x) for safety
 
 **Practical scaling:**
-| Sizing | Est. Max Drawdown | Est. Annual Return |
+| Risk per trade | Est. Max Drawdown | Est. Annual Return |
 |--------|-------------------|-------------------|
-| 1x     | 1.7%              | 2-7%              |
-| 2x     | ~3.4%             | 4-14%             |
-| 3x     | ~5.1%             | 6-21%             |
+| 2% (current) | ~0.7% | ~7% |
+| 5% | ~1.7% | ~17% |
+| 10% | ~3.5% | ~35% |
+| 20% | ~7% | ~70% |
 
-**Caution:** Backtested drawdowns understate live drawdowns (gap risk, slippage, black swans). Start at 1.5-2x, validate live, scale up gradually.
+**Caution:** Backtested drawdowns understate live drawdowns. Validate live at lower sizing first.
 
 ---
 
-## 8. Gold Sector Amplification (GDX)
-*Discussed: 2026-02-12*
+## 7. Gold Sector Amplification (GDX)
+*Discussed: 2026-02-12, prioritised 2026-02-27*
 
 GDX (gold miners ETF) moves 2-3x gold's daily moves due to operating leverage. Use GLD StochRSI signal but execute on GDX for amplified returns without margin.
 
-**Steps:** Backtest StochRSI on GDX with same params → compare Sharpe/drawdown to GLD → if edge transfers, deploy.
+**Derived from:** Precious metals thesis — same mean-reversion structure as GLD, but with leverage built in.
+
+**Test:** Run StochRSI Enhanced params (RSI 7, Stoch 14, OB 80, OS 15) on GDX 15m. Compare Sharpe/DD to GLD baseline.
 
 **Risk:** Miners have idiosyncratic risk (management, costs, strikes) that can decouple from gold.
 
 ---
 
-## 9. Multi-Timeframe Confirmation
+## 8. Multi-Timeframe Confirmation
 *Discussed: 2026-02-12*
 
 Combine 15m and 1h StochRSI signals on GLD. Only enter when both timeframes show oversold simultaneously.
 
 **Expected benefits:**
-- Higher win rate (filter out noise trades from 47% baseline)
+- Higher win rate (filter out noise trades from 43% baseline)
 - Larger per-trade return
 - Fewer trades (reduced costs)
 
@@ -182,7 +143,7 @@ Combine 15m and 1h StochRSI signals on GLD. Only enter when both timeframes show
 
 ---
 
-## 10. Cross-Asset Signal Confirmation
+## 9. Cross-Asset Signal Confirmation
 *Discussed: 2026-02-12*
 
 When GLD, SLV, and IAU all show oversold StochRSI simultaneously, trade with 2-3x normal size. Correlated assets confirming = higher conviction.
@@ -191,118 +152,118 @@ When GLD, SLV, and IAU all show oversold StochRSI simultaneously, trade with 2-3
 
 ---
 
-## 11. Spread Betting / IG API Integration
-*Discussed: 2026-02-12*
+## 10. IG Spread Betting Integration
+*Discussed: 2026-02-12/13*
 
-**Problem:** €100 starting capital too small for Alpaca (GLD = $180/share, whole shares only).
+**Motivation:** Alpaca's minimum trade unit (1 share) prevents precise Kelly sizing on small accounts (€100). Spread betting via IG allows sub-unit position sizing (e.g. €0.50/point), enabling proper compounding. Profits tax-free in Ireland.
 
-**Solution:** Spread betting via IG (or similar):
-- Tax-free profits in Ireland
-- Trade gold directly at €0.50/point — €100 is workable
-- Same gold edge, same StochRSI signals
-- IG has REST API for automation
-- Scale gradually: €0.50/point → €1 → €5
+**Current status:** Phase 1-2 built — `IGDataLoader` + `IGBroker` both working. Demo account provisioned.
 
-**Implementation:** Adapt execution layer from Alpaca API to IG API. Strategy logic / indicators / signals unchanged — only the broker interface changes.
+**Remaining work:**
+- Integrate `IGBroker` with `runner.py` via `--source ig` flag
+- Live paper test on IG demo account (GLD equivalent: `CS.D.CFDGOLD.CFDGC.IP`)
 
-**Other small-account options considered:**
-- Forex via OANDA (micro/nano lots, good API, but taxable)
-- CFDs (fractional exposure, taxable)
-- Crypto on Alpaca (fractional, but no validated edge yet)
-
-**Verdict:** Spread betting on gold via IG is most compelling path for small accounts in Ireland (tax-free + validated edge + small minimums).
+**Key IG API details:**
+- Auth: username + password + API key → CST + X-SECURITY-TOKEN headers
+- Demo base: `https://demo-api.ig.com/gateway/deal`
+- Resolutions: `1Min`, `5Min`, `15Min`, `1H`, `4H`, `D`
 
 ---
 
-## 12. Forex Strategy Discovery
-*Discussed: 2026-02-12*
-
-If adapting to a forex broker (OANDA), run the discovery engine on forex pairs. StochRSI mean reversion may work on ranging pairs.
-
-**Candidate pairs:** EUR/CHF (range-bound), AUD/NZD, EUR/GBP
-**Avoid:** Trending pairs like GBP/JPY, USD/JPY
-
-**Advantage:** 24/5 market = more 15m bars = more trades = more data.
-
----
-
-## 13. Time-of-Day Filtering
+## 11. Time-of-Day Filtering
 *Discussed: 2026-02-13*
 
-Gold trades differently at London open vs NY open vs overlap. The 15m strategy fires ~230 trades/year indiscriminately. Analyse which hours produce the best win rate and filter out noise hours.
+Gold trades differently at London open vs NY open vs overlap. The 15m strategy fires ~115 trades/year indiscriminately. Analyse which hours produce the best win rate and filter out noise hours.
 
 **Approach:** Run diagnostic backtest, dump all trades with entry hour, bucket by hour, identify dead zones. Then add simple hour guard to strategy (~5 lines).
 
-**Key insight:** This is pure analysis first, zero code needed to identify the signal. Only build if data shows a clear pattern.
+**Key insight:** This is pure analysis first — zero code needed to identify the signal. Only build if data shows a clear pattern.
 
 ---
 
-## 14. Exit Optimisation (Trailing Stop / Time Exit)
+## 12. Limit Order Entries
 *Discussed: 2026-02-13*
 
-Current exit is fixed 2x ATR stop OR signal-based (StochRSI crosses overbought). No trailing, no time-based exit. Likely leaving money on the table.
-
-**Options:**
-- Trailing ATR stop — lock in profits on winners
-- Time-based exit — close after N bars if not profitable (cuts slow bleeders)
-- Partial profit-taking — close half at 1x ATR, let rest run
-
-**Requires:** Adding `exit_reason` tracking to trade records to understand current stop vs signal split.
-
----
-
-## 15. Limit Order Entries
-*Discussed: 2026-02-13*
-
-Instead of market order at signal bar close, place limit order slightly below (for longs). Improves average entry by a few cents per trade. Over 1,155 trades that compounds.
+Instead of market order at signal bar close, place limit order slightly below (for longs). Improves average entry by a few cents per trade. Over 700+ trades that compounds.
 
 **Risk:** Some trades won't fill (limit not reached). Need to check if missed trades were winners.
 
 ---
 
-## 16. Volatility-Scaled Position Sizing
+## 13. Volatility-Scaled Position Sizing
 *Discussed: 2026-02-13*
 
 Scale position size inversely to ATR. Low vol = larger position (mean reversion works best in calm markets). High vol = smaller position (more noise). ATR already calculated in strategy.
 
-**Different from Kelly (#7):** Kelly is about overall capital allocation. This adapts size trade-by-trade based on current conditions.
+**Different from Kelly (#6):** Kelly is about overall capital allocation. This adapts size trade-by-trade based on current conditions.
 
 ---
 
-## 17. News/Event Blackout
-*Discussed: 2026-02-13*
+## 14. IAU 15m Full Validation
+*Derived from: Feb 27 precious metals expansion*
 
-Avoid entries around FOMC, NFP, CPI releases. Gold whipsaws on macro events and mean reversion signals become noise. A simple calendar filter could cut worst losing trades.
+**Status:** Passed in-sample (Sharpe 2.00, +32.6%, DD 0.72%) but not yet holdout/walk-forward validated.
 
-**Implementation:** Static calendar of known dates, or external API. Buffer of N hours before/after event.
+**Test plan:**
+- Run `scripts/run_validation.py` pattern on IAU 15m with enhanced params
+- Lower priority than SLV/GDX (Sharpe 2.00 vs 2.54/2.41) but worth confirming
 
----
-
-## 18. IG Spread Betting Integration
-*Discussed: 2026-02-13*
-
-**Motivation:** Alpaca's minimum trade unit (1 share) prevents precise Kelly sizing on small accounts (€100). Spread betting via IG allows sub-unit position sizing (e.g. €0.50/point), enabling proper compounding. Profits tax-free in Ireland.
-
-**Built:** `backend/engine/ig_loader.py` — mirrors `AlpacaDataLoader` interface, uses `trading-ig` library. Supports Gold (XAUUSD), EUR/USD, GBP/USD, Silver and more via IG epic codes.
-
-**Status: WORKING (Prototype)**
-- ✅ Demo account provisioned and working (found `CS.D.CFDGOLD.CFDGC.IP`)
-- ✅ `IGDataLoader` successfully fetches historical OHLCV (verified Gold 15m)
-- ✅ `logging` and `pricing` logic patched for Forex/CFD structure (Bid/Ask mid-price)
-
-**Next steps:**
-1. Build `IGBroker` class for live trading (execution)
-2. Integrate with `runner.py` via `--source ig` flag
-
-**Key IG API details:**
-- Auth: username + password + API key → CST + X-SECURITY-TOKEN headers
-- Demo base: `https://demo-api.ig.com/gateway/deal`
-- Live base: `https://api.ig.com/gateway/deal`
-- Epics: `CS.D.USCGC.TODAY.IP` (Gold), `CS.D.EURUSD.MINI.IP` (EUR/USD)
-- Expiry: `DFB` (Daily Funded Bet) for spot positions
-- Resolutions: `1Min`, `5Min`, `15Min`, `1H`, `4H`, `D`
+**Note:** GDX 2024 WF window was weakest (Sharpe 1.06) — GDX has some miner-specific noise. IAU being pure gold-tracking may actually be more consistent year-to-year.
 
 ---
 
-*Last updated: 2026-02-26*
+## 16. EventSurprise on SLV and TLT
+*Derived from: EventSurprise strategy card + GLD CPI findings (Feb 27)*
+
+**Thesis:**
+- SLV is a gold-correlated asset — CPI surprises should drive SLV in the same direction as GLD
+- TLT (bonds) is directly rate-sensitive — CPI misses (dovish signal) should move TLT strongly upward
+
+**Evidence:** GLD CPI-miss trades show 93% directional accuracy, +0.80% avg 1h move. Same macro logic applies to silver and bonds.
+
+**Test plan:**
+- Run EventSurprise (CPI-only) on SLV 15m — compare win rate and avg move to GLD
+- Run EventSurprise (CPI + FOMC) on TLT 15m — FOMC is highly relevant for bonds
+- Parameter space is small (~20 combos) — manual runs, not orchestrator
+
+**Priority: MEDIUM** — extends an existing edge to new assets with clear fundamental justification.
+
+---
+
+## 17. StochRSI + EventSurprise Combination on GLD
+*Derived from: having two independent edges on the same asset (Feb 27)*
+
+**Problem:** Both strategies currently run independently on GLD. On CPI days, StochRSI might fire a signal in the opposite direction to the expected CPI surprise move — creating a conflict.
+
+**Two approaches to test:**
+1. **Blackout filter:** On CPI event days, suppress StochRSI entries within ±2h of the release
+2. **Confluence filter:** Only take StochRSI entries that align with the expected CPI surprise direction
+
+**Note:** Event blackout was tested on StochRSI alone (strategy card) and *reduced* returns. But combining direction alignment (not just avoidance) hasn't been tested.
+
+**Priority: MEDIUM** — interesting but more complex. Do SLV/GDX expansion first.
+
+---
+
+## 18. Overnight Orchestrator — Focused Cloud Runs
+*Discussed: 2026-02-27*
+
+**Setup:** Run overnight orchestrator on existing cloud VM (algotrader2026) — VM already running 24/7 for bots, zero extra cost. Pull results back locally with `gcloud compute scp`.
+
+**How to run focused (not wide-net):**
+```bash
+# Precious metals expansion — Tier 1 priority
+python -m backend.optimizer.run_overnight \
+  --quick --symbols SLV,GDX,IAU --timeframes 15m --skip-composable
+
+# Morning sync
+gcloud compute scp algotrader2026:/home/user/algo-trader-v1/backend/research.db \
+  ./backend/research.db --zone=europe-west2-a
+```
+
+**Key principle:** Use `--quick` (32 combos/target) to get directional signal. Only run `--medium` (972 combos) if `--quick` shows a positive result. Avoid `--full` until there's strong evidence it will yield something.
+
+---
+
+*Last updated: 2026-02-27 (Major restructure — removed built items (dashboard, event blackout), merged IG duplication, added thesis-driven ideas #14-18 from Feb 27 strategy session)*
 *Add new ideas as they come up during sessions*

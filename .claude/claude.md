@@ -64,6 +64,8 @@
 | Strategy | File | Status | Summary |
 |---|---|---|---|
 | **StochRSI Enhanced GLD** | `strategies/stochrsi_enhanced_gld.md` | VALIDATED (Sharpe 2.54, audited Feb 27) | Best edge. 44.7% / 0.69% DD / all years positive. Full audit done: param sensitivity, spread sensitivity, B&H comparison. |
+| **StochRSI Enhanced SLV** | `strategies/stochrsi_enhanced_slv.md` | VALIDATED (Sharpe 2.54, Feb 27) | Precious metals thesis confirmed. +105.3% / 2.00% DD / 4/4 WF. Same params as GLD. |
+| **StochRSI Enhanced GDX** | `strategies/stochrsi_enhanced_gdx.md` | VALIDATED (Sharpe 2.41, Feb 27) | Gold miners. +114.1% / 2.02% DD / 4/4 WF. Leveraged gold proxy. |
 | **EventSurprise** | `strategies/event_surprise.md` | BUILT (backtest positive) | CPI/NFP surprise trading. Research findings, direction mappings, results |
 | **Composable Results** | `strategies/composable_results.md` | Complete (3 validated) | Phase 3 combo results, building blocks reference |
 
@@ -71,8 +73,11 @@
 
 | Strategy | Asset | TF | Result | Status |
 |---|---|---|---|---|
-| **StochRSI Enhanced** | **GLD** | **15m** | **Sharpe 2.54 (audited), +44.7%, DD 0.69%** | **VALIDATED (best)** |
+| **StochRSI Enhanced** | **GLD** | **15m** | **Sharpe 2.54 (audited), +44.7%, DD 0.69%** | **VALIDATED** |
+| **StochRSI Enhanced** | **SLV** | **15m** | **Sharpe 2.54, +105.3%, DD 2.00%** | **VALIDATED (Feb 27)** |
+| **StochRSI Enhanced** | **GDX** | **15m** | **Sharpe 2.41, +114.1%, DD 2.02%** | **VALIDATED (Feb 27)** |
 | **EventSurprise (CPI)** | **GLD** | **15m** | **+2.36%, 86% WR, 14 trades** | **Built** |
+| StochRSI Enhanced | IAU | 15m | Sharpe 2.00, +32.6%, DD 0.72% | Passed (not fully validated) |
 | StochRSI | GLD | 1h | Sharpe 1.44 | Validated |
 | StochRSI | IAU | 1h | Sharpe 1.22 | Validated |
 | StochRSI | XLE | 1h | Sharpe 1.11 | Validated |
@@ -179,12 +184,12 @@ git push origin main
 
 - [ ] Monitor gld-test + iau-test for trades (DAY TIF fix deployed Feb 26)
 - [ ] Once enhancement mechanics verified: switch to validated params (OB 80/OS 15, trail 10 bars, hold 10)
-- [ ] Start real-money micro trading on Alpaca with €100-200 (fractional GLD)
-- [ ] Apply trailing stop to other validated strategies (GLD 1h, IAU, XLE, SLV) — run year backtests + insert into experiments
+- [ ] Start real-money micro trading on Alpaca with €100-200 (fractional GLD/SLV/GDX)
+- [ ] Paper test SLV 15m + GDX 15m bots on cloud (new validated edges)
+- [ ] Run full validation on IAU 15m (passed in-sample, needs holdout + WF)
 - [ ] Paper test EventSurprise (CPI-only) on cloud
-- [ ] Run overnight orchestrator — new validated edges will auto-appear in dashboard
+- [ ] Run overnight orchestrator on cloud — focused on EventSurprise (SLV/TLT) + remaining ideas
 - [ ] Add research notes `.md` files for GLD 1h, IAU 1h, XLE 1h strategies
-- [ ] To add notes for a strategy: create `.claude/memory/strategies/<name>.md` + add key to `frontend/src/lib/registry.ts` MARKDOWN_MAP
 
 ## Existing Strategy Code (21 strategies in backend/strategies/)
 
@@ -202,5 +207,5 @@ StochRSI, RSI, MACD, ADX, Bollinger Bands, Donchian Channels, ATR, SMA, CHOP
 
 ---
 
-*Last updated: 2026-02-27 (Strategy reference dashboard built. GLD 15m full audit complete — Sharpe 2.54, trail_atr=1.5 lead to investigate)*
+*Last updated: 2026-02-27 (Precious metals thesis confirmed: SLV 15m Sharpe 2.54 + GDX 15m Sharpe 2.41 both validated 4/4 WF. trail_atr=1.5 tested — marginal vs 2.0, keeping 2.0. Now 3 validated 15m edges.)*
 *Update this file when phase changes or major milestones reached*
