@@ -183,6 +183,13 @@ class LiveBroker:
         return res
 
     def sell(self, price, size, timestamp=None, stop_loss=None, take_profit=None):
+        # Guard: skip if no open position — prevents short-sell rejection from Alpaca
+        # when the strategy fires a duplicate exit signal on consecutive bars.
+        current_position = self.get_position(self.symbol)
+        if current_position <= 0:
+            print(f"⚠️ SELL skipped: no open position for {self.symbol} — ignoring duplicate exit signal")
+            return None
+
         # IMPORTANT: Alpaca does not support bracket orders for crypto
         # Detect crypto symbols (contain '/') and skip stop_loss/take_profit
         is_crypto = '/' in self.symbol
