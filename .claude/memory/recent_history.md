@@ -1,6 +1,21 @@
 # Recent Git History
 
-### fbfbcca - feat: dashboard fixes + memory update — Feb 27 (2026-02-27)
+### 8343567 - docs: GLD 15m full audit + strategy memory update (Feb 27) (2026-02-27)
+Full audit of best edge — GLD 15m StochRSI Enhanced:
+- Data quality: 36,075 bars, Alpaca IEX 1m→15m resampled, clean
+- Full period (2020–Feb 2026): 44.7%, DD 0.69%, 710 trades
+- Sharpe 2.54 (computed from equity curve daily returns)
+- 2026 YTD: +1.16%, 21 trades
+- Parameter sensitivity: robust. min_hold=10 critical. trail_atr=1.5 shows +47.5% (worth exploring)
+- Spread sensitivity: profitable to 0.22% (7-20× real GLD spread headroom)
+- Buy & Hold: 117.5% vs 44.7% (gold bull run), but Sharpe 0.98 vs 2.54, DD 22% vs 0.69%
+
+Updated stochrsi_enhanced_gld.md with full audit tables.
+Updated CLAUDE.md: Sharpe 2.42 → 2.54, session summary updated.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### 0c1d3e3 - feat: dashboard fixes + memory update — Feb 27 (2026-02-27)
 Frontend fixes:
 - DB query: when years were run independently (one iteration per year),
   collect all years via per-year MAX subquery instead of picking single best
@@ -223,14 +238,3 @@ Phase 1 of IG integration:
 Verification: Ran 'backtest --source ig --symbol GLD --timeframe 15m' with Enhanced StochRSI params.
 Result: -1.85% return, 148 trades, 60% win rate, 2.42% max DD over 6 weeks of IG demo Gold data.
 Strategy executes correctly on IG data — no changes needed to strategy code.
-
-### 4f9e37d - fix: Patch IGDataLoader date format and epic resolution (2026-02-14)
-Fixes for IG Demo API interaction:
-- Reverted date format to ISO 8601 (YYYY-MM-DDTHH:MM:SS) which prevents error.malformed.date
-- Added datetime object passing to trading-ig for robustness
-- Updated _process_df to prioritize 'bid'/'ask' mid-price calculation over 'last' (which was NaN for CFDs/Gold)
-- Updated test script to use dynamically discovered epic from search
-- Updated memory files (ideas.md, system_manual.md) to reflect working status
-
-Verification:
-- Successfully fetched 93 rows of Gold 15m data on Demo account

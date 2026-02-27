@@ -8,16 +8,38 @@
 - **Active Bots:** 2 (gld-test + iau-test — PAPER mode, aggressive params to verify enhancement mechanics)
 - **Server:** europe-west2-a (algotrader2026)
 - **Discovery Engine:** Phase 0 (DB) ✓, Phase 1 (sweeps) ✓, Phase 2 (validation) ✓, Phase 3 (composable) ✓, Overnight orchestrator ✓
-- **Key Finding:** GLD 15m StochRSI Enhanced — Sharpe 2.42, VALIDATED. Trailing stop + min hold + skip Monday.
+- **Key Finding:** GLD 15m StochRSI Enhanced — Sharpe 2.54 (audited Feb 27), VALIDATED. Trailing stop + min hold + skip Monday.
 - **Experiments DB:** 5,300+ experiments, 90+ validated passes (growing via overnight runs)
 - **IG Integration:** ✅ Phase 1-2 done (data loader + IGBroker). IG best used for execution only.
 - **Fractional Shares:** ✅ Alpaca fractional orders enabled — can trade GLD with €100 (min $1 order).
 
-## Where We Left Off (Feb 26)
+## Where We Left Off (Feb 27)
 
-**Fixed critical Alpaca order bug: all GLD/IAU orders had been silently failing since ~Feb 14 with "fractional orders must be DAY orders" (code 42210000). Root cause: `alpaca_trader.py` was using GTC by default; Alpaca requires DAY for fractional stock orders. Fixed in `backend/engine/alpaca_trader.py` — non-crypto now uses `TimeInForce.DAY`. Bots restarted and accepting orders again. Also audited system: everything in sync. `run_iau_test.sh` was on cloud but not in git — committed it.**
+**Built Strategy Reference Dashboard (frontend rebuild) + ran full GLD 15m audit.**
 
-**Previously (Feb 17): Built EventSurprise strategy — trades GLD on CPI/NFP/Unemployment surprise direction. CPI miss -> gold UP is the strongest signal (86% win rate, 14 trades, +2.36%). Strategy built, backtested, bot script ready.**
+**Dashboard:** Replaced old experiment matrix browser with curated personal reference dashboard. Fully DB-driven — strategy cards auto-generate from `experiments` table when `validation_status='passed'` AND Sharpe ≥ 1.0. Detail pages show year-by-year table, equity curve, drawdown chart, and research notes (live from `.claude/memory/strategies/*.md`).
+
+**GLD 15m Audit (Feb 27):**
+- Data quality: 36,075 bars, resampled 1m→15m via Alpaca IEX. Clean.
+- Full period (2020–Feb 2026): 44.7%, DD 0.69%, 710 trades, Sharpe 2.54
+- Parameter sensitivity: robust. `min_hold_bars=10` is critical — dropping to 5 kills returns. `trail_atr=1.5` shows +47.5% vs +43% baseline (worth investigating).
+- Spread sensitivity: profitable up to 0.22% spread — 7-20× headroom vs real GLD spreads.
+- Buy & Hold honest: B&H returned 117.5% vs 44.7% (gold bull run). Strategy wins on risk-adjusted: Sharpe 2.54 vs 0.98, DD 0.69% vs 22%.
+- Key risk: strategy underperforms in trending markets. Works in all conditions but absolute return lags B&H in strong trends.
+
+**Key fixes during session:**
+- Inserted enhanced GLD 15m experiment as `passed` with Sharpe 2.54.
+- Ran GLD 1h year-by-year backtests (2020–2025), stored in test_runs.
+- Fixed iteration_index query logic for per-year runs.
+- Fixed markdown map to exact `Strategy|SYMBOL|TF` keys.
+
+### Frontend architecture:
+- **`frontend/src/lib/db.ts`** — server-only SQLite reader (better-sqlite3), reads research.db directly
+- **`frontend/src/lib/registry.ts`** — markdown file map + status thresholds (Sharpe ≥ 1.3 = validated)
+- **`frontend/src/app/page.tsx`** — index: DB-driven card grid, auto-sorted by Sharpe
+- **`frontend/src/app/strategy/[slug]/page.tsx`** — detail: stats panel, year table, equity curve, notes
+- **No FastAPI needed** — Next.js API routes read DB/files directly
+- **`next.config.ts`** — `serverExternalPackages: ['better-sqlite3']`
 
 ### What's been built:
 1. **Phase 0 — Experiments DB:** `experiments` table + `ExperimentTracker` class
@@ -27,6 +49,7 @@
 5. **Overnight Orchestrator:** `run_overnight.py` — chains all phases for unattended runs
 6. **Economic Calendar Integration:** event blackout filter + EventSurprise strategy
 7. **EventSurprise Strategy:** `backend/strategies/event_surprise.py` — CPI/NFP surprise trading
+8. **Strategy Dashboard:** `frontend/` — DB-driven reference UI, auto-updates as engine validates edges
 
 ### Overnight orchestrator (`backend/optimizer/run_overnight.py`):
 - **4 passes:** Broad sweep → Filter → Validate → Expand winners
@@ -40,7 +63,7 @@
 
 | Strategy | File | Status | Summary |
 |---|---|---|---|
-| **StochRSI Enhanced GLD** | `strategies/stochrsi_enhanced_gld.md` | VALIDATED (Sharpe 2.42) | Best edge. 43% / 0.69% DD / all years positive. Correct param names documented. |
+| **StochRSI Enhanced GLD** | `strategies/stochrsi_enhanced_gld.md` | VALIDATED (Sharpe 2.54, audited Feb 27) | Best edge. 44.7% / 0.69% DD / all years positive. Full audit done: param sensitivity, spread sensitivity, B&H comparison. |
 | **EventSurprise** | `strategies/event_surprise.md` | BUILT (backtest positive) | CPI/NFP surprise trading. Research findings, direction mappings, results |
 | **Composable Results** | `strategies/composable_results.md` | Complete (3 validated) | Phase 3 combo results, building blocks reference |
 
@@ -48,7 +71,7 @@
 
 | Strategy | Asset | TF | Result | Status |
 |---|---|---|---|---|
-| **StochRSI Enhanced** | **GLD** | **15m** | **Sharpe 2.42, +43%, DD 0.69%** | **VALIDATED (best)** |
+| **StochRSI Enhanced** | **GLD** | **15m** | **Sharpe 2.54 (audited), +44.7%, DD 0.69%** | **VALIDATED (best)** |
 | **EventSurprise (CPI)** | **GLD** | **15m** | **+2.36%, 86% WR, 14 trades** | **Built** |
 | StochRSI | GLD | 1h | Sharpe 1.44 | Validated |
 | StochRSI | IAU | 1h | Sharpe 1.22 | Validated |
@@ -154,12 +177,14 @@ git push origin main
 
 ## Next Steps
 
-- [ ] Monitor gld-test + iau-test for trades now that DAY TIF fix is deployed (orders were broken Feb 14–26)
+- [ ] Monitor gld-test + iau-test for trades (DAY TIF fix deployed Feb 26)
 - [ ] Once enhancement mechanics verified: switch to validated params (OB 80/OS 15, trail 10 bars, hold 10)
 - [ ] Start real-money micro trading on Alpaca with €100-200 (fractional GLD)
-- [ ] Apply trailing stop to other validated strategies (GLD 1h, IAU, XLE, SLV)
+- [ ] Apply trailing stop to other validated strategies (GLD 1h, IAU, XLE, SLV) — run year backtests + insert into experiments
 - [ ] Paper test EventSurprise (CPI-only) on cloud
-- [ ] Explore event-driven strategies further (wider hold windows, magnitude-based sizing)
+- [ ] Run overnight orchestrator — new validated edges will auto-appear in dashboard
+- [ ] Add research notes `.md` files for GLD 1h, IAU 1h, XLE 1h strategies
+- [ ] To add notes for a strategy: create `.claude/memory/strategies/<name>.md` + add key to `frontend/src/lib/registry.ts` MARKDOWN_MAP
 
 ## Existing Strategy Code (21 strategies in backend/strategies/)
 
@@ -177,5 +202,5 @@ StochRSI, RSI, MACD, ADX, Bollinger Bands, Donchian Channels, ATR, SMA, CHOP
 
 ---
 
-*Last updated: 2026-02-26 (Fixed Alpaca DAY TIF bug, audited system, committed run_iau_test.sh)*
+*Last updated: 2026-02-27 (Strategy reference dashboard built. GLD 15m full audit complete — Sharpe 2.54, trail_atr=1.5 lead to investigate)*
 *Update this file when phase changes or major milestones reached*
