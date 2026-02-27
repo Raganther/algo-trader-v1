@@ -1,6 +1,19 @@
 # Recent Git History
 
-### c1b20eb - feat: validate SLV + GDX 15m edges — precious metals thesis confirmed (2026-02-27)
+### 52eb516 - docs: session update Feb 27 — slv-test deployed, 3 validated edges (2026-02-27)
+Bot fleet now: gld-test + iau-test + slv-test (all PAPER, aggressive params)
+Waiting for full trade cycle (entry → trail → exit) before switching to validated params.
+
+Validated edges confirmed this session:
+- SLV 15m: Sharpe 2.54, 4/4 WF
+- GDX 15m: Sharpe 2.41, 4/4 WF
+- trail_atr sweep concluded: keeping 2.0 (1.5 marginal on holdout)
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### 81c9a4c - feat: add slv-test bot script (aggressive params, paper mode) (2026-02-27)
+
+### da71a42 - feat: validate SLV + GDX 15m edges — precious metals thesis confirmed (2026-02-27)
 Three validated 15m edges now confirmed:
 - GLD 15m: Sharpe 2.54 (existing)
 - SLV 15m: Sharpe 2.54 — +105.3%, DD 2.00%, 4/4 WF pass
@@ -224,26 +237,3 @@ Final structure:
   .claude/archive/ (edge_enhancement, forward_testing, strategy_discovery - completed)
 
 Updated all path references in claude.md, update_memory.sh, load-context.sh, git_save.md
-
-### adafde5 - refactor: Move memory files from .agent/memory/ to .claude/ (2026-02-14)
-Consolidates all memory/context files under .claude/:
-- Moved ideas.md, recent_history.md, system_manual.md
-- Updated update_memory.sh output path
-- Updated claude.md file references
-- Updated load-context.sh hook
-- Updated git_save.md workflow
-
-All memory now lives in .claude/ alongside claude.md
-
-### e08e71b - chore: Clean up memory files, update claude.md with IG integration (2026-02-14)
-Deleted:
-- .agent/memory/research_insights.md (RETIRED, contaminated with delay=1 results)
-- .agent/memory/research.md (outdated, findings already in claude.md)
-
-Updated claude.md:
-- Added IG integration status line
-- Updated 'Where We Left Off' to Feb 14 (IG Phase 1 complete)
-- Added IG backtest command to Quick Commands
-- Cleaned Read These Files section (3 memory + 3 workflow files)
-- Updated Next Steps with IG milestones (3 checked, 2 remaining)
-- Removed references to deleted files

@@ -5,7 +5,7 @@
 ## Current Status
 
 - **Phase:** 10 - Strategy Discovery Engine (Phases 0-3 complete, overnight orchestrator built)
-- **Active Bots:** 2 (gld-test + iau-test — PAPER mode, aggressive params to verify enhancement mechanics)
+- **Active Bots:** 3 (gld-test + iau-test + slv-test — PAPER mode, aggressive params to verify enhancement mechanics)
 - **Server:** europe-west2-a (algotrader2026)
 - **Discovery Engine:** Phase 0 (DB) ✓, Phase 1 (sweeps) ✓, Phase 2 (validation) ✓, Phase 3 (composable) ✓, Overnight orchestrator ✓
 - **Key Finding:** GLD 15m StochRSI Enhanced — Sharpe 2.54 (audited Feb 27), VALIDATED. Trailing stop + min hold + skip Monday.
@@ -13,25 +13,26 @@
 - **IG Integration:** ✅ Phase 1-2 done (data loader + IGBroker). IG best used for execution only.
 - **Fractional Shares:** ✅ Alpaca fractional orders enabled — can trade GLD with €100 (min $1 order).
 
-## Where We Left Off (Feb 27)
+## Where We Left Off (Feb 27 — session 2)
 
-**Built Strategy Reference Dashboard (frontend rebuild) + ran full GLD 15m audit.**
+**Precious metals thesis confirmed. 3 validated edges. SLV bot deployed.**
 
-**Dashboard:** Replaced old experiment matrix browser with curated personal reference dashboard. Fully DB-driven — strategy cards auto-generate from `experiments` table when `validation_status='passed'` AND Sharpe ≥ 1.0. Detail pages show year-by-year table, equity curve, drawdown chart, and research notes (live from `.claude/memory/strategies/*.md`).
+**Validated SLV 15m + GDX 15m (Feb 27 session 2):**
+- Applied GLD enhanced params unchanged to SLV and GDX at 15m
+- SLV 15m: Sharpe 2.54, +105.3%, DD 2.00%, 4/4 WF — VALIDATED
+- GDX 15m: Sharpe 2.41, +114.1%, DD 2.02%, 4/4 WF — VALIDATED
+- trail_atr sweep (1.0→2.5): 1.5 marginally better in-sample but same on holdout — keeping trail_atr=2.0
+- Thesis confirmed: precious metals mean-revert at 15m within trend. Params transfer without retuning.
 
-**GLD 15m Audit (Feb 27):**
-- Data quality: 36,075 bars, resampled 1m→15m via Alpaca IEX. Clean.
-- Full period (2020–Feb 2026): 44.7%, DD 0.69%, 710 trades, Sharpe 2.54
-- Parameter sensitivity: robust. `min_hold_bars=10` is critical — dropping to 5 kills returns. `trail_atr=1.5` shows +47.5% vs +43% baseline (worth investigating).
-- Spread sensitivity: profitable up to 0.22% spread — 7-20× headroom vs real GLD spreads.
-- Buy & Hold honest: B&H returned 117.5% vs 44.7% (gold bull run). Strategy wins on risk-adjusted: Sharpe 2.54 vs 0.98, DD 0.69% vs 22%.
-- Key risk: strategy underperforms in trending markets. Works in all conditions but absolute return lags B&H in strong trends.
+**slv-test bot deployed (Feb 27):**
+- Same aggressive params as gld-test (OB 60 / OS 40, hold 3, trail after 3)
+- Purpose: verify trailing stop / min hold execution mechanics on SLV
+- NOT testing edge quality — testing that mechanics work end-to-end in live execution
 
-**Key fixes during session:**
-- Inserted enhanced GLD 15m experiment as `passed` with Sharpe 2.54.
-- Ran GLD 1h year-by-year backtests (2020–2025), stored in test_runs.
-- Fixed iteration_index query logic for per-year runs.
-- Fixed markdown map to exact `Strategy|SYMBOL|TF` keys.
+**Aggressive params purpose (all 3 test bots):**
+- Wide thresholds → more trades → faster verification of order/trailing stop/hold mechanics
+- Once a full trade cycle confirmed (entry → trail activates → exit): switch to validated params
+- Last confirmed fills: Feb 26 — GLD -$74.90 paper, IAU +$21.99 paper
 
 ### Frontend architecture:
 - **`frontend/src/lib/db.ts`** — server-only SQLite reader (better-sqlite3), reads research.db directly
@@ -171,24 +172,24 @@ git push origin main
 
 ## Current Testing Settings
 
-**Enhancement Verification (active — 2 bots, aggressive params for more trades):**
+**Enhancement Verification (active — 3 bots, aggressive params for more trades):**
 - RSI period: 7, Stoch period: 14
 - Oversold: 40, Overbought: 60 (wide — triggers more signals)
 - ADX threshold: 50
 - ATR stop: 2x, trailing stop: 2x ATR after 3 bars, min hold: 3 bars
 - Skip days: Monday
-- Symbols: GLD (gld-test) + IAU (iau-test)
+- Symbols: GLD (gld-test) + IAU (iau-test) + SLV (slv-test)
 - Mode: PAPER
+- Goal: verify full trade cycle (entry → trailing stop activates → exit) before switching to validated params
 
 ## Next Steps
 
-- [ ] Monitor gld-test + iau-test for trades (DAY TIF fix deployed Feb 26)
-- [ ] Once enhancement mechanics verified: switch to validated params (OB 80/OS 15, trail 10 bars, hold 10)
+- [ ] Monitor gld-test + iau-test + slv-test for full trade cycle (entry → trail → exit)
+- [ ] Once mechanics verified: switch all 3 bots to validated params (OB 80/OS 15, trail 10 bars, hold 10)
 - [ ] Start real-money micro trading on Alpaca with €100-200 (fractional GLD/SLV/GDX)
-- [ ] Paper test SLV 15m + GDX 15m bots on cloud (new validated edges)
-- [ ] Run full validation on IAU 15m (passed in-sample, needs holdout + WF)
+- [ ] Run full validation on IAU 15m (Sharpe 2.00 in-sample, needs holdout + WF)
 - [ ] Paper test EventSurprise (CPI-only) on cloud
-- [ ] Run overnight orchestrator on cloud — focused on EventSurprise (SLV/TLT) + remaining ideas
+- [ ] Run overnight orchestrator on cloud — focused on EventSurprise (SLV/TLT)
 - [ ] Add research notes `.md` files for GLD 1h, IAU 1h, XLE 1h strategies
 
 ## Existing Strategy Code (21 strategies in backend/strategies/)
@@ -207,5 +208,5 @@ StochRSI, RSI, MACD, ADX, Bollinger Bands, Donchian Channels, ATR, SMA, CHOP
 
 ---
 
-*Last updated: 2026-02-27 (Precious metals thesis confirmed: SLV 15m Sharpe 2.54 + GDX 15m Sharpe 2.41 both validated 4/4 WF. trail_atr=1.5 tested — marginal vs 2.0, keeping 2.0. Now 3 validated 15m edges.)*
+*Last updated: 2026-02-27 (3 validated 15m edges: GLD 2.54, SLV 2.54, GDX 2.41. slv-test bot deployed. 3 bots now running aggressive params to verify execution mechanics. trail_atr=2.0 confirmed as best.)*
 *Update this file when phase changes or major milestones reached*
