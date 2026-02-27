@@ -115,6 +115,30 @@ This is a *risk-adjusted* edge, not a "beat gold" strategy. The real value is th
 
 Gold is in a multi-year bull market (2020–2026: +117%). The mean reversion strategy **significantly underperforms buy & hold in trending markets**. If gold enters a bear market, the strategy's non-directional mean reversion edge should hold — but this has not been validated against a sustained gold bear.
 
+## Bear Market Backtest (Daily, Feb 27 2026)
+
+Tested on GLD daily bars (Stooq data, 2005–2019) to cover the 2011–2015 bear market (-45.6% peak to trough). Note: this uses daily bars, not 15m — fewer trades but directionally informative.
+
+| Period | Strategy | Sharpe | DD | Trades | B&H |
+|---|---|---|---|---|---|
+| Bull 2007–2011 | +21.7% | 1.06 | 4.15% | 31 | +144% |
+| 2012 (transition) | -0.6% | -0.54 | 1.41% | 3 | +3.9% |
+| **2013 (bear yr 1)** | **+3.6%** | **1.07** | **0.89%** | **2** | **-28.8%** |
+| **2014 (bear yr 2)** | **+1.2%** | **0.78** | **0.37%** | **3** | **-3.7%** |
+| **2015 (bear yr 3)** | **+2.2%** | **1.43** | **0.57%** | **5** | **-11.1%** |
+| 2016 (recovery) | +2.1% | 1.16 | 1.12% | 3 | +6.5% |
+| **Full bear 2012–15** | **+6.0%** | **0.50** | **1.41%** | **20** | **-34.9%** |
+
+**Key finding:** Strategy stayed positive through the entire bear market. B&H lost 34.9%; strategy made +6.0%. Every individual bear year was positive.
+
+**Why it survives:** Strategy is in-market only ~15% of the time. It catches short bounces within the downtrend and exits flat — not holding through the decline. Most bear market losses happen while the strategy is in cash.
+
+**Weakest period:** 2012 (-0.6%) — gold transitioning from bull to bear, choppy and indecisive. This is the hardest environment for mean reversion.
+
+**Caveat:** Daily bars only — 15m would fire far more trades and face more micro stop-outs. Daily result is directionally encouraging but not a direct test of the live strategy. Next step: run 15m backtest on 2016–2019 as a proxy for post-bull conditions.
+
+**Data:** `backend/data/gld_daily_2005_2019.csv` (Stooq, 3,737 daily bars)
+
 ## Edge Enhancement Analysis (Feb 13)
 
 Diagnostic analysis found three key leaks in the baseline strategy:

@@ -1,6 +1,29 @@
 # Recent Git History
 
-### 52eb516 - docs: session update Feb 27 — slv-test deployed, 3 validated edges (2026-02-27)
+### 3ccedef - feat: bear market backtest + GLD daily data (2005-2019) (2026-02-27)
+Bear market validation (daily bars, Stooq data):
+- Strategy stayed positive through entire 2012-2015 bear (-45.6% GLD)
+- Full bear period: +6.0% strategy vs -34.9% B&H
+- Every individual bear year positive (2013: +3.6%, 2014: +1.2%, 2015: +2.2%)
+- Key reason: only ~15% in-market, catches bounces and exits flat
+
+Weakest period: 2012 (transition year, -0.6%) — choppy indecision
+Caveat: daily bars only, not 15m. Directionally encouraging.
+
+Data saved: backend/data/gld_daily_2005_2019.csv (3,737 bars)
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### 4a4f0ac - fix: guard against duplicate exit signals causing short-sell rejections (2026-02-27)
+Before placing a SELL order, check that an open position actually exists.
+If flat, log a warning and skip — prevents Alpaca rejecting the order as
+a short sell when the strategy fires an exit signal on consecutive bars.
+
+Affects all live bots (gld-test, iau-test, slv-test).
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### 29dbe5e - docs: session update Feb 27 — slv-test deployed, 3 validated edges (2026-02-27)
 Bot fleet now: gld-test + iau-test + slv-test (all PAPER, aggressive params)
 Waiting for full trade cycle (entry → trail → exit) before switching to validated params.
 
@@ -220,20 +243,3 @@ Modified: backend/strategies/stoch_rsi_mean_reversion.py
 - Added trading_hours parameter (committed earlier)
 
 Usage: python3 -m backend.runner trade --strategy StochRSIMeanReversion --symbol GLD --source ig --timeframe 15m --paper
-
-### 42d5e5f - feat: Add trading_hours filter to StochRSI strategy (2026-02-14)
-Adds 'trading_hours' parameter (e.g. [14, 21] for NYSE hours 14:30-21:00 UTC).
-Entries blocked outside specified hours, exits always allowed (same pattern as skip_days).
-Default: empty list (no filtering - backward compatible).
-
-Verified: Alpaca GLD Jan-Feb 2026 — 50 trades with filter vs 56 without, same 2.04% return.
-Key use case: restrict IG 24hr Gold to NYSE hours only to replicate GLD-validated conditions.
-
-### cd4c6a9 - refactor: Reorganize .claude/ into memory/, workflows/, archive/ (2026-02-14)
-Final structure:
-  .claude/claude.md (master primer)
-  .claude/memory/ (system_manual, ideas, recent_history)
-  .claude/workflows/ (git_save - active)
-  .claude/archive/ (edge_enhancement, forward_testing, strategy_discovery - completed)
-
-Updated all path references in claude.md, update_memory.sh, load-context.sh, git_save.md
