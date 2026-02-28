@@ -299,5 +299,57 @@ Move everything (frontend, backend, DB, bots, overnight orchestrator) to the clo
 
 ---
 
-*Last updated: 2026-02-28 (Added #19 full cloud migration idea)*
+## 20. Portfolio Manager — Dynamic Cross-Bot Position Sizing
+*Discussed: 2026-02-28*
+
+Run all 4 validated 15m strategies (GLD, SLV, GDX, IAU) simultaneously with a shared risk budget and dynamic compounding position sizes.
+
+**Core concept:**
+- Total portfolio risk cap: 20% of account at any time across all 4 bots
+- Each bot queries the live account before entering — sizes its trade based on remaining budget
+- When a position closes, next bet automatically recalculates from current account equity
+- Account grows → bets grow. Account shrinks → bets shrink. True compounding.
+
+**Expected performance (blended portfolio):**
+- Annualised return: ~14.8%/yr (equal 25% weight per strategy)
+- GLD: 8.9%/yr, SLV: 21.1%/yr, GDX: 22.8%/yr, IAU: 6.5%/yr
+- On €1,000: ~€1,994 after 5 years. On €10,000: ~€20,000.
+
+**Sizing logic:**
+```
+Before entry:
+  account_equity = GET /v2/account → equity
+  open_positions = GET /v2/positions → sum(market_value)
+  capital_at_risk = open_positions / account_equity
+  remaining_budget = 0.20 - capital_at_risk
+  if remaining_budget <= 0: skip entry
+  position_size = account_equity × remaining_budget / open_slots_remaining
+```
+
+**Architecture — shared PortfolioManager class:**
+- All 4 bots import and call it before sizing entries
+- Queries Alpaca API for live account state (already available via AlpacaBroker)
+- Returns approved position size in dollars
+- No inter-process communication needed — Alpaca account IS the shared state
+
+**Realistic sizing on €1,000 (20% budget = €200 max deployed):**
+- 4 open positions: €50 each
+- 2 open positions: €100 each
+- 1 open position: €200
+- Fractional shares required — all 4 ETFs supported by Alpaca fractional orders
+
+**Correlation caveat:**
+GLD + IAU + SLV + GDX are all precious metals. In a bad gold week all 4 drawdown simultaneously. Individual DDs of 0.69%–2.02% could combine to 3-6% portfolio drawdown. Still manageable — but this is NOT 4 independent strategies.
+
+**Implementation steps:**
+1. Build `backend/broker/portfolio_manager.py` — queries account + open positions, returns approved size
+2. Update each bot's entry logic to call PortfolioManager before sizing
+3. Add configurable `max_portfolio_risk` param (default 0.20)
+4. Test on paper with all 4 bots simultaneously
+
+**Priority: HIGH** — straightforward to build on top of existing AlpacaBroker. Unlocks compounding and proper multi-bot coordination. Natural next step after execution mechanics are verified.
+
+---
+
+*Last updated: 2026-02-28 (Added #19 cloud migration, #20 portfolio manager)*
 *Add new ideas as they come up during sessions*
