@@ -7,6 +7,7 @@ export const MARKDOWN_MAP: Record<string, string> = {
   'StochRSIMeanReversionStrategy|GLD|15m': 'stochrsi_enhanced_gld.md',
   'StochRSIMeanReversionStrategy|SLV|15m': 'stochrsi_enhanced_slv.md',
   'StochRSIMeanReversionStrategy|GDX|15m': 'stochrsi_enhanced_gdx.md',
+  'StochRSIMeanReversionStrategy|IAU|15m': 'stochrsi_enhanced_iau.md',
   'EventSurprise|GLD|15m': 'event_surprise.md',
   'ComposableStrategy|GLD|1h': 'composable_results.md',
 }
