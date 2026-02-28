@@ -265,5 +265,39 @@ gcloud compute scp algotrader2026:/home/user/algo-trader-v1/backend/research.db 
 
 ---
 
-*Last updated: 2026-02-27 (Major restructure — removed built items (dashboard, event blackout), merged IG duplication, added thesis-driven ideas #14-18 from Feb 27 strategy session)*
+## 19. Full Cloud Migration
+*Discussed: 2026-02-28*
+
+Move everything (frontend, backend, DB, bots, overnight orchestrator) to the cloud server so the system is accessible from any device via browser.
+
+**Motivation:** Currently bots run on cloud but research/frontend/backtests are local. Full cloud = one URL to access everything — dashboard, P&L, bot status — from phone, tablet, or any computer.
+
+**Architecture:**
+- nginx reverse proxy → Next.js frontend (port 3000) + PM2 bots
+- SQLite DB stays on server (single source of truth)
+- Overnight orchestrator runs via PM2/cron unattended
+- Development via VS Code Remote SSH
+
+**Blockers on current e2-micro:**
+- Only 1 GB RAM (487 MB already used by bots) — too tight for Next.js
+- Node.js v12 installed — Next.js requires v18+
+- 3.4 GB disk free — workable but limited
+- CPU too slow for interactive backtesting
+
+**Required upgrade:** e2-medium (~$27/mo, 4 GB RAM) — comfortably runs everything. e2-small ($14/mo, 2 GB) is marginal.
+
+**Git workflow:** Unchanged — push from local, server pulls. Or develop directly on server via VS Code Remote SSH.
+
+**One-time setup steps:**
+1. Resize instance to e2-medium
+2. Update Node to v18+
+3. Configure nginx + open firewall port 80/443
+4. Point domain or use static IP (34.39.8.249)
+5. PM2 serve frontend + bots together
+
+**Priority: LOW** — nice-to-have convenience. Current setup works fine for active development phase. Revisit when moving to production/real-money phase and want cleaner access.
+
+---
+
+*Last updated: 2026-02-28 (Added #19 full cloud migration idea)*
 *Add new ideas as they come up during sessions*

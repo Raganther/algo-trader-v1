@@ -1,6 +1,19 @@
 # Recent Git History
 
-### 3ccedef - feat: bear market backtest + GLD daily data (2005-2019) (2026-02-27)
+### 1693d12 - feat: validate IAU 15m StochRSI Enhanced — 4th precious metals edge confirmed (2026-02-28)
+IAU 15m full validation (Feb 28):
+- Full period (2020-2025): +32.58%, DD 0.72%, 679 trades
+- Holdout test (2024-2025): +12.55%, DD 0.66% — minimal degradation
+- Walk-forward: 4/4 windows positive (2022: +4.3%, 2023: +3.89%, 2024: +5.0%, 2025: +7.17%)
+- All 6 individual years positive
+
+Precious metals thesis now confirmed on 4 assets (GLD 2.54, SLV 2.54, GDX 2.41, IAU ~2.0).
+IAU has lowest DD of the group (0.72%) and most consistent year-by-year returns.
+Also added idea #19 (full cloud migration) to ideas.md.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### 82b66b4 - feat: bear market backtest + GLD daily data (2005-2019) (2026-02-27)
 Bear market validation (daily bars, Stooq data):
 - Strategy stayed positive through entire 2012-2015 bear (-45.6% GLD)
 - Full bear period: +6.0% strategy vs -34.9% B&H
@@ -227,19 +240,3 @@ Fixed 3 issues found during demo testing:
 Order flow verified end-to-end on IG demo:
 - Connect ✅, Place order ✅, Get deal ref ✅, Confirm deal ✅
 - Final rejection 'MARKET_CLOSED_WITH_EDITS' = expected (Saturday)
-
-### 40e000c - feat: Add IGBroker for live trading + hour filter for strategy (2026-02-14)
-New: backend/engine/ig_broker.py
-- Matches LiveBroker interface (buy, sell, place_order, get_position, refresh, etc.)
-- Uses trading-ig create_open_position() with deal confirmation
-- Handles stop distance calculation, position tracking, trade logging
-- EPIC_MAP for Gold/Silver/Forex symbols
-
-Modified: backend/runner.py
-- Added --source ig|alpaca to trade command
-- Auto-selects IGBroker+IGDataLoader when --source ig
-
-Modified: backend/strategies/stoch_rsi_mean_reversion.py
-- Added trading_hours parameter (committed earlier)
-
-Usage: python3 -m backend.runner trade --strategy StochRSIMeanReversion --symbol GLD --source ig --timeframe 15m --paper

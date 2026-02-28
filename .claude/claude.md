@@ -67,6 +67,7 @@
 | **StochRSI Enhanced GLD** | `strategies/stochrsi_enhanced_gld.md` | VALIDATED (Sharpe 2.54, audited Feb 27) | Best edge. 44.7% / 0.69% DD / all years positive. Full audit done: param sensitivity, spread sensitivity, B&H comparison. |
 | **StochRSI Enhanced SLV** | `strategies/stochrsi_enhanced_slv.md` | VALIDATED (Sharpe 2.54, Feb 27) | Precious metals thesis confirmed. +105.3% / 2.00% DD / 4/4 WF. Same params as GLD. |
 | **StochRSI Enhanced GDX** | `strategies/stochrsi_enhanced_gdx.md` | VALIDATED (Sharpe 2.41, Feb 27) | Gold miners. +114.1% / 2.02% DD / 4/4 WF. Leveraged gold proxy. |
+| **StochRSI Enhanced IAU** | `strategies/stochrsi_enhanced_iau.md` | VALIDATED (Sharpe ~2.0, Feb 28) | GLD proxy ETF. +32.6% / 0.72% DD / 4/4 WF. Most consistent year-by-year. |
 | **EventSurprise** | `strategies/event_surprise.md` | BUILT (backtest positive) | CPI/NFP surprise trading. Research findings, direction mappings, results |
 | **Composable Results** | `strategies/composable_results.md` | Complete (3 validated) | Phase 3 combo results, building blocks reference |
 
@@ -78,7 +79,7 @@
 | **StochRSI Enhanced** | **SLV** | **15m** | **Sharpe 2.54, +105.3%, DD 2.00%** | **VALIDATED (Feb 27)** |
 | **StochRSI Enhanced** | **GDX** | **15m** | **Sharpe 2.41, +114.1%, DD 2.02%** | **VALIDATED (Feb 27)** |
 | **EventSurprise (CPI)** | **GLD** | **15m** | **+2.36%, 86% WR, 14 trades** | **Built** |
-| StochRSI Enhanced | IAU | 15m | Sharpe 2.00, +32.6%, DD 0.72% | Passed (not fully validated) |
+| **StochRSI Enhanced** | **IAU** | **15m** | **Sharpe ~2.0, +32.6%, DD 0.72%** | **VALIDATED (Feb 28)** |
 | StochRSI | GLD | 1h | Sharpe 1.44 | Validated |
 | StochRSI | IAU | 1h | Sharpe 1.22 | Validated |
 | StochRSI | XLE | 1h | Sharpe 1.11 | Validated |
@@ -187,7 +188,7 @@ git push origin main
 - [ ] Monitor gld-test + iau-test + slv-test for full trade cycle (entry → trail → exit)
 - [ ] Once mechanics verified: switch all 3 bots to validated params (OB 80/OS 15, trail 10 bars, hold 10)
 - [ ] Start real-money micro trading on Alpaca with €100-200 (fractional GLD/SLV/GDX)
-- [ ] Run full validation on IAU 15m (Sharpe 2.00 in-sample, needs holdout + WF)
+- [x] Run full validation on IAU 15m — VALIDATED (4/4 WF, holdout +12.55%, Feb 28)
 - [ ] Paper test EventSurprise (CPI-only) on cloud
 - [ ] Run overnight orchestrator on cloud — focused on EventSurprise (SLV/TLT)
 - [ ] Add research notes `.md` files for GLD 1h, IAU 1h, XLE 1h strategies
@@ -208,5 +209,5 @@ StochRSI, RSI, MACD, ADX, Bollinger Bands, Donchian Channels, ATR, SMA, CHOP
 
 ---
 
-*Last updated: 2026-02-27 (3 validated 15m edges: GLD 2.54, SLV 2.54, GDX 2.41. slv-test bot deployed. 3 bots now running aggressive params to verify execution mechanics. trail_atr=2.0 confirmed as best.)*
+*Last updated: 2026-02-28 (4 validated 15m edges: GLD 2.54, SLV 2.54, GDX 2.41, IAU ~2.0. IAU validated Feb 28 — 4/4 WF, holdout +12.55%, lowest DD of the group at 0.72%.)*
 *Update this file when phase changes or major milestones reached*
