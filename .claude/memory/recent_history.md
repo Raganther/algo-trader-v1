@@ -1,6 +1,37 @@
 # Recent Git History
 
-### 1693d12 - feat: validate IAU 15m StochRSI Enhanced — 4th precious metals edge confirmed (2026-02-28)
+### 3b7364a - fix: increase live fetch window from 2 to 7 days (2026-03-02)
+The on_bar guard (i < 50) was silently skipping all signal evaluation
+because the 2-day fetch only returned ~32 bars of 15m data (especially
+over weekends). This meant zero trades fired today despite big moves.
+7 days guarantees 50+ bars even over weekends.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 1535880 - temp: enable Monday trading for testing (2026-03-02)
+All 4 test bots (GLD/IAU/SLV/GDX) — skip_days changed from [0] to [] so they trade today.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 8476d9f - feat: add GDX 15m test bot script (2026-03-02)
+4th precious metals bot — same aggressive test params as GLD/IAU/SLV
+for mechanics verification before switching to validated params.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 9e919c6 - docs: add portfolio manager idea (#20) to ideas.md (2026-02-28)
+Dynamic cross-bot position sizing across all 4 validated 15m strategies.
+20% total risk budget, compounding on account equity, shared PortfolioManager class.
+Expected blended return ~14.8%/yr. Natural next step after execution mechanics verified.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### 5b0858b - feat: add IAU 15m to frontend registry (2026-02-28)
+Links IAU 15m to stochrsi_enhanced_iau.md for detail page notes.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### 9a0e08f - feat: validate IAU 15m StochRSI Enhanced — 4th precious metals edge confirmed (2026-02-28)
 IAU 15m full validation (Feb 28):
 - Full period (2020-2025): +32.58%, DD 0.72%, 679 trades
 - Holdout test (2024-2025): +12.55%, DD 0.66% — minimal degradation
@@ -198,45 +229,3 @@ Diagnostic results (1,381 GLD 15m trades, 2020-2025, 385 events):
 - Foundation for future event-driven strategies (actual vs forecast surprise)
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### d1ad7d8 - docs: Update session primer for Feb 17 — test bots, crash fix, position conflict (2026-02-17)
-- Fixed set_entry_metadata crash-loop (defensive hasattr guard deployed)
-- Added IAU test bot alongside GLD test bot for parallel enhancement testing
-- Stopped gld-15m-enhanced to avoid same-symbol position conflicts
-- Documented Alpaca constraint: one shared position per symbol per account
-- Updated active bots, testing params, and next steps
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 980d596 - fix: Defensive hasattr check for set_entry_metadata in strategy (2026-02-17)
-Prevents crash loop when broker doesn't have the method (e.g. stale
-Python process). The gld-test bot was crashing on every trade, churning
-orders and losing ~$4k in paper account from the restart cycle.
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 76e7c2d - docs: Update claude.md with full Feb 14 session findings (2026-02-14)
-Updated:
-- IG status: Phase 1-2 complete, demo data limits documented
-- Fractional shares: enabled on Alpaca (min $1 order)
-- Where We Left Off: revised strategy — Alpaca over IG for now
-- Checklist: 4 new completed items, 4 updated next steps
-- Decision: stay on Alpaca, use fractional shares for small-capital real trading
-
-### 7c5c212 - feat: Enable fractional share trading on Alpaca (2026-02-14)
-Changed int(qty) to round(qty, 4) in AlpacaTrader.place_order().
-Enables trading with small accounts (e.g. €100 buying 0.05 shares of GLD at $460).
-Alpaca supports fractional shares down to $1 minimum order.
-
-Previously: int(qty) rounded 0.05 → 0 shares (couldn't trade)
-Now: round(qty, 4) keeps 0.05 shares (valid fractional order)
-
-### b5e51e4 - fix: IGBroker order placement — currency, expiry, and arg fixes (2026-02-14)
-Fixed 3 issues found during demo testing:
-1. create_open_position requires all positional args (not just kwargs)
-2. Gold CFD uses currency_code='USD' not 'GBP' (added CURRENCY_MAP)
-3. CFD demo account needs expiry='-' not 'DFB' (spread bet expiry)
-
-Order flow verified end-to-end on IG demo:
-- Connect ✅, Place order ✅, Get deal ref ✅, Confirm deal ✅
-- Final rejection 'MARKET_CLOSED_WITH_EDITS' = expected (Saturday)
