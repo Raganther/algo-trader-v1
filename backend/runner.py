@@ -647,10 +647,10 @@ def run_live_trading(args):
             time.sleep(60)
             print(f"[DEBUG] Woke up from sleep, fetching data...")
 
-            # Fetch latest data (small window)
-            # We fetch last 2 days to be safe and ensure continuity
+            # Fetch latest data — need 50+ bars for on_bar guard (i < 50)
+            # 7 days ensures enough 15m bars even over weekends
             now = datetime.now()
-            start_fetch = (now - pd.Timedelta(days=2)).strftime('%Y-%m-%d')
+            start_fetch = (now - pd.Timedelta(days=7)).strftime('%Y-%m-%d')
             end_fetch = (now + pd.Timedelta(days=1)).strftime('%Y-%m-%d') # Future to get today
 
             try:
