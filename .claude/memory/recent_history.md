@@ -1,5 +1,17 @@
 # Recent Git History
 
+### 8234abf - docs: update claude.md — current status, fix outdated info (2026-03-03)
+- Updated to reflect 4 test bots (added GDX), removed gld-15m-enhanced
+- Fixed fractional shares status (confirmed working, was incorrectly listed as whole shares only)
+- Added bugs found/fixed (fetch window, OOM), known issues, server specs
+- Added test vs validated params comparison table
+- Removed redundant/outdated sections, consolidated reference info
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 2cd7f16 - docs: update recent_history.md (2026-03-02)
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
 ### 3b7364a - fix: increase live fetch window from 2 to 7 days (2026-03-02)
 The on_bar guard (i < 50) was silently skipping all signal evaluation
 because the 2-day fetch only returned ~32 bars of 15m data (especially
@@ -180,52 +192,3 @@ Fix: non-crypto symbols now default to TimeInForce.DAY.
 Crypto keeps GTC as before.
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
-### eb208c3 - feat: EventSurprise strategy + memory restructure into per-strategy files (2026-02-17)
-New strategy: EventSurpriseStrategy trades GLD on CPI/NFP/Unemployment
-surprise direction. Loads 83k-row economic calendar, matches events to
-bars via bisect, deduplicates co-releases, classifies surprises using
-per-event-type std threshold, enters with delayed entry and time-based
-exit. CPI-only backtest: 14 trades, 86% win rate, +2.36%, 0.13% DD.
-All-events backtest: 58 trades, 48% WR, +2.95%, 1.10% DD.
-
-Memory restructure: moved strategy detail blocks out of claude.md into
-per-strategy files under .claude/memory/strategies/. claude.md now has
-a Strategy Index table linking to detail files. Slimmed from ~260 to
-~210 lines. Updated Git Save Protocol to include strategy memory updates.
-
-New files:
-- backend/strategies/event_surprise.py (strategy)
-- backend/scripts/event_surprise_analysis.py (initial diagnostic)
-- backend/scripts/event_surprise_gaps.py (gap analysis — 5 investigations)
-- scripts/run_event_surprise_test.sh (bot launch script)
-- .claude/memory/strategies/stochrsi_enhanced_gld.md
-- .claude/memory/strategies/event_surprise.md
-- .claude/memory/strategies/composable_results.md
-
-Modified:
-- backend/runner.py (import, STRATEGY_MAP, default params)
-- .claude/claude.md (slimmed, Strategy Index, updated protocol)
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
-### 4c8df74 - feat: Economic calendar integration — event blackout filter for StochRSI (2026-02-17)
-Added event blackout filtering to skip entries near high-impact USD events
-(FOMC, NFP, CPI, Unemployment Rate). Uses 83k-row economic calendar CSV.
-
-New code:
-- DataLoader.get_event_blackout_times() — loads event datetimes filtered by
-  currency, impact, and event keywords (NFP/FOMC/CPI/Fed Funds/Unemployment)
-- StochRSI event_blackout_hours param — precomputes blackout bar timestamps
-  at init for O(1) lookup in on_bar, follows existing skip_days pattern
-- Runner --event-blackout N CLI flag for backtest and live trading paths
-- backend/scripts/event_trade_analysis.py — diagnostic script
-
-Diagnostic results (1,381 GLD 15m trades, 2020-2025, 385 events):
-- ±1h: 81 event trades avg PnL -$1.13 vs +$2.23 clean (event trades are losers)
-- But full backtest with blackout ON reduces return (28% → 23% at 1h, 21% at 2h)
-- Blunt avoidance filters out some winning trades too
-- Feature built and available (off by default, event_blackout_hours=0)
-- Foundation for future event-driven strategies (actual vs forecast surprise)
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
