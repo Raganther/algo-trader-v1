@@ -1,6 +1,27 @@
 # Recent Git History
 
-### 8234abf - docs: update claude.md — current status, fix outdated info (2026-03-03)
+### 27a5b8d - fix: add graceful shutdown handler to prevent zombie trades on pm2 restart (2026-03-03)
+PM2 sends SIGTERM on restart but old process could linger and place orders.
+Now catches SIGTERM/SIGINT, sets shutdown flag, exits within 1 second.
+Sleep broken into 1s intervals for fast response. Bar processing skipped
+if shutdown requested.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### a697957 - feat: add server-side stop losses for fractional share orders (2026-03-03)
+Alpaca doesn't support bracket orders with fractional shares, so stop
+losses were silently not being placed. Now we:
+
+1. Place a separate stop sell order after BUY fill (server-side protection)
+2. Cancel + replace stop order when trailing stop ratchets up
+3. Cancel stop order before signal-based exits
+4. Detect when server-side stop fires externally and reset strategy state
+
+This ensures positions are protected even if the bot hangs or data feed stalls.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 73f4432 - docs: update claude.md — current status, fix outdated info (2026-03-03)
 - Updated to reflect 4 test bots (added GDX), removed gld-15m-enhanced
 - Fixed fractional shares status (confirmed working, was incorrectly listed as whole shares only)
 - Added bugs found/fixed (fetch window, OOM), known issues, server specs
@@ -174,21 +195,5 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ### 9992f8f - docs: git save — Feb 26 session (2026-02-26)
 - Update claude.md: document DAY TIF fix, system audit findings, next steps
 - Stage deletion of .agent/scripts/update_memory.sh (moved to scripts/)
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
-### ce79ac8 - chore: system audit — commit missing iau script, update claude.md (2026-02-26)
-- Add scripts/run_iau_test.sh (existed on cloud, never committed to git)
-- Update CLAUDE.md: document Feb 26 DAY TIF fix, update next steps
-- Audit confirmed: all memory files accurate, codebase matches docs
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
-### 4361d59 - fix: fractional stock orders must use DAY not GTC on Alpaca (2026-02-26)
-All GLD/IAU orders rejected since Feb 13 with:
-'fractional orders must be DAY orders' (code 42210000)
-
-Fix: non-crypto symbols now default to TimeInForce.DAY.
-Crypto keeps GTC as before.
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
