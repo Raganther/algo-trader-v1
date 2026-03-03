@@ -629,7 +629,21 @@ def run_live_trading(args):
     # 3. Live Loop
     # Force unbuffered output for real-time logging
     import sys
+    import signal
     sys.stdout.flush()
+
+    # Graceful shutdown flag — prevents zombie processes from placing trades
+    # PM2 sends SIGTERM on restart; we catch it and stop processing immediately
+    _shutdown_requested = False
+
+    def _handle_shutdown(signum, frame):
+        nonlocal _shutdown_requested
+        sig_name = signal.Signals(signum).name
+        print(f"\n🛑 SHUTDOWN signal received ({sig_name}). Finishing current iteration, will NOT place new orders.")
+        _shutdown_requested = True
+
+    signal.signal(signal.SIGTERM, _handle_shutdown)
+    signal.signal(signal.SIGINT, _handle_shutdown)
 
     print("Entering Live Loop... (Press Ctrl+C to stop)")
 
@@ -637,14 +651,21 @@ def run_live_trading(args):
     loop_count = 0
 
     try:
-        while True:
+        while not _shutdown_requested:
             loop_count += 1
             print(f"[DEBUG] Loop iteration {loop_count} starting at {datetime.now()}")
 
             # Sleep logic (simple polling)
             # For 5m bars, we can poll every 1 minute to check if a new bar is ready?
             # Or just sleep 60s.
-            time.sleep(60)
+            # Sleep in short intervals so we can respond to shutdown quickly
+            for _ in range(60):
+                if _shutdown_requested:
+                    break
+                time.sleep(1)
+            if _shutdown_requested:
+                print("[DEBUG] Shutdown requested, exiting loop.")
+                break
             print(f"[DEBUG] Woke up from sleep, fetching data...")
 
             # Fetch latest data — need 50+ bars for on_bar guard (i < 50)
@@ -693,6 +714,11 @@ def run_live_trading(args):
                             strategy.entry_price = None
                             broker.pending_stop_order_id = None
 
+                    # Skip bar processing if shutdown requested (prevents zombie trades)
+                    if _shutdown_requested:
+                        print("[DEBUG] Shutdown requested, skipping bar processing.")
+                        break
+
                     strategy.on_bar(last_row, last_index, latest_data)
 
                     # Log Trades
@@ -712,17 +738,13 @@ def run_live_trading(args):
 
     except KeyboardInterrupt:
         print(f"[DEBUG] KeyboardInterrupt caught at loop iteration {loop_count}")
-        print("Live Trading Stopped.")
     except Exception as e:
         print(f"[DEBUG] Exception caught: {type(e).__name__}")
         print(f"❌ Critical Error in Live Loop: {e}")
         import traceback
         traceback.print_exc()
-        import traceback
-        traceback.print_exc()
-        # Optional: Add a global retry loop here if we want to restart the whole process
-        # But for now, let's just let it crash if it's critical, 
-        # as we handled the transient network errors in the components.
+
+    print(f"🛑 Live Trading Stopped. (loop iterations: {loop_count})")
 
 def run_matrix(args):
     import multiprocessing

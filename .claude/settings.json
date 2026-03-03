@@ -11,5 +11,17 @@
         ]
       }
     ]
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash(*)",
+      "WebFetch",
+      "WebSearch",
+      "Glob",
+      "Grep"
+    ]
   }
 }
