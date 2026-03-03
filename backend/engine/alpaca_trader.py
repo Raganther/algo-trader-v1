@@ -1,6 +1,6 @@
 import os
 from alpaca.trading.client import TradingClient
-from alpaca.trading.requests import MarketOrderRequest, GetOrdersRequest
+from alpaca.trading.requests import MarketOrderRequest, StopOrderRequest, GetOrdersRequest
 from alpaca.trading.enums import OrderSide, TimeInForce, OrderStatus
 from dotenv import load_dotenv
 
@@ -87,53 +87,27 @@ class AlpacaTrader:
 
     def place_order(self, symbol, qty, side, order_type='market', time_in_force='gtc', stop_loss=None, take_profit=None):
         """
-        Place an order with optional Bracket (Stop Loss / Take Profit).
-        side: 'buy' or 'sell'
-        stop_loss: float price
-        take_profit: float price
+        Place a simple market order.
+        stop_loss/take_profit params are ignored here — use place_stop_order() separately
+        (Alpaca doesn't support bracket orders with fractional shares).
         """
         alpaca_side = OrderSide.BUY if side.lower() == 'buy' else OrderSide.SELL
-
-        # Clean symbol (BTC/USD -> BTCUSD)
         clean_symbol = symbol.replace('/', '')
 
-        # Alpaca constraints for stock orders:
-        # - Fractional short selling is not allowed (new short positions)
-        # - Fractional buying and closing IS supported (min $1 order)
-        # - Fractional stock orders MUST be DAY orders (not GTC)
         is_crypto = '/' in symbol
         if not is_crypto:
-            qty = round(qty, 4)  # Fractional shares OK for buys and closing positions
-            alpaca_tif = TimeInForce.DAY  # Alpaca requires DAY for fractional stock orders
-        else:
-            alpaca_tif = TimeInForce.GTC  # Crypto uses GTC
-
-        if time_in_force.lower() == 'day':
+            qty = round(qty, 4)
             alpaca_tif = TimeInForce.DAY
-            
-        # Construct Order Request
-        req_params = {
-            "symbol": clean_symbol,
-            "qty": qty,
-            "side": alpaca_side,
-            "time_in_force": alpaca_tif
-        }
-        
-        # Add Bracket Logic
-        if stop_loss or take_profit:
-            # Bracket orders must be GTC usually, but Alpaca handles it.
-            # We use the 'order_class' parameter for brackets if using the advanced API,
-            # but the python SDK has specific helpers.
-            # Actually, MarketOrderRequest has stop_loss and take_profit dicts.
-            
-            if stop_loss:
-                req_params["stop_loss"] = {"stop_price": stop_loss}
-            
-            if take_profit:
-                req_params["take_profit"] = {"limit_price": take_profit}
-                
-        req = MarketOrderRequest(**req_params)
-        
+        else:
+            alpaca_tif = TimeInForce.GTC
+
+        req = MarketOrderRequest(
+            symbol=clean_symbol,
+            qty=qty,
+            side=alpaca_side,
+            time_in_force=alpaca_tif
+        )
+
         order = self.client.submit_order(order_data=req)
         return {
             'id': str(order.id),
@@ -141,6 +115,41 @@ class AlpacaTrader:
             'symbol': order.symbol,
             'qty': float(order.qty) if order.qty else 0.0
         }
+
+    def place_stop_order(self, symbol, qty, side, stop_price):
+        """Place a standalone stop order (for server-side stop losses with fractional shares)."""
+        clean_symbol = symbol.replace('/', '')
+        alpaca_side = OrderSide.BUY if side.lower() == 'buy' else OrderSide.SELL
+        is_crypto = '/' in symbol
+        if not is_crypto:
+            qty = round(qty, 4)
+            alpaca_tif = TimeInForce.DAY
+        else:
+            alpaca_tif = TimeInForce.GTC
+
+        req = StopOrderRequest(
+            symbol=clean_symbol,
+            qty=qty,
+            side=alpaca_side,
+            time_in_force=alpaca_tif,
+            stop_price=round(stop_price, 2)
+        )
+        order = self.client.submit_order(order_data=req)
+        return {
+            'id': str(order.id),
+            'status': order.status,
+            'symbol': order.symbol,
+            'qty': float(order.qty) if order.qty else 0.0
+        }
+
+    def cancel_order(self, order_id):
+        """Cancel an order by ID. Returns True on success."""
+        try:
+            self.client.cancel_order_by_id(order_id)
+            return True
+        except Exception as e:
+            print(f"⚠️ Cancel order {order_id} failed: {e}")
+            return False
 
     def close_trade(self, symbol):
         """

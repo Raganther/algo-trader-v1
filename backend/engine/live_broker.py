@@ -34,6 +34,7 @@ class LiveBroker:
         self.positions = {} # Cache positions
         self.equity = self.initial_balance # Default fallback
         self.new_trades = [] # Queue for new trades
+        self.pending_stop_order_id = None  # Server-side stop order ID
         self.refresh()
 
     def refresh(self):
@@ -155,9 +156,7 @@ class LiveBroker:
             res = self.trader.place_order(
                 symbol=self.symbol,
                 qty=size,
-                side='buy',
-                stop_loss=None if is_crypto else stop_loss,
-                take_profit=None if is_crypto else take_profit
+                side='buy'
             )
         except Exception as e:
             print(f"❌ BUY order rejected: {e}")
@@ -170,13 +169,28 @@ class LiveBroker:
                 'symbol': self.symbol,
                 'side': 'buy',
                 'qty': size,
-                'signal_price': price, # Expected price from Strategy
+                'signal_price': price,
                 'fill_price': filled_order['filled_avg_price'],
-                'slippage': filled_order['filled_avg_price'] - price, # Slippage is bad if Buy Price > Signal Price
-                'spread': 0.0, # Placeholder
+                'slippage': filled_order['filled_avg_price'] - price,
+                'spread': 0.0,
                 'timestamp': filled_order['filled_at']
             })
             print(f"✅ FILLED BUY: {filled_order['filled_avg_price']}")
+
+            # Place server-side stop loss order if provided
+            if stop_loss and not is_crypto:
+                try:
+                    stop_res = self.trader.place_stop_order(
+                        symbol=self.symbol,
+                        qty=size,
+                        side='sell',
+                        stop_price=stop_loss
+                    )
+                    self.pending_stop_order_id = stop_res['id']
+                    print(f"🛡️ SERVER STOP placed at ${stop_loss:.2f} (order {stop_res['id'][:8]}...)")
+                except Exception as e:
+                    print(f"⚠️ Server stop order failed: {e} — bot will manage stop locally")
+                    self.pending_stop_order_id = None
         else:
             print(f"⚠️ Order {res['id']} not filled yet.")
 
@@ -194,14 +208,18 @@ class LiveBroker:
         # Detect crypto symbols (contain '/') and skip stop_loss/take_profit
         is_crypto = '/' in self.symbol
 
+        # Cancel pending server-side stop order before placing signal exit
+        if self.pending_stop_order_id:
+            print(f"🛡️ Cancelling server stop (order {self.pending_stop_order_id[:8]}...)")
+            self.trader.cancel_order(self.pending_stop_order_id)
+            self.pending_stop_order_id = None
+
         print(f"LIVE SELL: {size} shares of {self.symbol}")
         try:
             res = self.trader.place_order(
                 symbol=self.symbol,
                 qty=size,
-                side='sell',
-                stop_loss=None if is_crypto else stop_loss,
-                take_profit=None if is_crypto else take_profit
+                side='sell'
             )
         except Exception as e:
             print(f"❌ SELL order rejected: {e}")
@@ -216,8 +234,8 @@ class LiveBroker:
                 'qty': size,
                 'signal_price': price,
                 'fill_price': filled_order['filled_avg_price'],
-                'slippage': price - filled_order['filled_avg_price'], # Slippage is bad if Sell Price < Signal Price
-                'spread': 0.0, # Placeholder, requires Bid/Ask snapshot
+                'slippage': price - filled_order['filled_avg_price'],
+                'spread': 0.0,
                 'timestamp': filled_order['filled_at']
             })
             print(f"✅ FILLED SELL: {filled_order['filled_avg_price']}")
@@ -225,6 +243,25 @@ class LiveBroker:
             print(f"⚠️ Order {res['id']} not filled yet.")
 
         return res
+
+    def update_stop_order(self, new_stop_price, qty):
+        """Update the server-side stop order to a new price (for trailing stops)."""
+        if not self.pending_stop_order_id:
+            return
+        # Cancel old, place new
+        self.trader.cancel_order(self.pending_stop_order_id)
+        try:
+            stop_res = self.trader.place_stop_order(
+                symbol=self.symbol,
+                qty=qty,
+                side='sell',
+                stop_price=new_stop_price
+            )
+            self.pending_stop_order_id = stop_res['id']
+            print(f"🛡️ TRAILING STOP updated to ${new_stop_price:.2f} (order {stop_res['id'][:8]}...)")
+        except Exception as e:
+            print(f"⚠️ Trailing stop update failed: {e}")
+            self.pending_stop_order_id = None
 
     def place_order(self, symbol, side, quantity, order_type='market', price=None, stop_loss=None, take_profit=None, **kwargs):
         """

@@ -681,6 +681,18 @@ def run_live_trading(args):
                     last_row = latest_data.iloc[-1]
 
                     broker.refresh()
+
+                    # Detect if server-side stop fired (position closed externally)
+                    if strategy.position in ('long', 'short'):
+                        current_pos = broker.get_position(args.symbol)
+                        if current_pos == 0:
+                            print(f"🛡️ SERVER STOP FIRED — position closed externally. Resetting strategy state.")
+                            strategy.position = 0
+                            strategy.current_sl = None
+                            strategy.entry_bar = None
+                            strategy.entry_price = None
+                            broker.pending_stop_order_id = None
+
                     strategy.on_bar(last_row, last_index, latest_data)
 
                     # Log Trades

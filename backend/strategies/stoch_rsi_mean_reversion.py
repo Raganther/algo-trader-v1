@@ -140,10 +140,19 @@ class StochRSIMeanReversionStrategy(Strategy):
                     new_sl = row['Close'] - (atr_val * self.trail_atr)
                     if new_sl > self.current_sl:
                         self.current_sl = new_sl
+                        # Update server-side stop order if broker supports it
+                        if self.broker and hasattr(self.broker, 'update_stop_order'):
+                            qty = abs(self.broker.get_position(self.symbol))
+                            if qty > 0:
+                                self.broker.update_stop_order(new_sl, qty)
                 elif self.position == 'short':
                     new_sl = row['Close'] + (atr_val * self.trail_atr)
                     if new_sl < self.current_sl:
                         self.current_sl = new_sl
+                        if self.broker and hasattr(self.broker, 'update_stop_order'):
+                            qty = abs(self.broker.get_position(self.symbol))
+                            if qty > 0:
+                                self.broker.update_stop_order(new_sl, qty)
 
         # Regime Filter: Only trade if Market is Ranging (ADX < Threshold)
         # Skip this check when called from HybridRegime (which already filtered by ADX)
