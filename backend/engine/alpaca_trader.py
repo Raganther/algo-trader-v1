@@ -122,8 +122,12 @@ class AlpacaTrader:
         alpaca_side = OrderSide.BUY if side.lower() == 'buy' else OrderSide.SELL
         is_crypto = '/' in symbol
         qty = round(qty, 4) if not is_crypto else qty
-        # GTC so stop orders persist overnight (DAY expires at market close)
-        alpaca_tif = TimeInForce.GTC
+        # Fractional shares require DAY TIF on Alpaca (GTC rejected)
+        # Stop re-placed on next bar after market open if held overnight
+        if not is_crypto:
+            alpaca_tif = TimeInForce.DAY
+        else:
+            alpaca_tif = TimeInForce.GTC
 
         req = StopOrderRequest(
             symbol=clean_symbol,
