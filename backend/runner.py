@@ -622,7 +622,40 @@ def run_live_trading(args):
     pos = positions.get(args.symbol) or positions.get(symbol_clean)
     if pos and abs(pos['size']) > 0.0001:
         strategy.position = 'long' if pos['size'] > 0 else 'short'
-        print(f"[SYNC] Recovered position: {strategy.position} ({pos['size']})")
+        entry_price = pos['price']  # avg_entry_price from Alpaca
+        strategy.entry_price = entry_price
+
+        # Reconstruct stop loss from current ATR
+        atr_col = strategy.atr_col if hasattr(strategy, 'atr_col') else 'atr'
+        if atr_col in initial_data.columns:
+            current_atr = initial_data[atr_col].iloc[-1]
+            if strategy.position == 'long':
+                strategy.current_sl = entry_price - (current_atr * strategy.sl_atr)
+            else:
+                strategy.current_sl = entry_price + (current_atr * strategy.sl_atr)
+            print(f"[SYNC] Reconstructed SL: ${strategy.current_sl:.2f} (ATR: {current_atr:.2f})")
+
+            # Place server-side stop order for protection
+            is_crypto = '/' in args.symbol
+            if not is_crypto:
+                stop_side = 'sell' if strategy.position == 'long' else 'buy'
+                try:
+                    # Cancel any existing orders first
+                    broker.trader.cancel_all_orders_for_symbol(args.symbol)
+                    stop_res = broker.trader.place_stop_order(
+                        symbol=args.symbol,
+                        qty=abs(pos['size']),
+                        side=stop_side,
+                        stop_price=strategy.current_sl
+                    )
+                    broker.pending_stop_order_id = stop_res['id']
+                    print(f"[SYNC] Server stop placed at ${strategy.current_sl:.2f}")
+                except Exception as e:
+                    print(f"[SYNC] ⚠️ Server stop failed: {e} — bot will manage locally")
+
+        # Set entry_bar so min_hold is already satisfied (conservative: allow exit immediately)
+        strategy.entry_bar = len(initial_data) - 1 - strategy.min_hold_bars
+        print(f"[SYNC] Recovered position: {strategy.position} ({pos['size']}) @ ${entry_price:.2f}")
     else:
         print(f"[SYNC] Confirmed flat position")
 

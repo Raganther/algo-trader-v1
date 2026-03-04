@@ -121,11 +121,9 @@ class AlpacaTrader:
         clean_symbol = symbol.replace('/', '')
         alpaca_side = OrderSide.BUY if side.lower() == 'buy' else OrderSide.SELL
         is_crypto = '/' in symbol
-        if not is_crypto:
-            qty = round(qty, 4)
-            alpaca_tif = TimeInForce.DAY
-        else:
-            alpaca_tif = TimeInForce.GTC
+        qty = round(qty, 4) if not is_crypto else qty
+        # GTC so stop orders persist overnight (DAY expires at market close)
+        alpaca_tif = TimeInForce.GTC
 
         req = StopOrderRequest(
             symbol=clean_symbol,
