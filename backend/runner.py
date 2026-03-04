@@ -708,6 +708,10 @@ def run_live_trading(args):
                         current_pos = broker.get_position(args.symbol)
                         if current_pos == 0:
                             print(f"🛡️ SERVER STOP FIRED — position closed externally. Resetting strategy state.")
+                            # Cancel any remaining open orders to prevent wash trade conflicts
+                            cancelled = broker.trader.cancel_all_orders_for_symbol(args.symbol)
+                            if cancelled > 0:
+                                print(f"🛡️ Cleaned up {cancelled} orphaned order(s) for {args.symbol}")
                             strategy.position = 0
                             strategy.current_sl = None
                             strategy.entry_bar = None

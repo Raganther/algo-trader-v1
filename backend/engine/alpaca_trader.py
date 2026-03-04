@@ -151,6 +151,23 @@ class AlpacaTrader:
             print(f"⚠️ Cancel order {order_id} failed: {e}")
             return False
 
+    def cancel_all_orders_for_symbol(self, symbol):
+        """Cancel all open orders for a specific symbol. Returns count cancelled."""
+        try:
+            request = GetOrdersRequest(status='open', symbols=[symbol])
+            orders = self.client.get_orders(filter=request)
+            cancelled = 0
+            for order in orders:
+                try:
+                    self.client.cancel_order_by_id(order.id)
+                    cancelled += 1
+                except Exception:
+                    pass  # Order may have already filled/cancelled
+            return cancelled
+        except Exception as e:
+            print(f"⚠️ Cancel all orders for {symbol} failed: {e}")
+            return 0
+
     def close_trade(self, symbol):
         """
         Close all positions for a symbol.

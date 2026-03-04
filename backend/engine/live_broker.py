@@ -208,11 +208,14 @@ class LiveBroker:
         # Detect crypto symbols (contain '/') and skip stop_loss/take_profit
         is_crypto = '/' in self.symbol
 
-        # Cancel pending server-side stop order before placing signal exit
-        if self.pending_stop_order_id:
-            print(f"🛡️ Cancelling server stop (order {self.pending_stop_order_id[:8]}...)")
-            self.trader.cancel_order(self.pending_stop_order_id)
-            self.pending_stop_order_id = None
+        # Cancel ALL open orders for this symbol before selling
+        # (not just tracked stop — prevents wash trade rejections from orphaned orders)
+        import time
+        cancelled = self.trader.cancel_all_orders_for_symbol(self.symbol)
+        if cancelled > 0:
+            print(f"🛡️ Cancelled {cancelled} open order(s) for {self.symbol} before exit")
+            time.sleep(0.5)  # Brief pause for Alpaca to process cancellations
+        self.pending_stop_order_id = None
 
         print(f"LIVE SELL: {size} shares of {self.symbol}")
         try:
