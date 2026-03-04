@@ -1,5 +1,17 @@
 # Recent Git History
 
+### b45bbeb - fix: cancel all open orders before sell to prevent wash trade rejections (2026-03-04)
+When server-side stop fires and bot also tries to sell, Alpaca rejects
+the sell as a wash trade due to the existing stop order. Now cancels ALL
+open orders for the symbol (not just the tracked one) before placing
+exit orders, with cleanup on server stop detection too.
+
+Added `cancel_all_orders_for_symbol()` to AlpacaTrader. Updated sell()
+in LiveBroker to use it with 0.5s delay. Updated runner.py server stop
+detection to clean up orphaned orders.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
 ### 27a5b8d - fix: add graceful shutdown handler to prevent zombie trades on pm2 restart (2026-03-03)
 PM2 sends SIGTERM on restart but old process could linger and place orders.
 Now catches SIGTERM/SIGINT, sets shutdown flag, exits within 1 second.
@@ -185,15 +197,6 @@ XLE 1h, GLD 4h — all StochRSIMeanReversion, auto-surfaced from experiments DB.
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
 ### f551364 - docs: git save — Feb 26 session (strategy analysis + frontend idea) (2026-02-26)
-- Fixed backtest command in CLAUDE.md: wrong param names (min_hold→min_hold_bars, stop_loss_atr→sl_atr, missing skip_adx_filter:false) were silently producing wrong results (5.61%/1996 trades vs 43%/689 trades)
-- Re-verified GLD 15m StochRSI Enhanced with correct params: 43.03% total return, 0.69% DD, all 6 years profitable
-- Added year-by-year breakdown to stochrsi_enhanced_gld.md (2020-2025, best year 2024 +7.90%)
-- Added profit projection table by position sizing (2%→20% risk/trade) for €100/€1000 accounts
-- Added WARNING note about silent param fallbacks in strategy memory file
-- Updated ideas.md #6: refined frontend rebuild vision — personal strategy reference dashboard, two pages (index + detail), verified strategies sorted by Sharpe, research notes rendered from markdown
-
-### 9992f8f - docs: git save — Feb 26 session (2026-02-26)
-- Update claude.md: document DAY TIF fix, system audit findings, next steps
-- Stage deletion of .agent/scripts/update_memory.sh (moved to scripts/)
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+- Fixed backtest command in CLAUDE.md: wrong param names were silently producing wrong results
+- Re-verified GLD 15m StochRSI Enhanced with correct params: 43.03% total return, 0.69% DD
+- Added year-by-year breakdown and profit projections to strategy memory
