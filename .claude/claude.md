@@ -10,7 +10,7 @@
 - **Validated Edges:** 4 precious metals strategies (GLD, SLV, GDX, IAU) all 15m StochRSI Enhanced
 - **Fractional Shares:** ✅ Confirmed working in paper trading (Alpaca, min $1 order, DAY TIF)
 
-## Where We Are (Mar 3)
+## Where We Are (Mar 4)
 
 **Testing execution mechanics with aggressive params on 4 bots.**
 
@@ -36,13 +36,18 @@ The backtested edge is validated. We're now verifying that the live trading infr
 | Skip days | Monday |
 | Trades/yr | ~107 per symbol (~428 total across 4) |
 
-**Bugs found & fixed (Mar 3):**
+**Bugs found & fixed:**
 - Live fetch window was 2 days → only ~33 bars after weekends → `on_bar` guard (`i < 50`) silently skipped all signal evaluation. Fixed: 7-day window → 150+ bars.
 - Removed `gld-15m-enhanced` (duplicate GLD bot, would conflict on same Alpaca position)
 - Added 1GB swap to prevent OOM freezes when SSH + bots compete for RAM
+- Zombie trades on pm2 restart — old process lingered after SIGTERM. Fixed: graceful shutdown handler.
+- Wash trade rejection — server-side stop fires + bot also tries to sell → Alpaca rejects. Fixed: cancel ALL open orders for symbol before selling, not just tracked stop.
 
-**Trade history:**
-- Feb 27: GLD BUY + SELL (49.6 fractional shares, paper). Quick cycle — trail didn't activate.
+**Trade history (paper):**
+- Feb 27: GLD BUY + SELL (49.6 shares). Quick cycle — trail didn't activate.
+- Mar 4: GLD BUY $475.24 → SELL $471.98 (50.89 shares, -$166 paper)
+- Mar 4: SLV BUY $76.79 → server stop fired → wash trade bug → manually closed at $76.25 (-$168 paper)
+- Mar 4: GDX had orphaned stop order from previous session, cancelled on restart
 - Still waiting for full lifecycle: entry → trail activates → exit via trailing stop
 
 ## Validated Edges
@@ -166,4 +171,4 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 ---
 
-*Last updated: 2026-03-03. 4 test bots live (paper). Verifying execution mechanics before real money.*
+*Last updated: 2026-03-04. 4 test bots live (paper). Verifying execution mechanics before real money.*

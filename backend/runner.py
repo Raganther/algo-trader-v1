@@ -686,6 +686,13 @@ def run_live_trading(args):
     try:
         while not _shutdown_requested:
             loop_count += 1
+
+            # Heartbeat every ~15 iterations (~15 minutes)
+            if loop_count % 15 == 0:
+                pos_status = strategy.position if strategy.position else 'flat'
+                bot_name = getattr(args, 'name', args.symbol)
+                print(f"[HEARTBEAT] {bot_name} alive | {pos_status} | last bar: {last_bar_time} | loop: {loop_count}")
+
             print(f"[DEBUG] Loop iteration {loop_count} starting at {datetime.now()}")
 
             # Sleep logic (simple polling)
@@ -719,6 +726,11 @@ def run_live_trading(args):
                 if args.timeframe == '5m':
                     ohlc_dict = {'Open': 'first', 'High': 'max', 'Low': 'min', 'Close': 'last', 'Volume': 'sum'}
                     latest_data = latest_data.resample('5min').agg(ohlc_dict).dropna()
+
+                # Data quality guard — need 50+ bars for indicators
+                if len(latest_data) < 50:
+                    print(f"⚠️ Insufficient data: {len(latest_data)} bars (need 50+). Skipping this cycle.")
+                    continue
 
                 # Check for new bar
                 current_last_time = latest_data.index[-1]
@@ -780,6 +792,16 @@ def run_live_trading(args):
         print(f"❌ Critical Error in Live Loop: {e}")
         import traceback
         traceback.print_exc()
+
+    # Cancel all open orders on shutdown to prevent orphaned stops
+    try:
+        cancelled = broker.trader.cancel_all_orders_for_symbol(args.symbol)
+        if cancelled > 0:
+            print(f"🛡️ SHUTDOWN: Cancelled {cancelled} open order(s) for {args.symbol}")
+        else:
+            print(f"🛡️ SHUTDOWN: No open orders to cancel for {args.symbol}")
+    except Exception as e:
+        print(f"⚠️ SHUTDOWN: Failed to cancel orders: {e}")
 
     print(f"🛑 Live Trading Stopped. (loop iterations: {loop_count})")
 

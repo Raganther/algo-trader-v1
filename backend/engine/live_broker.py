@@ -35,6 +35,7 @@ class LiveBroker:
         self.equity = self.initial_balance # Default fallback
         self.new_trades = [] # Queue for new trades
         self.pending_stop_order_id = None  # Server-side stop order ID
+        self._last_stop_price = None  # Track last stop price for fallback on update failure
         self.refresh()
 
     def refresh(self):
@@ -123,14 +124,15 @@ class LiveBroker:
             # This might happen if order failed or wasn't tracked
             print(f"⚠️ Warning: set_entry_metadata called but no new trades found for {symbol}")
 
-    def _wait_for_fill(self, order_id, retries=5):
-        """Polls Alpaca for order fill."""
+    def _wait_for_fill(self, order_id, retries=15):
+        """Polls Alpaca for order fill. 15 retries × 2s = 30s timeout."""
         import time
-        for _ in range(retries):
+        for attempt in range(retries):
             order = self.trader.get_order(order_id)
             if order and order['status'] == 'filled':
                 return order
-            time.sleep(1)
+            time.sleep(2)
+        print(f"⚠️ ORDER NOT FILLED after {retries * 2}s — order_id: {order_id}. Check manually.")
         return None
 
     def buy(self, price, size, timestamp=None, stop_loss=None, take_profit=None):
@@ -173,9 +175,10 @@ class LiveBroker:
                 'fill_price': filled_order['filled_avg_price'],
                 'slippage': filled_order['filled_avg_price'] - price,
                 'spread': 0.0,
-                'timestamp': filled_order['filled_at']
+                'timestamp': filled_order['filled_at'],
+                'order_id': res['id']
             })
-            print(f"✅ FILLED BUY: {filled_order['filled_avg_price']}")
+            print(f"✅ FILLED BUY: {filled_order['filled_avg_price']} (order {res['id'][:8]}...)")
 
             # Place server-side stop loss order if provided
             if stop_loss and not is_crypto:
@@ -187,6 +190,7 @@ class LiveBroker:
                         stop_price=stop_loss
                     )
                     self.pending_stop_order_id = stop_res['id']
+                    self._last_stop_price = stop_loss
                     print(f"🛡️ SERVER STOP placed at ${stop_loss:.2f} (order {stop_res['id'][:8]}...)")
                 except Exception as e:
                     print(f"⚠️ Server stop order failed: {e} — bot will manage stop locally")
@@ -239,9 +243,10 @@ class LiveBroker:
                 'fill_price': filled_order['filled_avg_price'],
                 'slippage': price - filled_order['filled_avg_price'],
                 'spread': 0.0,
-                'timestamp': filled_order['filled_at']
+                'timestamp': filled_order['filled_at'],
+                'order_id': res['id']
             })
-            print(f"✅ FILLED SELL: {filled_order['filled_avg_price']}")
+            print(f"✅ FILLED SELL: {filled_order['filled_avg_price']} (order {res['id'][:8]}...)")
         else:
             print(f"⚠️ Order {res['id']} not filled yet.")
 
@@ -251,6 +256,7 @@ class LiveBroker:
         """Update the server-side stop order to a new price (for trailing stops)."""
         if not self.pending_stop_order_id:
             return
+        old_stop_price = self._last_stop_price
         # Cancel old, place new
         self.trader.cancel_order(self.pending_stop_order_id)
         try:
@@ -261,10 +267,25 @@ class LiveBroker:
                 stop_price=new_stop_price
             )
             self.pending_stop_order_id = stop_res['id']
+            self._last_stop_price = new_stop_price
             print(f"🛡️ TRAILING STOP updated to ${new_stop_price:.2f} (order {stop_res['id'][:8]}...)")
         except Exception as e:
-            print(f"⚠️ Trailing stop update failed: {e}")
-            self.pending_stop_order_id = None
+            print(f"⚠️ Trailing stop update to ${new_stop_price:.2f} failed: {e}")
+            # Re-place at OLD stop price as fallback to keep position protected
+            fallback_price = old_stop_price if old_stop_price else new_stop_price
+            try:
+                fallback_res = self.trader.place_stop_order(
+                    symbol=self.symbol,
+                    qty=qty,
+                    side='sell',
+                    stop_price=fallback_price
+                )
+                self.pending_stop_order_id = fallback_res['id']
+                self._last_stop_price = fallback_price
+                print(f"🛡️ FALLBACK STOP re-placed at ${fallback_price:.2f} (order {fallback_res['id'][:8]}...)")
+            except Exception as e2:
+                print(f"❌ FALLBACK STOP also failed: {e2} — POSITION UNPROTECTED! Check manually.")
+                self.pending_stop_order_id = None
 
     def place_order(self, symbol, side, quantity, order_type='market', price=None, stop_loss=None, take_profit=None, **kwargs):
         """
