@@ -42,12 +42,23 @@ The backtested edge is validated. We're now verifying that the live trading infr
 - Added 1GB swap to prevent OOM freezes when SSH + bots compete for RAM
 - Zombie trades on pm2 restart — old process lingered after SIGTERM. Fixed: graceful shutdown handler.
 - Wash trade rejection — server-side stop fires + bot also tries to sell → Alpaca rejects. Fixed: cancel ALL open orders for symbol before selling, not just tracked stop.
+- Server-side stop orders rejected — fractional shares require DAY TIF, but stops used GTC. Fixed: DAY TIF for stock stops. Re-placed on first bar after market open if held overnight.
+- Fill timeout too short (5s) — extended to 30s (15×2s) with warning log on timeout.
+- Trailing stop gap — if update failed after cancelling old stop, position unprotected. Fixed: fallback re-places at old stop price.
+
+**Reliability hardening (Mar 4 evening):**
+- Order ID logged on all fills for Alpaca audit trail
+- Heartbeat logging every ~15 min (`[HEARTBEAT]` — grep-friendly health check)
+- 50-bar minimum data guard at runner level (clearer than silent skip in strategy)
+- Cancel open orders on graceful shutdown (prevents orphaned stops on restart)
+- pm2-logrotate installed (10MB max, 3 retained, compressed)
 
 **Trade history (paper):**
 - Feb 27: GLD BUY + SELL (49.6 shares). Quick cycle — trail didn't activate.
 - Mar 4: GLD BUY $475.24 → SELL $471.98 (50.89 shares, -$166 paper)
 - Mar 4: SLV BUY $76.79 → server stop fired → wash trade bug → manually closed at $76.25 (-$168 paper)
 - Mar 4: GDX had orphaned stop order from previous session, cancelled on restart
+- Mar 4 (evening): 4 positions opened — GLD $471.54, IAU $96.67, SLV $75.56, GDX $105.75. Server stops confirmed working after DAY TIF fix. Order IDs logging confirmed.
 - Still waiting for full lifecycle: entry → trail activates → exit via trailing stop
 
 ## Validated Edges
@@ -131,7 +142,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 ### Platform Constraints
 - **Crypto shorts:** Disabled (Alpaca doesn't support)
-- **Fractional shares:** ✅ Working. Uses `DAY` TIF, rounds to 4 decimals, min $1 order.
+- **Fractional shares:** ✅ Working. Uses `DAY` TIF (required by Alpaca), rounds to 4 decimals, min $1 order. **Stop orders also DAY** — expire at market close, re-placed on first bar after open.
 - **Bracket orders:** Not supported for crypto
 - **Market hours:** 2:30 PM - 9:00 PM Irish time (9:30 AM - 4:00 PM ET)
 - **One position per symbol:** Multiple bots on same symbol WILL conflict. Use different symbols or separate accounts.

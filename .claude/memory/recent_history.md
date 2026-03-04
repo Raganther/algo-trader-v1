@@ -1,5 +1,34 @@
 # Recent Git History
 
+### cedc865 - fix: use DAY TIF for fractional stop orders (GTC rejected by Alpaca) (2026-03-04)
+Server-side stop orders were silently failing on every trade because
+fractional shares require DAY TIF but place_stop_order() used GTC
+(set in c8fbf38 to persist overnight). All positions had no server-side
+stop protection — bot was falling back to local stop management only.
+
+Fix: DAY TIF for stock stop orders, GTC for crypto. Stops expire at
+market close; bot re-places via position sync on first bar after open.
+
+Confirmed working: 4 positions opened with server stops placed successfully.
+
+### 096dda5 - feat: bot reliability improvements before real-money trading (2026-03-04)
+7 reliability improvements deployed together:
+1. Fill timeout 5s → 30s (15 retries × 2s) — prevents position state mismatch
+2. Order ID added to all trade logs — Alpaca audit trail
+3. Cancel open orders on graceful shutdown — prevents orphaned stops
+4. 50-bar minimum data guard at runner level — clearer than silent skip
+5. Trailing stop fallback — re-places at old price if update fails
+6. pm2-logrotate installed (10MB max, 3 retained, compressed)
+7. Heartbeat logging every ~15 min — grep-friendly health checks
+
+Files: live_broker.py, runner.py, alpaca_trader.py, scripts/setup_logrotate.sh
+
+### c8fbf38 - fix: full position sync on restart + GTC stop orders (2026-03-04)
+On restart, bot now syncs with Alpaca positions: recovers entry price,
+reconstructs stop loss from current ATR, places server-side stop,
+sets entry_bar so min_hold is already satisfied. Cancels any existing
+orders before placing new stop.
+
 ### b45bbeb - fix: cancel all open orders before sell to prevent wash trade rejections (2026-03-04)
 When server-side stop fires and bot also tries to sell, Alpaca rejects
 the sell as a wash trade due to the existing stop order. Now cancels ALL
