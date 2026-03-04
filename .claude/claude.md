@@ -59,7 +59,21 @@ The backtested edge is validated. We're now verifying that the live trading infr
 - Mar 4: SLV BUY $76.79 → server stop fired → wash trade bug → manually closed at $76.25 (-$168 paper)
 - Mar 4: GDX had orphaned stop order from previous session, cancelled on restart
 - Mar 4 (evening): 4 positions opened — GLD $471.54, IAU $96.67, SLV $75.56, GDX $105.75. Server stops confirmed working after DAY TIF fix. Order IDs logging confirmed.
-- Still waiting for full lifecycle: entry → trail activates → exit via trailing stop
+- Mar 4: SLV sold $75.52 (bot exit, trailing stop updated then signal exit, -$12.80). GDX sold $106.08 (bot exit, +$75.27). GLD + IAU held overnight.
+- **Confirmed:** bot-initiated exits, trailing stop updates, order cancellation before exit, position sync
+- **Not yet confirmed:** server-side stop firing (Alpaca auto-selling when price hits stop between candles)
+
+**Backtest predictions for test params (Dec 2025 – Mar 2026):**
+Used to validate backtest accuracy — compare live results over next 2-4 weeks.
+
+| Symbol | Return | Max DD | Trades | Win Rate |
+|--------|--------|--------|--------|----------|
+| GLD | +0.16% | 0.77% | 58 | 48% |
+| SLV | +14.25% | 1.15% | 44 | 57% |
+| GDX | +2.45% | 0.94% | 69 | 59% |
+| IAU | -0.50% | 0.99% | 54 | 37% |
+
+If live results roughly match these patterns (GLD/IAU flat, SLV strongest), backtest engine is reliable.
 
 ## Validated Edges
 
@@ -161,8 +175,11 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 ## Next Steps
 
-- [ ] Wait for full trade lifecycle (entry → trail activates → exit via trailing stop)
-- [ ] Once mechanics verified: switch all 4 bots to validated params (OB 80/OS 15, trail 10, hold 10, skip Monday)
+- [x] Bot-initiated exits confirmed (signal-based sell with stop cancellation)
+- [x] Trailing stop update confirmed (ratchets up on bar)
+- [ ] Confirm server-side stop firing (Alpaca auto-sell when price hits stop between candles)
+- [ ] Run test bots 2-4 weeks, compare live results to backtest predictions above
+- [ ] Once mechanics verified + backtest accuracy confirmed: switch to validated params (OB 80/OS 15, trail 10, hold 10, skip Monday)
 - [ ] Start real-money micro trading on Alpaca with €100-200 (fractional shares)
 - [ ] Paper test EventSurprise (CPI-only) on cloud
 - [ ] Scale up capital as live results match backtest expectations
