@@ -351,5 +351,41 @@ GLD + IAU + SLV + GDX are all precious metals. In a bad gold week all 4 drawdown
 
 ---
 
-*Last updated: 2026-02-28 (Added #19 cloud migration, #20 portfolio manager)*
+## 21. Price Action Charts + Regime Analysis Dashboard
+*Discussed: 2026-03-04*
+
+**Motivation:** SLV shows +14.25% with test params over 3 months — but is that the strategy working or just a silver bull run? Need to separate edge alpha from directional beta.
+
+**Core concept:**
+1. Pull all historical 15m data from Alpaca for GLD, SLV, GDX, IAU — store locally
+2. Build frontend price action charts with trade overlays (entries/exits/stops)
+3. Classify market regimes automatically (trending up, trending down, ranging/choppy)
+4. Analyse strategy performance per regime — does the edge hold in all conditions?
+
+**Regime classification approaches:**
+- ADX > 25 = trending, < 20 = ranging (already have ADX in strategy)
+- SMA slope (positive/negative/flat)
+- Bollinger Band width (high vol / low vol)
+- Combination: trend direction (SMA) × trend strength (ADX) × volatility (BB width)
+
+**Implementation:**
+- Data pipeline: `AlpacaDataLoader` already fetches 15m data. Bulk fetch + save to CSV/SQLite
+- Frontend charts: TradingView lightweight charts or similar JS library in Next.js
+- Regime overlay: colour-coded background bands on chart (green=uptrend, red=downtrend, grey=range)
+- Trade markers: arrows/dots on chart at entry/exit points with P&L
+- Performance table: strategy metrics split by regime (win rate, avg return, Sharpe per regime)
+
+**Key questions it would answer:**
+- Does StochRSI Enhanced work in downtrends or only uptrends?
+- Are losses concentrated in ranging markets?
+- Do different assets have different regime characteristics?
+- Could we pause trading in regimes where the strategy historically underperforms?
+
+**Connects to existing ideas:** #2 (regime-adaptive rotation), #11 (time-of-day filtering), #13 (vol-scaled sizing)
+
+**Priority: MEDIUM** — high analytical value but significant frontend work. Could start with just the regime classification + backtest split (no frontend) as a quick diagnostic.
+
+---
+
+*Last updated: 2026-03-04 (Added #21 price action charts + regime analysis)*
 *Add new ideas as they come up during sessions*
