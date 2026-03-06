@@ -1,5 +1,22 @@
 # Recent Git History
 
+### 2fabd07 - fix: DB reconciliation — log server stops, retry timed-out fills, startup sync (2026-03-06)
+- AlpacaTrader: add get_filled_orders() and get_recent_filled_sell()
+- LiveBroker: track timed-out sells in pending_fills, retry each bar in get_new_trades()
+- DatabaseManager: add get_recent_live_trades(), order_id column, migration
+- runner.py: log server-side stop exits to DB; reconcile_trades() on startup
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### 43da77c - docs: update memory — Mar 6, week 1 complete, all bots flat into weekend (2026-03-06)
+- Week 1 paper trading summary: all 4 bots flat by market close Mar 5
+- Mar 5 trade results logged (~-$512 paper rough day)
+- Confirmed mechanics checklist updated (DAY TIF stops, heartbeats)
+- Still waiting: server-side stop firing, trailing stop profit lock-in
+- Next steps updated
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
 ### e9b5791 - docs: add idea #21 — price action charts + regime analysis dashboard (2026-03-04)
 Analyse strategy performance across market regimes (trending/ranging)
 to separate edge alpha from directional beta. Triggered by SLV's
@@ -118,32 +135,5 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
 ### 5b0858b - feat: add IAU 15m to frontend registry (2026-02-28)
 Links IAU 15m to stochrsi_enhanced_iau.md for detail page notes.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
-### 9a0e08f - feat: validate IAU 15m StochRSI Enhanced — 4th precious metals edge confirmed (2026-02-28)
-IAU 15m full validation (Feb 28):
-- Full period (2020-2025): +32.58%, DD 0.72%, 679 trades
-- Holdout test (2024-2025): +12.55%, DD 0.66% — minimal degradation
-- Walk-forward: 4/4 windows positive (2022: +4.3%, 2023: +3.89%, 2024: +5.0%, 2025: +7.17%)
-- All 6 individual years positive
-
-Precious metals thesis now confirmed on 4 assets (GLD 2.54, SLV 2.54, GDX 2.41, IAU ~2.0).
-IAU has lowest DD of the group (0.72%) and most consistent year-by-year returns.
-Also added idea #19 (full cloud migration) to ideas.md.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
-### 82b66b4 - feat: bear market backtest + GLD daily data (2005-2019) (2026-02-27)
-Bear market validation (daily bars, Stooq data):
-- Strategy stayed positive through entire 2012-2015 bear (-45.6% GLD)
-- Full bear period: +6.0% strategy vs -34.9% B&H
-- Every individual bear year positive (2013: +3.6%, 2014: +1.2%, 2015: +2.2%)
-- Key reason: only ~15% in-market, catches bounces and exits flat
-
-Weakest period: 2012 (transition year, -0.6%) — choppy indecision
-Caveat: daily bars only, not 15m. Directionally encouraging.
-
-Data saved: backend/data/gld_daily_2005_2019.csv (3,737 bars)
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
