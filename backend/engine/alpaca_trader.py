@@ -184,6 +184,52 @@ class AlpacaTrader:
         self.client.close_all_positions(cancel_orders=True)
         return True
 
+    def get_filled_orders(self, symbol, lookback_days=3):
+        """
+        Returns filled orders for a symbol in the last N days.
+        Each entry: {id, symbol, side, qty, fill_price, filled_at}
+        """
+        from datetime import datetime, timezone, timedelta
+        after = datetime.now(timezone.utc) - timedelta(days=lookback_days)
+        try:
+            req = GetOrdersRequest(
+                status='closed',
+                symbols=[symbol],
+                after=after,
+                limit=100
+            )
+            orders = self.client.get_orders(filter=req)
+            result = []
+            for o in orders:
+                if str(o.status) not in ('filled', 'OrderStatus.filled'):
+                    continue
+                if not o.filled_avg_price:
+                    continue
+                result.append({
+                    'id': str(o.id),
+                    'symbol': o.symbol,
+                    'side': str(o.side).replace('OrderSide.', ''),
+                    'qty': float(o.filled_qty) if o.filled_qty else float(o.qty),
+                    'fill_price': float(o.filled_avg_price),
+                    'filled_at': o.filled_at.isoformat() if o.filled_at else None
+                })
+            return result
+        except Exception as e:
+            print(f"⚠️ get_filled_orders({symbol}) failed: {e}")
+            return []
+
+    def get_recent_filled_sell(self, symbol):
+        """
+        Returns the most recent filled sell order for this symbol, or None.
+        """
+        orders = self.get_filled_orders(symbol, lookback_days=3)
+        sells = [o for o in orders if o['side'] == 'sell']
+        if not sells:
+            return None
+        # Sort by filled_at descending
+        sells.sort(key=lambda o: o['filled_at'] or '', reverse=True)
+        return sells[0]
+
     def get_order(self, order_id):
         """
         Get order details by ID.

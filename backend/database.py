@@ -90,9 +90,21 @@ class DatabaseManager:
                 fill_price REAL,
                 slippage REAL,
                 spread REAL,
-                pnl REAL
+                pnl REAL,
+                iteration_index TEXT,
+                order_id TEXT
             )
         ''')
+
+        # Migration: Add columns to live_trade_log if missing
+        for col_sql in [
+            'ALTER TABLE live_trade_log ADD COLUMN iteration_index TEXT',
+            'ALTER TABLE live_trade_log ADD COLUMN order_id TEXT',
+        ]:
+            try:
+                cursor.execute(col_sql)
+            except sqlite3.OperationalError:
+                pass  # Column already exists
 
         # 5. Experiments Table (Strategy Discovery Engine — clean, separate from test_runs)
         cursor.execute('''
@@ -378,9 +390,9 @@ class DatabaseManager:
         
         cursor.execute('''
             INSERT INTO live_trade_log (
-                session_id, timestamp, symbol, strategy, side, qty, 
-                signal_price, fill_price, slippage, spread, pnl, iteration_index
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                session_id, timestamp, symbol, strategy, side, qty,
+                signal_price, fill_price, slippage, spread, pnl, iteration_index, order_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             trade_data.get('session_id'),
             trade_data.get('timestamp'),
@@ -393,7 +405,8 @@ class DatabaseManager:
             trade_data.get('slippage'),
             trade_data.get('spread'),
             trade_data.get('pnl', 0.0),
-            trade_data.get('iteration_index') # New field
+            trade_data.get('iteration_index'),
+            trade_data.get('order_id')
         ))
         
         conn.commit()
@@ -403,7 +416,7 @@ class DatabaseManager:
         conn = self.get_connection()
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        
+
         try:
             cursor.execute('SELECT * FROM live_trade_log ORDER BY timestamp ASC')
             rows = cursor.fetchall()
@@ -411,6 +424,26 @@ class DatabaseManager:
             return results
         except Exception as e:
             print(f"Error fetching live trades: {e}")
+            return []
+        finally:
+            conn.close()
+
+    def get_recent_live_trades(self, symbol, days=3):
+        """Retrieves live trade log entries for a symbol in the last N days."""
+        from datetime import datetime, timezone, timedelta
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        conn = self.get_connection()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                'SELECT * FROM live_trade_log WHERE symbol = ? AND timestamp > ? ORDER BY timestamp ASC',
+                (symbol, cutoff)
+            )
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        except Exception as e:
+            print(f"Error fetching recent live trades for {symbol}: {e}")
             return []
         finally:
             conn.close()

@@ -36,6 +36,7 @@ class LiveBroker:
         self.new_trades = [] # Queue for new trades
         self.pending_stop_order_id = None  # Server-side stop order ID
         self._last_stop_price = None  # Track last stop price for fallback on update failure
+        self.pending_fills = []  # Timed-out orders that may still be in-flight
         self.refresh()
 
     def refresh(self):
@@ -101,8 +102,30 @@ class LiveBroker:
         return 0.0
         
     def get_new_trades(self):
-        """Return and clear new trades list."""
-        # Return copy and clear
+        """Return and clear new trades list. Also retries timed-out pending fills."""
+        # Retry any timed-out orders that may now be filled
+        still_pending = []
+        for pf in self.pending_fills:
+            order = self.trader.get_order(pf['order_id'])
+            if order and order['status'] == 'filled':
+                fill_price = order['filled_avg_price']
+                slippage = pf['signal_price'] - fill_price if pf['side'] == 'sell' else fill_price - pf['signal_price']
+                self.new_trades.append({
+                    'symbol': self.symbol,
+                    'side': pf['side'],
+                    'qty': pf['qty'],
+                    'signal_price': pf['signal_price'],
+                    'fill_price': fill_price,
+                    'slippage': slippage,
+                    'spread': 0.0,
+                    'timestamp': order['filled_at'],
+                    'order_id': pf['order_id']
+                })
+                print(f"✅ PENDING FILL resolved: {pf['side']} @ {fill_price} (order {pf['order_id'][:8]}...)")
+            else:
+                still_pending.append(pf)
+        self.pending_fills = still_pending
+
         trades_to_return = []
         for t in self.new_trades:
             t['iteration_index'] = self.iteration_index
@@ -248,7 +271,10 @@ class LiveBroker:
             })
             print(f"✅ FILLED SELL: {filled_order['filled_avg_price']} (order {res['id'][:8]}...)")
         else:
-            print(f"⚠️ Order {res['id']} not filled yet.")
+            # Order didn't fill within timeout — track it for retry in get_new_trades()
+            # (e.g. overnight DAY order queues and fills at next open)
+            self.pending_fills.append({'order_id': res['id'], 'signal_price': price, 'side': 'sell', 'qty': size})
+            print(f"⏳ Sell order {res['id'][:8]}... queued in pending_fills for retry")
 
         return res
 

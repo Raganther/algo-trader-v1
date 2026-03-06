@@ -659,6 +659,66 @@ def run_live_trading(args):
     else:
         print(f"[SYNC] Confirmed flat position")
 
+    # Startup reconciliation — catch any trades Alpaca filled that aren't in DB
+    # (server-side stops, overnight fills, bot-restart gaps)
+    def reconcile_trades(broker, db, symbol, session_id, strategy_name):
+        try:
+            alpaca_orders = broker.trader.get_filled_orders(symbol, lookback_days=3)
+            db_trades = db.get_recent_live_trades(symbol, days=3)
+
+            def _trades_match(alpaca_order, db_trade):
+                """True if this Alpaca order is already recorded in DB."""
+                if alpaca_order['side'] != (db_trade.get('side') or ''):
+                    return False
+                if abs(alpaca_order['qty'] - (db_trade.get('qty') or 0)) > 0.01:
+                    return False
+                # Timestamp within ±60s
+                try:
+                    from datetime import datetime, timezone
+                    ao_ts = datetime.fromisoformat(alpaca_order['filled_at'].replace('Z', '+00:00'))
+                    db_ts_str = db_trade.get('timestamp') or ''
+                    if not db_ts_str:
+                        return False
+                    db_ts = datetime.fromisoformat(db_ts_str.replace('Z', '+00:00'))
+                    if db_ts.tzinfo is None:
+                        db_ts = db_ts.replace(tzinfo=timezone.utc)
+                    return abs((ao_ts - db_ts).total_seconds()) <= 60
+                except Exception:
+                    return False
+
+            inserted = 0
+            for order in alpaca_orders:
+                if not order['filled_at']:
+                    continue
+                already_logged = any(_trades_match(order, db_trade) for db_trade in db_trades)
+                if not already_logged:
+                    db.save_live_trade({
+                        'session_id': session_id,
+                        'timestamp': order['filled_at'],
+                        'symbol': symbol,
+                        'strategy': strategy_name,
+                        'side': order['side'],
+                        'qty': order['qty'],
+                        'signal_price': order['fill_price'],  # no signal price available
+                        'fill_price': order['fill_price'],
+                        'slippage': 0.0,
+                        'spread': 0.0,
+                        'pnl': 0.0,
+                        'iteration_index': 'reconciled',
+                        'order_id': order['id']
+                    })
+                    inserted += 1
+                    print(f"🔄 RECONCILED: {order['side']} {order['qty']} {symbol} @ {order['fill_price']} ({order['filled_at']})")
+
+            if inserted == 0:
+                print(f"[RECONCILE] {symbol}: DB up to date — no missing records")
+            else:
+                print(f"[RECONCILE] {symbol}: Inserted {inserted} missing trade(s)")
+        except Exception as e:
+            print(f"⚠️ reconcile_trades failed for {symbol}: {e}")
+
+    reconcile_trades(broker, db, args.symbol, session_id, args.strategy)
+
     # 3. Live Loop
     # Force unbuffered output for real-time logging
     import sys
@@ -757,6 +817,32 @@ def run_live_trading(args):
                             cancelled = broker.trader.cancel_all_orders_for_symbol(args.symbol)
                             if cancelled > 0:
                                 print(f"🛡️ Cleaned up {cancelled} orphaned order(s) for {args.symbol}")
+
+                            # Log the exit to DB — query Alpaca for the fill details
+                            try:
+                                filled_sell = broker.trader.get_recent_filled_sell(args.symbol)
+                                if filled_sell:
+                                    db.save_live_trade({
+                                        'session_id': session_id,
+                                        'timestamp': filled_sell['filled_at'],
+                                        'symbol': args.symbol,
+                                        'strategy': args.strategy,
+                                        'side': 'sell',
+                                        'qty': filled_sell['qty'],
+                                        'signal_price': filled_sell['fill_price'],
+                                        'fill_price': filled_sell['fill_price'],
+                                        'slippage': 0.0,
+                                        'spread': 0.0,
+                                        'pnl': 0.0,
+                                        'iteration_index': 'server_stop',
+                                        'order_id': filled_sell['id']
+                                    })
+                                    print(f"📝 SERVER STOP logged to DB: sell {filled_sell['qty']} @ {filled_sell['fill_price']} (order {filled_sell['id'][:8]}...)")
+                                else:
+                                    print(f"⚠️ SERVER STOP: could not find filled sell order to log")
+                            except Exception as log_err:
+                                print(f"⚠️ SERVER STOP DB log failed: {log_err}")
+
                             strategy.position = 0
                             strategy.current_sl = None
                             strategy.entry_bar = None
