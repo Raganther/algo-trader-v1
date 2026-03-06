@@ -10,7 +10,7 @@
 - **Validated Edges:** 4 precious metals strategies (GLD, SLV, GDX, IAU) all 15m StochRSI Enhanced
 - **Fractional Shares:** ✅ Confirmed working in paper trading (Alpaca, min $1 order, DAY TIF)
 
-## Where We Are (Mar 6)
+## Where We Are (Mar 9)
 
 **Testing execution mechanics with aggressive params on 4 bots.**
 
@@ -45,6 +45,7 @@ The backtested edge is validated. We're now verifying that the live trading infr
 - Server-side stop orders rejected — fractional shares require DAY TIF, but stops used GTC. Fixed: DAY TIF for stock stops. Re-placed on first bar after market open if held overnight.
 - Fill timeout too short (5s) — extended to 30s (15×2s) with warning log on timeout.
 - Trailing stop gap — if update failed after cancelling old stop, position unprotected. Fixed: fallback re-places at old stop price.
+- DB reconciliation gap — server-side stops and overnight fills never logged to DB. Fixed: (1) log exit when SERVER STOP FIRED detected, (2) retry timed-out sells in `pending_fills` each bar, (3) startup reconciliation compares Alpaca filled orders vs DB and inserts any missing records.
 
 **Reliability hardening (Mar 4 evening):**
 - Order ID logged on all fills for Alpaca audit trail
@@ -182,6 +183,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 - [x] DAY TIF stop orders confirmed working (4 positions opened Mar 4 evening)
 - [x] Heartbeat logging confirmed (grep HEARTBEAT to verify bots alive)
 - [x] Week 1 complete — all bots flat into weekend, no orphaned positions
+- [x] DB reconciliation — server stops, overnight fills, and restart gaps now all logged correctly
 - [ ] Confirm server-side stop firing (Alpaca auto-sell when price hits stop between candles)
 - [ ] Confirm trailing stop FIRING (price rises → trail ratchets → price reverses → profit locked)
 - [ ] Run test bots 2-4 weeks, compare live results to backtest predictions above
