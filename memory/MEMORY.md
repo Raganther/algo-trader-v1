@@ -2,6 +2,7 @@
 
 > Auto-generated on git save. Do not edit manually.
 
+- **2026-03-06** — chore: remove embedded worktree from git tracking, add to .gitignore
 - **2026-03-06** — chore: migrate to new filing system — CLAUDE.md, memory/, docs/dev.md, git-save.sh
 - **2026-03-06** — docs: update memory — Mar 9, DB reconciliation deployed
 - **2026-03-06** — fix: DB reconciliation — log server stops, retry timed-out fills, startup sync
@@ -11,4 +12,3 @@
 - **2026-03-04** — docs: update memory files — Mar 4 evening, reliability hardening + DAY TIF fix
 - **2026-03-04** — fix: use DAY TIF for fractional stop orders (GTC rejected by Alpaca)
 - **2026-03-04** — feat: bot reliability improvements before real-money trading
-- **2026-03-04** — fix: full position sync on restart + GTC stop orders
