@@ -1,33 +1,50 @@
 # Recent Git History
 
+### e9b5791 - docs: add idea #21 — price action charts + regime analysis dashboard (2026-03-04)
+Analyse strategy performance across market regimes (trending/ranging)
+to separate edge alpha from directional beta. Triggered by SLV's
+strong test-param results possibly being a bull-trend false positive.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### b30d612 - docs: update memory — trade results, backtest predictions for test params (2026-03-04)
+Mar 4 evening trades: SLV sold -$12.80, GDX sold +$75.27, GLD+IAU held.
+Added backtest predictions with test params (Dec-Mar) for live comparison.
+Updated next steps checklist with confirmed/remaining milestones.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### 7ca7366 - docs: update memory files — Mar 4 evening, reliability hardening + DAY TIF fix (2026-03-04)
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
 ### cedc865 - fix: use DAY TIF for fractional stop orders (GTC rejected by Alpaca) (2026-03-04)
-Server-side stop orders were silently failing on every trade because
-fractional shares require DAY TIF but place_stop_order() used GTC
-(set in c8fbf38 to persist overnight). All positions had no server-side
-stop protection — bot was falling back to local stop management only.
+GTC was set in c8fbf38 to persist overnight, but Alpaca rejects GTC
+for fractional shares. All server-side stops were silently failing.
 
-Fix: DAY TIF for stock stop orders, GTC for crypto. Stops expire at
-market close; bot re-places via position sync on first bar after open.
-
-Confirmed working: 4 positions opened with server stops placed successfully.
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 
 ### 096dda5 - feat: bot reliability improvements before real-money trading (2026-03-04)
-7 reliability improvements deployed together:
-1. Fill timeout 5s → 30s (15 retries × 2s) — prevents position state mismatch
-2. Order ID added to all trade logs — Alpaca audit trail
-3. Cancel open orders on graceful shutdown — prevents orphaned stops
-4. 50-bar minimum data guard at runner level — clearer than silent skip
-5. Trailing stop fallback — re-places at old price if update fails
-6. pm2-logrotate installed (10MB max, 3 retained, compressed)
-7. Heartbeat logging every ~15 min — grep-friendly health checks
+- Extend fill timeout 5s → 30s (15 retries × 2s) for volatile markets
+- Add order_id to all trade logs for Alpaca audit trail
+- Cancel open orders on graceful shutdown (prevents orphaned stops)
+- Add 50-bar minimum data guard at runner level (clearer than silent skip)
+- Fix trailing stop gap: re-place at old price if update fails
+- Add heartbeat logging every ~15 min for easy bot health checks
+- Add pm2-logrotate setup script (10MB max, 3 retained)
 
-Files: live_broker.py, runner.py, alpaca_trader.py, scripts/setup_logrotate.sh
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 
 ### c8fbf38 - fix: full position sync on restart + GTC stop orders (2026-03-04)
-On restart, bot now syncs with Alpaca positions: recovers entry price,
-reconstructs stop loss from current ATR, places server-side stop,
-sets entry_bar so min_hold is already satisfied. Cancels any existing
-orders before placing new stop.
+Position sync now reconstructs entry_price, current_sl (from ATR),
+entry_bar, and places a server-side stop order on restart. Previously
+only recovered position direction, leaving trades unprotected.
+
+Stop orders changed from DAY to GTC so they persist overnight.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+### fc09dfe - docs: update memory files — Mar 4 session, wash trade fix deployed (2026-03-04)
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 
 ### b45bbeb - fix: cancel all open orders before sell to prevent wash trade rejections (2026-03-04)
 When server-side stop fires and bot also tries to sell, Alpaca rejects
@@ -35,10 +52,9 @@ the sell as a wash trade due to the existing stop order. Now cancels ALL
 open orders for the symbol (not just the tracked one) before placing
 exit orders, with cleanup on server stop detection too.
 
-Added `cancel_all_orders_for_symbol()` to AlpacaTrader. Updated sell()
-in LiveBroker to use it with 0.5s delay. Updated runner.py server stop
-detection to clean up orphaned orders.
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 
+### 4a6baaf - docs: update recent_history.md (2026-03-03)
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 
 ### 27a5b8d - fix: add graceful shutdown handler to prevent zombie trades on pm2 restart (2026-03-03)
@@ -131,101 +147,3 @@ Caveat: daily bars only, not 15m. Directionally encouraging.
 Data saved: backend/data/gld_daily_2005_2019.csv (3,737 bars)
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
-### 4a4f0ac - fix: guard against duplicate exit signals causing short-sell rejections (2026-02-27)
-Before placing a SELL order, check that an open position actually exists.
-If flat, log a warning and skip — prevents Alpaca rejecting the order as
-a short sell when the strategy fires an exit signal on consecutive bars.
-
-Affects all live bots (gld-test, iau-test, slv-test).
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
-### 29dbe5e - docs: session update Feb 27 — slv-test deployed, 3 validated edges (2026-02-27)
-Bot fleet now: gld-test + iau-test + slv-test (all PAPER, aggressive params)
-Waiting for full trade cycle (entry → trail → exit) before switching to validated params.
-
-Validated edges confirmed this session:
-- SLV 15m: Sharpe 2.54, 4/4 WF
-- GDX 15m: Sharpe 2.41, 4/4 WF
-- trail_atr sweep concluded: keeping 2.0 (1.5 marginal on holdout)
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
-### 81c9a4c - feat: add slv-test bot script (aggressive params, paper mode) (2026-02-27)
-
-### da71a42 - feat: validate SLV + GDX 15m edges — precious metals thesis confirmed (2026-02-27)
-Three validated 15m edges now confirmed:
-- GLD 15m: Sharpe 2.54 (existing)
-- SLV 15m: Sharpe 2.54 — +105.3%, DD 2.00%, 4/4 WF pass
-- GDX 15m: Sharpe 2.41 — +114.1%, DD 2.02%, 4/4 WF pass
-
-Key findings:
-- Params transferred from GLD unchanged — no tuning needed
-- Confirms thesis: precious metals mean-revert at 15m within a trend
-- trail_atr sweep (1.0-2.5) ran: 1.5 marginal vs 2.0 on holdout, keeping 2.0
-
-Files added:
-- scripts/run_focused_tests.py — targeted backtest runner
-- scripts/run_validation.py — holdout + walk-forward validator
-- .claude/memory/strategies/stochrsi_enhanced_slv.md — SLV strategy card
-- .claude/memory/strategies/stochrsi_enhanced_gdx.md — GDX strategy card
-- frontend/src/lib/registry.ts — SLV + GDX entries added for dashboard notes
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
-### 3f5c853 - docs: GLD 15m full audit + strategy memory update (Feb 27) (2026-02-27)
-Full audit of best edge — GLD 15m StochRSI Enhanced:
-- Data quality: 36,075 bars, Alpaca IEX 1m→15m resampled, clean
-- Full period (2020–Feb 2026): 44.7%, DD 0.69%, 710 trades
-- Sharpe 2.54 (computed from equity curve daily returns)
-- 2026 YTD: +1.16%, 21 trades
-- Parameter sensitivity: robust. min_hold=10 critical. trail_atr=1.5 shows +47.5% (worth exploring)
-- Spread sensitivity: profitable to 0.22% (7-20× real GLD spread headroom)
-- Buy & Hold: 117.5% vs 44.7% (gold bull run), but Sharpe 0.98 vs 2.54, DD 22% vs 0.69%
-
-Updated stochrsi_enhanced_gld.md with full audit tables.
-Updated CLAUDE.md: Sharpe 2.42 → 2.54, session summary updated.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
-### 0c1d3e3 - feat: dashboard fixes + memory update — Feb 27 (2026-02-27)
-Frontend fixes:
-- DB query: when years were run independently (one iteration per year),
-  collect all years via per-year MAX subquery instead of picking single best
-  iteration (was showing only 2025 for GLD 1h)
-- Markdown map: changed to exact Strategy|SYMBOL|TF keys — GLD 15m notes
-  no longer leak onto GLD 1h and other strategy pages
-- Detail page: uses getMarkdownFile(strategy, symbol, timeframe) for exact lookup
-
-DB changes (research.db — not in git):
-- Inserted enhanced GLD 15m experiment (trailing stop + min hold + skip Mon)
-  into experiments as passed, Sharpe=2.54 computed from equity curves
-- Ran GLD 1h year-by-year backtests 2020-2025 (rsi:21, stoch:7, OB:80, OS:15,
-  sl_atr:3.0), stored in test_runs — detail page now shows full 6-year breakdown
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
-### 23b34b9 - feat: strategy dashboard — DB-driven auto-generated cards (2026-02-26)
-Replaces hard-coded strategy registry with fully automatic card generation.
-Any experiment that passes validation (status='passed') with Sharpe ≥ 1.0
-gets a card on the index, sorted by Sharpe descending. No manual step needed
-when the overnight engine validates a new edge.
-
-- registry.ts: stripped to markdown file map + status thresholds only
-- db.ts: getValidatedStrategies() queries experiments table directly;
-  auto-picks best iteration from test_runs for year table + equity curve
-- page.tsx: reads from DB, splits into Verified (≥1.3) / Promising sections
-- StrategyCard: shows symbol, TF, Sharpe, annualised return, max DD from DB
-- Detail page: resolves slug via DB lookup, shows stats + notes if md exists
-- Threshold: Sharpe ≥ 1.3 = validated badge, ≥ 1.0 = promising badge
-
-Current validated edges (7): GLD 15m, GLD 1h, GLD 1d, SLV 15m, IAU 1h,
-XLE 1h, GLD 4h — all StochRSIMeanReversion, auto-surfaced from experiments DB.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
-### f551364 - docs: git save — Feb 26 session (strategy analysis + frontend idea) (2026-02-26)
-- Fixed backtest command in CLAUDE.md: wrong param names were silently producing wrong results
-- Re-verified GLD 15m StochRSI Enhanced with correct params: 43.03% total return, 0.69% DD
-- Added year-by-year breakdown and profit projections to strategy memory

@@ -10,7 +10,7 @@
 - **Validated Edges:** 4 precious metals strategies (GLD, SLV, GDX, IAU) all 15m StochRSI Enhanced
 - **Fractional Shares:** ✅ Confirmed working in paper trading (Alpaca, min $1 order, DAY TIF)
 
-## Where We Are (Mar 4)
+## Where We Are (Mar 6)
 
 **Testing execution mechanics with aggressive params on 4 bots.**
 
@@ -60,8 +60,10 @@ The backtested edge is validated. We're now verifying that the live trading infr
 - Mar 4: GDX had orphaned stop order from previous session, cancelled on restart
 - Mar 4 (evening): 4 positions opened — GLD $471.54, IAU $96.67, SLV $75.56, GDX $105.75. Server stops confirmed working after DAY TIF fix. Order IDs logging confirmed.
 - Mar 4: SLV sold $75.52 (bot exit, trailing stop updated then signal exit, -$12.80). GDX sold $106.08 (bot exit, +$75.27). GLD + IAU held overnight.
-- **Confirmed:** bot-initiated exits, trailing stop updates, order cancellation before exit, position sync
-- **Not yet confirmed:** server-side stop firing (Alpaca auto-selling when price hits stop between candles)
+- Mar 5: GLD $467.29→$465.88 (-$73), IAU $95.46→$95.48 (+$5), SLV $74.33→$74.07 (-$84), GDX $101.25→$100.01 (-$296), GDX (2nd) $100.32→$100.05 (-$64). All flat by 21:45 UTC. Rough paper day: ~-$512.
+- **Week 1 complete:** All 4 bots flat into weekend. No overnight positions.
+- **Confirmed:** bot-initiated exits, trailing stop updates (ratchets up), order cancellation before exit, position sync, heartbeat logging, DAY TIF stops
+- **Not yet confirmed:** server-side stop firing (Alpaca auto-executing stop between candles), trailing stop FIRING (locking in profit)
 
 **Backtest predictions for test params (Dec 2025 – Mar 2026):**
 Used to validate backtest accuracy — compare live results over next 2-4 weeks.
@@ -177,7 +179,11 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 - [x] Bot-initiated exits confirmed (signal-based sell with stop cancellation)
 - [x] Trailing stop update confirmed (ratchets up on bar)
+- [x] DAY TIF stop orders confirmed working (4 positions opened Mar 4 evening)
+- [x] Heartbeat logging confirmed (grep HEARTBEAT to verify bots alive)
+- [x] Week 1 complete — all bots flat into weekend, no orphaned positions
 - [ ] Confirm server-side stop firing (Alpaca auto-sell when price hits stop between candles)
+- [ ] Confirm trailing stop FIRING (price rises → trail ratchets → price reverses → profit locked)
 - [ ] Run test bots 2-4 weeks, compare live results to backtest predictions above
 - [ ] Once mechanics verified + backtest accuracy confirmed: switch to validated params (OB 80/OS 15, trail 10, hold 10, skip Monday)
 - [ ] Start real-money micro trading on Alpaca with €100-200 (fractional shares)
@@ -199,4 +205,4 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 ---
 
-*Last updated: 2026-03-04. 4 test bots live (paper). Verifying execution mechanics before real money.*
+*Last updated: 2026-03-06. Week 1 complete — all bots flat into weekend. Still waiting on server-side stop + trailing stop firing.*
