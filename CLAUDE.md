@@ -50,6 +50,7 @@ python -m backend.optimizer.run_overnight [--scan|--quick|--medium] [--max-hours
 - **DB:** `backend/research.db` — experiments, live trades
 - **Frontend:** `frontend/` — Next.js dashboard, DB-driven
 - **Reference:** `.claude/memory/system_manual.md` — full CLI and architecture docs
+- **Strategy notes:** `.claude/memory/strategies/` — per-strategy research and params
 
 ## Current Status
 Phase: Forward testing — 4 paper bots running on cloud (gld-test, iau-test, slv-test, gdx-test).
@@ -57,7 +58,71 @@ Aggressive test params (OB 60/OS 40, 3-bar hold/trail) to generate more trades f
 Week 1 complete — all bots flat into weekend. DB reconciliation deployed Mar 9.
 Waiting to confirm: server-side stop firing, trailing stop profit lock-in.
 Next: run 2-4 more weeks, compare live results to backtest predictions, then switch to validated params.
-Active plan: filing system migration (retire .claude/CLAUDE.md, consolidate into root CLAUDE.md).
+
+**Test bots:**
+
+| Bot | Symbol | OB/OS | Hold | Trail | Trades/yr |
+|-----|--------|-------|------|-------|-----------|
+| gld-test | GLD | 60/40 | 3 bars | after 3 bars | ~237 |
+| iau-test | IAU | 60/40 | 3 bars | after 3 bars | ~237 |
+| slv-test | SLV | 60/40 | 3 bars | after 3 bars | ~237 |
+| gdx-test | GDX | 60/40 | 3 bars | after 3 bars | ~237 |
+
+**Validated params (switch after mechanics verified):**
+
+| Param | Value |
+|-------|-------|
+| OB/OS | 80/15 |
+| Min hold | 10 bars |
+| Trail after | 10 bars |
+| ADX threshold | 20 |
+| Skip days | Monday |
+| Trades/yr | ~107 per symbol |
+
+**Confirmed working:** bot-initiated exits, trailing stop updates (ratchets up), order cancellation before exit, position sync on restart, heartbeat logging, DAY TIF stops, DB reconciliation on startup.
+
+**Not yet confirmed:** server-side stop firing (Alpaca auto-executing between candles), trailing stop FIRING (locking in profit).
+
+**Backtest predictions for test params (Dec 2025 – Mar 2026):**
+
+| Symbol | Return | Max DD | Trades | Win Rate |
+|--------|--------|--------|--------|----------|
+| GLD | +0.16% | 0.77% | 58 | 48% |
+| SLV | +14.25% | 1.15% | 44 | 57% |
+| GDX | +2.45% | 0.94% | 69 | 59% |
+| IAU | -0.50% | 0.99% | 54 | 37% |
+
+**Bugs found & fixed:**
+- Live fetch window 2 days → ~33 bars after weekends → silent skip. Fixed: 7-day window.
+- Duplicate GLD bot conflict. Fixed: removed gld-15m-enhanced.
+- OOM freezes under load. Fixed: 1GB swap added to server.
+- Zombie trades on pm2 restart. Fixed: graceful SIGTERM handler.
+- Wash trade rejection when server stop fires + bot also tries to sell. Fixed: cancel ALL open orders before exit.
+- Server-side stop orders rejected (GTC not allowed for fractional shares). Fixed: DAY TIF, re-placed after market open.
+- Fill timeout too short (5s). Fixed: 30s (15×2s).
+- Trailing stop gap — position unprotected if update fails. Fixed: fallback re-places at old price.
+- DB reconciliation gap — server stops and overnight fills not logged. Fixed: server stop logger, pending_fills retry, startup reconciliation.
+
+## Validated Edges
+
+| Strategy | Asset | TF | Sharpe | Return | Max DD | WF |
+|---|---|---|---|---|---|---|
+| StochRSI Enhanced | GLD | 15m | 2.54 | +44.7% | 0.69% | Audited |
+| StochRSI Enhanced | SLV | 15m | 2.54 | +105.3% | 2.00% | 4/4 |
+| StochRSI Enhanced | GDX | 15m | 2.41 | +114.1% | 2.02% | 4/4 |
+| StochRSI Enhanced | IAU | 15m | ~2.0 | +32.6% | 0.72% | 4/4 |
+
+**Thesis:** Precious metals mean-revert at 15m within trend. Same params work across all 4 without retuning.
+
+**Other strategies tested:**
+
+| Strategy | Asset | TF | Result | Status |
+|---|---|---|---|---|
+| EventSurprise (CPI) | GLD | 15m | +2.36%, 86% WR, 14 trades | Built |
+| StochRSI | GLD | 1h | Sharpe 1.44 | Validated |
+| StochRSI | IAU | 1h | Sharpe 1.22 | Validated |
+| StochRSI | XLE | 1h | Sharpe 1.11 | Validated |
+| StochRSI | SPY/QQQ/IWM | 5m-15m | No alpha | Dead end |
 
 ## Constraints
 - `--delay 1` is broken — never use. Always use `--delay 0`
