@@ -106,7 +106,23 @@ class DatabaseManager:
             except sqlite3.OperationalError:
                 pass  # Column already exists
 
-        # 5. Experiments Table (Strategy Discovery Engine — clean, separate from test_runs)
+        # 5. Price Data Table (Historical OHLCV — for charting)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS price_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                symbol TEXT NOT NULL,
+                timestamp INTEGER NOT NULL,
+                open REAL NOT NULL,
+                high REAL NOT NULL,
+                low REAL NOT NULL,
+                close REAL NOT NULL,
+                volume REAL NOT NULL,
+                UNIQUE(symbol, timestamp)
+            )
+        ''')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_price_data_symbol_ts ON price_data(symbol, timestamp)')
+
+        # 6. Experiments Table (Strategy Discovery Engine — clean, separate from test_runs)
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS experiments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -427,6 +443,53 @@ class DatabaseManager:
             return []
         finally:
             conn.close()
+
+    def save_price_bars(self, symbol, df):
+        """Upserts OHLCV bars for a symbol. df must have DatetimeIndex and Open/High/Low/Close/Volume columns."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        rows = []
+        for ts, row in df.iterrows():
+            unix_ts = int(pd.Timestamp(ts).timestamp())
+            rows.append((symbol, unix_ts, row['Open'], row['High'], row['Low'], row['Close'], row['Volume']))
+        cursor.executemany('''
+            INSERT OR IGNORE INTO price_data (symbol, timestamp, open, high, low, close, volume)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', rows)
+        conn.commit()
+        conn.close()
+        return len(rows)
+
+    def get_price_bars(self, symbol, start_ts=None, end_ts=None):
+        """Returns OHLCV bars for a symbol as a list of dicts."""
+        conn = self.get_connection()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        query = 'SELECT timestamp, open, high, low, close, volume FROM price_data WHERE symbol = ?'
+        params = [symbol]
+        if start_ts:
+            query += ' AND timestamp >= ?'
+            params.append(start_ts)
+        if end_ts:
+            query += ' AND timestamp <= ?'
+            params.append(end_ts)
+        query += ' ORDER BY timestamp ASC'
+        cursor.execute(query, params)
+        rows = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+        return rows
+
+    def get_price_data_range(self, symbol):
+        """Returns (min_ts, max_ts, count) for a symbol in price_data."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            'SELECT MIN(timestamp), MAX(timestamp), COUNT(*) FROM price_data WHERE symbol = ?',
+            (symbol,)
+        )
+        row = cursor.fetchone()
+        conn.close()
+        return row if row else (None, None, 0)
 
     def get_recent_live_trades(self, symbol, days=3):
         """Retrieves live trade log entries for a symbol in the last N days."""

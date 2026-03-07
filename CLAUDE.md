@@ -39,6 +39,9 @@ gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="cd algo-trade
 
 # Discovery engine
 python -m backend.optimizer.run_overnight [--scan|--quick|--medium] [--max-hours N] [--symbols X,Y]
+
+# Fetch historical price data (run once, then as needed to sync)
+python3 scripts/fetch_price_data.py --symbols GLD,IAU,SLV,GDX --start 2020-01-01
 ```
 
 ## Architecture
@@ -53,7 +56,9 @@ python -m backend.optimizer.run_overnight [--scan|--quick|--medium] [--max-hours
 - **Strategy notes:** `.claude/memory/strategies/` — per-strategy research and params
 
 ## Current Status
-Phase: Forward testing — 4 paper bots running on cloud (gld-test, iau-test, slv-test, gdx-test).
+Phase: Forward testing + charting. 4 paper bots running on cloud (gld-test, iau-test, slv-test, gdx-test).
+Price action chart live at `/chart` — Stage 1 complete (candlestick chart, symbol/range selector).
+Stage 2 next: trade overlays on chart.
 Aggressive test params (OB 60/OS 40, 3-bar hold/trail) to generate more trades for mechanics verification.
 Week 1 complete — all bots flat into weekend. DB reconciliation deployed Mar 9.
 Waiting to confirm: server-side stop firing, trailing stop profit lock-in.

@@ -3,10 +3,23 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-07** — feat: Stage 1 price action chart — price_data table, fetch script, TradingView candlestick chart
+
+ CLAUDE.md                              |  7 ++-
+ backend/database.py                    | 65 ++++++++++++++++++++++++-
+ frontend/src/app/chart/page.tsx        | 84 ++++++++++++++++++++++++++++++++
+ frontend/src/components/PriceChart.tsx | 88 ++++++++++++++++++++++++++++++++++
+ frontend/src/lib/db.ts                 | 49 +++++++++++++++++++
+ memory/plan.md                         | 36 ++++++++++++++
+ scripts/fetch_price_data.py            | 71 +++++++++++++++++++++++++++
+ 7 files changed, 398 insertions(+), 2 deletions(-)
+
+----
 **2026-03-07** — docs: restore full idea detail to dev.md from git history
 
- docs/dev.md | 313 +++++++++++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 288 insertions(+), 25 deletions(-)
+ docs/dev.md      | 313 ++++++++++++++++++++++++++++++++++++++++++++++++++-----
+ memory/MEMORY.md |  28 ++---
+ 2 files changed, 298 insertions(+), 43 deletions(-)
 
 ----
 **2026-03-07** — chore: update git-save.sh to full commit detail format (8 saves, stat)
@@ -62,19 +75,4 @@
 
  .claude/memory/recent_history.md | 44 ++++++++++++++++------------------------
  1 file changed, 17 insertions(+), 27 deletions(-)
-
-----
-**2026-03-06** — fix: DB reconciliation — log server stops, retry timed-out fills, startup sync
-- AlpacaTrader: add get_filled_orders() and get_recent_filled_sell()
-- LiveBroker: track timed-out sells in pending_fills, retry each bar in get_new_trades()
-- DatabaseManager: add get_recent_live_trades(), order_id column, migration
-- runner.py: log server-side stop exits to DB; reconcile_trades() on startup
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- backend/database.py             | 45 ++++++++++++++++++---
- backend/engine/alpaca_trader.py | 46 ++++++++++++++++++++++
- backend/engine/live_broker.py   | 32 +++++++++++++--
- backend/runner.py               | 86 +++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 200 insertions(+), 9 deletions(-)
 

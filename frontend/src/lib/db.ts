@@ -72,6 +72,24 @@ interface EquityCurveRow {
   data: string
 }
 
+export interface OHLCBar {
+  time: number
+  open: number
+  high: number
+  low: number
+  close: number
+  volume: number
+}
+
+interface PriceRow {
+  timestamp: number
+  open: number
+  high: number
+  low: number
+  close: number
+  volume: number
+}
+
 // ─── Slug helpers ─────────────────────────────────────────────────────────────
 
 export function makeSlug(strategy: string, symbol: string, timeframe: string): string {
@@ -220,6 +238,37 @@ export function getStrategyStats(strategy: string, symbol: string, timeframe: st
     total_trades,
     years_count: active.length,
   }
+}
+
+export function getPriceData(symbol: string, startTs?: number, endTs?: number): OHLCBar[] {
+  const db = getDb()
+
+  // Return empty if table doesn't exist yet (before fetch script has run)
+  const tableExists = db
+    .prepare<[], { name: string }>("SELECT name FROM sqlite_master WHERE type='table' AND name='price_data'")
+    .get()
+  if (!tableExists) {
+    db.close()
+    return []
+  }
+
+  let query = 'SELECT timestamp, open, high, low, close, volume FROM price_data WHERE symbol = ?'
+  const params: (string | number)[] = [symbol]
+  if (startTs !== undefined) { query += ' AND timestamp >= ?'; params.push(startTs) }
+  if (endTs !== undefined) { query += ' AND timestamp <= ?'; params.push(endTs) }
+  query += ' ORDER BY timestamp ASC'
+
+  const rows = db.prepare<(string | number)[], PriceRow>(query).all(...params)
+  db.close()
+
+  return rows.map((r) => ({
+    time: r.timestamp,
+    open: r.open,
+    high: r.high,
+    low: r.low,
+    close: r.close,
+    volume: r.volume,
+  }))
 }
 
 export function getEquityCurve(strategy: string, symbol: string, timeframe: string): EquityPoint[] {
