@@ -3,11 +3,18 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-07** — docs: restore full idea detail to dev.md from git history
+
+ docs/dev.md | 313 +++++++++++++++++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 288 insertions(+), 25 deletions(-)
+
+----
 **2026-03-07** — chore: update git-save.sh to full commit detail format (8 saves, stat)
 
- memory/plan.md      | 39 +++++++++++++++++++++++++++++++++++++--
- scripts/git-save.sh |  6 +++---
- 2 files changed, 40 insertions(+), 5 deletions(-)
+ memory/MEMORY.md    | 94 +++++++++++++++++++++++++++++++++++++++++++++++------
+ memory/plan.md      | 39 ++++++++++++++++++++--
+ scripts/git-save.sh |  6 ++--
+ 3 files changed, 124 insertions(+), 15 deletions(-)
 
 ----
 **2026-03-07** — chore: complete filing system migration — retire .claude/CLAUDE.md, consolidate into root
@@ -70,19 +77,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  backend/engine/live_broker.py   | 32 +++++++++++++--
  backend/runner.py               | 86 +++++++++++++++++++++++++++++++++++++++++
  4 files changed, 200 insertions(+), 9 deletions(-)
-
-----
-**2026-03-06** — docs: update memory — Mar 6, week 1 complete, all bots flat into weekend
-- Week 1 paper trading summary: all 4 bots flat by market close Mar 5
-- Mar 5 trade results logged (~-$512 paper rough day)
-- Confirmed mechanics checklist updated (DAY TIF stops, heartbeats)
-- Still waiting: server-side stop firing, trailing stop profit lock-in
-- Next steps updated
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- .claude/claude.md                |  14 +++-
- .claude/memory/MEMORY.md         |   5 ++
- .claude/memory/recent_history.md | 162 ++++++++++-----------------------------
- 3 files changed, 55 insertions(+), 126 deletions(-)
 
