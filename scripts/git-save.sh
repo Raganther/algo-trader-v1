@@ -13,7 +13,7 @@ fi
 git add -A
 git commit -m "$1"
 
-# 2. Regenerate memory/MEMORY.md from last 10 git log entries
+# 2. Regenerate memory/MEMORY.md from last 8 git log entries
 MEMORY_FILE="memory/MEMORY.md"
 mkdir -p memory
 
@@ -24,7 +24,7 @@ cat > "$MEMORY_FILE" << 'HEADER'
 
 HEADER
 
-git log --oneline -10 --pretty=format:"- **%as** — %s" >> "$MEMORY_FILE"
+git log -8 --pretty=format:"----%n**%as** — %s%n%b" --stat >> "$MEMORY_FILE"
 
 echo "" >> "$MEMORY_FILE"
 
@@ -37,5 +37,5 @@ git push origin main
 
 echo ""
 echo "✓ Committed: $1"
-echo "✓ memory/MEMORY.md updated with last 10 saves"
+echo "✓ memory/MEMORY.md updated with last 8 saves (full detail)"
 echo "✓ Pushed to origin main"
