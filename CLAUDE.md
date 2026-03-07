@@ -58,6 +58,7 @@ python3 scripts/fetch_price_data.py --symbols GLD,IAU,SLV,GDX --start 2020-01-01
 ## Current Status
 Phase: Forward testing + charting. 4 paper bots running on cloud (gld-test, iau-test, slv-test, gdx-test).
 Price action chart live at `/chart` — Stage 1 complete (candlestick chart, symbol/range selector).
+UI redesigned: Inter font, shared sidebar nav, max-width constraints, consistent page structure.
 Stage 2 next: trade overlays on chart.
 Aggressive test params (OB 60/OS 40, 3-bar hold/trail) to generate more trades for mechanics verification.
 Week 1 complete — all bots flat into weekend. DB reconciliation deployed Mar 9.

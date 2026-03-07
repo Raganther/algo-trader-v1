@@ -3,6 +3,18 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-07** — feat: UI redesign — Inter font, sidebar nav, max-width, consistent page structure
+
+ CLAUDE.md                                 |  1 +
+ frontend/src/app/chart/page.tsx           | 92 +++++++++++++++----------------
+ frontend/src/app/globals.css              |  1 +
+ frontend/src/app/layout.tsx               | 29 ++++++----
+ frontend/src/app/page.tsx                 | 14 ++---
+ frontend/src/app/strategy/[slug]/page.tsx | 32 +++++------
+ frontend/src/components/Nav.tsx           | 51 +++++++++++++++++
+ 7 files changed, 137 insertions(+), 83 deletions(-)
+
+----
 **2026-03-07** — feat: Stage 1 price action chart — price_data table, fetch script, TradingView candlestick chart
 
  CLAUDE.md                              |  7 ++-
@@ -10,9 +22,10 @@
  frontend/src/app/chart/page.tsx        | 84 ++++++++++++++++++++++++++++++++
  frontend/src/components/PriceChart.tsx | 88 ++++++++++++++++++++++++++++++++++
  frontend/src/lib/db.ts                 | 49 +++++++++++++++++++
+ memory/MEMORY.md                       | 32 ++++++-------
  memory/plan.md                         | 36 ++++++++++++++
  scripts/fetch_price_data.py            | 71 +++++++++++++++++++++++++++
- 7 files changed, 398 insertions(+), 2 deletions(-)
+ 8 files changed, 413 insertions(+), 19 deletions(-)
 
 ----
 **2026-03-07** — docs: restore full idea detail to dev.md from git history
@@ -69,10 +82,4 @@
  memory/plan.md                 |  4 +++
  scripts/git-save.sh            | 41 +++++++++++++++++++++++++
  7 files changed, 190 insertions(+), 1 deletion(-)
-
-----
-**2026-03-06** — docs: update memory — Mar 9, DB reconciliation deployed
-
- .claude/memory/recent_history.md | 44 ++++++++++++++++------------------------
- 1 file changed, 17 insertions(+), 27 deletions(-)
 

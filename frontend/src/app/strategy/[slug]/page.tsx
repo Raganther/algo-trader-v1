@@ -13,9 +13,9 @@ import ResearchNotes from '@/components/ResearchNotes'
 export const dynamic = 'force-dynamic'
 
 const STATUS_STYLES = {
-  validated: 'bg-green-900/30 text-green-400 border-green-800/50',
-  promising: 'bg-amber-900/30 text-amber-400 border-amber-800/50',
-  researched: 'bg-gray-900/30 text-gray-400 border-gray-800/50',
+  validated: 'bg-green-900/20 text-green-400 border-green-800/40',
+  promising: 'bg-amber-900/20 text-amber-400 border-amber-800/40',
+  researched: 'bg-gray-900/20 text-gray-400 border-gray-800/40',
 }
 
 interface Props {
@@ -25,7 +25,6 @@ interface Props {
 export default async function StrategyDetailPage({ params }: Props) {
   const { slug } = await params
 
-  // Resolve slug → strategy via DB (no threshold — look up any passed strategy)
   const all = getValidatedStrategies(0)
   const strategy = all.find((s) => s.slug === slug)
   if (!strategy) notFound()
@@ -39,35 +38,34 @@ export default async function StrategyDetailPage({ params }: Props) {
   const markdown = markdownFile ? readStrategyMarkdown(markdownFile) : null
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white p-8 font-sans">
-      {/* Header */}
-      <div className="mb-8">
-        <Link href="/" className="flex items-center gap-2 text-gray-500 hover:text-white mb-5 transition-colors w-fit">
-          <ArrowLeft size={16} /> Back
-        </Link>
+    <div className="px-8 py-8 max-w-5xl">
+      <Link href="/" className="inline-flex items-center gap-1.5 text-gray-600 hover:text-gray-300 text-sm mb-6 transition-colors">
+        <ArrowLeft size={14} /> Strategy Lab
+      </Link>
 
-        <div className="flex items-start gap-3 mb-2">
-          <h1 className="text-3xl font-bold text-white">
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <h1 className="text-2xl font-bold text-white tracking-tight">
             {strategy.strategy.replace(/Strategy$/, '')}
           </h1>
-          <span className={`mt-1.5 px-2 py-0.5 rounded text-xs font-bold border uppercase ${STATUS_STYLES[status]}`}>
+          <span className={`px-2 py-0.5 rounded text-xs font-semibold border uppercase ${STATUS_STYLES[status]}`}>
             {status}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="bg-blue-900/30 text-blue-300 px-2 py-0.5 rounded text-xs font-bold border border-blue-800/50">
+          <span className="bg-blue-900/20 text-blue-300 px-2 py-0.5 rounded text-xs font-bold border border-blue-800/40">
             {strategy.symbol}
           </span>
-          <span className="bg-gray-900 text-gray-400 px-2 py-0.5 rounded text-xs font-mono border border-gray-700">
+          <span className="bg-white/5 text-gray-400 px-2 py-0.5 rounded text-xs font-mono border border-white/10">
             {strategy.timeframe}
           </span>
-          <span className="text-gray-600 text-sm">
+          <span className="text-gray-600 text-xs">
             Sharpe {strategy.sharpe.toFixed(2)} · {strategy.trades_per_year.toFixed(0)} trades/yr
           </span>
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-5">
         {stats && <StatsPanel sharpe={strategy.sharpe} stats={stats} />}
         {yearlyRuns.length > 0 && <YearlyTable runs={yearlyRuns} />}
         {equityCurve.length > 0 && <EquityCurve data={equityCurve} />}

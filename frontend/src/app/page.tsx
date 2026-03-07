@@ -11,17 +11,17 @@ export default function IndexPage() {
   const promising = strategies.filter((s) => getStatus(s.sharpe) !== 'validated')
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white p-8 font-sans">
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Strategy Lab</h1>
-        <p className="text-gray-500 mt-1">
+    <div className="px-8 py-8 max-w-6xl">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-white tracking-tight">Strategy Lab</h1>
+        <p className="text-gray-500 mt-1 text-sm">
           {strategies.length} validated edge{strategies.length !== 1 ? 's' : ''} — sorted by Sharpe
         </p>
-      </header>
+      </div>
 
       {validated.length > 0 && (
         <section className="mb-10">
-          <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">
+          <h2 className="text-xs font-semibold text-gray-600 uppercase tracking-widest mb-4">
             Verified Edges
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -34,7 +34,7 @@ export default function IndexPage() {
 
       {promising.length > 0 && (
         <section>
-          <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">
+          <h2 className="text-xs font-semibold text-gray-600 uppercase tracking-widest mb-4">
             Promising
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
