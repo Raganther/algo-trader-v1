@@ -54,9 +54,10 @@ python -m backend.optimizer.run_overnight [--scan|--quick|--medium] [--max-hours
 ## Current Status
 Phase: Forward testing — 4 paper bots running on cloud (gld-test, iau-test, slv-test, gdx-test).
 Aggressive test params (OB 60/OS 40, 3-bar hold/trail) to generate more trades for mechanics verification.
-Week 1 complete — all bots flat into weekend.
+Week 1 complete — all bots flat into weekend. DB reconciliation deployed Mar 9.
 Waiting to confirm: server-side stop firing, trailing stop profit lock-in.
 Next: run 2-4 more weeks, compare live results to backtest predictions, then switch to validated params.
+Active plan: filing system migration (retire .claude/CLAUDE.md, consolidate into root CLAUDE.md).
 
 ## Constraints
 - `--delay 1` is broken — never use. Always use `--delay 0`
