@@ -184,7 +184,7 @@ class AlpacaTrader:
         self.client.close_all_positions(cancel_orders=True)
         return True
 
-    def get_filled_orders(self, symbol, lookback_days=3):
+    def get_filled_orders(self, symbol, lookback_days=7):
         """
         Returns filled orders for a symbol in the last N days.
         Each entry: {id, symbol, side, qty, fill_price, filled_at}
@@ -222,7 +222,7 @@ class AlpacaTrader:
         """
         Returns the most recent filled sell order for this symbol, or None.
         """
-        orders = self.get_filled_orders(symbol, lookback_days=3)
+        orders = self.get_filled_orders(symbol, lookback_days=7)
         sells = [o for o in orders if o['side'] == 'sell']
         if not sells:
             return None

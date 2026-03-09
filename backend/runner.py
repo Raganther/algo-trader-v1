@@ -663,8 +663,8 @@ def run_live_trading(args):
     # (server-side stops, overnight fills, bot-restart gaps)
     def reconcile_trades(broker, db, symbol, session_id, strategy_name):
         try:
-            alpaca_orders = broker.trader.get_filled_orders(symbol, lookback_days=3)
-            db_trades = db.get_recent_live_trades(symbol, days=3)
+            alpaca_orders = broker.trader.get_filled_orders(symbol, lookback_days=7)
+            db_trades = db.get_recent_live_trades(symbol, days=7)
 
             def _trades_match(alpaca_order, db_trade):
                 """True if this Alpaca order is already recorded in DB."""

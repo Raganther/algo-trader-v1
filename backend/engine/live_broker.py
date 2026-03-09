@@ -219,7 +219,8 @@ class LiveBroker:
                     print(f"⚠️ Server stop order failed: {e} — bot will manage stop locally")
                     self.pending_stop_order_id = None
         else:
-            print(f"⚠️ Order {res['id']} not filled yet.")
+            self.pending_fills.append({'order_id': res['id'], 'signal_price': price, 'side': 'buy', 'qty': size})
+            print(f"⏳ Buy order {res['id'][:8]}... queued in pending_fills for retry")
 
         return res
 
