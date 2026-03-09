@@ -16,6 +16,9 @@ The backtested edge is validated. What we're confirming now is that the bots exe
 - [x] Fix trailing stop gap (fallback re-places at old price if update fails)
 - [x] Fix DB reconciliation gap (server stops + overnight fills now logged)
 - [x] Reliability hardening: heartbeat logging, order IDs, shutdown cleanup, pm2-logrotate
+- [x] Fix timed-out buy orders never logged (pending_fills was sells-only)
+- [x] Extend reconcile/lookback window 3 → 7 days (pre-market fills at boundary were missed)
+- [x] Manual DB insert: 2 missing SLV trades (Mar 06 sell @ 74.94, Mar 09 buy @ 76.92)
 
 ### Mechanics verification (in progress)
 - [x] Bot-initiated exits (signal-based sell with stop cancellation)

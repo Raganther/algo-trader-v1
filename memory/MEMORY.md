@@ -3,6 +3,28 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-09** — fix: pending_fills for buys, reconcile window 7d, manual DB inserts
+
+ CLAUDE.md      | 2 ++
+ memory/plan.md | 3 +++
+ 2 files changed, 5 insertions(+)
+
+----
+**2026-03-09** — fix: queue timed-out buys in pending_fills, extend reconcile lookback to 7 days
+Buy orders that hit the 30s fill timeout were silently dropped — only sells
+were queued in pending_fills for retry. Today's SLV buy (filled after 5min)
+was never logged, leaving an orphaned sell in the DB. Same retry logic now
+applied to buys. Reconcile lookback extended from 3 to 7 days to catch fills
+that fall outside the previous window (e.g. pre-market DAY orders).
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+ backend/engine/alpaca_trader.py | 4 ++--
+ backend/engine/live_broker.py   | 3 ++-
+ backend/runner.py               | 4 ++--
+ 3 files changed, 6 insertions(+), 5 deletions(-)
+
+----
 **2026-03-07** — feat: UI redesign — Inter font, sidebar nav, max-width, consistent page structure
 
  CLAUDE.md                                 |  1 +
@@ -12,7 +34,8 @@
  frontend/src/app/page.tsx                 | 14 ++---
  frontend/src/app/strategy/[slug]/page.tsx | 32 +++++------
  frontend/src/components/Nav.tsx           | 51 +++++++++++++++++
- 7 files changed, 137 insertions(+), 83 deletions(-)
+ memory/MEMORY.md                          | 21 ++++---
+ 8 files changed, 151 insertions(+), 90 deletions(-)
 
 ----
 **2026-03-07** — feat: Stage 1 price action chart — price_data table, fetch script, TradingView candlestick chart
@@ -62,24 +85,4 @@
  memory/MEMORY.md |  2 +-
  memory/plan.md   | 19 ++++++++++++++++---
  3 files changed, 19 insertions(+), 5 deletions(-)
-
-----
-**2026-03-06** — chore: remove embedded worktree from git tracking, add to .gitignore
-
- .claude/worktrees/elated-ellis | 1 -
- .gitignore                     | 1 +
- memory/MEMORY.md               | 2 +-
- 3 files changed, 2 insertions(+), 2 deletions(-)
-
-----
-**2026-03-06** — chore: migrate to new filing system — CLAUDE.md, memory/, docs/dev.md, git-save.sh
-
- .claude/claude.md              |  4 ++-
- .claude/worktrees/elated-ellis |  1 +
- CLAUDE.md                      | 68 ++++++++++++++++++++++++++++++++++++++++++
- docs/dev.md                    | 59 ++++++++++++++++++++++++++++++++++++
- memory/MEMORY.md               | 14 +++++++++
- memory/plan.md                 |  4 +++
- scripts/git-save.sh            | 41 +++++++++++++++++++++++++
- 7 files changed, 190 insertions(+), 1 deletion(-)
 

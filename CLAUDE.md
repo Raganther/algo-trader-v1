@@ -108,6 +108,8 @@ Next: run 2-4 more weeks, compare live results to backtest predictions, then swi
 - Fill timeout too short (5s). Fixed: 30s (15×2s).
 - Trailing stop gap — position unprotected if update fails. Fixed: fallback re-places at old price.
 - DB reconciliation gap — server stops and overnight fills not logged. Fixed: server stop logger, pending_fills retry, startup reconciliation.
+- Timed-out buy orders never logged — pending_fills only tracked sells. Fixed: buys now queued in pending_fills on timeout.
+- Reconcile lookback too short — 3-day window missed pre-market DAY orders filled at open. Fixed: extended to 7 days.
 
 ## Validated Edges
 
