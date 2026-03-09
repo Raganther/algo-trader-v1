@@ -201,7 +201,7 @@ class AlpacaTrader:
             orders = self.client.get_orders(filter=req)
             result = []
             for o in orders:
-                if str(o.status) not in ('filled', 'OrderStatus.filled'):
+                if 'filled' not in str(o.status).lower():
                     continue
                 if not o.filled_avg_price:
                     continue
