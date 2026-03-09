@@ -24,7 +24,7 @@ SYMBOLS = ['GLD', 'IAU', 'SLV', 'GDX']
 def match(alpaca_order, db_trades):
     """True if this Alpaca order is already in DB (by side, qty, timestamp ±60s)."""
     for t in db_trades:
-        if alpaca_order['side'] != (t.get('side') or ''):
+        if alpaca_order['side'].lower() != (t.get('side') or '').lower():
             continue
         if abs(alpaca_order['qty'] - (t.get('qty') or 0)) > 0.01:
             continue

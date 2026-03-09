@@ -668,7 +668,7 @@ def run_live_trading(args):
 
             def _trades_match(alpaca_order, db_trade):
                 """True if this Alpaca order is already recorded in DB."""
-                if alpaca_order['side'] != (db_trade.get('side') or ''):
+                if alpaca_order['side'].lower() != (db_trade.get('side') or '').lower():
                     return False
                 if abs(alpaca_order['qty'] - (db_trade.get('qty') or 0)) > 0.01:
                     return False
