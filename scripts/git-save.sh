@@ -11,7 +11,7 @@ fi
 
 # 1. Stage all changes and commit
 git add -A
-git commit -m "$1"
+git commit -m "$1" ${2:+-m "$2"}
 
 # 2. Regenerate memory/MEMORY.md from last 8 git log entries
 MEMORY_FILE="memory/MEMORY.md"
