@@ -3,11 +3,55 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-09** — docs: update plan.md — Mar 09 audit complete, reconcile fixed, completeness baseline established
+
+ memory/plan.md | 49 +++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 33 insertions(+), 16 deletions(-)
+
+----
+**2026-03-09** — fix: case-insensitive side comparison in trade matching (BUY/SELL vs buy/sell)
+Alpaca SDK returns side as uppercase ('BUY'/'SELL') but DB stores
+lowercase ('buy'/'sell'). This caused reconcile_trades and audit_trades
+to never match any orders, silently treating all fills as missing.
+Same root cause as the status field case bug.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+ backend/runner.py       | 2 +-
+ scripts/audit_trades.py | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+----
+**2026-03-09** — fix: case-insensitive status check in get_filled_orders (was silently returning empty)
+Alpaca SDK returns 'OrderStatus.FILLED' (uppercase) but the filter
+checked for 'OrderStatus.filled' (lowercase) — case mismatch caused
+get_filled_orders() to always return []. reconcile_trades() was
+therefore always seeing 0 Alpaca orders and reporting 'DB up to date'
+even when fills were missing. Every reconcile since deploy has been
+a no-op.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+ backend/engine/alpaca_trader.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+----
+**2026-03-09** — feat: trade completeness audit script — Alpaca vs DB by day
+Shows completeness rate per symbol per day. Trending toward 100%
+over time verifies bug fixes are actually working.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+ scripts/audit_trades.py | 102 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 102 insertions(+)
+
+----
 **2026-03-09** — fix: pending_fills for buys, reconcile window 7d, manual DB inserts
 
- CLAUDE.md      | 2 ++
- memory/plan.md | 3 +++
- 2 files changed, 5 insertions(+)
+ CLAUDE.md        |  2 ++
+ memory/MEMORY.md | 45 ++++++++++++++++++++++++---------------------
+ memory/plan.md   |  3 +++
+ 3 files changed, 29 insertions(+), 21 deletions(-)
 
 ----
 **2026-03-09** — fix: queue timed-out buys in pending_fills, extend reconcile lookback to 7 days
@@ -49,40 +93,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  memory/plan.md                         | 36 ++++++++++++++
  scripts/fetch_price_data.py            | 71 +++++++++++++++++++++++++++
  8 files changed, 413 insertions(+), 19 deletions(-)
-
-----
-**2026-03-07** — docs: restore full idea detail to dev.md from git history
-
- docs/dev.md      | 313 ++++++++++++++++++++++++++++++++++++++++++++++++++-----
- memory/MEMORY.md |  28 ++---
- 2 files changed, 298 insertions(+), 43 deletions(-)
-
-----
-**2026-03-07** — chore: update git-save.sh to full commit detail format (8 saves, stat)
-
- memory/MEMORY.md    | 94 +++++++++++++++++++++++++++++++++++++++++++++++------
- memory/plan.md      | 39 ++++++++++++++++++++--
- scripts/git-save.sh |  6 ++--
- 3 files changed, 124 insertions(+), 15 deletions(-)
-
-----
-**2026-03-07** — chore: complete filing system migration — retire .claude/CLAUDE.md, consolidate into root
-
- .claude/claude.md                | 210 ---------------------
- .claude/memory/ideas.md          | 391 ---------------------------------------
- .claude/memory/recent_history.md | 139 --------------
- CLAUDE.md                        |  67 ++++++-
- docs/dev.md                      |  16 +-
- memory/MEMORY.md                 |   2 +-
- memory/plan.md                   |  18 +-
- scripts/update_memory.sh         |  11 --
- 8 files changed, 77 insertions(+), 777 deletions(-)
-
-----
-**2026-03-07** — docs: add filing system migration plan
-
- CLAUDE.md        |  3 ++-
- memory/MEMORY.md |  2 +-
- memory/plan.md   | 19 ++++++++++++++++---
- 3 files changed, 19 insertions(+), 5 deletions(-)
 
