@@ -818,9 +818,32 @@ def run_live_trading(args):
                             if cancelled > 0:
                                 print(f"🛡️ Cleaned up {cancelled} orphaned order(s) for {args.symbol}")
 
-                            # Log the exit to DB — query Alpaca for the fill details
+                            # Log the exit to DB — query by specific stop order ID (avoids API propagation delay issues)
+                            stop_order_id = broker.pending_stop_order_id
+                            stop_qty = broker.pending_stop_qty
                             try:
-                                filled_sell = broker.trader.get_recent_filled_sell(args.symbol)
+                                filled_sell = None
+                                if stop_order_id:
+                                    order = broker.trader.get_order(stop_order_id)
+                                    if order and 'filled' in str(order['status']).lower() and order['filled_avg_price']:
+                                        filled_sell = {
+                                            'id': stop_order_id,
+                                            'qty': order['filled_qty'] or stop_qty,
+                                            'fill_price': order['filled_avg_price'],
+                                            'filled_at': order['filled_at']
+                                        }
+                                    else:
+                                        # Fill not yet visible in API — queue for retry via pending_fills
+                                        broker.pending_fills.append({
+                                            'order_id': stop_order_id,
+                                            'signal_price': broker._last_stop_price or 0.0,
+                                            'side': 'sell',
+                                            'qty': stop_qty or 0.0
+                                        })
+                                        print(f"⏳ SERVER STOP fill not yet visible — queued order {stop_order_id[:8]}... for retry")
+                                else:
+                                    filled_sell = broker.trader.get_recent_filled_sell(args.symbol)
+
                                 if filled_sell:
                                     db.save_live_trade({
                                         'session_id': session_id,
@@ -838,8 +861,6 @@ def run_live_trading(args):
                                         'order_id': filled_sell['id']
                                     })
                                     print(f"📝 SERVER STOP logged to DB: sell {filled_sell['qty']} @ {filled_sell['fill_price']} (order {filled_sell['id'][:8]}...)")
-                                else:
-                                    print(f"⚠️ SERVER STOP: could not find filled sell order to log")
                             except Exception as log_err:
                                 print(f"⚠️ SERVER STOP DB log failed: {log_err}")
 

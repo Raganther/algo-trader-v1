@@ -35,6 +35,7 @@ class LiveBroker:
         self.equity = self.initial_balance # Default fallback
         self.new_trades = [] # Queue for new trades
         self.pending_stop_order_id = None  # Server-side stop order ID
+        self.pending_stop_qty = None  # Qty tracked alongside stop order ID for pending_fills fallback
         self._last_stop_price = None  # Track last stop price for fallback on update failure
         self.pending_fills = []  # Timed-out orders that may still be in-flight
         self.refresh()
@@ -213,11 +214,13 @@ class LiveBroker:
                         stop_price=stop_loss
                     )
                     self.pending_stop_order_id = stop_res['id']
+                    self.pending_stop_qty = size
                     self._last_stop_price = stop_loss
                     print(f"🛡️ SERVER STOP placed at ${stop_loss:.2f} (order {stop_res['id'][:8]}...)")
                 except Exception as e:
                     print(f"⚠️ Server stop order failed: {e} — bot will manage stop locally")
                     self.pending_stop_order_id = None
+                    self.pending_stop_qty = None
         else:
             self.pending_fills.append({'order_id': res['id'], 'signal_price': price, 'side': 'buy', 'qty': size})
             print(f"⏳ Buy order {res['id'][:8]}... queued in pending_fills for retry")
@@ -294,6 +297,7 @@ class LiveBroker:
                 stop_price=new_stop_price
             )
             self.pending_stop_order_id = stop_res['id']
+            self.pending_stop_qty = qty
             self._last_stop_price = new_stop_price
             print(f"🛡️ TRAILING STOP updated to ${new_stop_price:.2f} (order {stop_res['id'][:8]}...)")
         except Exception as e:
@@ -308,6 +312,7 @@ class LiveBroker:
                     stop_price=fallback_price
                 )
                 self.pending_stop_order_id = fallback_res['id']
+                self.pending_stop_qty = qty
                 self._last_stop_price = fallback_price
                 print(f"🛡️ FALLBACK STOP re-placed at ${fallback_price:.2f} (order {fallback_res['id'][:8]}...)")
             except Exception as e2:
