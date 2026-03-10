@@ -3,6 +3,13 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-10** — fix: add timezone/market hours to CLAUDE.md, add server time check command
+Recurring mistake: assuming current time from stale conversation context. Fix: always run date -u on server first when checking bots. Added explicit timezone rules to Constraints — Irish/UTC relationship, DST 2026 start date, pre/post-DST market hours in UTC.
+
+ CLAUDE.md | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+----
 **2026-03-10** — chore: repository cleanup — remove dead files and legacy subsystems
 Deleted backend/agent/ (unused AI agent subsystem), scripts/curate_memory.py (its only dependent), logs/, reports/, research/, zipdata/ (stale output dirs), empty DBs, validation_run.log, docs/testing-standards.md (superseded by CLAUDE.md run commands), realistic-test.sh, test-and-sync.sh, run_full_history.sh, and run_gld.sh. All active functionality preserved.
 
@@ -29,6 +36,7 @@ Deleted backend/agent/ (unused AI agent subsystem), scripts/curate_memory.py (it
  logs/history.json                   |  1470 ---
  logs/runner_debug.log               |     3 -
  logs/test_output.txt                |     1 -
+ memory/MEMORY.md                    |    50 +-
  reports/regime_chart_SPY_1d.html    |  3885 -------
  research/spy                        |   450 -
  run_full_history.sh                 |    11 -
@@ -37,7 +45,7 @@ Deleted backend/agent/ (unused AI agent subsystem), scripts/curate_memory.py (it
  scripts/run_gld.sh                  |     8 -
  scripts/test-and-sync.sh            |    70 -
  validation_run.log                  |    44 -
- 31 files changed, 29432 deletions(-)
+ 32 files changed, 39 insertions(+), 29443 deletions(-)
 
 ----
 **2026-03-10** — docs: update strategy cards to reflect forward testing phase
@@ -95,18 +103,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  backend/runner.py       | 2 +-
  scripts/audit_trades.py | 2 +-
  2 files changed, 2 insertions(+), 2 deletions(-)
-
-----
-**2026-03-09** — fix: case-insensitive status check in get_filled_orders (was silently returning empty)
-Alpaca SDK returns 'OrderStatus.FILLED' (uppercase) but the filter
-checked for 'OrderStatus.filled' (lowercase) — case mismatch caused
-get_filled_orders() to always return []. reconcile_trades() was
-therefore always seeing 0 Alpaca orders and reporting 'DB up to date'
-even when fills were missing. Every reconcile since deploy has been
-a no-op.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- backend/engine/alpaca_trader.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 

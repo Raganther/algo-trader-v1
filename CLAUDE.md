@@ -20,6 +20,9 @@ Read on demand only:
 # Backtest (validated params)
 python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD --timeframe 15m --start 2020-01-01 --end 2025-12-31 --source alpaca --spread 0.0003 --delay 0 --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 
+# Get current server time (always run this first when checking bots — establishes UTC anchor)
+gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="date -u"
+
 # Check cloud bots
 gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="pm2 status"
 
@@ -129,6 +132,16 @@ Next: run 2-4 more weeks, compare live results to backtest predictions, then swi
 | StochRSI | SPY/QQQ/IWM | 5m-15m | No alpha | Dead end |
 
 ## Constraints
+
+### Timezones and Market Hours
+- **All server logs and Alpaca timestamps are UTC**
+- **Irish time = UTC+0 (GMT) until last Sunday of March, then UTC+1 (IST)**
+- **US market hours (post-DST, from second Sunday of March): 13:30–20:00 UTC**
+- **US market hours (pre-DST, until second Sunday of March): 14:30–21:00 UTC**
+- **DST 2026 started March 8** — market hours are currently 13:30–20:00 UTC
+- Always run `date -u` on server first when checking bots to establish current UTC time. Never assume time from earlier in the conversation.
+
+### Trading Rules
 - `--delay 1` is broken — never use. Always use `--delay 0`
 - `--spread 0.0003 --delay 0` are the validated backtest settings — do not change
 - Never run two bots on the same symbol — Alpaca position conflicts
