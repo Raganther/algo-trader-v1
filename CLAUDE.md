@@ -12,7 +12,6 @@ Read in order on every cold start:
 
 Read on demand only:
 - `docs/dev.md` — ideas backlog
-- `.claude/memory/system_manual.md` — full technical CLI reference
 - `.claude/memory/strategies/` — per-strategy research and params
 
 ## Run Commands

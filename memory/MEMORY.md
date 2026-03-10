@@ -3,13 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-10** — chore: delete system_manual.md — consolidated into CLAUDE.md
+File was stale (last updated Feb 14), sections 1-7 referenced dead scripts and workflows. Section 8 content already covered by CLAUDE.md run commands and constraints. Run commands are the documentation — a separate how-to manual adds maintenance burden without value.
+
+ .claude/memory/system_manual.md | 407 ----------------------------------------
+ CLAUDE.md                       |   1 -
+ 2 files changed, 408 deletions(-)
+
+----
 **2026-03-10** — fix: correct bot log check command + document log format
 Logs rotate at midnight via pm2-logrotate — previous command searched only the current log file, missing all same-day trades. New command takes the 2 most recent log files per bot covering both cases. Actual log keywords documented in system_manual.md (LIVE BUY, FILLED, TRAILING STOP etc). CLAUDE.md run command updated. Dev.md updated with agent ideas (#22).
 
- .claude/memory/system_manual.md | 22 ++++++++++++++++++++++
- CLAUDE.md                       |  7 ++-----
- docs/dev.md                     | 21 +++++++++++++++++++++
- 3 files changed, 45 insertions(+), 5 deletions(-)
+ .claude/memory/system_manual.md | 22 +++++++++++++++++++
+ CLAUDE.md                       |  7 ++----
+ docs/dev.md                     | 21 ++++++++++++++++++
+ memory/MEMORY.md                | 47 +++++++++++++++++------------------------
+ 4 files changed, 64 insertions(+), 33 deletions(-)
 
 ----
 **2026-03-09** — fix: pass body argument to git commit in git-save.sh
@@ -69,19 +78,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  memory/MEMORY.md | 45 ++++++++++++++++++++++++---------------------
  memory/plan.md   |  3 +++
  3 files changed, 29 insertions(+), 21 deletions(-)
-
-----
-**2026-03-09** — fix: queue timed-out buys in pending_fills, extend reconcile lookback to 7 days
-Buy orders that hit the 30s fill timeout were silently dropped — only sells
-were queued in pending_fills for retry. Today's SLV buy (filled after 5min)
-was never logged, leaving an orphaned sell in the DB. Same retry logic now
-applied to buys. Reconcile lookback extended from 3 to 7 days to catch fills
-that fall outside the previous window (e.g. pre-market DAY orders).
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- backend/engine/alpaca_trader.py | 4 ++--
- backend/engine/live_broker.py   | 3 ++-
- backend/runner.py               | 4 ++--
- 3 files changed, 6 insertions(+), 5 deletions(-)
 
