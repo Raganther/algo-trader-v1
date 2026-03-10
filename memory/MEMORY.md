@@ -3,10 +3,27 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-10** — fix: correct bot log check command + document log format
+Logs rotate at midnight via pm2-logrotate — previous command searched only the current log file, missing all same-day trades. New command takes the 2 most recent log files per bot covering both cases. Actual log keywords documented in system_manual.md (LIVE BUY, FILLED, TRAILING STOP etc). CLAUDE.md run command updated. Dev.md updated with agent ideas (#22).
+
+ .claude/memory/system_manual.md | 22 ++++++++++++++++++++++
+ CLAUDE.md                       |  7 ++-----
+ docs/dev.md                     | 21 +++++++++++++++++++++
+ 3 files changed, 45 insertions(+), 5 deletions(-)
+
+----
+**2026-03-09** — fix: pass body argument to git commit in git-save.sh
+git commit -m "$1" ${2:+-m "$2"} — body was silently dropped, MEMORY.md only ever showed subject + file stats. Now both subject and body are captured in the commit and appear in MEMORY.md.
+
+ scripts/git-save.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+----
 **2026-03-09** — docs: update plan.md — Mar 09 audit complete, reconcile fixed, completeness baseline established
 
- memory/plan.md | 49 +++++++++++++++++++++++++++++++++----------------
- 1 file changed, 33 insertions(+), 16 deletions(-)
+ memory/MEMORY.md | 86 +++++++++++++++++++++++++++++++-------------------------
+ memory/plan.md   | 49 +++++++++++++++++++++-----------
+ 2 files changed, 80 insertions(+), 55 deletions(-)
 
 ----
 **2026-03-09** — fix: case-insensitive side comparison in trade matching (BUY/SELL vs buy/sell)
@@ -67,30 +84,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  backend/engine/live_broker.py   | 3 ++-
  backend/runner.py               | 4 ++--
  3 files changed, 6 insertions(+), 5 deletions(-)
-
-----
-**2026-03-07** — feat: UI redesign — Inter font, sidebar nav, max-width, consistent page structure
-
- CLAUDE.md                                 |  1 +
- frontend/src/app/chart/page.tsx           | 92 +++++++++++++++----------------
- frontend/src/app/globals.css              |  1 +
- frontend/src/app/layout.tsx               | 29 ++++++----
- frontend/src/app/page.tsx                 | 14 ++---
- frontend/src/app/strategy/[slug]/page.tsx | 32 +++++------
- frontend/src/components/Nav.tsx           | 51 +++++++++++++++++
- memory/MEMORY.md                          | 21 ++++---
- 8 files changed, 151 insertions(+), 90 deletions(-)
-
-----
-**2026-03-07** — feat: Stage 1 price action chart — price_data table, fetch script, TradingView candlestick chart
-
- CLAUDE.md                              |  7 ++-
- backend/database.py                    | 65 ++++++++++++++++++++++++-
- frontend/src/app/chart/page.tsx        | 84 ++++++++++++++++++++++++++++++++
- frontend/src/components/PriceChart.tsx | 88 ++++++++++++++++++++++++++++++++++
- frontend/src/lib/db.ts                 | 49 +++++++++++++++++++
- memory/MEMORY.md                       | 32 ++++++-------
- memory/plan.md                         | 36 ++++++++++++++
- scripts/fetch_price_data.py            | 71 +++++++++++++++++++++++++++
- 8 files changed, 413 insertions(+), 19 deletions(-)
 

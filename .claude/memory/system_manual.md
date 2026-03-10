@@ -298,6 +298,28 @@ pm2 delete bot-name     # Remove bot
 pm2 save                # Save process list for auto-restart
 ```
 
+**Check today's trades across all bots (use this — not tail or pm2 logs):**
+```bash
+gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="for bot in gld-test iau-test slv-test gdx-test; do echo \"=== \$bot ===\"; cat \$(ls -t /home/alistairelliman/.pm2/logs/\${bot}-out*.log | head -2) 2>/dev/null | grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️'; done"
+```
+
+**Why this command:** Logs rotate at midnight (pm2-logrotate). The current `{bot}-out.log` only contains post-midnight activity. Yesterday's trades are in `{bot}-out__YYYY-MM-DD_HH-MM-SS.log`. This command takes the 2 most recent log files per bot and greps both, covering all cases.
+
+**Key log event keywords:**
+| Event | Log line |
+|-------|----------|
+| Entry signal | `LIVE BUY: <qty> shares of <symbol>` |
+| Buy filled | `✅ FILLED BUY: <price> (order <id>...)` |
+| Initial stop | `🛡️ SERVER STOP placed at $<price>` |
+| Trail updated | `🛡️ TRAILING STOP updated to $<price>` |
+| Exit signal | `LIVE SELL: <qty> shares of <symbol>` |
+| Sell filled | `✅ FILLED SELL: <price> (order <id>...)` |
+| Fill timeout | `⚠️ ORDER NOT FILLED after 30s` |
+| Duplicate exit | `⚠️ SELL skipped: no open position` |
+| Bot restart | `--- Starting Live Trading: ...` |
+
+**Timestamps in logs are UTC = Irish time (GMT). US market hours = 14:30–21:00 UTC.**
+
 **Deploy Code Changes:**
 ```bash
 # Local: push changes

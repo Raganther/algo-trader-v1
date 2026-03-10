@@ -24,11 +24,8 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 # Check cloud bots
 gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="pm2 status"
 
-# View bot logs
-gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="pm2 logs BOT_NAME --lines 20 --nostream"
-
-# Check latest signals across all bots
-gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="for bot in gld-test iau-test slv-test gdx-test; do echo \"=== \$bot ===\"; cat /home/alistairelliman/.pm2/logs/\${bot}-out.log | grep -E 'K:|BUY|SELL|FILLED' | tail -3; done"
+# Check today's trades across all bots (correct command — logs rotate at midnight)
+gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="for bot in gld-test iau-test slv-test gdx-test; do echo \"=== \$bot ===\"; cat \$(ls -t /home/alistairelliman/.pm2/logs/\${bot}-out*.log | head -2) 2>/dev/null | grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️'; done"
 
 # Deploy code changes to cloud
 git push origin main

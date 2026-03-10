@@ -53,6 +53,27 @@ Before entry:
 
 ---
 
+**#22 Claude Code Agents — Automated Bot Ops**
+*Discussed: 2026-03-10*
+
+Use Claude Code subagents to automate recurring bot operations that currently require manual SSH commands and produce verbose output that clutters the main context.
+
+**Four concrete agents:**
+
+1. **Daily log recap agent** — SSH into server, pull full logs from all 4 bots, parse order events (regardless of log keyword format), return structured trade summary (entries, exits, P&L, any errors). Would have caught today's missed trades.
+
+2. **Trade audit agent** — Run `audit_trades.py` on server, interpret output, flag any DB gaps vs Alpaca. Currently requires manual paste of results.
+
+3. **Parallel backtest agent** — Fire 4 agents simultaneously (one per symbol), each running a full backtest and returning results. Eliminates sequential bottleneck for parameter sweeps.
+
+4. **Bot health agent** — pm2 status + heartbeat check + last signal per bot in one call. Quick daily health check without needing to craft multiple SSH commands.
+
+**Key benefit:** Agents keep verbose SSH/log output out of main conversation context. Structured return values only.
+
+**Implementation:** Create `.claude/agents/` directory with agent definition files per task.
+
+---
+
 ### Medium Priority
 
 **#16 EventSurprise on SLV and TLT**
