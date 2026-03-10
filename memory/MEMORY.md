@@ -3,6 +3,43 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-10** — chore: repository cleanup — remove dead files and legacy subsystems
+Deleted backend/agent/ (unused AI agent subsystem), scripts/curate_memory.py (its only dependent), logs/, reports/, research/, zipdata/ (stale output dirs), empty DBs, validation_run.log, docs/testing-standards.md (superseded by CLAUDE.md run commands), realistic-test.sh, test-and-sync.sh, run_full_history.sh, and run_gld.sh. All active functionality preserved.
+
+ backend/agent/critic.py             |   404 -
+ backend/agent/memory_system.py      |    77 -
+ backend/agent/planner.py            |    72 -
+ backend/agent/registrar.py          |    61 -
+ backend/agent/researcher.py         |   118 -
+ backend/agent/strategy_generator.py |   177 -
+ backend/agent/toolbox.py            |    52 -
+ docs/testing-standards.md           |   185 -
+ logs/api_response.json              |     1 -
+ logs/backend.log                    | 20565 ----------------------------------
+ logs/debug_output.txt               |     9 -
+ logs/debug_output_2.txt             |   535 -
+ logs/debug_output_3.txt             |   176 -
+ logs/debug_output_4.txt             |   165 -
+ logs/debug_output_batch.txt         |    12 -
+ logs/debug_output_batch_15m.txt     |   411 -
+ logs/debug_output_papertrader.txt   |    15 -
+ logs/debug_output_stoch.txt         |    16 -
+ logs/debug_output_stress_test.txt   |    12 -
+ logs/debug_results.txt              |   290 -
+ logs/history.json                   |  1470 ---
+ logs/runner_debug.log               |     3 -
+ logs/test_output.txt                |     1 -
+ reports/regime_chart_SPY_1d.html    |  3885 -------
+ research/spy                        |   450 -
+ run_full_history.sh                 |    11 -
+ scripts/curate_memory.py            |    84 -
+ scripts/realistic-test.sh           |    53 -
+ scripts/run_gld.sh                  |     8 -
+ scripts/test-and-sync.sh            |    70 -
+ validation_run.log                  |    44 -
+ 31 files changed, 29432 deletions(-)
+
+----
 **2026-03-10** — docs: update strategy cards to reflect forward testing phase
 All 4 StochRSI strategy files updated — status headers corrected, stale Next Steps cleaned up, forward testing sections added with backtest predictions and Mar 09 trail ratchet observations for SLV and GDX. EventSurprise and composable results unchanged.
 
@@ -10,7 +47,8 @@ All 4 StochRSI strategy files updated — status headers corrected, stale Next S
  .claude/memory/strategies/stochrsi_enhanced_gld.md | 30 ++++++++++++++++------
  .claude/memory/strategies/stochrsi_enhanced_iau.md |  8 +++++-
  .claude/memory/strategies/stochrsi_enhanced_slv.md | 10 +++++++-
- 4 files changed, 47 insertions(+), 11 deletions(-)
+ memory/MEMORY.md                                   | 21 ++++++++-------
+ 5 files changed, 59 insertions(+), 20 deletions(-)
 
 ----
 **2026-03-10** — chore: delete system_manual.md — consolidated into CLAUDE.md
@@ -71,14 +109,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
  backend/engine/alpaca_trader.py | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
-
-----
-**2026-03-09** — feat: trade completeness audit script — Alpaca vs DB by day
-Shows completeness rate per symbol per day. Trending toward 100%
-over time verifies bug fixes are actually working.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- scripts/audit_trades.py | 102 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 102 insertions(+)
 
