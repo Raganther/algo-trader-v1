@@ -3,11 +3,34 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-10** — fix: server stop DB logging + confirm server-side stop firing
+Server stop fired for first time on SLV Mar 10 — confirmed Alpaca auto-executes intrabar. Discovered and fixed fill logging bug: get_recent_filled_sell failed due to API propagation delay. Now queries specific order ID directly, queues in pending_fills if not yet visible. Clarified two exit mechanics (not three): bot K-signal and Alpaca server-side stop (covers both stop loss and trailing stop).
+
+ CLAUDE.md      | 6 ++++--
+ memory/plan.md | 4 ++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+----
+**2026-03-10** — fix: server stop DB logging — query by order ID, retry via pending_fills
+get_recent_filled_sell was failing due to Alpaca API propagation delay
+(fill exists but not yet visible in orders list). Now queries the specific
+stop order by ID directly. If not yet visible, queues in pending_fills for
+retry on next bar. Falls back to get_recent_filled_sell only if no order ID.
+Also tracks pending_stop_qty alongside pending_stop_order_id in live_broker.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+ backend/engine/live_broker.py |  5 +++++
+ backend/runner.py             | 29 +++++++++++++++++++++++++----
+ 2 files changed, 30 insertions(+), 4 deletions(-)
+
+----
 **2026-03-10** — fix: restore head -2 in bot check command, add HEARTBEAT warning
 Reverted head -1 back to head -2 so the bot check covers today + yesterday, catching overnight holds. Root cause of earlier false 'no trades' report was adding HEARTBEAT to an ad-hoc grep, not head -2 itself. Added comment to CLAUDE.md explicitly warning never to include HEARTBEAT in the grep pattern.
 
- CLAUDE.md | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ CLAUDE.md        |  2 +-
+ memory/MEMORY.md | 25 ++++++++++---------------
+ 2 files changed, 11 insertions(+), 16 deletions(-)
 
 ----
 **2026-03-10** — fix: add timezone/market hours to CLAUDE.md, add server time check command
@@ -84,18 +107,4 @@ Logs rotate at midnight via pm2-logrotate — previous command searched only the
  docs/dev.md                     | 21 ++++++++++++++++++
  memory/MEMORY.md                | 47 +++++++++++++++++------------------------
  4 files changed, 64 insertions(+), 33 deletions(-)
-
-----
-**2026-03-09** — fix: pass body argument to git commit in git-save.sh
-git commit -m "$1" ${2:+-m "$2"} — body was silently dropped, MEMORY.md only ever showed subject + file stats. Now both subject and body are captured in the commit and appear in MEMORY.md.
-
- scripts/git-save.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-----
-**2026-03-09** — docs: update plan.md — Mar 09 audit complete, reconcile fixed, completeness baseline established
-
- memory/MEMORY.md | 86 +++++++++++++++++++++++++++++++-------------------------
- memory/plan.md   | 49 +++++++++++++++++++++-----------
- 2 files changed, 80 insertions(+), 55 deletions(-)
 

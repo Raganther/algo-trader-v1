@@ -84,9 +84,11 @@ Next: run 2-4 more weeks, compare live results to backtest predictions, then swi
 | Skip days | Monday |
 | Trades/yr | ~107 per symbol |
 
-**Confirmed working:** bot-initiated exits, trailing stop updates (ratchets up), order cancellation before exit, position sync on restart, heartbeat logging, DAY TIF stops, DB reconciliation on startup.
+**Confirmed working:** bot-initiated exits, trailing stop updates (ratchets up), order cancellation before exit, position sync on restart, heartbeat logging, DAY TIF stops, DB reconciliation on startup, server-side stop FIRING (confirmed Mar 10 — SLV stop at $80.49 auto-filled at $80.43).
 
-**Not yet confirmed:** server-side stop firing (Alpaca auto-executing between candles), trailing stop FIRING (locking in profit).
+**Not yet confirmed:** trailing stop FIRING in profit (same Alpaca server-side mechanism — needs trail ratcheted above entry before firing).
+
+**Two exit mechanics (not three):** (1) bot K-signal exit at candle close, (2) Alpaca server-side stop auto-execution intrabar — covers both stop loss and trailing stop exits.
 
 **Backtest predictions for test params (Dec 2025 – Mar 2026):**
 

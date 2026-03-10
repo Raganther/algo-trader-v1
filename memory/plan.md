@@ -31,8 +31,8 @@ Now fixed — reconcile actually works. Deployed and confirmed on Mar 09 restart
 - [x] DAY TIF stop orders
 - [x] Position sync on restart
 - [x] DB reconciliation on startup (confirmed working after Mar 09 case fixes)
-- [ ] **Server-side stop FIRING** — Alpaca auto-executes stop between candles when price drops through stop level. Not yet observed in live data.
-- [ ] **Trailing stop FIRING** — price rises → trail ratchets → price reverses intrabar below trail → Alpaca auto-fills. Note: Mar 09 SLV trade had trail ratchet (76.15 → 77.23) but bot K-signal exited first at 77.92. Stop was cancelled before it could fire. Still unconfirmed.
+- [x] **Server-side stop FIRING** — confirmed Mar 10. SLV stop at $80.49 auto-filled by Alpaca at $80.43 (18:00 UTC, 43min after last trail ratchet). New bug found and fixed: fill logging failed due to API propagation delay — now queries by specific order ID, falls back to pending_fills retry.
+- [ ] **Trailing stop FIRING (in profit)** — same Alpaca server-side mechanism as above, just needs trail to have ratcheted above entry before firing. Not yet observed. Two mechanics total: (1) bot K-signal exit, (2) Alpaca server-side stop — covers both stop loss and trailing stop.
 
 ### After mechanics verified
 - [ ] Compare live results to backtest predictions (2-4 weeks of data needed)
