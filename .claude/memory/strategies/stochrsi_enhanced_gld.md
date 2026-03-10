@@ -1,6 +1,6 @@
 # StochRSI Enhanced — GLD 15m (Best Edge)
 
-> **Status:** VALIDATED (Sharpe 2.54, audited Feb 27) | Paper testing with aggressive params | Not yet live
+> **Status:** VALIDATED (Sharpe 2.54, audited Feb 27) | Forward testing active — gld-test bot running on cloud
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 > **Bot scripts:** `scripts/run_gld_test.sh`, `scripts/run_iau_test.sh`
 
@@ -209,15 +209,29 @@ Tested whether avoiding entries near high-impact events (FOMC/NFP/CPI) improves 
 | XBI | 1h | +9.0% ann | 0.90 | Sweep positive |
 | TLT | 1h | +8.5% ann | 0.85 | Sweep positive |
 
+## Forward Testing Status (as of Mar 10 2026)
+
+Running with aggressive test params (OB 60/OS 40, 3-bar hold/trail) to generate more trades faster for mechanics verification. All 4 bots (GLD, IAU, SLV, GDX) running simultaneously.
+
+**Backtest prediction for test params (Dec 2025 – Mar 2026):** GLD +0.16%, 58 trades, 48% WR
+
+**Mechanics confirmed:**
+- [x] Bot-initiated exits (signal fires, stops cancelled, market sell placed)
+- [x] Trailing stop UPDATE (ratchets up on each bar)
+- [x] DAY TIF stop orders, position sync on restart, DB reconciliation
+
+**Mechanics pending** (require specific market conditions to trigger):
+- [ ] Server-side stop FIRING — Alpaca auto-executes stop between candles
+- [ ] Trailing stop FIRING — price reverses through trail intrabar, Alpaca fills
+
 ## Next Steps
 
-- [ ] Investigate trail_atr=1.5 (audit found +47.5% vs +43.0% baseline — run full validation)
-- [ ] Monitor gld-test + iau-test for correct trailing stop / min hold / skip Monday behaviour
-- [ ] Once mechanics verified: switch to validated params (OB 80/OS 15, trail 10 bars, hold 10)
-- [ ] Start real-money micro trading on Alpaca with €100-200 (fractional GLD)
-- [ ] Apply trailing stop to other validated strategies (GLD 1h, IAU, XLE, SLV)
-- [ ] Explore increasing position sizing given very low DD headroom
+- [ ] Run 2-4 weeks forward testing, compare live results to backtest predictions
+- [ ] Once mechanics verified: switch to validated params (OB 80/OS 15, trail 10, hold 10, skip Monday)
+- [ ] Start real-money micro trading on Alpaca (€100-200, fractional GLD)
+- [ ] Investigate trail_atr=1.5 (audit found +47.5% vs +43.0% — worth a full validation run)
+- [ ] Explore increasing position sizing given very low DD headroom (0.69%)
 
 ---
 
-*Last updated: 2026-02-27 (Full audit: data quality, param sensitivity, spread sensitivity, B&H comparison. Sharpe updated to 2.54. 2026 YTD added.)*
+*Last updated: 2026-03-10 (Forward testing active, mechanics status updated. Feb 27 audit data unchanged.)*

@@ -57,6 +57,14 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol SLV
 
 This result confirms the **precious metals thesis**: the StochRSI Enhanced edge is not GLD-specific. It is a structural property of precious metals mean-reverting at 15m within a longer-term trend.
 
+## Forward Testing Status (as of Mar 10 2026)
+
+slv-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail).
+
+**Backtest prediction for test params (Dec 2025 – Mar 2026):** +14.25%, 44 trades, 57% WR — strongest of the 4 symbols, consistent with silver's higher volatility.
+
+**Mar 09 observation:** Trail ratcheted from $76.15 → $77.23 on a live trade. Bot K-signal exited first at $77.92 before trail could fire. Trailing stop UPDATE confirmed working. Trail FIRING still unconfirmed.
+
 ---
 
-*Last updated: 2026-02-27 (Initial validation — params transferred from GLD, Sharpe 2.54, 4/4 WF)*
+*Last updated: 2026-03-10 (Forward testing active, Mar 09 trail ratchet observation added.)*

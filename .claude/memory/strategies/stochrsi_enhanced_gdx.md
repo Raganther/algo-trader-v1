@@ -59,6 +59,14 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GDX
 
 GDX passing 4/4 walk-forward windows confirms the precious metals thesis extends to leveraged gold exposure. The mean-reversion structure is robust enough to survive the added noise from mining company fundamentals.
 
+## Forward Testing Status (as of Mar 10 2026)
+
+gdx-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail).
+
+**Backtest prediction for test params (Dec 2025 – Mar 2026):** +2.45%, 69 trades, 59% WR.
+
+**Mar 09 observation:** Trail ratcheted from $96.60 → $96.99 on a live trade. Bot exit signal fired at $98.90. Trail UPDATE confirmed working on GDX as well as SLV.
+
 ---
 
-*Last updated: 2026-02-27 (Initial validation — params transferred from GLD, Sharpe 2.41, 4/4 WF)*
+*Last updated: 2026-03-10 (Forward testing active, Mar 09 trail ratchet observation added.)*

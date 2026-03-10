@@ -75,6 +75,12 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
 | GDX 15m | 2.41 | +114.1% | 2.02% | 4/4 |
 | **IAU 15m** | **~2.0** | **+32.6%** | **0.72%** | **4/4** |
 
+## Forward Testing Status (as of Mar 10 2026)
+
+iau-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail).
+
+**Backtest prediction for test params (Dec 2025 – Mar 2026):** -0.50%, 54 trades, 37% WR — weakest of the 4 symbols under test params. IAU closely tracks GLD so this may reflect the same choppy period.
+
 ---
 
-*Last updated: 2026-02-28 (Initial validation — params transferred from GLD, 4/4 WF, holdout +12.55%)*
+*Last updated: 2026-03-10 (Forward testing active.)*

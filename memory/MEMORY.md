@@ -3,12 +3,23 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-10** — docs: update strategy cards to reflect forward testing phase
+All 4 StochRSI strategy files updated — status headers corrected, stale Next Steps cleaned up, forward testing sections added with backtest predictions and Mar 09 trail ratchet observations for SLV and GDX. EventSurprise and composable results unchanged.
+
+ .claude/memory/strategies/stochrsi_enhanced_gdx.md | 10 +++++++-
+ .claude/memory/strategies/stochrsi_enhanced_gld.md | 30 ++++++++++++++++------
+ .claude/memory/strategies/stochrsi_enhanced_iau.md |  8 +++++-
+ .claude/memory/strategies/stochrsi_enhanced_slv.md | 10 +++++++-
+ 4 files changed, 47 insertions(+), 11 deletions(-)
+
+----
 **2026-03-10** — chore: delete system_manual.md — consolidated into CLAUDE.md
 File was stale (last updated Feb 14), sections 1-7 referenced dead scripts and workflows. Section 8 content already covered by CLAUDE.md run commands and constraints. Run commands are the documentation — a separate how-to manual adds maintenance burden without value.
 
  .claude/memory/system_manual.md | 407 ----------------------------------------
  CLAUDE.md                       |   1 -
- 2 files changed, 408 deletions(-)
+ memory/MEMORY.md                |  32 ++--
+ 3 files changed, 13 insertions(+), 427 deletions(-)
 
 ----
 **2026-03-10** — fix: correct bot log check command + document log format
@@ -70,12 +81,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
  scripts/audit_trades.py | 102 ++++++++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 102 insertions(+)
-
-----
-**2026-03-09** — fix: pending_fills for buys, reconcile window 7d, manual DB inserts
-
- CLAUDE.md        |  2 ++
- memory/MEMORY.md | 45 ++++++++++++++++++++++++---------------------
- memory/plan.md   |  3 +++
- 3 files changed, 29 insertions(+), 21 deletions(-)
 
