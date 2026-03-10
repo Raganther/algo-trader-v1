@@ -3,11 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-10** — fix: restore head -2 in bot check command, add HEARTBEAT warning
+Reverted head -1 back to head -2 so the bot check covers today + yesterday, catching overnight holds. Root cause of earlier false 'no trades' report was adding HEARTBEAT to an ad-hoc grep, not head -2 itself. Added comment to CLAUDE.md explicitly warning never to include HEARTBEAT in the grep pattern.
+
+ CLAUDE.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+----
 **2026-03-10** — fix: add timezone/market hours to CLAUDE.md, add server time check command
 Recurring mistake: assuming current time from stale conversation context. Fix: always run date -u on server first when checking bots. Added explicit timezone rules to Constraints — Irish/UTC relationship, DST 2026 start date, pre/post-DST market hours in UTC.
 
- CLAUDE.md | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ CLAUDE.md        | 13 +++++++++++++
+ memory/MEMORY.md | 24 +++++++++---------------
+ 2 files changed, 22 insertions(+), 15 deletions(-)
 
 ----
 **2026-03-10** — chore: repository cleanup — remove dead files and legacy subsystems
@@ -90,17 +98,4 @@ git commit -m "$1" ${2:+-m "$2"} — body was silently dropped, MEMORY.md only e
  memory/MEMORY.md | 86 +++++++++++++++++++++++++++++++-------------------------
  memory/plan.md   | 49 +++++++++++++++++++++-----------
  2 files changed, 80 insertions(+), 55 deletions(-)
-
-----
-**2026-03-09** — fix: case-insensitive side comparison in trade matching (BUY/SELL vs buy/sell)
-Alpaca SDK returns side as uppercase ('BUY'/'SELL') but DB stores
-lowercase ('buy'/'sell'). This caused reconcile_trades and audit_trades
-to never match any orders, silently treating all fills as missing.
-Same root cause as the status field case bug.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- backend/runner.py       | 2 +-
- scripts/audit_trades.py | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
 

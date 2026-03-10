@@ -26,7 +26,7 @@ gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="date -u"
 # Check cloud bots
 gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="pm2 status"
 
-# Check today's trades across all bots (correct command — logs rotate at midnight)
+# Check recent trades across all bots (head -2 = today + yesterday, covers overnight holds — never add HEARTBEAT to this grep)
 gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="for bot in gld-test iau-test slv-test gdx-test; do echo \"=== \$bot ===\"; cat \$(ls -t /home/alistairelliman/.pm2/logs/\${bot}-out*.log | head -2) 2>/dev/null | grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️'; done"
 
 # Deploy code changes to cloud
