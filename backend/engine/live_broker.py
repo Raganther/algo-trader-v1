@@ -36,6 +36,7 @@ class LiveBroker:
         self.new_trades = [] # Queue for new trades
         self.pending_stop_order_id = None  # Server-side stop order ID
         self.pending_stop_qty = None  # Qty tracked alongside stop order ID for pending_fills fallback
+        self.pending_stop_side = None  # 'sell' for long positions, 'buy' for short positions
         self._last_stop_price = None  # Track last stop price for fallback on update failure
         self.pending_fills = []  # Timed-out orders that may still be in-flight
         self.refresh()
@@ -162,22 +163,28 @@ class LiveBroker:
     def buy(self, price, size, timestamp=None, stop_loss=None, take_profit=None):
         """
         Execute Buy Order.
-        Note: 'price' is ignored for Market Orders, but kept for interface compatibility.
+        Two cases:
+          - stop_loss provided + position == 0: opening a long position
+          - no stop_loss + position < 0: closing a short position
         """
-        # Strategy passes size as amount of shares (float)
-        # Strategy might pass stop_loss (if we update strategy to use it)
-        # Currently strategy manages SL manually, but we can override.
-        
-        # For now, just execute market buy
-        # If strategy passes stop_loss (which it doesn't yet in current code), we'd use it.
-        # But wait, I just updated AlpacaTrader to support bracket orders.
-        # I should update the Strategy to pass SL to broker.buy()!
-        
-        # IMPORTANT: Alpaca does not support bracket orders for crypto
-        # Detect crypto symbols (contain '/') and skip stop_loss/take_profit
+        import time
         is_crypto = '/' in self.symbol
+        current_position = self.get_position(self.symbol)
 
-        print(f"LIVE BUY: {size} shares of {self.symbol}")
+        if current_position < 0:
+            # Closing a short position — cancel pending buy stop first
+            cancelled = self.trader.cancel_all_orders_for_symbol(self.symbol)
+            if cancelled > 0:
+                print(f"🛡️ Cancelled {cancelled} open order(s) for {self.symbol} before short exit")
+                time.sleep(0.5)
+            self.pending_stop_order_id = None
+            self.pending_stop_qty = None
+            self.pending_stop_side = None
+            print(f"LIVE BUY (close short): {size} shares of {self.symbol}")
+        else:
+            # Opening a long position
+            print(f"LIVE BUY: {size} shares of {self.symbol}")
+
         try:
             res = self.trader.place_order(
                 symbol=self.symbol,
@@ -188,7 +195,6 @@ class LiveBroker:
             print(f"❌ BUY order rejected: {e}")
             return None
 
-        # Poll for fill to get exact price
         filled_order = self._wait_for_fill(res['id'])
         if filled_order:
             self.new_trades.append({
@@ -204,7 +210,7 @@ class LiveBroker:
             })
             print(f"✅ FILLED BUY: {filled_order['filled_avg_price']} (order {res['id'][:8]}...)")
 
-            # Place server-side stop loss order if provided
+            # Place server-side sell stop for long entry (not for short close)
             if stop_loss and not is_crypto:
                 try:
                     stop_res = self.trader.place_stop_order(
@@ -215,12 +221,14 @@ class LiveBroker:
                     )
                     self.pending_stop_order_id = stop_res['id']
                     self.pending_stop_qty = size
+                    self.pending_stop_side = 'sell'
                     self._last_stop_price = stop_loss
                     print(f"🛡️ SERVER STOP placed at ${stop_loss:.2f} (order {stop_res['id'][:8]}...)")
                 except Exception as e:
                     print(f"⚠️ Server stop order failed: {e} — bot will manage stop locally")
                     self.pending_stop_order_id = None
                     self.pending_stop_qty = None
+                    self.pending_stop_side = None
         else:
             self.pending_fills.append({'order_id': res['id'], 'signal_price': price, 'side': 'buy', 'qty': size})
             print(f"⏳ Buy order {res['id'][:8]}... queued in pending_fills for retry")
@@ -228,27 +236,37 @@ class LiveBroker:
         return res
 
     def sell(self, price, size, timestamp=None, stop_loss=None, take_profit=None):
-        # Guard: skip if no open position — prevents short-sell rejection from Alpaca
-        # when the strategy fires a duplicate exit signal on consecutive bars.
+        """
+        Execute Sell Order.
+        Three cases:
+          - position > 0: closing a long position (exit)
+          - position == 0 + stop_loss provided: opening a short position (entry)
+          - position == 0 + no stop_loss: duplicate exit signal — skip
+        """
+        import time
+        is_crypto = '/' in self.symbol
         current_position = self.get_position(self.symbol)
-        if current_position <= 0:
+
+        if current_position > 0:
+            # Closing a long position — cancel pending sell stop first
+            cancelled = self.trader.cancel_all_orders_for_symbol(self.symbol)
+            if cancelled > 0:
+                print(f"🛡️ Cancelled {cancelled} open order(s) for {self.symbol} before long exit")
+                time.sleep(0.5)
+            self.pending_stop_order_id = None
+            self.pending_stop_qty = None
+            self.pending_stop_side = None
+            print(f"LIVE SELL: {size} shares of {self.symbol}")
+
+        elif current_position == 0 and stop_loss is not None and not is_crypto:
+            # Opening a short position
+            print(f"LIVE SELL (open short): {size} shares of {self.symbol}")
+
+        else:
+            # Duplicate exit signal or unsupported case
             print(f"⚠️ SELL skipped: no open position for {self.symbol} — ignoring duplicate exit signal")
             return None
 
-        # IMPORTANT: Alpaca does not support bracket orders for crypto
-        # Detect crypto symbols (contain '/') and skip stop_loss/take_profit
-        is_crypto = '/' in self.symbol
-
-        # Cancel ALL open orders for this symbol before selling
-        # (not just tracked stop — prevents wash trade rejections from orphaned orders)
-        import time
-        cancelled = self.trader.cancel_all_orders_for_symbol(self.symbol)
-        if cancelled > 0:
-            print(f"🛡️ Cancelled {cancelled} open order(s) for {self.symbol} before exit")
-            time.sleep(0.5)  # Brief pause for Alpaca to process cancellations
-        self.pending_stop_order_id = None
-
-        print(f"LIVE SELL: {size} shares of {self.symbol}")
         try:
             res = self.trader.place_order(
                 symbol=self.symbol,
@@ -259,7 +277,6 @@ class LiveBroker:
             print(f"❌ SELL order rejected: {e}")
             return None
 
-        # Poll for fill
         filled_order = self._wait_for_fill(res['id'])
         if filled_order:
             self.new_trades.append({
@@ -274,9 +291,27 @@ class LiveBroker:
                 'order_id': res['id']
             })
             print(f"✅ FILLED SELL: {filled_order['filled_avg_price']} (order {res['id'][:8]}...)")
+
+            # Place server-side buy stop for short entry (not for long close)
+            if stop_loss and not is_crypto:
+                try:
+                    stop_res = self.trader.place_stop_order(
+                        symbol=self.symbol,
+                        qty=size,
+                        side='buy',
+                        stop_price=stop_loss
+                    )
+                    self.pending_stop_order_id = stop_res['id']
+                    self.pending_stop_qty = size
+                    self.pending_stop_side = 'buy'
+                    self._last_stop_price = stop_loss
+                    print(f"🛡️ SERVER STOP placed at ${stop_loss:.2f} (order {stop_res['id'][:8]}...)")
+                except Exception as e:
+                    print(f"⚠️ Server stop order failed: {e} — bot will manage stop locally")
+                    self.pending_stop_order_id = None
+                    self.pending_stop_qty = None
+                    self.pending_stop_side = None
         else:
-            # Order didn't fill within timeout — track it for retry in get_new_trades()
-            # (e.g. overnight DAY order queues and fills at next open)
             self.pending_fills.append({'order_id': res['id'], 'signal_price': price, 'side': 'sell', 'qty': size})
             print(f"⏳ Sell order {res['id'][:8]}... queued in pending_fills for retry")
 
@@ -289,11 +324,12 @@ class LiveBroker:
         old_stop_price = self._last_stop_price
         # Cancel old, place new
         self.trader.cancel_order(self.pending_stop_order_id)
+        stop_side = self.pending_stop_side or 'sell'  # 'sell' for longs, 'buy' for shorts
         try:
             stop_res = self.trader.place_stop_order(
                 symbol=self.symbol,
                 qty=qty,
-                side='sell',
+                side=stop_side,
                 stop_price=new_stop_price
             )
             self.pending_stop_order_id = stop_res['id']
@@ -308,7 +344,7 @@ class LiveBroker:
                 fallback_res = self.trader.place_stop_order(
                     symbol=self.symbol,
                     qty=qty,
-                    side='sell',
+                    side=stop_side,
                     stop_price=fallback_price
                 )
                 self.pending_stop_order_id = fallback_res['id']

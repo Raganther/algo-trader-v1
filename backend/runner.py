@@ -821,12 +821,14 @@ def run_live_trading(args):
                             # Log the exit to DB — query by specific stop order ID (avoids API propagation delay issues)
                             stop_order_id = broker.pending_stop_order_id
                             stop_qty = broker.pending_stop_qty
+                            # Side of the closing fill: long closed by sell stop, short closed by buy stop
+                            exit_side = 'buy' if strategy.position == 'short' else 'sell'
                             try:
-                                filled_sell = None
+                                filled_exit = None
                                 if stop_order_id:
                                     order = broker.trader.get_order(stop_order_id)
                                     if order and 'filled' in str(order['status']).lower() and order['filled_avg_price']:
-                                        filled_sell = {
+                                        filled_exit = {
                                             'id': stop_order_id,
                                             'qty': order['filled_qty'] or stop_qty,
                                             'fill_price': order['filled_avg_price'],
@@ -837,30 +839,30 @@ def run_live_trading(args):
                                         broker.pending_fills.append({
                                             'order_id': stop_order_id,
                                             'signal_price': broker._last_stop_price or 0.0,
-                                            'side': 'sell',
+                                            'side': exit_side,
                                             'qty': stop_qty or 0.0
                                         })
                                         print(f"⏳ SERVER STOP fill not yet visible — queued order {stop_order_id[:8]}... for retry")
                                 else:
-                                    filled_sell = broker.trader.get_recent_filled_sell(args.symbol)
+                                    filled_exit = broker.trader.get_recent_filled_sell(args.symbol)
 
-                                if filled_sell:
+                                if filled_exit:
                                     db.save_live_trade({
                                         'session_id': session_id,
-                                        'timestamp': filled_sell['filled_at'],
+                                        'timestamp': filled_exit['filled_at'],
                                         'symbol': args.symbol,
                                         'strategy': args.strategy,
-                                        'side': 'sell',
-                                        'qty': filled_sell['qty'],
-                                        'signal_price': filled_sell['fill_price'],
-                                        'fill_price': filled_sell['fill_price'],
+                                        'side': exit_side,
+                                        'qty': filled_exit['qty'],
+                                        'signal_price': filled_exit['fill_price'],
+                                        'fill_price': filled_exit['fill_price'],
                                         'slippage': 0.0,
                                         'spread': 0.0,
                                         'pnl': 0.0,
                                         'iteration_index': 'server_stop',
-                                        'order_id': filled_sell['id']
+                                        'order_id': filled_exit['id']
                                     })
-                                    print(f"📝 SERVER STOP logged to DB: sell {filled_sell['qty']} @ {filled_sell['fill_price']} (order {filled_sell['id'][:8]}...)")
+                                    print(f"📝 SERVER STOP logged to DB: {exit_side} {filled_exit['qty']} @ {filled_exit['fill_price']} (order {filled_exit['id'][:8]}...)")
                             except Exception as log_err:
                                 print(f"⚠️ SERVER STOP DB log failed: {log_err}")
 
