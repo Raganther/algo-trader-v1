@@ -34,7 +34,16 @@ Now fixed — reconcile actually works. Deployed and confirmed on Mar 09 restart
 - [x] **Server-side stop FIRING** — confirmed Mar 10. SLV stop at $80.49 auto-filled by Alpaca at $80.43 (18:00 UTC, 43min after last trail ratchet). New bug found and fixed: fill logging failed due to API propagation delay — now queries by specific order ID, falls back to pending_fills retry.
 - [ ] **Trailing stop FIRING (in profit)** — same Alpaca server-side mechanism as above, just needs trail to have ratcheted above entry before firing. Not yet observed. Two mechanics total: (1) bot K-signal exit, (2) Alpaca server-side stop — covers both stop loss and trailing stop.
 
-### After mechanics verified
+### Short trading — must be enabled before real money
+
+Discovered Mar 11: the live bots are long-only. The guard in `live_broker.sell()` (added to prevent duplicate exit signals) also blocks short entries from flat. The backtest has always run both long and short — the Sharpe 2.54 figure includes short trade P&L. Running long-only in live means we are trading half the strategy.
+
+- [ ] **Add `long_only` parameter to strategy** — defaults False (backtest unchanged). When True, skip short entry logic entirely. Run long-only backtest to establish true long-only Sharpe as live baseline.
+- [ ] **Fix live_broker sell() guard** — current guard blocks ALL sells from flat. Need to distinguish: (a) closing a long = allow, (b) opening a short from flat = allow when `long_only=False`, (c) duplicate exit = block. Fix: check strategy position state, not just Alpaca position.
+- [ ] **Verify short mechanics in live** — short entry, buy stop loss (above entry), trailing stop ratchets DOWN, short exit buy order. All need the same verification the long mechanics went through.
+- [ ] **Re-run mechanics verification for short trades** — same checklist as longs once short trading is enabled.
+
+### After mechanics verified (long + short)
 - [ ] Compare live results to backtest predictions (2-4 weeks of data needed)
 - [ ] Switch to validated params (OB 80/OS 15, hold 10, trail 10, skip Monday)
 - [ ] Start real-money micro trading (€100-200, fractional shares)

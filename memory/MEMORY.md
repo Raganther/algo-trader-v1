@@ -3,11 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-11** — docs: add short trading requirement to plan
+Discovered live bots are long-only due to sell() guard blocking short entries from flat — an unintended side effect of the duplicate exit fix. Sharpe 2.54 backtest includes both long and short P&L. Plan updated with three steps: add long_only param to strategy, fix the sell guard to distinguish exit vs short entry, and re-verify all mechanics for short trades before switching to real money.
+
+ memory/plan.md | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+----
 **2026-03-11** — fix: split bot check into today/yesterday to eliminate log misreading
 Concatenating two log files and grepping produced unlabelled output, making it impossible to tell which lines were today vs yesterday. Now checks each file separately with clear -- today -- / -- yesterday -- headers. Eliminates the recurring misread bug.
 
- CLAUDE.md | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ CLAUDE.md        |  4 ++--
+ memory/MEMORY.md | 24 +++++++++++-------------
+ 2 files changed, 13 insertions(+), 15 deletions(-)
 
 ----
 **2026-03-10** — fix: server stop DB logging + confirm server-side stop firing
@@ -96,13 +104,4 @@ All 4 StochRSI strategy files updated — status headers corrected, stale Next S
  .claude/memory/strategies/stochrsi_enhanced_slv.md | 10 +++++++-
  memory/MEMORY.md                                   | 21 ++++++++-------
  5 files changed, 59 insertions(+), 20 deletions(-)
-
-----
-**2026-03-10** — chore: delete system_manual.md — consolidated into CLAUDE.md
-File was stale (last updated Feb 14), sections 1-7 referenced dead scripts and workflows. Section 8 content already covered by CLAUDE.md run commands and constraints. Run commands are the documentation — a separate how-to manual adds maintenance burden without value.
-
- .claude/memory/system_manual.md | 407 ----------------------------------------
- CLAUDE.md                       |   1 -
- memory/MEMORY.md                |  32 ++--
- 3 files changed, 13 insertions(+), 427 deletions(-)
 
