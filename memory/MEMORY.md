@@ -3,12 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-11** — fix: split bot check into today/yesterday to eliminate log misreading
+Concatenating two log files and grepping produced unlabelled output, making it impossible to tell which lines were today vs yesterday. Now checks each file separately with clear -- today -- / -- yesterday -- headers. Eliminates the recurring misread bug.
+
+ CLAUDE.md | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+----
 **2026-03-10** — fix: server stop DB logging + confirm server-side stop firing
 Server stop fired for first time on SLV Mar 10 — confirmed Alpaca auto-executes intrabar. Discovered and fixed fill logging bug: get_recent_filled_sell failed due to API propagation delay. Now queries specific order ID directly, queues in pending_fills if not yet visible. Clarified two exit mechanics (not three): bot K-signal and Alpaca server-side stop (covers both stop loss and trailing stop).
 
- CLAUDE.md      | 6 ++++--
- memory/plan.md | 4 ++--
- 2 files changed, 6 insertions(+), 4 deletions(-)
+ CLAUDE.md        |  6 ++++--
+ memory/MEMORY.md | 41 +++++++++++++++++++++++++----------------
+ memory/plan.md   |  4 ++--
+ 3 files changed, 31 insertions(+), 20 deletions(-)
 
 ----
 **2026-03-10** — fix: server stop DB logging — query by order ID, retry via pending_fills
@@ -97,14 +105,4 @@ File was stale (last updated Feb 14), sections 1-7 referenced dead scripts and w
  CLAUDE.md                       |   1 -
  memory/MEMORY.md                |  32 ++--
  3 files changed, 13 insertions(+), 427 deletions(-)
-
-----
-**2026-03-10** — fix: correct bot log check command + document log format
-Logs rotate at midnight via pm2-logrotate — previous command searched only the current log file, missing all same-day trades. New command takes the 2 most recent log files per bot covering both cases. Actual log keywords documented in system_manual.md (LIVE BUY, FILLED, TRAILING STOP etc). CLAUDE.md run command updated. Dev.md updated with agent ideas (#22).
-
- .claude/memory/system_manual.md | 22 +++++++++++++++++++
- CLAUDE.md                       |  7 ++----
- docs/dev.md                     | 21 ++++++++++++++++++
- memory/MEMORY.md                | 47 +++++++++++++++++------------------------
- 4 files changed, 64 insertions(+), 33 deletions(-)
 
