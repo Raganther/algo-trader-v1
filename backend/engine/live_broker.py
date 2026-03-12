@@ -258,12 +258,9 @@ class LiveBroker:
             self.pending_stop_side = None
             print(f"LIVE SELL: {size} shares of {self.symbol}")
 
-        elif current_position == 0 and stop_loss is not None and not is_crypto:
-            # Opening a short position
-            print(f"LIVE SELL (open short): {size} shares of {self.symbol}")
-
         else:
-            # Duplicate exit signal or unsupported case
+            # No position — block all sells (Alpaca rejects fractional short selling)
+            # Short trading requires whole-share qty; re-enable once position sizing is updated
             print(f"⚠️ SELL skipped: no open position for {self.symbol} — ignoring duplicate exit signal")
             return None
 
@@ -292,25 +289,7 @@ class LiveBroker:
             })
             print(f"✅ FILLED SELL: {filled_order['filled_avg_price']} (order {res['id'][:8]}...)")
 
-            # Place server-side buy stop for short entry (not for long close)
-            if stop_loss and not is_crypto:
-                try:
-                    stop_res = self.trader.place_stop_order(
-                        symbol=self.symbol,
-                        qty=size,
-                        side='buy',
-                        stop_price=stop_loss
-                    )
-                    self.pending_stop_order_id = stop_res['id']
-                    self.pending_stop_qty = size
-                    self.pending_stop_side = 'buy'
-                    self._last_stop_price = stop_loss
-                    print(f"🛡️ SERVER STOP placed at ${stop_loss:.2f} (order {stop_res['id'][:8]}...)")
-                except Exception as e:
-                    print(f"⚠️ Server stop order failed: {e} — bot will manage stop locally")
-                    self.pending_stop_order_id = None
-                    self.pending_stop_qty = None
-                    self.pending_stop_side = None
+            # Short entry stop placement removed — fractional short selling not supported by Alpaca
         else:
             self.pending_fills.append({'order_id': res['id'], 'signal_price': price, 'side': 'sell', 'qty': size})
             print(f"⏳ Sell order {res['id'][:8]}... queued in pending_fills for retry")
