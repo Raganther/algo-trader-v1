@@ -3,15 +3,24 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-14** — chore: full 2-week audit — update stale status across memory files
+Full audit of 40 commits Mar 1-14. No major circular bugs found. One 3-day blind spot: DB reconcile deployed Mar 6 but silently broken (case mismatch) until Mar 9. Two stale references found and fixed: CLAUDE.md still said 'waiting to confirm server-side stop firing' (confirmed Mar 10); auto-memory MEMORY.md Exit Mechanics section unchanged since Mar 4. GDX zero-trades added as open question in plan.md. Only remaining unconfirmed long mechanic: trailing stop FIRING in profit.
+
+ CLAUDE.md      | 2 +-
+ memory/plan.md | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+----
 **2026-03-14** — fix: mark long_only step complete in plan, update strategy card dates
 Two corrections from double-check: plan.md still showed long_only param step as unchecked despite being done; all 4 strategy cards still showed last-updated as Mar 10. Both fixed.
 
- .claude/memory/strategies/stochrsi_enhanced_gdx.md | 2 +-
- .claude/memory/strategies/stochrsi_enhanced_gld.md | 2 +-
- .claude/memory/strategies/stochrsi_enhanced_iau.md | 2 +-
- .claude/memory/strategies/stochrsi_enhanced_slv.md | 2 +-
- memory/plan.md                                     | 2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
+ .claude/memory/strategies/stochrsi_enhanced_gdx.md |  2 +-
+ .claude/memory/strategies/stochrsi_enhanced_gld.md |  2 +-
+ .claude/memory/strategies/stochrsi_enhanced_iau.md |  2 +-
+ .claude/memory/strategies/stochrsi_enhanced_slv.md |  2 +-
+ memory/MEMORY.md                                   | 40 ++++++++++------------
+ memory/plan.md                                     |  2 +-
+ 6 files changed, 24 insertions(+), 26 deletions(-)
 
 ----
 **2026-03-14** — feat: add long_only param + establish long-only performance baseline
@@ -80,13 +89,4 @@ Concatenating two log files and grepping produced unlabelled output, making it i
  CLAUDE.md        |  4 ++--
  memory/MEMORY.md | 24 +++++++++++-------------
  2 files changed, 13 insertions(+), 15 deletions(-)
-
-----
-**2026-03-10** — fix: server stop DB logging + confirm server-side stop firing
-Server stop fired for first time on SLV Mar 10 — confirmed Alpaca auto-executes intrabar. Discovered and fixed fill logging bug: get_recent_filled_sell failed due to API propagation delay. Now queries specific order ID directly, queues in pending_fills if not yet visible. Clarified two exit mechanics (not three): bot K-signal and Alpaca server-side stop (covers both stop loss and trailing stop).
-
- CLAUDE.md        |  6 ++++--
- memory/MEMORY.md | 41 +++++++++++++++++++++++++----------------
- memory/plan.md   |  4 ++--
- 3 files changed, 31 insertions(+), 20 deletions(-)
 
