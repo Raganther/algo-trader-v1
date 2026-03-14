@@ -3,17 +3,29 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-14** — fix: mark long_only step complete in plan, update strategy card dates
+Two corrections from double-check: plan.md still showed long_only param step as unchecked despite being done; all 4 strategy cards still showed last-updated as Mar 10. Both fixed.
+
+ .claude/memory/strategies/stochrsi_enhanced_gdx.md | 2 +-
+ .claude/memory/strategies/stochrsi_enhanced_gld.md | 2 +-
+ .claude/memory/strategies/stochrsi_enhanced_iau.md | 2 +-
+ .claude/memory/strategies/stochrsi_enhanced_slv.md | 2 +-
+ memory/plan.md                                     | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
+----
 **2026-03-14** — feat: add long_only param + establish long-only performance baseline
 Added long_only=True parameter to StochRSIMeanReversionStrategy to gate short entry logic. Ran backtests across all 4 assets to establish the live baseline (bots are long-only due to Alpaca fractional short restriction). Key finding: SLV long-only is actually better risk-adjusted (Sharpe ~3.29 vs 2.54 full); GDX is most impacted (-42% return, Sharpe 2.41→~1.54). Results recorded in all 4 strategy cards and plan.md.
 
- .claude/memory/strategies/stochrsi_enhanced_gdx.md | 19 +++++++++++++++++++
- .claude/memory/strategies/stochrsi_enhanced_gld.md | 19 +++++++++++++++++++
- .claude/memory/strategies/stochrsi_enhanced_iau.md | 17 +++++++++++++++++
- .claude/memory/strategies/stochrsi_enhanced_slv.md | 19 +++++++++++++++++++
+ .claude/memory/strategies/stochrsi_enhanced_gdx.md | 19 +++++++++++++++
+ .claude/memory/strategies/stochrsi_enhanced_gld.md | 19 +++++++++++++++
+ .claude/memory/strategies/stochrsi_enhanced_iau.md | 17 +++++++++++++
+ .claude/memory/strategies/stochrsi_enhanced_slv.md | 19 +++++++++++++++
  CLAUDE.md                                          |  2 ++
- backend/strategies/stoch_rsi_mean_reversion.py     |  5 +++--
- memory/plan.md                                     | 11 +++++++++++
- 7 files changed, 90 insertions(+), 2 deletions(-)
+ backend/strategies/stoch_rsi_mean_reversion.py     |  5 ++--
+ memory/MEMORY.md                                   | 28 +++++++++++++---------
+ memory/plan.md                                     | 11 +++++++++
+ 8 files changed, 107 insertions(+), 13 deletions(-)
 
 ----
 **2026-03-14** — chore: log Mar 13 trade audit + wash trade pre-market issue
@@ -77,18 +89,4 @@ Server stop fired for first time on SLV Mar 10 — confirmed Alpaca auto-execute
  memory/MEMORY.md | 41 +++++++++++++++++++++++++----------------
  memory/plan.md   |  4 ++--
  3 files changed, 31 insertions(+), 20 deletions(-)
-
-----
-**2026-03-10** — fix: server stop DB logging — query by order ID, retry via pending_fills
-get_recent_filled_sell was failing due to Alpaca API propagation delay
-(fill exists but not yet visible in orders list). Now queries the specific
-stop order by ID directly. If not yet visible, queues in pending_fills for
-retry on next bar. Falls back to get_recent_filled_sell only if no order ID.
-Also tracks pending_stop_qty alongside pending_stop_order_id in live_broker.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- backend/engine/live_broker.py |  5 +++++
- backend/runner.py             | 29 +++++++++++++++++++++++++----
- 2 files changed, 30 insertions(+), 4 deletions(-)
 

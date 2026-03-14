@@ -49,7 +49,7 @@ SLV is viable long-only. GLD, IAU, GDX are meaningfully weaker without shorts.
 
 Discovered Mar 11: the live bots are long-only. The guard in `live_broker.sell()` (added to prevent duplicate exit signals) also blocks short entries from flat. The backtest has always run both long and short — the Sharpe 2.54 figure includes short trade P&L. Running long-only in live means we are trading half the strategy.
 
-- [ ] **Add `long_only` parameter to strategy** — defaults False (backtest unchanged). When True, skip short entry logic entirely. Run long-only backtest to establish true long-only Sharpe as live baseline.
+- [x] **Add `long_only` parameter to strategy** — done Mar 14. Defaults False (backtest unchanged). Long-only backtests run across all 4 assets, baseline established (see table above).
 - [ ] **Fix live_broker sell() guard** — current guard blocks ALL sells from flat. Need to distinguish: (a) closing a long = allow, (b) opening a short from flat = allow when `long_only=False`, (c) duplicate exit = block. Fix: check strategy position state, not just Alpaca position.
 - [ ] **Verify short mechanics in live** — short entry, buy stop loss (above entry), trailing stop ratchets DOWN, short exit buy order. All need the same verification the long mechanics went through.
 - [ ] **Re-run mechanics verification for short trades** — same checklist as longs once short trading is enabled.

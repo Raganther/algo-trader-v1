@@ -253,4 +253,4 @@ Running with aggressive test params (OB 60/OS 40, 3-bar hold/trail) to generate 
 
 ---
 
-*Last updated: 2026-03-10 (Forward testing active, mechanics status updated. Feb 27 audit data unchanged.)*
+*Last updated: 2026-03-14 (Long-only baseline added. Forward testing active, mechanics status updated. Feb 27 audit data unchanged.)*

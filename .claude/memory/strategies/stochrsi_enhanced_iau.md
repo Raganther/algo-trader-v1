@@ -100,4 +100,4 @@ iau-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/tr
 
 ---
 
-*Last updated: 2026-03-10 (Forward testing active.)*
+*Last updated: 2026-03-14 (Long-only baseline added. Forward testing active.)*
