@@ -27,7 +27,7 @@ gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="date -u"
 gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="pm2 status"
 
 # Check recent trades across all bots (today + yesterday shown separately — never add HEARTBEAT to this grep)
-gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="for bot in gld-test iau-test slv-test gdx-test; do echo \"=== \$bot ===\"; logs=\$(ls -t /home/alistairelliman/.pm2/logs/\${bot}-out*.log | head -2); today=\$(echo \"\$logs\" | head -1); yesterday=\$(echo \"\$logs\" | tail -1); echo \"-- today --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️' \"\$today\" 2>/dev/null; echo \"-- yesterday --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️' \"\$yesterday\" 2>/dev/null; done"
+gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="for bot in gld-test iau-test slv-test gdx-test; do echo \"=== \$bot ===\"; logs=\$(ls -t /home/alistairelliman/.pm2/logs/\${bot}-out*.log | head -2); today=\$(echo \"\$logs\" | head -1); yesterday=\$(echo \"\$logs\" | tail -1); echo \"-- today --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$today\" 2>/dev/null; echo \"-- yesterday --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$yesterday\" 2>/dev/null; done"
 
 # Deploy code changes to cloud
 git push origin main
@@ -112,6 +112,10 @@ Next: run 2-4 more weeks, compare live results to backtest predictions, then swi
 - Timed-out buy orders never logged — pending_fills only tracked sells. Fixed: buys now queued in pending_fills on timeout.
 - Reconcile lookback too short — 3-day window missed pre-market DAY orders filled at open. Fixed: extended to 7 days.
 
+**Known issues (not yet fixed):**
+- Wash trade: pre-market pending sell orders — pending_fills can submit a sell pre-market (e.g. 8:00 UTC), which sits open until market open (13:30 UTC). If a new buy signal fires before the sell fills, Alpaca rejects it as a wash trade. Fix: cancel any open sell orders before placing a new entry.
+- Fractional short selling not supported — Alpaca rejects short (sell-to-open) orders for fractional shares. Short trading disabled until whole-share quantity sizing is implemented.
+
 ## Validated Edges
 
 | Strategy | Asset | TF | Sharpe | Return | Max DD | WF |
@@ -151,3 +155,5 @@ Next: run 2-4 more weeks, compare live results to backtest predictions, then swi
 - Live fetch window must stay ≥7 days in runner.py (weekends need 150+ bars)
 - Server RAM tight — avoid heavy SSH commands while bots are processing bars
 - Deploy to cloud only when bot code changes — docs/memory changes don't need deploy
+- Fractional short selling rejected by Alpaca — bots are long-only until whole-share qty sizing added
+- Alpaca timestamps are UTC, not ET — confirmed Mar 14

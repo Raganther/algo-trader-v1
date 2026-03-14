@@ -43,6 +43,9 @@ Discovered Mar 11: the live bots are long-only. The guard in `live_broker.sell()
 - [ ] **Verify short mechanics in live** — short entry, buy stop loss (above entry), trailing stop ratchets DOWN, short exit buy order. All need the same verification the long mechanics went through.
 - [ ] **Re-run mechanics verification for short trades** — same checklist as longs once short trading is enabled.
 
+### Known issues (logged, not yet fixed)
+- [ ] **Wash trade: pre-market pending sell collision** — when a sell order is placed pre-market (e.g. pending_fills retry at 8:00 UTC), it sits open in Alpaca for up to 5.5 hours until market open. If a new buy signal fires during that window, Alpaca rejects it as a wash trade. Root cause confirmed Mar 14 via SLV Mar 13 audit: overnight hold closed via pending_fills sell at 8:00 UTC, new buy signal fired before fill, rejected. Fix: before placing a new entry, cancel any open sell orders on the same symbol first.
+
 ### After mechanics verified (long + short)
 - [ ] Compare live results to backtest predictions (2-4 weeks of data needed)
 - [ ] Switch to validated params (OB 80/OS 15, hold 10, trail 10, skip Monday)

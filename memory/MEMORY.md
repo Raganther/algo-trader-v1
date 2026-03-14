@@ -3,11 +3,49 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-14** — chore: log Mar 13 trade audit + wash trade pre-market issue
+All 12 Mar 13 Alpaca orders verified against DB — complete match across GLD, IAU, SLV. SLV overnight hold (Mar 12 buy, Mar 13 close at market open) revealed root cause of recurring wash trade rejection: pending_fills can submit a sell pre-market which sits open for hours, colliding with new entry signals before filling. Logged as known issue in plan and CLAUDE.md. Also confirmed Alpaca timestamps are UTC not ET, and fractional short selling constraint added to constraints.
+
+ CLAUDE.md      | 8 +++++++-
+ memory/plan.md | 3 +++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+
+----
+**2026-03-12** — fix: disable short selling — Alpaca rejects fractional short orders
+Short entry attempts caused cascade failures: rejection left strategy
+flat, subsequent long entries timed out, false SERVER STOP FIRED events.
+Reverted sell() guard to block all sells from flat position. Short trading
+requires whole-share quantity support before re-enabling.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+ backend/engine/live_broker.py | 27 +++------------------------
+ 1 file changed, 3 insertions(+), 24 deletions(-)
+
+----
+**2026-03-11** — feat: enable short trading in live broker
+sell() now distinguishes three cases: closing a long (position > 0),
+opening a short from flat (position == 0 + stop_loss provided), and
+duplicate exit signal (position == 0, no stop_loss — blocked).
+buy() now handles short closes (position < 0) by cancelling pending
+buy stop before executing. update_stop_order() uses pending_stop_side
+('sell' for longs, 'buy' for shorts) so trailing stops ratchet correctly
+in both directions. Server stop logging in runner.py now records correct
+exit side based on strategy position direction.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+ backend/engine/live_broker.py | 110 ++++++++++++++++++++++++++++--------------
+ backend/runner.py             |  26 +++++-----
+ 2 files changed, 87 insertions(+), 49 deletions(-)
+
+----
 **2026-03-11** — docs: add short trading requirement to plan
 Discovered live bots are long-only due to sell() guard blocking short entries from flat — an unintended side effect of the duplicate exit fix. Sharpe 2.54 backtest includes both long and short P&L. Plan updated with three steps: add long_only param to strategy, fix the sell guard to distinguish exit vs short entry, and re-verify all mechanics for short trades before switching to real money.
 
- memory/plan.md | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ memory/MEMORY.md | 21 ++++++++++-----------
+ memory/plan.md   | 11 ++++++++++-
+ 2 files changed, 20 insertions(+), 12 deletions(-)
 
 ----
 **2026-03-11** — fix: split bot check into today/yesterday to eliminate log misreading
@@ -47,61 +85,4 @@ Reverted head -1 back to head -2 so the bot check covers today + yesterday, catc
  CLAUDE.md        |  2 +-
  memory/MEMORY.md | 25 ++++++++++---------------
  2 files changed, 11 insertions(+), 16 deletions(-)
-
-----
-**2026-03-10** — fix: add timezone/market hours to CLAUDE.md, add server time check command
-Recurring mistake: assuming current time from stale conversation context. Fix: always run date -u on server first when checking bots. Added explicit timezone rules to Constraints — Irish/UTC relationship, DST 2026 start date, pre/post-DST market hours in UTC.
-
- CLAUDE.md        | 13 +++++++++++++
- memory/MEMORY.md | 24 +++++++++---------------
- 2 files changed, 22 insertions(+), 15 deletions(-)
-
-----
-**2026-03-10** — chore: repository cleanup — remove dead files and legacy subsystems
-Deleted backend/agent/ (unused AI agent subsystem), scripts/curate_memory.py (its only dependent), logs/, reports/, research/, zipdata/ (stale output dirs), empty DBs, validation_run.log, docs/testing-standards.md (superseded by CLAUDE.md run commands), realistic-test.sh, test-and-sync.sh, run_full_history.sh, and run_gld.sh. All active functionality preserved.
-
- backend/agent/critic.py             |   404 -
- backend/agent/memory_system.py      |    77 -
- backend/agent/planner.py            |    72 -
- backend/agent/registrar.py          |    61 -
- backend/agent/researcher.py         |   118 -
- backend/agent/strategy_generator.py |   177 -
- backend/agent/toolbox.py            |    52 -
- docs/testing-standards.md           |   185 -
- logs/api_response.json              |     1 -
- logs/backend.log                    | 20565 ----------------------------------
- logs/debug_output.txt               |     9 -
- logs/debug_output_2.txt             |   535 -
- logs/debug_output_3.txt             |   176 -
- logs/debug_output_4.txt             |   165 -
- logs/debug_output_batch.txt         |    12 -
- logs/debug_output_batch_15m.txt     |   411 -
- logs/debug_output_papertrader.txt   |    15 -
- logs/debug_output_stoch.txt         |    16 -
- logs/debug_output_stress_test.txt   |    12 -
- logs/debug_results.txt              |   290 -
- logs/history.json                   |  1470 ---
- logs/runner_debug.log               |     3 -
- logs/test_output.txt                |     1 -
- memory/MEMORY.md                    |    50 +-
- reports/regime_chart_SPY_1d.html    |  3885 -------
- research/spy                        |   450 -
- run_full_history.sh                 |    11 -
- scripts/curate_memory.py            |    84 -
- scripts/realistic-test.sh           |    53 -
- scripts/run_gld.sh                  |     8 -
- scripts/test-and-sync.sh            |    70 -
- validation_run.log                  |    44 -
- 32 files changed, 39 insertions(+), 29443 deletions(-)
-
-----
-**2026-03-10** — docs: update strategy cards to reflect forward testing phase
-All 4 StochRSI strategy files updated — status headers corrected, stale Next Steps cleaned up, forward testing sections added with backtest predictions and Mar 09 trail ratchet observations for SLV and GDX. EventSurprise and composable results unchanged.
-
- .claude/memory/strategies/stochrsi_enhanced_gdx.md | 10 +++++++-
- .claude/memory/strategies/stochrsi_enhanced_gld.md | 30 ++++++++++++++++------
- .claude/memory/strategies/stochrsi_enhanced_iau.md |  8 +++++-
- .claude/memory/strategies/stochrsi_enhanced_slv.md | 10 +++++++-
- memory/MEMORY.md                                   | 21 ++++++++-------
- 5 files changed, 59 insertions(+), 20 deletions(-)
 
