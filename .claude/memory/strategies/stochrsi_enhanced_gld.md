@@ -209,6 +209,25 @@ Tested whether avoiding entries near high-impact events (FOMC/NFP/CPI) improves 
 | XBI | 1h | +9.0% ann | 0.90 | Sweep positive |
 | TLT | 1h | +8.5% ann | 0.85 | Sweep positive |
 
+## Long-Only Baseline (live constraint — Mar 14 2026)
+
+Live bots run long-only — Alpaca rejects fractional short orders. This is the actual performance baseline for what the bots can execute today.
+
+| Metric | Full Strategy | Long-Only |
+|--------|--------------|-----------|
+| Return (2020–2025) | +44.7% | +31.2% |
+| Max Drawdown | 0.69% | 0.93% |
+| Trades | ~710 | 467 |
+| Win Rate | 43% | 45% |
+| Sharpe (approx) | 2.54 | ~1.91 |
+
+**Return drop:** -30%. **Sharpe drop:** 2.54 → ~1.91. Short trades contribute meaningfully — GLD is one of the assets where shorts add real alpha. Long-only is still a good strategy but materially weaker.
+
+**Year-by-year (long-only):** 2020: +2.37% | 2021: +2.34% | 2022: +3.50% | 2023: +4.21% | 2024: +6.42% | 2025: +8.23%
+All years profitable. Consistent upward trend.
+
+**Implication:** Solving fractional short selling (whole-share sizing) is worth the effort for GLD. Live bots should not be considered equivalent to the validated 2.54 Sharpe strategy until shorts are enabled.
+
 ## Forward Testing Status (as of Mar 10 2026)
 
 Running with aggressive test params (OB 60/OS 40, 3-bar hold/trail) to generate more trades faster for mechanics verification. All 4 bots (GLD, IAU, SLV, GDX) running simultaneously.

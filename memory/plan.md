@@ -36,6 +36,17 @@ Now fixed — reconcile actually works. Deployed and confirmed on Mar 09 restart
 
 ### Short trading — must be enabled before real money
 
+**Long-only baseline established (Mar 14 2026):**
+
+| Asset | Full Sharpe | LO Sharpe~ | Full Return | LO Return | Verdict |
+|-------|------------|------------|-------------|-----------|---------|
+| GLD | 2.54 | ~1.91 | +44.7% | +31.2% | Shorts add alpha — fix needed |
+| IAU | ~2.0 | ~1.33 | +32.6% | +21.7% | Shorts add alpha — fix needed |
+| SLV | 2.54 | ~3.29 | +105.3% | +68.3% | Long-only actually better risk-adjusted |
+| GDX | 2.41 | ~1.54 | +114.1% | +65.8% | Shorts critical — biggest impact |
+
+SLV is viable long-only. GLD, IAU, GDX are meaningfully weaker without shorts.
+
 Discovered Mar 11: the live bots are long-only. The guard in `live_broker.sell()` (added to prevent duplicate exit signals) also blocks short entries from flat. The backtest has always run both long and short — the Sharpe 2.54 figure includes short trade P&L. Running long-only in live means we are trading half the strategy.
 
 - [ ] **Add `long_only` parameter to strategy** — defaults False (backtest unchanged). When True, skip short entry logic entirely. Run long-only backtest to establish true long-only Sharpe as live baseline.

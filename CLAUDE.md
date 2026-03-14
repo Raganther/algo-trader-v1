@@ -88,6 +88,8 @@ Next: run 2-4 more weeks, compare live results to backtest predictions, then swi
 
 **Not yet confirmed:** trailing stop FIRING in profit (same Alpaca server-side mechanism — needs trail ratcheted above entry before firing).
 
+**Long-only baseline established (Mar 14):** Bots currently run long-only. Full vs long-only Sharpe: GLD 2.54→~1.91, IAU ~2.0→~1.33, SLV 2.54→~3.29 (better!), GDX 2.41→~1.54. SLV viable long-only; GLD/IAU/GDX meaningfully weaker. See strategy cards for full breakdown.
+
 **Two exit mechanics (not three):** (1) bot K-signal exit at candle close, (2) Alpaca server-side stop auto-execution intrabar — covers both stop loss and trailing stop exits.
 
 **Backtest predictions for test params (Dec 2025 – Mar 2026):**

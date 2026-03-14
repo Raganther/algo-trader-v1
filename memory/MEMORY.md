@@ -3,12 +3,26 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-14** — feat: add long_only param + establish long-only performance baseline
+Added long_only=True parameter to StochRSIMeanReversionStrategy to gate short entry logic. Ran backtests across all 4 assets to establish the live baseline (bots are long-only due to Alpaca fractional short restriction). Key finding: SLV long-only is actually better risk-adjusted (Sharpe ~3.29 vs 2.54 full); GDX is most impacted (-42% return, Sharpe 2.41→~1.54). Results recorded in all 4 strategy cards and plan.md.
+
+ .claude/memory/strategies/stochrsi_enhanced_gdx.md | 19 +++++++++++++++++++
+ .claude/memory/strategies/stochrsi_enhanced_gld.md | 19 +++++++++++++++++++
+ .claude/memory/strategies/stochrsi_enhanced_iau.md | 17 +++++++++++++++++
+ .claude/memory/strategies/stochrsi_enhanced_slv.md | 19 +++++++++++++++++++
+ CLAUDE.md                                          |  2 ++
+ backend/strategies/stoch_rsi_mean_reversion.py     |  5 +++--
+ memory/plan.md                                     | 11 +++++++++++
+ 7 files changed, 90 insertions(+), 2 deletions(-)
+
+----
 **2026-03-14** — chore: log Mar 13 trade audit + wash trade pre-market issue
 All 12 Mar 13 Alpaca orders verified against DB — complete match across GLD, IAU, SLV. SLV overnight hold (Mar 12 buy, Mar 13 close at market open) revealed root cause of recurring wash trade rejection: pending_fills can submit a sell pre-market which sits open for hours, colliding with new entry signals before filling. Logged as known issue in plan and CLAUDE.md. Also confirmed Alpaca timestamps are UTC not ET, and fractional short selling constraint added to constraints.
 
- CLAUDE.md      | 8 +++++++-
- memory/plan.md | 3 +++
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ CLAUDE.md        |  8 ++++-
+ memory/MEMORY.md | 99 +++++++++++++++++++++++---------------------------------
+ memory/plan.md   |  3 ++
+ 3 files changed, 50 insertions(+), 60 deletions(-)
 
 ----
 **2026-03-12** — fix: disable short selling — Alpaca rejects fractional short orders
@@ -77,12 +91,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  backend/engine/live_broker.py |  5 +++++
  backend/runner.py             | 29 +++++++++++++++++++++++++----
  2 files changed, 30 insertions(+), 4 deletions(-)
-
-----
-**2026-03-10** — fix: restore head -2 in bot check command, add HEARTBEAT warning
-Reverted head -1 back to head -2 so the bot check covers today + yesterday, catching overnight holds. Root cause of earlier false 'no trades' report was adding HEARTBEAT to an ad-hoc grep, not head -2 itself. Added comment to CLAUDE.md explicitly warning never to include HEARTBEAT in the grep pattern.
-
- CLAUDE.md        |  2 +-
- memory/MEMORY.md | 25 ++++++++++---------------
- 2 files changed, 11 insertions(+), 16 deletions(-)
 

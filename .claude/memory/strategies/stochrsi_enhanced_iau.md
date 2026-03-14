@@ -75,6 +75,23 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
 | GDX 15m | 2.41 | +114.1% | 2.02% | 4/4 |
 | **IAU 15m** | **~2.0** | **+32.6%** | **0.72%** | **4/4** |
 
+## Long-Only Baseline (live constraint — Mar 14 2026)
+
+Live bots run long-only — Alpaca rejects fractional short orders.
+
+| Metric | Full Strategy | Long-Only |
+|--------|--------------|-----------|
+| Return (2020–2025) | +32.6% | +21.7% |
+| Max Drawdown | 0.72% | 0.76% |
+| Trades | 679 | 449 |
+| Win Rate | ~42% | 39% |
+| Sharpe (approx) | ~2.0 | ~1.33 |
+
+**Return drop:** -34%. **Sharpe drop:** ~2.0 → ~1.33. IAU is the most impacted asset — short trades add significant alpha here. Long-only IAU is the weakest of the four assets on a risk-adjusted basis.
+
+**Year-by-year (long-only):** 2020: +0.23% | 2021: +0.98% | 2022: +3.27% | 2023: +2.95% | 2024: +5.37% | 2025: +6.49%
+All years profitable but 2020–2021 are very slim. The short side is especially important for IAU's early-period performance.
+
 ## Forward Testing Status (as of Mar 10 2026)
 
 iau-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail).

@@ -59,6 +59,25 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GDX
 
 GDX passing 4/4 walk-forward windows confirms the precious metals thesis extends to leveraged gold exposure. The mean-reversion structure is robust enough to survive the added noise from mining company fundamentals.
 
+## Long-Only Baseline (live constraint — Mar 14 2026)
+
+Live bots run long-only — Alpaca rejects fractional short orders.
+
+| Metric | Full Strategy | Long-Only |
+|--------|--------------|-----------|
+| Return (2020–2025) | +114.1% | +65.8% |
+| Max Drawdown | 2.02% | 1.22% |
+| Trades | 539 | 349 |
+| Win Rate | ~47% | 47% |
+| Sharpe (approx) | 2.41 | ~1.54 |
+
+**Return drop:** -42%. **Sharpe drop:** 2.41 → ~1.54. GDX is the most impacted asset — the largest absolute return loss and largest Sharpe decline. Short trades on GDX were highly productive. GDX's leveraged nature (miners move 2-3× gold) means short trades capture larger moves in both directions.
+
+**Year-by-year (long-only):** 2020: +3.28% | 2021: +4.74% | 2022: +11.14% | 2023: +7.80% | 2024: +6.49% | 2025: +18.83%
+All years profitable but 2020–2021 are slim compared to the full strategy. 2025 is exceptionally strong even long-only.
+
+**Implication:** Short selling matters most for GDX. Solving fractional short selling is highest priority for GDX specifically.
+
 ## Forward Testing Status (as of Mar 10 2026)
 
 gdx-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail).

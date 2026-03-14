@@ -57,6 +57,25 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol SLV
 
 This result confirms the **precious metals thesis**: the StochRSI Enhanced edge is not GLD-specific. It is a structural property of precious metals mean-reverting at 15m within a longer-term trend.
 
+## Long-Only Baseline (live constraint — Mar 14 2026)
+
+Live bots run long-only — Alpaca rejects fractional short orders.
+
+| Metric | Full Strategy | Long-Only |
+|--------|--------------|-----------|
+| Return (2020–2025) | +105.3% | +68.3% |
+| Max Drawdown | 2.00% | 1.15% |
+| Trades | 544 | 336 |
+| Win Rate | ~47% | 47% |
+| Sharpe (approx) | 2.54 | ~3.29 |
+
+**Return drop:** -35%. **But Sharpe IMPROVES:** 2.54 → ~3.29. SLV is the outlier — the short trades were adding return but also adding disproportionate risk. Long-only SLV has a better risk-adjusted profile than the full strategy. This is notable: for SLV specifically, running long-only is not a degradation.
+
+**Year-by-year (long-only):** 2020: +5.32% | 2021: +8.43% | 2022: +7.78% | 2023: +7.77% | 2024: +12.74% | 2025: +11.44%
+Most consistent year-by-year profile of the four assets. All years strongly positive.
+
+**Implication:** SLV long-only is viable as-is. No urgency to fix short selling for SLV specifically.
+
 ## Forward Testing Status (as of Mar 10 2026)
 
 slv-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail).

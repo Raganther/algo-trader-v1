@@ -32,6 +32,7 @@ class StochRSIMeanReversionStrategy(Strategy):
         self.trail_after_bars = int(parameters.get('trail_after_bars', 0))  # Start trailing after N bars in profit
         self.trail_atr = float(parameters.get('trail_atr', self.sl_atr))  # Trailing ATR multiplier
         self.min_hold_bars = int(parameters.get('min_hold_bars', 0))  # Minimum bars before signal exit allowed
+        self.long_only = parameters.get('long_only', False)  # Skip short entries entirely
         self.event_blackout_hours = int(parameters.get('event_blackout_hours', 0))  # Skip entries within N hours of high-impact event (0=off)
         self.blackout_times = set()  # precomputed set of bar timestamps in blackout windows
 
@@ -253,9 +254,9 @@ class StochRSIMeanReversionStrategy(Strategy):
             if current_k > 50:
                 self.in_oversold_zone = False
 
-            # Short Setup (skip for crypto — Alpaca doesn't support crypto shorting)
+            # Short Setup (skip for crypto or long_only mode)
             is_crypto = '/' in self.symbol
-            if not is_crypto and prev_k >= self.overbought:  # Fixed: >= instead of > to include exact threshold
+            if not is_crypto and not self.long_only and prev_k >= self.overbought:  # Fixed: >= instead of > to include exact threshold
                 self.in_overbought_zone = True
 
             if self.in_overbought_zone and current_k < 50 and not skip_entry:
