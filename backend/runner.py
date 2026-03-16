@@ -877,9 +877,16 @@ def run_live_trading(args):
                         print("[DEBUG] Shutdown requested, skipping bar processing.")
                         break
 
-                    strategy.on_bar(last_row, last_index, latest_data)
+                    # Market hours gate: only place orders during regular session (13:30-20:00 UTC)
+                    bar_h = current_last_time.hour
+                    bar_m = current_last_time.minute
+                    is_market_hours = (bar_h == 13 and bar_m >= 30) or (14 <= bar_h < 20)
+                    if not is_market_hours:
+                        print(f"[DEBUG] Pre/post-market bar ({bar_h:02d}:{bar_m:02d} UTC) — skipping order logic")
+                    else:
+                        strategy.on_bar(last_row, last_index, latest_data)
 
-                    # Log Trades
+                    # Log Trades (always run — pending_fills may resolve outside market hours)
                     new_trades = broker.get_new_trades()
                     if new_trades:
                         print(f"Logging {len(new_trades)} new trades to DB...")
