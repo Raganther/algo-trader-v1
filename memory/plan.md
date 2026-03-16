@@ -59,7 +59,7 @@ Discovered Mar 11: the live bots are long-only. The guard in `live_broker.sell()
 - [x] **GDX zero trades** — resolved Mar 16. GDX started trading: 2 complete trades on first active day. Cause was simply no extreme oversold readings in GDX during prior test period — not a bug.
 
 ### Known issues (logged, not yet fixed)
-- [ ] **Wash trade: pre-market pending sell collision** — when a sell order is placed pre-market (e.g. pending_fills retry at 8:00 UTC), it sits open in Alpaca for up to 5.5 hours until market open. If a new buy signal fires during that window, Alpaca rejects it as a wash trade. Root cause confirmed Mar 14 via SLV Mar 13 audit: overnight hold closed via pending_fills sell at 8:00 UTC, new buy signal fired before fill, rejected. Fix: before placing a new entry, cancel any open sell orders on the same symbol first.
+- [x] **Wash trade: pre-market pending sell collision** — Fixed Mar 16. Added cancel_all_orders_for_symbol before every long entry in live_broker.buy(). Pending sell from pending_fills retries now cleared before any new entry. Same cancel pattern already used in short-close path.
 
 ### After mechanics verified (long + short)
 - [ ] Compare live results to backtest predictions (2-4 weeks of data needed)

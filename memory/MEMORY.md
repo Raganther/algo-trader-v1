@@ -3,12 +3,34 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-16** — fix: wash trade prevention — cancel open orders before long entry
+pending_fills retries can leave a hanging sell order on Alpaca pre-market. When a new buy signal fires, Alpaca rejects it as a wash trade. Fix: cancel_all_orders_for_symbol before every long entry in live_broker.buy() — same pattern already used in the short-close path. Root cause confirmed via SLV Mar 13 audit. All known long-side bugs now fixed. Remaining before real money: trailing stop firing in profit (passive wait), short entry guard fix, short mechanics verification.
+
+ CLAUDE.md      | 4 ++--
+ memory/plan.md | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+----
+**2026-03-16** — fix: cancel open orders before long entry to prevent wash trade rejection
+pending_fills can leave a hanging sell order from a previous exit sitting
+open on Alpaca pre-market. When a new buy signal fires, Alpaca rejects it
+as a wash trade. Fix: cancel_all_orders_for_symbol before placing any long
+entry — same pattern already used in the short-close path. Confirmed root
+cause: SLV Mar 13 audit showed exactly this sequence.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+ backend/engine/live_broker.py | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+----
 **2026-03-16** — fix: pre-market signal guard + Mar 16 trade audit
 Added market hours gate to runner.py — on_bar() now skipped outside 13:30-20:00 UTC after SLV placed a live order 45min before open on Mar 16. Full Alpaca order audit confirmed all records match pm2 logs. GDX zero-trade question resolved (2 trades on first active day — was no signal conditions, not a bug). 14 bugs found and fixed total; core infrastructure assessed as sound. Trailing stop FIRING in profit still unconfirmed; wash trade pre-market and short entry guard still open.
 
- CLAUDE.md      | 14 +++++++++-----
- memory/plan.md |  3 ++-
- 2 files changed, 11 insertions(+), 6 deletions(-)
+ CLAUDE.md        | 14 +++++++++-----
+ memory/MEMORY.md | 43 ++++++++++++++++++++++++-------------------
+ memory/plan.md   |  3 ++-
+ 3 files changed, 35 insertions(+), 25 deletions(-)
 
 ----
 **2026-03-16** — fix: gate on_bar to market hours (13:30-20:00 UTC)
@@ -65,33 +87,4 @@ All 12 Mar 13 Alpaca orders verified against DB — complete match across GLD, I
  memory/MEMORY.md | 99 +++++++++++++++++++++++---------------------------------
  memory/plan.md   |  3 ++
  3 files changed, 50 insertions(+), 60 deletions(-)
-
-----
-**2026-03-12** — fix: disable short selling — Alpaca rejects fractional short orders
-Short entry attempts caused cascade failures: rejection left strategy
-flat, subsequent long entries timed out, false SERVER STOP FIRED events.
-Reverted sell() guard to block all sells from flat position. Short trading
-requires whole-share quantity support before re-enabling.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- backend/engine/live_broker.py | 27 +++------------------------
- 1 file changed, 3 insertions(+), 24 deletions(-)
-
-----
-**2026-03-11** — feat: enable short trading in live broker
-sell() now distinguishes three cases: closing a long (position > 0),
-opening a short from flat (position == 0 + stop_loss provided), and
-duplicate exit signal (position == 0, no stop_loss — blocked).
-buy() now handles short closes (position < 0) by cancelling pending
-buy stop before executing. update_stop_order() uses pending_stop_side
-('sell' for longs, 'buy' for shorts) so trailing stops ratchet correctly
-in both directions. Server stop logging in runner.py now records correct
-exit side based on strategy position direction.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- backend/engine/live_broker.py | 110 ++++++++++++++++++++++++++++--------------
- backend/runner.py             |  26 +++++-----
- 2 files changed, 87 insertions(+), 49 deletions(-)
 

@@ -64,7 +64,7 @@ Aggressive test params (OB 60/OS 40, 3-bar hold/trail) to generate more trades f
 Mar 16: full Alpaca order audit — all records match perfectly. 6 complete trades across 4 bots, 2 server stops fired, trailing stops ratcheted.
 Pre-market signal bug found and fixed Mar 16 (market hours gate, runner.py).
 Infrastructure assessment: core is sound. 13 bugs found and fixed. Data integrity 100% from Mar 5 onwards.
-Remaining before real money: (1) confirm trailing stop firing in profit, (2) fix wash trade pre-market issue, (3) fix short entry guard + verify short mechanics end-to-end.
+Remaining before real money: (1) confirm trailing stop firing in profit, (2) fix short entry guard + verify short mechanics end-to-end.
 Estimated timeline: ~2 more weeks paper testing minimum.
 
 **Test bots:**
@@ -117,9 +117,9 @@ Estimated timeline: ~2 more weeks paper testing minimum.
 - Timed-out buy orders never logged — pending_fills only tracked sells. Fixed: buys now queued in pending_fills on timeout.
 - Reconcile lookback too short — 3-day window missed pre-market DAY orders filled at open. Fixed: extended to 7 days.
 - Pre-market buy signal — Alpaca returns extended-hours bars (from ~8AM ET). Bot was evaluating on_bar() on pre-market candles and placing live orders with no liquidity. SLV fired a buy at 12:48 UTC (45min before open) on Mar 16. Fixed: market hours gate in runner.py — on_bar() skipped outside 13:30–20:00 UTC. pending_fills still runs every bar.
+- Wash trade: pre-market pending sell collision — pending_fills retries a sell pre-market, it sits open on Alpaca; new buy signal rejected by Alpaca as wash trade. Fixed: cancel_all_orders_for_symbol before every long entry in live_broker.buy(). Same pattern already used in short-close path.
 
 **Known issues (not yet fixed):**
-- Wash trade: pre-market pending sell orders — pending_fills can submit a sell pre-market (e.g. 8:00 UTC), which sits open until market open (13:30 UTC). If a new buy signal fires before the sell fills, Alpaca rejects it as a wash trade. Fix: cancel any open sell orders before placing a new entry.
 - Fractional short selling not supported — Alpaca rejects short (sell-to-open) orders for fractional shares. Short trading disabled until whole-share quantity sizing is implemented.
 
 ## Validated Edges
