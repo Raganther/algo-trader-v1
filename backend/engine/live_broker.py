@@ -182,7 +182,12 @@ class LiveBroker:
             self.pending_stop_side = None
             print(f"LIVE BUY (close short): {size} shares of {self.symbol}")
         else:
-            # Opening a long position
+            # Opening a long position — cancel any open sell orders first to prevent wash trade rejection
+            # (pending_fills can leave a hanging sell order pre-market that blocks a new entry)
+            cancelled = self.trader.cancel_all_orders_for_symbol(self.symbol)
+            if cancelled > 0:
+                print(f"🛡️ Cancelled {cancelled} open order(s) for {self.symbol} before entry (wash trade prevention)")
+                time.sleep(0.5)
             print(f"LIVE BUY: {size} shares of {self.symbol}")
 
         try:
