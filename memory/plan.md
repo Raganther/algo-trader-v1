@@ -19,23 +19,16 @@ All known long-side bugs are fixed. Bots are running cleanly from Mar 16 onwards
 - [ ] **Fix live_broker sell() guard** — current guard blocks ALL sells from flat. Need to distinguish: (a) closing a long = allow, (b) opening a short from flat = allow when `long_only=False`, (c) duplicate exit = block. Fix: check strategy position state, not Alpaca position.
 - [ ] **Verify short mechanics in live** — short entry, buy stop loss (above entry), trailing stop ratchets DOWN, short exit. Full mechanics checklist same as longs.
 
+### Chart — trade overlays (Stage 2)
+- [ ] Fetch entries/exits from `live_trade_log`, plot markers on chart (entry, exit, stop level), toggle live vs backtest
+- [ ] Stage 3 (after): regime shading (ADX + SMA slope), win rate per regime
+
 ### Calibration comparison (ongoing)
 - [ ] **Repeat calibration check ~Apr 16** — run same backtest subtraction method with ~1 month of clean live data. Expect ~80-100 trades per symbol. That's when the comparison is meaningful.
 
 ### After mechanics verified (long + short)
-- [ ] Compare live results to backtest predictions
 - [ ] Switch to validated params (OB 80/OS 15, hold 10, trail 10, skip Monday)
 - [ ] Start real-money micro trading (€100-200, fractional shares)
-
----
-
-## Chart — Price Action Dashboard
-Stage 1 complete. Stage 2 next.
-
-- [x] Price data pipeline + candlestick chart at `/chart`
-- [x] Symbol selector + time range
-- [ ] **Stage 2:** Trade overlays — fetch entries/exits from `live_trade_log`, plot markers (entry, exit, stop level), toggle live vs backtest
-- [ ] **Stage 3:** Regime shading (ADX + SMA slope), win rate by regime
 
 ---
 

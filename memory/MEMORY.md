@@ -3,12 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-16** — chore: consolidate plan.md active steps
+Removed unnecessary chart section — trade overlays are just another active step, not a separate plan. Keeps plan.md flat and readable.
+
+ memory/plan.md | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
+
+----
 **2026-03-16** — chore: restructure plan.md + calibration baseline Mar 5-16
 Restructured plan.md: removed completed debugging history, added Observations section for working insights. First calibration snapshot: backtest vs live Mar 5-16 shows reasonable alignment (SLV exact, GLD close, IAU/GDX within 2-3 trades). Established calibration methodology using Jan 1 lead-in to eliminate warmup distortion. Fixed adx_threshold documentation — test bots use 50 not 20. Next calibration check due ~Apr 16.
 
- CLAUDE.md      |  12 ++---
- memory/plan.md | 149 +++++++++++++++++++++------------------------------------
- 2 files changed, 61 insertions(+), 100 deletions(-)
+ CLAUDE.md        |  12 ++---
+ memory/MEMORY.md |  24 ++++-----
+ memory/plan.md   | 149 ++++++++++++++++++++-----------------------------------
+ 3 files changed, 73 insertions(+), 112 deletions(-)
 
 ----
 **2026-03-16** — fix: wash trade prevention — cancel open orders before long entry
@@ -73,18 +81,4 @@ Two corrections from double-check: plan.md still showed long_only param step as 
  memory/MEMORY.md                                   | 40 ++++++++++------------
  memory/plan.md                                     |  2 +-
  6 files changed, 24 insertions(+), 26 deletions(-)
-
-----
-**2026-03-14** — feat: add long_only param + establish long-only performance baseline
-Added long_only=True parameter to StochRSIMeanReversionStrategy to gate short entry logic. Ran backtests across all 4 assets to establish the live baseline (bots are long-only due to Alpaca fractional short restriction). Key finding: SLV long-only is actually better risk-adjusted (Sharpe ~3.29 vs 2.54 full); GDX is most impacted (-42% return, Sharpe 2.41→~1.54). Results recorded in all 4 strategy cards and plan.md.
-
- .claude/memory/strategies/stochrsi_enhanced_gdx.md | 19 +++++++++++++++
- .claude/memory/strategies/stochrsi_enhanced_gld.md | 19 +++++++++++++++
- .claude/memory/strategies/stochrsi_enhanced_iau.md | 17 +++++++++++++
- .claude/memory/strategies/stochrsi_enhanced_slv.md | 19 +++++++++++++++
- CLAUDE.md                                          |  2 ++
- backend/strategies/stoch_rsi_mean_reversion.py     |  5 ++--
- memory/MEMORY.md                                   | 28 +++++++++++++---------
- memory/plan.md                                     | 11 +++++++++
- 8 files changed, 107 insertions(+), 13 deletions(-)
 
