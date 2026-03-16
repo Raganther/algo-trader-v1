@@ -60,9 +60,12 @@ Price action chart live at `/chart` — Stage 1 complete (candlestick chart, sym
 UI redesigned: Inter font, shared sidebar nav, max-width constraints, consistent page structure.
 Stage 2 next: trade overlays on chart.
 Aggressive test params (OB 60/OS 40, 3-bar hold/trail) to generate more trades for mechanics verification.
-Week 1 complete — all bots flat into weekend. DB reconciliation deployed Mar 9.
-Waiting to confirm: trailing stop FIRING in profit (only remaining unconfirmed long mechanic).
-Next: run 2-4 more weeks, compare live results to backtest predictions, then switch to validated params.
+~3 weeks of live testing complete (started late Feb). All bots active: GDX started trading Mar 16 after zero trades previously.
+Mar 16: full Alpaca order audit — all records match perfectly. 6 complete trades across 4 bots, 2 server stops fired, trailing stops ratcheted.
+Pre-market signal bug found and fixed Mar 16 (market hours gate, runner.py).
+Infrastructure assessment: core is sound. 13 bugs found and fixed. Data integrity 100% from Mar 5 onwards.
+Remaining before real money: (1) confirm trailing stop firing in profit, (2) fix wash trade pre-market issue, (3) fix short entry guard + verify short mechanics end-to-end.
+Estimated timeline: ~2 more weeks paper testing minimum.
 
 **Test bots:**
 
@@ -84,9 +87,9 @@ Next: run 2-4 more weeks, compare live results to backtest predictions, then swi
 | Skip days | Monday |
 | Trades/yr | ~107 per symbol |
 
-**Confirmed working:** bot-initiated exits, trailing stop updates (ratchets up), order cancellation before exit, position sync on restart, heartbeat logging, DAY TIF stops, DB reconciliation on startup, server-side stop FIRING (confirmed Mar 10 — SLV stop at $80.49 auto-filled at $80.43).
+**Confirmed working:** bot-initiated exits, trailing stop updates (ratchets up), order cancellation before exit, position sync on restart, heartbeat logging, DAY TIF stops, DB reconciliation on startup, server-side stop FIRING (confirmed Mar 10 — SLV stop at $80.49 auto-filled at $80.43). GDX started trading Mar 16 — resolves zero-trade open question.
 
-**Not yet confirmed:** trailing stop FIRING in profit (same Alpaca server-side mechanism — needs trail ratcheted above entry before firing).
+**Not yet confirmed:** trailing stop FIRING in profit (same Alpaca server-side mechanism — needs trail ratcheted above entry before firing). Mar 16: trailing stop ratcheted on both SLV and GDX but both closed via K-signal, not server stop.
 
 **Long-only baseline established (Mar 14):** Bots currently run long-only. Full vs long-only Sharpe: GLD 2.54→~1.91, IAU ~2.0→~1.33, SLV 2.54→~3.29 (better!), GDX 2.41→~1.54. SLV viable long-only; GLD/IAU/GDX meaningfully weaker. See strategy cards for full breakdown.
 
@@ -113,6 +116,7 @@ Next: run 2-4 more weeks, compare live results to backtest predictions, then swi
 - DB reconciliation gap — server stops and overnight fills not logged. Fixed: server stop logger, pending_fills retry, startup reconciliation.
 - Timed-out buy orders never logged — pending_fills only tracked sells. Fixed: buys now queued in pending_fills on timeout.
 - Reconcile lookback too short — 3-day window missed pre-market DAY orders filled at open. Fixed: extended to 7 days.
+- Pre-market buy signal — Alpaca returns extended-hours bars (from ~8AM ET). Bot was evaluating on_bar() on pre-market candles and placing live orders with no liquidity. SLV fired a buy at 12:48 UTC (45min before open) on Mar 16. Fixed: market hours gate in runner.py — on_bar() skipped outside 13:30–20:00 UTC. pending_fills still runs every bar.
 
 **Known issues (not yet fixed):**
 - Wash trade: pre-market pending sell orders — pending_fills can submit a sell pre-market (e.g. 8:00 UTC), which sits open until market open (13:30 UTC). If a new buy signal fires before the sell fills, Alpaca rejects it as a wash trade. Fix: cancel any open sell orders before placing a new entry.

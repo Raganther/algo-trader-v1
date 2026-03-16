@@ -3,12 +3,33 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-16** — fix: pre-market signal guard + Mar 16 trade audit
+Added market hours gate to runner.py — on_bar() now skipped outside 13:30-20:00 UTC after SLV placed a live order 45min before open on Mar 16. Full Alpaca order audit confirmed all records match pm2 logs. GDX zero-trade question resolved (2 trades on first active day — was no signal conditions, not a bug). 14 bugs found and fixed total; core infrastructure assessed as sound. Trailing stop FIRING in profit still unconfirmed; wash trade pre-market and short entry guard still open.
+
+ CLAUDE.md      | 14 +++++++++-----
+ memory/plan.md |  3 ++-
+ 2 files changed, 11 insertions(+), 6 deletions(-)
+
+----
+**2026-03-16** — fix: gate on_bar to market hours (13:30-20:00 UTC)
+Pre-market bars (e.g. 12:45 UTC) were triggering live buy signals because
+on_bar had no market hours guard. SLV placed a real order 45min before open
+today — it sat unfilled, caused a SERVER STOP false-positive on state reset.
+Fix: skip on_bar outside 13:30-20:00 UTC; pending_fills still runs every bar.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+ backend/runner.py | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+----
 **2026-03-14** — chore: full 2-week audit — update stale status across memory files
 Full audit of 40 commits Mar 1-14. No major circular bugs found. One 3-day blind spot: DB reconcile deployed Mar 6 but silently broken (case mismatch) until Mar 9. Two stale references found and fixed: CLAUDE.md still said 'waiting to confirm server-side stop firing' (confirmed Mar 10); auto-memory MEMORY.md Exit Mechanics section unchanged since Mar 4. GDX zero-trades added as open question in plan.md. Only remaining unconfirmed long mechanic: trailing stop FIRING in profit.
 
- CLAUDE.md      | 2 +-
- memory/plan.md | 3 +++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ CLAUDE.md        |  2 +-
+ memory/MEMORY.md | 30 +++++++++++++++---------------
+ memory/plan.md   |  3 +++
+ 3 files changed, 19 insertions(+), 16 deletions(-)
 
 ----
 **2026-03-14** — fix: mark long_only step complete in plan, update strategy card dates
@@ -73,20 +94,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  backend/engine/live_broker.py | 110 ++++++++++++++++++++++++++++--------------
  backend/runner.py             |  26 +++++-----
  2 files changed, 87 insertions(+), 49 deletions(-)
-
-----
-**2026-03-11** — docs: add short trading requirement to plan
-Discovered live bots are long-only due to sell() guard blocking short entries from flat — an unintended side effect of the duplicate exit fix. Sharpe 2.54 backtest includes both long and short P&L. Plan updated with three steps: add long_only param to strategy, fix the sell guard to distinguish exit vs short entry, and re-verify all mechanics for short trades before switching to real money.
-
- memory/MEMORY.md | 21 ++++++++++-----------
- memory/plan.md   | 11 ++++++++++-
- 2 files changed, 20 insertions(+), 12 deletions(-)
-
-----
-**2026-03-11** — fix: split bot check into today/yesterday to eliminate log misreading
-Concatenating two log files and grepping produced unlabelled output, making it impossible to tell which lines were today vs yesterday. Now checks each file separately with clear -- today -- / -- yesterday -- headers. Eliminates the recurring misread bug.
-
- CLAUDE.md        |  4 ++--
- memory/MEMORY.md | 24 +++++++++++-------------
- 2 files changed, 13 insertions(+), 15 deletions(-)
 

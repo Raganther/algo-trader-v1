@@ -20,6 +20,7 @@ The backtested edge is validated. What we're confirming now is that the bots exe
 - [x] Extend reconcile/lookback window 3 → 7 days
 - [x] Fix get_filled_orders always returning empty (status case mismatch: 'OrderStatus.FILLED' vs 'filled')
 - [x] Fix reconcile_trades never matching (side case mismatch: 'BUY' vs 'buy')
+- [x] Fix pre-market buy signal (Mar 16) — Alpaca returns extended-hours bars from ~8AM ET; bot was calling on_bar() on pre-market candles and placing live orders with no liquidity. SLV placed order at 12:48 UTC (45min before open). Fixed: market hours gate in runner.py, on_bar() skipped outside 13:30–20:00 UTC.
 
 **Note on last 2 fixes (Mar 09):** These meant reconcile_trades() was a complete no-op since deploy.
 It said "DB up to date" every restart because it was comparing 0 Alpaca orders against 0 DB matches.
@@ -55,7 +56,7 @@ Discovered Mar 11: the live bots are long-only. The guard in `live_broker.sell()
 - [ ] **Re-run mechanics verification for short trades** — same checklist as longs once short trading is enabled.
 
 ### Open questions
-- [ ] **GDX zero trades** — gdx-test bot has generated zero trades since launch. No activity in pm2 logs for the full test period. Either no signals have fired (possible — GDX is more volatile, fewer extreme OS readings) or there is a silent issue. Needs investigation next trading week.
+- [x] **GDX zero trades** — resolved Mar 16. GDX started trading: 2 complete trades on first active day. Cause was simply no extreme oversold readings in GDX during prior test period — not a bug.
 
 ### Known issues (logged, not yet fixed)
 - [ ] **Wash trade: pre-market pending sell collision** — when a sell order is placed pre-market (e.g. pending_fills retry at 8:00 UTC), it sits open in Alpaca for up to 5.5 hours until market open. If a new buy signal fires during that window, Alpaca rejects it as a wash trade. Root cause confirmed Mar 14 via SLV Mar 13 audit: overnight hold closed via pending_fills sell at 8:00 UTC, new buy signal fired before fill, rejected. Fix: before placing a new entry, cancel any open sell orders on the same symbol first.
