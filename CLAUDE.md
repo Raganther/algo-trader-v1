@@ -8,7 +8,7 @@ Phase: Forward testing — verifying live execution mechanics on 4 paper bots be
 ## Session Start
 Read in order on every cold start:
 1. `memory/MEMORY.md` — recent git saves
-2. `memory/plan.md` — current active plan
+2. `memory/plan.md` — active steps + Observations section (working insights from current testing phase)
 
 Read on demand only:
 - `docs/dev.md` — ideas backlog

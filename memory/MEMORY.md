@@ -3,11 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-16** — chore: note Observations section in session start
+Added one-line clarification to CLAUDE.md session start so future sessions know plan.md Observations holds active working insights, not just plan steps.
+
+ CLAUDE.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+----
 **2026-03-16** — chore: consolidate plan.md active steps
 Removed unnecessary chart section — trade overlays are just another active step, not a separate plan. Keeps plan.md flat and readable.
 
- memory/plan.md | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ memory/MEMORY.md | 28 +++++++++++-----------------
+ memory/plan.md   | 15 ++++-----------
+ 2 files changed, 15 insertions(+), 28 deletions(-)
 
 ----
 **2026-03-16** — chore: restructure plan.md + calibration baseline Mar 5-16
@@ -69,16 +77,4 @@ Full audit of 40 commits Mar 1-14. No major circular bugs found. One 3-day blind
  memory/MEMORY.md | 30 +++++++++++++++---------------
  memory/plan.md   |  3 +++
  3 files changed, 19 insertions(+), 16 deletions(-)
-
-----
-**2026-03-14** — fix: mark long_only step complete in plan, update strategy card dates
-Two corrections from double-check: plan.md still showed long_only param step as unchecked despite being done; all 4 strategy cards still showed last-updated as Mar 10. Both fixed.
-
- .claude/memory/strategies/stochrsi_enhanced_gdx.md |  2 +-
- .claude/memory/strategies/stochrsi_enhanced_gld.md |  2 +-
- .claude/memory/strategies/stochrsi_enhanced_iau.md |  2 +-
- .claude/memory/strategies/stochrsi_enhanced_slv.md |  2 +-
- memory/MEMORY.md                                   | 40 ++++++++++------------
- memory/plan.md                                     |  2 +-
- 6 files changed, 24 insertions(+), 26 deletions(-)
 
