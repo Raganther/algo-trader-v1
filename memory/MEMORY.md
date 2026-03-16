@@ -3,12 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-16** — chore: restructure plan.md + calibration baseline Mar 5-16
+Restructured plan.md: removed completed debugging history, added Observations section for working insights. First calibration snapshot: backtest vs live Mar 5-16 shows reasonable alignment (SLV exact, GLD close, IAU/GDX within 2-3 trades). Established calibration methodology using Jan 1 lead-in to eliminate warmup distortion. Fixed adx_threshold documentation — test bots use 50 not 20. Next calibration check due ~Apr 16.
+
+ CLAUDE.md      |  12 ++---
+ memory/plan.md | 149 +++++++++++++++++++++------------------------------------
+ 2 files changed, 61 insertions(+), 100 deletions(-)
+
+----
 **2026-03-16** — fix: wash trade prevention — cancel open orders before long entry
 pending_fills retries can leave a hanging sell order on Alpaca pre-market. When a new buy signal fires, Alpaca rejects it as a wash trade. Fix: cancel_all_orders_for_symbol before every long entry in live_broker.buy() — same pattern already used in the short-close path. Root cause confirmed via SLV Mar 13 audit. All known long-side bugs now fixed. Remaining before real money: trailing stop firing in profit (passive wait), short entry guard fix, short mechanics verification.
 
- CLAUDE.md      | 4 ++--
- memory/plan.md | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ CLAUDE.md        |  4 ++--
+ memory/MEMORY.md | 57 +++++++++++++++++++++++++-------------------------------
+ memory/plan.md   |  2 +-
+ 3 files changed, 28 insertions(+), 35 deletions(-)
 
 ----
 **2026-03-16** — fix: cancel open orders before long entry to prevent wash trade rejection
@@ -78,13 +87,4 @@ Added long_only=True parameter to StochRSIMeanReversionStrategy to gate short en
  memory/MEMORY.md                                   | 28 +++++++++++++---------
  memory/plan.md                                     | 11 +++++++++
  8 files changed, 107 insertions(+), 13 deletions(-)
-
-----
-**2026-03-14** — chore: log Mar 13 trade audit + wash trade pre-market issue
-All 12 Mar 13 Alpaca orders verified against DB — complete match across GLD, IAU, SLV. SLV overnight hold (Mar 12 buy, Mar 13 close at market open) revealed root cause of recurring wash trade rejection: pending_fills can submit a sell pre-market which sits open for hours, colliding with new entry signals before filling. Logged as known issue in plan and CLAUDE.md. Also confirmed Alpaca timestamps are UTC not ET, and fractional short selling constraint added to constraints.
-
- CLAUDE.md        |  8 ++++-
- memory/MEMORY.md | 99 +++++++++++++++++++++++---------------------------------
- memory/plan.md   |  3 ++
- 3 files changed, 50 insertions(+), 60 deletions(-)
 

@@ -69,12 +69,12 @@ Estimated timeline: ~2 more weeks paper testing minimum.
 
 **Test bots:**
 
-| Bot | Symbol | OB/OS | Hold | Trail | Trades/yr |
-|-----|--------|-------|------|-------|-----------|
-| gld-test | GLD | 60/40 | 3 bars | after 3 bars | ~237 |
-| iau-test | IAU | 60/40 | 3 bars | after 3 bars | ~237 |
-| slv-test | SLV | 60/40 | 3 bars | after 3 bars | ~237 |
-| gdx-test | GDX | 60/40 | 3 bars | after 3 bars | ~237 |
+| Bot | Symbol | OB/OS | ADX thresh | Hold | Trail | Trades/yr |
+|-----|--------|-------|------------|------|-------|-----------|
+| gld-test | GLD | 60/40 | 50 | 3 bars | after 3 bars | ~237 |
+| iau-test | IAU | 60/40 | 50 | 3 bars | after 3 bars | ~237 |
+| slv-test | SLV | 60/40 | 50 | 3 bars | after 3 bars | ~237 |
+| gdx-test | GDX | 60/40 | 50 | 3 bars | after 3 bars | ~237 |
 
 **Validated params (switch after mechanics verified):**
 

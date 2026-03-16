@@ -1,121 +1,82 @@
 # Active Plan — Forward Testing & Mechanics Verification
 Started: 2026-02-27
 
-## Goal
-Verify that the live execution infrastructure works correctly before committing real money.
-The backtested edge is validated. What we're confirming now is that the bots execute reliably in the wild.
+## What we're doing right now
+Running 4 paper bots with aggressive test params (OB 60/OS 40, ADX 50, 3-bar hold/trail) to:
+1. Verify live execution mechanics before real money
+2. Generate a calibration dataset to validate the backtest engine
 
-## Steps
-
-### Debugging (complete)
-- [x] Fix live fetch window (2 days → 7 days, was silently skipping all signals)
-- [x] Fix zombie trades on pm2 restart (graceful SIGTERM handler)
-- [x] Fix wash trade rejection (cancel ALL open orders before exit)
-- [x] Fix server-side stop orders rejected (GTC → DAY TIF for fractional shares)
-- [x] Fix fill timeout too short (5s → 30s)
-- [x] Fix trailing stop gap (fallback re-places at old price if update fails)
-- [x] Fix DB reconciliation gap (server stops + overnight fills now logged)
-- [x] Reliability hardening: heartbeat logging, order IDs, shutdown cleanup, pm2-logrotate
-- [x] Fix timed-out buy orders never logged (pending_fills was sells-only)
-- [x] Extend reconcile/lookback window 3 → 7 days
-- [x] Fix get_filled_orders always returning empty (status case mismatch: 'OrderStatus.FILLED' vs 'filled')
-- [x] Fix reconcile_trades never matching (side case mismatch: 'BUY' vs 'buy')
-- [x] Fix pre-market buy signal (Mar 16) — Alpaca returns extended-hours bars from ~8AM ET; bot was calling on_bar() on pre-market candles and placing live orders with no liquidity. SLV placed order at 12:48 UTC (45min before open). Fixed: market hours gate in runner.py, on_bar() skipped outside 13:30–20:00 UTC.
-
-**Note on last 2 fixes (Mar 09):** These meant reconcile_trades() was a complete no-op since deploy.
-It said "DB up to date" every restart because it was comparing 0 Alpaca orders against 0 DB matches.
-Now fixed — reconcile actually works. Deployed and confirmed on Mar 09 restart.
-
-### Mechanics verification (in progress)
-- [x] Bot-initiated exits (signal-based sell with stop cancellation)
-- [x] Trailing stop UPDATE confirmed (ratchets up on each bar — observed SLV Mar 09: 76.15 → 77.23)
-- [x] DAY TIF stop orders
-- [x] Position sync on restart
-- [x] DB reconciliation on startup (confirmed working after Mar 09 case fixes)
-- [x] **Server-side stop FIRING** — confirmed Mar 10. SLV stop at $80.49 auto-filled by Alpaca at $80.43 (18:00 UTC, 43min after last trail ratchet). New bug found and fixed: fill logging failed due to API propagation delay — now queries by specific order ID, falls back to pending_fills retry.
-- [ ] **Trailing stop FIRING (in profit)** — same Alpaca server-side mechanism as above, just needs trail to have ratcheted above entry before firing. Not yet observed. Two mechanics total: (1) bot K-signal exit, (2) Alpaca server-side stop — covers both stop loss and trailing stop.
-
-### Short trading — must be enabled before real money
-
-**Long-only baseline established (Mar 14 2026):**
-
-| Asset | Full Sharpe | LO Sharpe~ | Full Return | LO Return | Verdict |
-|-------|------------|------------|-------------|-----------|---------|
-| GLD | 2.54 | ~1.91 | +44.7% | +31.2% | Shorts add alpha — fix needed |
-| IAU | ~2.0 | ~1.33 | +32.6% | +21.7% | Shorts add alpha — fix needed |
-| SLV | 2.54 | ~3.29 | +105.3% | +68.3% | Long-only actually better risk-adjusted |
-| GDX | 2.41 | ~1.54 | +114.1% | +65.8% | Shorts critical — biggest impact |
-
-SLV is viable long-only. GLD, IAU, GDX are meaningfully weaker without shorts.
-
-Discovered Mar 11: the live bots are long-only. The guard in `live_broker.sell()` (added to prevent duplicate exit signals) also blocks short entries from flat. The backtest has always run both long and short — the Sharpe 2.54 figure includes short trade P&L. Running long-only in live means we are trading half the strategy.
-
-- [x] **Add `long_only` parameter to strategy** — done Mar 14. Defaults False (backtest unchanged). Long-only backtests run across all 4 assets, baseline established (see table above).
-- [ ] **Fix live_broker sell() guard** — current guard blocks ALL sells from flat. Need to distinguish: (a) closing a long = allow, (b) opening a short from flat = allow when `long_only=False`, (c) duplicate exit = block. Fix: check strategy position state, not just Alpaca position.
-- [ ] **Verify short mechanics in live** — short entry, buy stop loss (above entry), trailing stop ratchets DOWN, short exit buy order. All need the same verification the long mechanics went through.
-- [ ] **Re-run mechanics verification for short trades** — same checklist as longs once short trading is enabled.
-
-### Open questions
-- [x] **GDX zero trades** — resolved Mar 16. GDX started trading: 2 complete trades on first active day. Cause was simply no extreme oversold readings in GDX during prior test period — not a bug.
-
-### Known issues (logged, not yet fixed)
-- [x] **Wash trade: pre-market pending sell collision** — Fixed Mar 16. Added cancel_all_orders_for_symbol before every long entry in live_broker.buy(). Pending sell from pending_fills retries now cleared before any new entry. Same cancel pattern already used in short-close path.
-
-### After mechanics verified (long + short)
-- [ ] Compare live results to backtest predictions (2-4 weeks of data needed)
-- [ ] Switch to validated params (OB 80/OS 15, hold 10, trail 10, skip Monday)
-- [ ] Start real-money micro trading (€100-200, fractional shares)
-
-## Trade Completeness Audit (Mar 09)
-Run `python3 scripts/audit_trades.py --days 7` on server to verify DB vs Alpaca.
-
-Current state:
-- Mar 03: ~60-80% (early bugs active — gaps are historical, acceptable)
-- Mar 04: ~67-100% (improving)
-- Mar 05 onwards: **100% every day** — all fills captured automatically
-- Mar 09 (today): 100% across all 4 symbols, 10/10 fills matched
-
-The 9 historical gaps (Mar 03-04) are expected. Bugs were active then. Not worth filling — they don't affect live operation.
-
-## Key insight
-We are not going in circles. The progression is:
-- Week 1: infrastructure bugs (execution, orders, TIF)
-- Mar 09: data integrity bugs (reconcile was silently broken since deploy)
-- Mar 05+ live data: 100% clean — confirms fixes are working
-
-The remaining two unconfirmed mechanics require specific market conditions to occur. They cannot be forced. Let the bots run.
+All known long-side bugs are fixed. Bots are running cleanly from Mar 16 onwards.
 
 ---
 
-# Plan — Price Action Chart + Regime Analysis Dashboard
-Started: 2026-03-07
+## Active steps
 
-## Goal
-Build a chart view in the frontend showing historical 15m price action for each symbol, with trade overlays and regime shading — to visually validate backtest predictions against live results and understand which market conditions the strategy performs in.
+### Mechanics still to confirm
+- [ ] **Trailing stop FIRING in profit** — passive wait. Needs a trade where trail ratchets above entry before price reverses intrabar. Mar 16: trail ratcheted on SLV and GDX but both closed via K-signal.
 
-## Architecture decisions
-- **Data storage:** Local SQLite (`research.db`, new `price_data` table) — fetch from Alpaca once, sync on demand
-- **Charting library:** TradingView Lightweight Charts — purpose-built for OHLCV, free, performant
-- **Regime classification:** ADX + SMA slope combined — trending-up, trending-down, ranging (3 buckets)
+### Short trading — must be enabled before real money
+- [ ] **Fix live_broker sell() guard** — current guard blocks ALL sells from flat. Need to distinguish: (a) closing a long = allow, (b) opening a short from flat = allow when `long_only=False`, (c) duplicate exit = block. Fix: check strategy position state, not Alpaca position.
+- [ ] **Verify short mechanics in live** — short entry, buy stop loss (above entry), trailing stop ratchets DOWN, short exit. Full mechanics checklist same as longs.
 
-## Stages
+### Calibration comparison (ongoing)
+- [ ] **Repeat calibration check ~Apr 16** — run same backtest subtraction method with ~1 month of clean live data. Expect ~80-100 trades per symbol. That's when the comparison is meaningful.
 
-### Stage 1 — Historical data pipeline + candlestick chart
-- [x] Add `price_data` table to `research.db` (symbol, timestamp, open, high, low, close, volume)
-- [x] Script to fetch 15m OHLCV from Alpaca and populate table (`scripts/fetch_price_data.py`)
-- [x] Frontend page with TradingView Lightweight Charts rendering candlesticks (`/chart`)
-- [x] Symbol selector (GLD/IAU/SLV/GDX) + time range (1M–5Y) via URL params
+### After mechanics verified (long + short)
+- [ ] Compare live results to backtest predictions
+- [ ] Switch to validated params (OB 80/OS 15, hold 10, trail 10, skip Monday)
+- [ ] Start real-money micro trading (€100-200, fractional shares)
 
-### Stage 2 — Trade overlays (next)
-- [ ] Fetch entries/exits from `live_trade_log` and backtest `experiments`
-- [ ] Plot markers on chart (entry, exit, stop level)
-- [ ] Toggle: live trades vs backtest trades
+---
 
-### Stage 3 — Regime shading + performance breakdown
-- [ ] Compute ADX + SMA slope on stored price data, classify each bar
-- [ ] Shade chart background by regime (trending-up / trending-down / ranging)
-- [ ] Side panel: win rate and avg return per regime
+## Chart — Price Action Dashboard
+Stage 1 complete. Stage 2 next.
 
-## Notes
-- Idea originally logged as #21 in docs/dev.md
-- Hypothesis: losses cluster in trending regimes (mean-reversion strategy works against strong trends)
+- [x] Price data pipeline + candlestick chart at `/chart`
+- [x] Symbol selector + time range
+- [ ] **Stage 2:** Trade overlays — fetch entries/exits from `live_trade_log`, plot markers (entry, exit, stop level), toggle live vs backtest
+- [ ] **Stage 3:** Regime shading (ADX + SMA slope), win rate by regime
+
+---
+
+## Observations
+*Working insights from the current testing phase. Graduate to CLAUDE.md or strategy cards when confirmed.*
+
+### Calibration methodology (established Mar 16)
+The test params (OB 60/OS 40, ADX 50) are not a trading strategy — they're a calibration instrument. By running the same params in backtest and live simultaneously, we can check whether the backtest engine faithfully models reality.
+
+**How to run the comparison:**
+```bash
+# Full window + lead-in (for warmup)
+python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD \
+  --timeframe 15m --start 2026-01-01 --end 2026-04-16 --source alpaca \
+  --spread 0.0003 --delay 0 \
+  --parameters '{"rsi_period":7,"stoch_period":14,"overbought":60,"oversold":40,"adx_threshold":50,"skip_adx_filter":false,"sl_atr":2.0,"dynamic_adx":false,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":3,"min_hold_bars":3,"skip_days":[],"long_only":true}'
+
+# Pre-window baseline (subtract to isolate the live test window)
+# Same command with --end 2026-03-05
+```
+Run both, subtract trade counts, divide returns to isolate the window. Do this for all 4 symbols.
+
+**Why the lead-in matters:** backtest needs ~50 bars of warmup before indicators are valid. A short window without lead-in will show fewer trades than live (which was already running). Starting from Jan 1 ensures warmup completes silently before the comparison window opens.
+
+### First calibration snapshot — Mar 5–16 (11 trading days)
+Backtest (with Jan 1 lead-in, long_only=True) vs live DB:
+
+| Symbol | Backtest trades | Live trades | Backtest return |
+|--------|----------------|-------------|----------------|
+| GLD    | 8              | 10          | -0.27%          |
+| IAU    | 5              | 8           | -0.32%          |
+| SLV    | 10             | 10          | -0.36%          |
+| GDX    | 6              | 8           | -0.66%          |
+
+SLV exact. GLD close. IAU/GDX off by 2-3 trades — likely data resampling differences (backtest uses 1m→15m resample, live hits API directly) plus a couple of bug-affected trades in early window. Direction correct — both show losses in a downtrending metals market. Too early for firm conclusions; repeat at ~Apr 16.
+
+### adx_threshold: live bots use 50, not 20
+Validated params use adx_threshold:20. Test bots use adx_threshold:50. These are different — do not mix them. The bot scripts (`scripts/run_*_test.sh`) are the source of truth for live params.
+
+### Data integrity baseline
+- Mar 03–04: gaps (bugs active, acceptable)
+- Mar 05 onwards: 100% fill capture
+- Mar 16: full Alpaca order audit — all records matched pm2 logs perfectly
+- Clean calibration data effectively starts Mar 16 (all known bugs now fixed)
