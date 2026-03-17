@@ -3,11 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-17** — chore: add git-save guard hook + document memory restructure
+Added PreToolUse hook (git-save-guard.sh) that blocks git-save.sh if memory files are unchanged since last commit — ensures plan.md and observations.md are always updated before saving. Updated settings.json to register the hook. Documented the memory restructure rationale in observations.md.
+
+ .claude/hooks/git-save-guard.sh | 24 ++++++++++++++++++++++++
+ .claude/settings.json           | 11 +++++++++++
+ memory/observations.md          |  7 +++++++
+ 3 files changed, 42 insertions(+)
+
+----
 **2026-03-17** — chore: update session start hook — correct file paths
 Hook was referencing stale paths (.claude/claude.md, recent_history.md). Updated to show the actual read order: MEMORY.md, plan.md, observations.md.
 
- .claude/hooks/load-context.sh | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ .claude/hooks/load-context.sh |  7 ++++---
+ memory/MEMORY.md              | 19 +++++++++----------
+ 2 files changed, 13 insertions(+), 13 deletions(-)
 
 ----
 **2026-03-17** — chore: restructure memory — split plan.md into steps + observations
@@ -60,17 +70,4 @@ pending_fills retries can leave a hanging sell order on Alpaca pre-market. When 
  memory/MEMORY.md | 57 +++++++++++++++++++++++++-------------------------------
  memory/plan.md   |  2 +-
  3 files changed, 28 insertions(+), 35 deletions(-)
-
-----
-**2026-03-16** — fix: cancel open orders before long entry to prevent wash trade rejection
-pending_fills can leave a hanging sell order from a previous exit sitting
-open on Alpaca pre-market. When a new buy signal fires, Alpaca rejects it
-as a wash trade. Fix: cancel_all_orders_for_symbol before placing any long
-entry — same pattern already used in the short-close path. Confirmed root
-cause: SLV Mar 13 audit showed exactly this sequence.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- backend/engine/live_broker.py | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
 

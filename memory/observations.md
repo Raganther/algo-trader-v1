@@ -54,6 +54,13 @@ SLV exact. GLD close. IAU/GDX off by 2-3 trades — likely data resampling diffe
 
 ---
 
+## Memory system restructure (Mar 17)
+Split plan.md into two files — plan.md (active steps only) and observations.md (running insights). Steps have a different lifecycle to insights: steps complete and get cleared, insights accumulate and graduate to strategy cards. Keeping them in the same file caused observations to crowd out steps as the project grew.
+
+Added git-save guard hook (PreToolUse on Bash): blocks git-save.sh if plan.md and observations.md are unchanged since last commit. Ensures memory files are always updated before a save.
+
+---
+
 ## adx_threshold: live bots use 50, not 20
 Validated params use adx_threshold:20. Test bots use adx_threshold:50. These are different — do not mix them. The bot scripts (`scripts/run_*_test.sh`) are the source of truth for live params.
 
