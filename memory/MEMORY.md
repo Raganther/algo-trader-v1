@@ -3,11 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-17** — chore: document layered calibration comparison framework
+Added layered calibration framework to plan.md observations — trade count confirms signal generation, entry/exit prices confirm spread assumption, stop fill prices confirm intrabar stop modeling, aggregate P&L confirms overall accuracy. Added caveats: paper vs real fills, snapshot nature, needs 80-100 trades. Calibration confirms the simulator is faithful; paper-to-real transfer is a separate question answered by micro-trading.
+
+ memory/plan.md | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+----
 **2026-03-16** — chore: note Observations section in session start
 Added one-line clarification to CLAUDE.md session start so future sessions know plan.md Observations holds active working insights, not just plan steps.
 
- CLAUDE.md | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ CLAUDE.md        |  2 +-
+ memory/MEMORY.md | 24 ++++++++++--------------
+ 2 files changed, 11 insertions(+), 15 deletions(-)
 
 ----
 **2026-03-16** — chore: consolidate plan.md active steps
@@ -68,13 +76,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
  backend/runner.py | 11 +++++++++--
  1 file changed, 9 insertions(+), 2 deletions(-)
-
-----
-**2026-03-14** — chore: full 2-week audit — update stale status across memory files
-Full audit of 40 commits Mar 1-14. No major circular bugs found. One 3-day blind spot: DB reconcile deployed Mar 6 but silently broken (case mismatch) until Mar 9. Two stale references found and fixed: CLAUDE.md still said 'waiting to confirm server-side stop firing' (confirmed Mar 10); auto-memory MEMORY.md Exit Mechanics section unchanged since Mar 4. GDX zero-trades added as open question in plan.md. Only remaining unconfirmed long mechanic: trailing stop FIRING in profit.
-
- CLAUDE.md        |  2 +-
- memory/MEMORY.md | 30 +++++++++++++++---------------
- memory/plan.md   |  3 +++
- 3 files changed, 19 insertions(+), 16 deletions(-)
 

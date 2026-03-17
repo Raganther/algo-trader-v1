@@ -53,6 +53,23 @@ Run both, subtract trade counts, divide returns to isolate the window. Do this f
 
 **Why the lead-in matters:** backtest needs ~50 bars of warmup before indicators are valid. A short window without lead-in will show fewer trades than live (which was already running). Starting from Jan 1 ensures warmup completes silently before the comparison window opens.
 
+**Layered comparison framework (Mar 17):**
+Trade count alone isn't enough — each level of comparison confirms something different:
+
+| What you compare | What it confirms |
+|---|---|
+| Trade count | Signal generation is faithful — indicators, bar timing, entry/exit logic match |
+| Entry/exit prices (trade by trade) | Whether the 0.03% spread assumption reflects reality |
+| Stop fill prices vs backtest | How accurately backtest models intrabar server-side stop execution |
+| Aggregate P&L | Overall model accuracy |
+
+**Caveats:**
+- Paper fills ≠ real-money fills — Alpaca paper simulates at market price; thin/fast markets may differ in live trading
+- Calibration is a snapshot — valid for the market conditions during the test window only
+- Need ~80-100 trades for P&L comparison to be statistically meaningful (10 trades = one outlier dominates)
+
+**What the calibration ultimately answers:** "Is my backtest testing the same strategy my bot is running?" That confirms the simulator is faithful. Whether paper results transfer to real money is the next layer — answered by micro-trading.
+
 ### First calibration snapshot — Mar 5–16 (11 trading days)
 Backtest (with Jan 1 lead-in, long_only=True) vs live DB:
 
