@@ -72,3 +72,4 @@ Validated params use adx_threshold:20. Test bots use adx_threshold:50. These are
 - Mar 16: full Alpaca order audit — all records matched pm2 logs perfectly
 - Clean calibration data effectively starts Mar 16 (all known bugs now fixed)
 - Mar 17: 4 trades across all 4 bots. Full Alpaca audit — all records matched pm2 logs perfectly. GLD/IAU: buy → K-signal exit (small losses). SLV: buy → trail ratcheted → K-signal exit (near breakeven). GDX: buy → SERVER STOP FIRED @ $93.640351 (19:06 UTC) — stop loss exit, caught post-check. Another server-side stop firing confirmation. Trailing stop firing in profit still unconfirmed — trails ratcheted on SLV/GDX but neither fired above entry.
+- Mar 17 EOD: tightened trail params on all 4 bots (trail_atr 2.0→0.5, trail_after_bars 3→1) to maximise chance of seeing trailing stop fire in profit. Paper money — calibration impact acceptable.

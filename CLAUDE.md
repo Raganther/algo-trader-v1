@@ -64,7 +64,7 @@ Aggressive test params (OB 60/OS 40, 3-bar hold/trail) to generate more trades f
 ~3 weeks of live testing complete (started late Feb). All bots active: GDX started trading Mar 16 after zero trades previously.
 Mar 16: full Alpaca order audit — all records match perfectly. 6 complete trades across 4 bots, 2 server stops fired, trailing stops ratcheted.
 Pre-market signal bug found and fixed Mar 16 (market hours gate, runner.py).
-Mar 17: 4 trades across all bots. Full Alpaca audit — all records matched. GDX server stop fired intrabar (19:06 UTC) — confirmed again. Trailing stop firing in profit still unconfirmed.
+Mar 17: 4 trades across all bots. Full Alpaca audit — all records matched. GDX server stop fired intrabar (19:06 UTC) — confirmed again. Trailing stop firing in profit still unconfirmed. Trail params tightened (trail_atr 2.0→0.5, trail_after_bars 3→1) to provoke trail fire.
 Infrastructure assessment: core is sound. 13 bugs found and fixed. Data integrity 100% from Mar 5 onwards.
 Remaining before real money: (1) confirm trailing stop firing in profit, (2) fix short entry guard + verify short mechanics end-to-end.
 Estimated timeline: ~2 more weeks paper testing minimum.
@@ -73,10 +73,10 @@ Estimated timeline: ~2 more weeks paper testing minimum.
 
 | Bot | Symbol | OB/OS | ADX thresh | Hold | Trail | Trades/yr |
 |-----|--------|-------|------------|------|-------|-----------|
-| gld-test | GLD | 60/40 | 50 | 3 bars | after 3 bars | ~237 |
-| iau-test | IAU | 60/40 | 50 | 3 bars | after 3 bars | ~237 |
-| slv-test | SLV | 60/40 | 50 | 3 bars | after 3 bars | ~237 |
-| gdx-test | GDX | 60/40 | 50 | 3 bars | after 3 bars | ~237 |
+| gld-test | GLD | 60/40 | 50 | 3 bars | after 1 bar (0.5 ATR) | ~237 |
+| iau-test | IAU | 60/40 | 50 | 3 bars | after 1 bar (0.5 ATR) | ~237 |
+| slv-test | SLV | 60/40 | 50 | 3 bars | after 1 bar (0.5 ATR) | ~237 |
+| gdx-test | GDX | 60/40 | 50 | 3 bars | after 1 bar (0.5 ATR) | ~237 |
 
 **Validated params (switch after mechanics verified):**
 

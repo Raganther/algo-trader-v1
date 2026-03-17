@@ -3,12 +3,25 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-17** — feat: tighten trail params to provoke trailing stop fire in profit
+Reduced trail_atr from 2.0 to 0.5 and trail_after_bars from 3 to 1 on all 4 bots. Goal: see trailing stop fire intrabar in profit — the last unconfirmed mechanic. Paper money so calibration impact is acceptable. Deployed and restarted.
+
+ CLAUDE.md               | 10 +++++-----
+ memory/observations.md  |  1 +
+ scripts/run_gdx_test.sh |  2 +-
+ scripts/run_gld_test.sh |  2 +-
+ scripts/run_iau_test.sh |  2 +-
+ scripts/run_slv_test.sh |  2 +-
+ 6 files changed, 10 insertions(+), 9 deletions(-)
+
+----
 **2026-03-17** — chore: Mar 17 end-of-day audit — all 4 bots, all records matched
 Full Alpaca vs pm2 audit for Mar 17. GDX server stop fired intrabar at 19:06 UTC (stop loss exit) — caught post-check. SLV trail ratcheted but closed via K-signal. Trailing stop firing in profit still unconfirmed. 4/4 clean record match.
 
- CLAUDE.md              | 2 +-
- memory/observations.md | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ CLAUDE.md              |  2 +-
+ memory/MEMORY.md       | 24 ++++++++++++------------
+ memory/observations.md |  2 +-
+ 3 files changed, 14 insertions(+), 14 deletions(-)
 
 ----
 **2026-03-17** — chore: Mar 17 bot check — all 4 flat, no trades
@@ -62,12 +75,4 @@ Added one-line clarification to CLAUDE.md session start so future sessions know 
  CLAUDE.md        |  2 +-
  memory/MEMORY.md | 24 ++++++++++--------------
  2 files changed, 11 insertions(+), 15 deletions(-)
-
-----
-**2026-03-16** — chore: consolidate plan.md active steps
-Removed unnecessary chart section — trade overlays are just another active step, not a separate plan. Keeps plan.md flat and readable.
-
- memory/MEMORY.md | 28 +++++++++++-----------------
- memory/plan.md   | 15 ++++-----------
- 2 files changed, 15 insertions(+), 28 deletions(-)
 
