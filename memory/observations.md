@@ -71,3 +71,4 @@ Validated params use adx_threshold:20. Test bots use adx_threshold:50. These are
 - Mar 05 onwards: 100% fill capture
 - Mar 16: full Alpaca order audit — all records matched pm2 logs perfectly
 - Clean calibration data effectively starts Mar 16 (all known bugs now fixed)
+- Mar 17: bot check clean — all 4 flat, no trades today. Yesterday (Mar 16) had active trades on all 4 bots: server stops fired on GLD/IAU (loss exits), trail ratcheted on SLV/GDX (both closed via K-signal). SLV fill timeout in yesterday's logs confirmed as pre-fix artifact (occurred before 20:28 UTC deploy).

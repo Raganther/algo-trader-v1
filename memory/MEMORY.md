@@ -3,13 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-17** — chore: Mar 17 bot check — all 4 flat, no trades
+Routine session check. All bots healthy, market open, no trades today. Yesterday's SLV fill timeout confirmed as pre-fix artifact. No code changes this session.
+
+ CLAUDE.md              | 1 +
+ memory/observations.md | 1 +
+ 2 files changed, 2 insertions(+)
+
+----
 **2026-03-17** — chore: add git-save guard hook + document memory restructure
 Added PreToolUse hook (git-save-guard.sh) that blocks git-save.sh if memory files are unchanged since last commit — ensures plan.md and observations.md are always updated before saving. Updated settings.json to register the hook. Documented the memory restructure rationale in observations.md.
 
  .claude/hooks/git-save-guard.sh | 24 ++++++++++++++++++++++++
  .claude/settings.json           | 11 +++++++++++
+ memory/MEMORY.md                | 27 ++++++++++++---------------
  memory/observations.md          |  7 +++++++
- 3 files changed, 42 insertions(+)
+ 4 files changed, 54 insertions(+), 15 deletions(-)
 
 ----
 **2026-03-17** — chore: update session start hook — correct file paths
@@ -61,13 +70,4 @@ Restructured plan.md: removed completed debugging history, added Observations se
  memory/MEMORY.md |  24 ++++-----
  memory/plan.md   | 149 ++++++++++++++++++++-----------------------------------
  3 files changed, 73 insertions(+), 112 deletions(-)
-
-----
-**2026-03-16** — fix: wash trade prevention — cancel open orders before long entry
-pending_fills retries can leave a hanging sell order on Alpaca pre-market. When a new buy signal fires, Alpaca rejects it as a wash trade. Fix: cancel_all_orders_for_symbol before every long entry in live_broker.buy() — same pattern already used in the short-close path. Root cause confirmed via SLV Mar 13 audit. All known long-side bugs now fixed. Remaining before real money: trailing stop firing in profit (passive wait), short entry guard fix, short mechanics verification.
-
- CLAUDE.md        |  4 ++--
- memory/MEMORY.md | 57 +++++++++++++++++++++++++-------------------------------
- memory/plan.md   |  2 +-
- 3 files changed, 28 insertions(+), 35 deletions(-)
 
