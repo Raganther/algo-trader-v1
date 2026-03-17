@@ -18,9 +18,10 @@ echo "  Uncommitted changes: $CHANGES files"
 echo ""
 
 # Remind about key files
-echo "📂 Key context files:"
-echo "  → .claude/claude.md (session primer - READ FIRST)"
-echo "  → .claude/memory/recent_history.md (last 20 commits)"
+echo "📂 Key context files (read in this order):"
+echo "  → memory/MEMORY.md (recent git saves)"
+echo "  → memory/plan.md (active steps)"
+echo "  → memory/observations.md (running insights)"
 echo ""
 
 # Check if we can reach cloud (quick timeout)

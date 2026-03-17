@@ -3,13 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-17** — chore: update session start hook — correct file paths
+Hook was referencing stale paths (.claude/claude.md, recent_history.md). Updated to show the actual read order: MEMORY.md, plan.md, observations.md.
+
+ .claude/hooks/load-context.sh | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+----
 **2026-03-17** — chore: restructure memory — split plan.md into steps + observations
 Created memory/observations.md as a dedicated home for running insights, calibration methodology, and open questions. plan.md now holds active steps only and stays short. Removed resolved bugs list from CLAUDE.md (13 items, all in git history). Updated global CLAUDE.md to document the six-file system and new git save workflow.
 
  CLAUDE.md              | 18 ++------------
+ memory/MEMORY.md       | 26 +++++++++-----------
  memory/observations.md | 66 ++++++++++++++++++++++++++++++++++++++++++++++++++
  memory/plan.md         | 59 +-------------------------------------------
- 3 files changed, 69 insertions(+), 74 deletions(-)
+ 4 files changed, 81 insertions(+), 88 deletions(-)
 
 ----
 **2026-03-17** — chore: document layered calibration comparison framework
@@ -65,13 +73,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
  backend/engine/live_broker.py | 7 ++++++-
  1 file changed, 6 insertions(+), 1 deletion(-)
-
-----
-**2026-03-16** — fix: pre-market signal guard + Mar 16 trade audit
-Added market hours gate to runner.py — on_bar() now skipped outside 13:30-20:00 UTC after SLV placed a live order 45min before open on Mar 16. Full Alpaca order audit confirmed all records match pm2 logs. GDX zero-trade question resolved (2 trades on first active day — was no signal conditions, not a bug). 14 bugs found and fixed total; core infrastructure assessed as sound. Trailing stop FIRING in profit still unconfirmed; wash trade pre-market and short entry guard still open.
-
- CLAUDE.md        | 14 +++++++++-----
- memory/MEMORY.md | 43 ++++++++++++++++++++++++-------------------
- memory/plan.md   |  3 ++-
- 3 files changed, 35 insertions(+), 25 deletions(-)
 
