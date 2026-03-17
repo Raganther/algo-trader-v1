@@ -3,11 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-17** — chore: restructure memory — split plan.md into steps + observations
+Created memory/observations.md as a dedicated home for running insights, calibration methodology, and open questions. plan.md now holds active steps only and stays short. Removed resolved bugs list from CLAUDE.md (13 items, all in git history). Updated global CLAUDE.md to document the six-file system and new git save workflow.
+
+ CLAUDE.md              | 18 ++------------
+ memory/observations.md | 66 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ memory/plan.md         | 59 +-------------------------------------------
+ 3 files changed, 69 insertions(+), 74 deletions(-)
+
+----
 **2026-03-17** — chore: document layered calibration comparison framework
 Added layered calibration framework to plan.md observations — trade count confirms signal generation, entry/exit prices confirm spread assumption, stop fill prices confirm intrabar stop modeling, aggregate P&L confirms overall accuracy. Added caveats: paper vs real fills, snapshot nature, needs 80-100 trades. Calibration confirms the simulator is faithful; paper-to-real transfer is a separate question answered by micro-trading.
 
- memory/plan.md | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ memory/MEMORY.md | 21 ++++++++++-----------
+ memory/plan.md   | 17 +++++++++++++++++
+ 2 files changed, 27 insertions(+), 11 deletions(-)
 
 ----
 **2026-03-16** — chore: note Observations section in session start
@@ -64,16 +74,4 @@ Added market hours gate to runner.py — on_bar() now skipped outside 13:30-20:0
  memory/MEMORY.md | 43 ++++++++++++++++++++++++-------------------
  memory/plan.md   |  3 ++-
  3 files changed, 35 insertions(+), 25 deletions(-)
-
-----
-**2026-03-16** — fix: gate on_bar to market hours (13:30-20:00 UTC)
-Pre-market bars (e.g. 12:45 UTC) were triggering live buy signals because
-on_bar had no market hours guard. SLV placed a real order 45min before open
-today — it sat unfilled, caused a SERVER STOP false-positive on state reset.
-Fix: skip on_bar outside 13:30-20:00 UTC; pending_fills still runs every bar.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- backend/runner.py | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
 

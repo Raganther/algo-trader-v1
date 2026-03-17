@@ -8,7 +8,8 @@ Phase: Forward testing — verifying live execution mechanics on 4 paper bots be
 ## Session Start
 Read in order on every cold start:
 1. `memory/MEMORY.md` — recent git saves
-2. `memory/plan.md` — active steps + Observations section (working insights from current testing phase)
+2. `memory/plan.md` — active steps
+3. `memory/observations.md` — running insights from current testing phase
 
 Read on demand only:
 - `docs/dev.md` — ideas backlog
@@ -103,21 +104,6 @@ Estimated timeline: ~2 more weeks paper testing minimum.
 | SLV | +14.25% | 1.15% | 44 | 57% |
 | GDX | +2.45% | 0.94% | 69 | 59% |
 | IAU | -0.50% | 0.99% | 54 | 37% |
-
-**Bugs found & fixed:**
-- Live fetch window 2 days → ~33 bars after weekends → silent skip. Fixed: 7-day window.
-- Duplicate GLD bot conflict. Fixed: removed gld-15m-enhanced.
-- OOM freezes under load. Fixed: 1GB swap added to server.
-- Zombie trades on pm2 restart. Fixed: graceful SIGTERM handler.
-- Wash trade rejection when server stop fires + bot also tries to sell. Fixed: cancel ALL open orders before exit.
-- Server-side stop orders rejected (GTC not allowed for fractional shares). Fixed: DAY TIF, re-placed after market open.
-- Fill timeout too short (5s). Fixed: 30s (15×2s).
-- Trailing stop gap — position unprotected if update fails. Fixed: fallback re-places at old price.
-- DB reconciliation gap — server stops and overnight fills not logged. Fixed: server stop logger, pending_fills retry, startup reconciliation.
-- Timed-out buy orders never logged — pending_fills only tracked sells. Fixed: buys now queued in pending_fills on timeout.
-- Reconcile lookback too short — 3-day window missed pre-market DAY orders filled at open. Fixed: extended to 7 days.
-- Pre-market buy signal — Alpaca returns extended-hours bars (from ~8AM ET). Bot was evaluating on_bar() on pre-market candles and placing live orders with no liquidity. SLV fired a buy at 12:48 UTC (45min before open) on Mar 16. Fixed: market hours gate in runner.py — on_bar() skipped outside 13:30–20:00 UTC. pending_fills still runs every bar.
-- Wash trade: pre-market pending sell collision — pending_fills retries a sell pre-market, it sits open on Alpaca; new buy signal rejected by Alpaca as wash trade. Fixed: cancel_all_orders_for_symbol before every long entry in live_broker.buy(). Same pattern already used in short-close path.
 
 **Known issues (not yet fixed):**
 - Fractional short selling not supported — Alpaca rejects short (sell-to-open) orders for fractional shares. Short trading disabled until whole-share quantity sizing is implemented.
