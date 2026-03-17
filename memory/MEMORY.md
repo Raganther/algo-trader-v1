@@ -3,12 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-17** — chore: Mar 17 end-of-day audit — all 4 bots, all records matched
+Full Alpaca vs pm2 audit for Mar 17. GDX server stop fired intrabar at 19:06 UTC (stop loss exit) — caught post-check. SLV trail ratcheted but closed via K-signal. Trailing stop firing in profit still unconfirmed. 4/4 clean record match.
+
+ CLAUDE.md              | 2 +-
+ memory/observations.md | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+----
 **2026-03-17** — chore: Mar 17 bot check — all 4 flat, no trades
 Routine session check. All bots healthy, market open, no trades today. Yesterday's SLV fill timeout confirmed as pre-fix artifact. No code changes this session.
 
- CLAUDE.md              | 1 +
- memory/observations.md | 1 +
- 2 files changed, 2 insertions(+)
+ CLAUDE.md              |  1 +
+ memory/MEMORY.md       | 20 ++++++++++----------
+ memory/observations.md |  1 +
+ 3 files changed, 12 insertions(+), 10 deletions(-)
 
 ----
 **2026-03-17** — chore: add git-save guard hook + document memory restructure
@@ -61,13 +70,4 @@ Removed unnecessary chart section — trade overlays are just another active ste
  memory/MEMORY.md | 28 +++++++++++-----------------
  memory/plan.md   | 15 ++++-----------
  2 files changed, 15 insertions(+), 28 deletions(-)
-
-----
-**2026-03-16** — chore: restructure plan.md + calibration baseline Mar 5-16
-Restructured plan.md: removed completed debugging history, added Observations section for working insights. First calibration snapshot: backtest vs live Mar 5-16 shows reasonable alignment (SLV exact, GLD close, IAU/GDX within 2-3 trades). Established calibration methodology using Jan 1 lead-in to eliminate warmup distortion. Fixed adx_threshold documentation — test bots use 50 not 20. Next calibration check due ~Apr 16.
-
- CLAUDE.md        |  12 ++---
- memory/MEMORY.md |  24 ++++-----
- memory/plan.md   | 149 ++++++++++++++++++++-----------------------------------
- 3 files changed, 73 insertions(+), 112 deletions(-)
 
