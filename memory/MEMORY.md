@@ -3,16 +3,26 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-18** — chore: Mar 18 bot check + trailing stop diagnostic
+All 4 bots traded Mar 18, all flat EOD. SLV server stop fired (another stop loss confirmation). Ran per-trade exit-type diagnostic: with old trail params (2.0 ATR), backtest predicts zero profitable trail fires in Jan-Mar 2026 — matches live exactly, no bug. With tightened params (0.5 ATR, since Mar 17), predicts ~5 per symbol. The trailing stop Sharpe improvement is earned in bull markets; this metals selloff window never gives the trail enough room to ratchet above entry with 2.0 ATR distance. Also caught dynamic_adx gotcha: defaults True and overrides adx_threshold silently.
+
+ CLAUDE.md              |  2 ++
+ memory/observations.md | 14 ++++++++++++++
+ memory/plan.md         |  2 +-
+ 3 files changed, 17 insertions(+), 1 deletion(-)
+
+----
 **2026-03-17** — feat: tighten trail params to provoke trailing stop fire in profit
 Reduced trail_atr from 2.0 to 0.5 and trail_after_bars from 3 to 1 on all 4 bots. Goal: see trailing stop fire intrabar in profit — the last unconfirmed mechanic. Paper money so calibration impact is acceptable. Deployed and restarted.
 
  CLAUDE.md               | 10 +++++-----
+ memory/MEMORY.md        | 27 ++++++++++++++++-----------
  memory/observations.md  |  1 +
  scripts/run_gdx_test.sh |  2 +-
  scripts/run_gld_test.sh |  2 +-
  scripts/run_iau_test.sh |  2 +-
  scripts/run_slv_test.sh |  2 +-
- 6 files changed, 10 insertions(+), 9 deletions(-)
+ 7 files changed, 26 insertions(+), 20 deletions(-)
 
 ----
 **2026-03-17** — chore: Mar 17 end-of-day audit — all 4 bots, all records matched
@@ -67,12 +77,4 @@ Added layered calibration framework to plan.md observations — trade count conf
  memory/MEMORY.md | 21 ++++++++++-----------
  memory/plan.md   | 17 +++++++++++++++++
  2 files changed, 27 insertions(+), 11 deletions(-)
-
-----
-**2026-03-16** — chore: note Observations section in session start
-Added one-line clarification to CLAUDE.md session start so future sessions know plan.md Observations holds active working insights, not just plan steps.
-
- CLAUDE.md        |  2 +-
- memory/MEMORY.md | 24 ++++++++++--------------
- 2 files changed, 11 insertions(+), 15 deletions(-)
 

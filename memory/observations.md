@@ -61,6 +61,19 @@ Added git-save guard hook (PreToolUse on Bash): blocks git-save.sh if plan.md an
 
 ---
 
+## Trailing stop diagnostic — Mar 18
+Ran per-trade exit-type breakdown using PaperTrader directly (not via CLI — required calling `broker.update_price()` per bar and passing `dynamic_adx: False` in params).
+
+**Finding: with OLD trail params (trail_atr=2.0, trail_after_bars=3), backtest predicts ZERO profitable trailing stop fires in Jan-Mar 2026.** All exits in profit go via K-signal. Stop fires all below entry (stop losses). This matches live exactly — no bug.
+
+With TIGHTENED params (trail_atr=0.5, trail_after_bars=1), backtest predicts ~5 profitable trail fires per symbol for the same window. These are possible because the tighter trail needs only a small rally (~0.5 ATR above entry) before it ratchets above entry, then fires on any intrabar reversal.
+
+The Sharpe improvement from trailing stops was earned over a full 5-year backtest that includes gold bull phases. In the Feb-Mar 2026 metals selloff, every oversold entry is a dead-cat bounce — trail never gets above entry with the old params. With 0.5 ATR trail, even a 1-2 bar bounce is enough. Just need the right trade.
+
+**Gotcha — `dynamic_adx` defaults to True:** If running backtest without explicitly setting `"dynamic_adx": false`, the strategy ignores `adx_threshold` and uses a tighter dynamic threshold (20-30), blocking most entries. Always include `"dynamic_adx": false` in any backtest params that set a specific `adx_threshold`. The CLI calibration command in observations.md already has this correct.
+
+---
+
 ## adx_threshold: live bots use 50, not 20
 Validated params use adx_threshold:20. Test bots use adx_threshold:50. These are different — do not mix them. The bot scripts (`scripts/run_*_test.sh`) are the source of truth for live params.
 
@@ -73,3 +86,4 @@ Validated params use adx_threshold:20. Test bots use adx_threshold:50. These are
 - Clean calibration data effectively starts Mar 16 (all known bugs now fixed)
 - Mar 17: 4 trades across all 4 bots. Full Alpaca audit — all records matched pm2 logs perfectly. GLD/IAU: buy → K-signal exit (small losses). SLV: buy → trail ratcheted → K-signal exit (near breakeven). GDX: buy → SERVER STOP FIRED @ $93.640351 (19:06 UTC) — stop loss exit, caught post-check. Another server-side stop firing confirmation. Trailing stop firing in profit still unconfirmed — trails ratcheted on SLV/GDX but neither fired above entry.
 - Mar 17 EOD: tightened trail params on all 4 bots (trail_atr 2.0→0.5, trail_after_bars 3→1) to maximise chance of seeing trailing stop fire in profit. Paper money — calibration impact acceptable.
+- Mar 18: 4 trades across all 4 bots, all flat by EOD (20:23 UTC). GLD/GDX/IAU: K-signal exits (small losses). SLV: server stop fired (stop loss, another confirmation). IAU trail ratcheted ($91.00→$91.21) but still below entry ($91.74) — K-signal exit before trail could fire in profit. All bots clean, no errors.
