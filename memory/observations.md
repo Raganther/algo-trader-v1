@@ -74,6 +74,15 @@ The Sharpe improvement from trailing stops was earned over a full 5-year backtes
 
 ---
 
+## Trailing stop update race condition — fixed Mar 19
+`update_stop_order` cancels the old stop then immediately places the new one. `cancel_order_by_id` is a blocking HTTP call but Alpaca processes the cancel async server-side — so the shares can still appear "held_for_orders" when the new stop is placed, causing error 40310000 ("insufficient qty available").
+
+**Fix:** 1s `time.sleep()` between cancel and place in `live_broker.update_stop_order`. Location: `backend/engine/live_broker.py` ~line 312.
+
+**History:** The fallback (re-place at old price on failure) was added proactively on Mar 4 — it was anticipated but the root cause was never fixed. The race condition always existed but was only reliably triggered by the tightened trail params (trail_after_bars 1 vs 3), which fire the update call much sooner after the initial stop placement. IAU on Mar 17 updated successfully (trail_after_bars 3, more time had elapsed) — GDX on Mar 19 failed (trail_after_bars 1, update fired very early). The fallback kept the position protected throughout; only the ratchet was lost.
+
+---
+
 ## adx_threshold: live bots use 50, not 20
 Validated params use adx_threshold:20. Test bots use adx_threshold:50. These are different — do not mix them. The bot scripts (`scripts/run_*_test.sh`) are the source of truth for live params.
 
@@ -87,3 +96,4 @@ Validated params use adx_threshold:20. Test bots use adx_threshold:50. These are
 - Mar 17: 4 trades across all 4 bots. Full Alpaca audit — all records matched pm2 logs perfectly. GLD/IAU: buy → K-signal exit (small losses). SLV: buy → trail ratcheted → K-signal exit (near breakeven). GDX: buy → SERVER STOP FIRED @ $93.640351 (19:06 UTC) — stop loss exit, caught post-check. Another server-side stop firing confirmation. Trailing stop firing in profit still unconfirmed — trails ratcheted on SLV/GDX but neither fired above entry.
 - Mar 17 EOD: tightened trail params on all 4 bots (trail_atr 2.0→0.5, trail_after_bars 3→1) to maximise chance of seeing trailing stop fire in profit. Paper money — calibration impact acceptable.
 - Mar 18: 4 trades across all 4 bots, all flat by EOD (20:23 UTC). GLD/GDX/IAU: K-signal exits (small losses). SLV: server stop fired (stop loss, another confirmation). IAU trail ratcheted ($91.00→$91.21) but still below entry ($91.74) — K-signal exit before trail could fire in profit. All bots clean, no errors.
+- Mar 19: 4 trades, all 4 bots flat by ~18:46 UTC. GLD/IAU/SLV: K-signal exits (all losses — metals continuing lower, GLD dropped from $448 to $426). SLV near breakeven (+$0.05/share). GDX: trail update fired but failed (race condition — see below), K-signal exit at small profit ($82.28 vs $81.80 entry). Full Alpaca audit: all 12 orders matched pm2 logs. IAU had two data-fetch empty warnings but trading was unaffected.

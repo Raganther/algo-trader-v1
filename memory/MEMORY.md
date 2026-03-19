@@ -3,13 +3,34 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-19** — fix: trailing stop update race condition + Mar 19 audit
+GDX trail update failed today: cancel_order_by_id returns immediately but Alpaca processes the cancel async, so the new stop placement raced against the cancel and hit 40310000 (insufficient qty). Fixed with 1s sleep in update_stop_order after cancel, before placing new stop. Bug existed since Mar 4 (fallback was added then but root cause left unfixed) and was exposed by trail_after_bars=1 firing the update very early after entry. All 4 bots Mar 19: 4 trades, full Alpaca audit clean, all 12 orders matched.
+
+ CLAUDE.md              |  1 +
+ memory/observations.md | 10 ++++++++++
+ 2 files changed, 11 insertions(+)
+
+----
+**2026-03-19** — fix: add 1s sleep after cancel in update_stop_order to fix trail update race condition
+Alpaca processes cancel_order asynchronously. Without a pause, the new stop
+placement races against the cancel — Alpaca still sees shares held_for_orders
+and rejects with code 40310000. 1s sleep gives the cancel time to propagate.
+Observed in GDX today: trail update to $79.75 failed, fallback re-placed at $79.48.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+ backend/engine/live_broker.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+----
 **2026-03-18** — chore: Mar 18 bot check + trailing stop diagnostic
 All 4 bots traded Mar 18, all flat EOD. SLV server stop fired (another stop loss confirmation). Ran per-trade exit-type diagnostic: with old trail params (2.0 ATR), backtest predicts zero profitable trail fires in Jan-Mar 2026 — matches live exactly, no bug. With tightened params (0.5 ATR, since Mar 17), predicts ~5 per symbol. The trailing stop Sharpe improvement is earned in bull markets; this metals selloff window never gives the trail enough room to ratchet above entry with 2.0 ATR distance. Also caught dynamic_adx gotcha: defaults True and overrides adx_threshold silently.
 
  CLAUDE.md              |  2 ++
+ memory/MEMORY.md       | 20 +++++++++++---------
  memory/observations.md | 14 ++++++++++++++
  memory/plan.md         |  2 +-
- 3 files changed, 17 insertions(+), 1 deletion(-)
+ 4 files changed, 28 insertions(+), 10 deletions(-)
 
 ----
 **2026-03-17** — feat: tighten trail params to provoke trailing stop fire in profit
@@ -59,22 +80,4 @@ Hook was referencing stale paths (.claude/claude.md, recent_history.md). Updated
  .claude/hooks/load-context.sh |  7 ++++---
  memory/MEMORY.md              | 19 +++++++++----------
  2 files changed, 13 insertions(+), 13 deletions(-)
-
-----
-**2026-03-17** — chore: restructure memory — split plan.md into steps + observations
-Created memory/observations.md as a dedicated home for running insights, calibration methodology, and open questions. plan.md now holds active steps only and stays short. Removed resolved bugs list from CLAUDE.md (13 items, all in git history). Updated global CLAUDE.md to document the six-file system and new git save workflow.
-
- CLAUDE.md              | 18 ++------------
- memory/MEMORY.md       | 26 +++++++++-----------
- memory/observations.md | 66 ++++++++++++++++++++++++++++++++++++++++++++++++++
- memory/plan.md         | 59 +-------------------------------------------
- 4 files changed, 81 insertions(+), 88 deletions(-)
-
-----
-**2026-03-17** — chore: document layered calibration comparison framework
-Added layered calibration framework to plan.md observations — trade count confirms signal generation, entry/exit prices confirm spread assumption, stop fill prices confirm intrabar stop modeling, aggregate P&L confirms overall accuracy. Added caveats: paper vs real fills, snapshot nature, needs 80-100 trades. Calibration confirms the simulator is faithful; paper-to-real transfer is a separate question answered by micro-trading.
-
- memory/MEMORY.md | 21 ++++++++++-----------
- memory/plan.md   | 17 +++++++++++++++++
- 2 files changed, 27 insertions(+), 11 deletions(-)
 
