@@ -3,12 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-19** — chore: set Apr 19 as calibration target date
+Formalised the 1-month forward test plan: keep aggressive params (OB 60/OS 40, trail 0.5 ATR after 1 bar) running until Apr 19, then run backtest with identical params over the same window. Aggressive params are intentional — they generate ~2x more trades than validated params, giving a more statistically meaningful calibration dataset. Clean window is Mar 16 (all bugs fixed) to Apr 19. Also corrected the calibration command in observations.md to use current trail params (0.5 ATR, 1 bar) instead of old ones.
+
+ CLAUDE.md              |  4 ++--
+ memory/observations.md | 14 ++++++++------
+ memory/plan.md         |  4 ++--
+ 3 files changed, 12 insertions(+), 10 deletions(-)
+
+----
 **2026-03-19** — fix: trailing stop update race condition + Mar 19 audit
 GDX trail update failed today: cancel_order_by_id returns immediately but Alpaca processes the cancel async, so the new stop placement raced against the cancel and hit 40310000 (insufficient qty). Fixed with 1s sleep in update_stop_order after cancel, before placing new stop. Bug existed since Mar 4 (fallback was added then but root cause left unfixed) and was exposed by trail_after_bars=1 firing the update very early after entry. All 4 bots Mar 19: 4 trades, full Alpaca audit clean, all 12 orders matched.
 
  CLAUDE.md              |  1 +
+ memory/MEMORY.md       | 41 ++++++++++++++++++++++-------------------
  memory/observations.md | 10 ++++++++++
- 2 files changed, 11 insertions(+)
+ 3 files changed, 33 insertions(+), 19 deletions(-)
 
 ----
 **2026-03-19** — fix: add 1s sleep after cancel in update_stop_order to fix trail update race condition
@@ -72,12 +82,4 @@ Added PreToolUse hook (git-save-guard.sh) that blocks git-save.sh if memory file
  memory/MEMORY.md                | 27 ++++++++++++---------------
  memory/observations.md          |  7 +++++++
  4 files changed, 54 insertions(+), 15 deletions(-)
-
-----
-**2026-03-17** — chore: update session start hook — correct file paths
-Hook was referencing stale paths (.claude/claude.md, recent_history.md). Updated to show the actual read order: MEMORY.md, plan.md, observations.md.
-
- .claude/hooks/load-context.sh |  7 ++++---
- memory/MEMORY.md              | 19 +++++++++----------
- 2 files changed, 13 insertions(+), 13 deletions(-)
 

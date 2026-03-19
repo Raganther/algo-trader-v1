@@ -23,8 +23,8 @@ All known long-side bugs are fixed. Bots are running cleanly from Mar 16 onwards
 - [ ] Fetch entries/exits from `live_trade_log`, plot markers on chart (entry, exit, stop level), toggle live vs backtest
 - [ ] Stage 3 (after): regime shading (ADX + SMA slope), win rate per regime
 
-### Calibration comparison (ongoing)
-- [ ] **Repeat calibration check ~Apr 16** — run same backtest subtraction method with ~1 month of clean live data. Expect ~80-100 trades per symbol. That's when the comparison is meaningful.
+### Calibration comparison — target Apr 19
+- [ ] **Run calibration on Apr 19** — keep current aggressive params (OB 60/OS 40, trail 0.5 ATR after 1 bar) running until Apr 19. Then run backtest with identical params over the same window and compare trade counts, entry/exit prices, and aggregate P&L. Clean data window: Mar 16 (all bugs fixed) – Apr 19. Expect ~80-100 trades per symbol across the full window. Aggressive params are intentionally kept for this — they generate ~2x more trades than validated params, making the calibration comparison more statistically meaningful.
 
 ### After mechanics verified (long + short)
 - [ ] Switch to validated params (OB 80/OS 15, hold 10, trail 10, skip Monday)

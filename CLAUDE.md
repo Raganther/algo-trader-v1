@@ -68,8 +68,8 @@ Mar 17: 4 trades across all bots. Full Alpaca audit — all records matched. GDX
 Mar 18: 4 trades across all 4 bots, all flat EOD. SLV server stop fired (stop loss). IAU trail ratcheted but exited via K-signal. Per-trade diagnostic run: with OLD params (2.0 ATR), backtest predicts ZERO profitable trail fires in Jan-Mar 2026 — matches live exactly, no bug. With new params (0.5 ATR), backtest predicts ~5 per symbol. 2 days on new params so far — still waiting.
 Mar 19: 4 trades, all flat ~18:46 UTC. Full Alpaca audit — all 12 orders matched. GDX trail update failed (race condition in update_stop_order — cancel async, new stop placed before shares freed). Fixed with 1s sleep after cancel. Bug existed since Mar 4 fallback was added, exposed by tighter trail_after_bars=1. Deployed fix.
 Infrastructure assessment: core is sound. 13 bugs found and fixed. Data integrity 100% from Mar 5 onwards.
-Remaining before real money: (1) confirm trailing stop firing in profit, (2) fix short entry guard + verify short mechanics end-to-end.
-Estimated timeline: ~2 more weeks paper testing minimum.
+**Calibration target: Apr 19.** Running current aggressive params until then, then backtest same window with identical params to validate the backtest engine. Aggressive params kept deliberately — they generate ~2x more trades than validated params, making the calibration comparison statistically meaningful. Clean data window: Mar 16 – Apr 19.
+Remaining before real money: (1) confirm trailing stop firing in profit, (2) fix short entry guard + verify short mechanics end-to-end, (3) calibration comparison on Apr 19.
 
 **Test bots:**
 

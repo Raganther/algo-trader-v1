@@ -6,18 +6,20 @@
 ## Calibration methodology (established Mar 16)
 The test params (OB 60/OS 40, ADX 50) are not a trading strategy — they're a calibration instrument. By running the same params in backtest and live simultaneously, we can check whether the backtest engine faithfully models reality.
 
-**How to run the comparison:**
+**Target date: Apr 19, 2026.** Keep aggressive params running until then. Clean window: Mar 16 – Apr 19.
+
+**How to run the comparison (run on Apr 19):**
 ```bash
 # Full window + lead-in (for warmup)
 python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD \
-  --timeframe 15m --start 2026-01-01 --end 2026-04-16 --source alpaca \
+  --timeframe 15m --start 2026-01-01 --end 2026-04-19 --source alpaca \
   --spread 0.0003 --delay 0 \
-  --parameters '{"rsi_period":7,"stoch_period":14,"overbought":60,"oversold":40,"adx_threshold":50,"skip_adx_filter":false,"sl_atr":2.0,"dynamic_adx":false,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":3,"min_hold_bars":3,"skip_days":[],"long_only":true}'
+  --parameters '{"rsi_period":7,"stoch_period":14,"overbought":60,"oversold":40,"adx_threshold":50,"skip_adx_filter":false,"sl_atr":2.0,"dynamic_adx":false,"trailing_stop":true,"trail_atr":0.5,"trail_after_bars":1,"min_hold_bars":3,"skip_days":[],"long_only":true}'
 
-# Pre-window baseline (subtract to isolate the live test window)
-# Same command with --end 2026-03-05
+# Pre-window baseline (subtract to isolate Mar 16 – Apr 19)
+# Same command with --end 2026-03-16
 ```
-Run both, subtract trade counts, divide returns to isolate the window. Do this for all 4 symbols.
+Run both for all 4 symbols, subtract pre-window baseline to isolate the clean live window. Compare trade counts first, then entry/exit prices, then aggregate P&L.
 
 **Why the lead-in matters:** backtest needs ~50 bars of warmup before indicators are valid. A short window without lead-in will show fewer trades than live (which was already running). Starting from Jan 1 ensures warmup completes silently before the comparison window opens.
 
