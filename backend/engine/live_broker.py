@@ -1,4 +1,5 @@
 
+import time
 from backend.engine.alpaca_trader import AlpacaTrader
 
 class LiveBroker:
@@ -306,8 +307,10 @@ class LiveBroker:
         if not self.pending_stop_order_id:
             return
         old_stop_price = self._last_stop_price
-        # Cancel old, place new
+        # Cancel old, place new — sleep briefly to let Alpaca process the cancel
+        # before placing the replacement (avoids "insufficient qty" race condition)
         self.trader.cancel_order(self.pending_stop_order_id)
+        time.sleep(1)
         stop_side = self.pending_stop_side or 'sell'  # 'sell' for longs, 'buy' for shorts
         try:
             stop_res = self.trader.place_stop_order(
