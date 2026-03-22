@@ -3,6 +3,11 @@
 
 ---
 
+## Memory system upgrade (2026-03-22)
+Added PostToolUse hook (openbrain-audit-reminder.sh) — fires after every git save and prompts OpenBrain audit. This project now has all three hooks: SessionStart, PreToolUse guard, PostToolUse audit reminder. Future git saves will include an OpenBrain audit step for cross-project knowledge candidates.
+
+---
+
 ## Calibration methodology (established Mar 16)
 The test params (OB 60/OS 40, ADX 50) are not a trading strategy — they're a calibration instrument. By running the same params in backtest and live simultaneously, we can check whether the backtest engine faithfully models reality.
 

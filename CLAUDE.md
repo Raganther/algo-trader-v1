@@ -54,6 +54,7 @@ python3 scripts/fetch_price_data.py --symbols GLD,IAU,SLV,GDX --start 2020-01-01
 - **Frontend:** `frontend/` — Next.js dashboard, DB-driven
 - **Reference:** `.claude/memory/system_manual.md` — full CLI and architecture docs
 - **Strategy notes:** `.claude/memory/strategies/` — per-strategy research and params
+- **Hooks:** SessionStart (load-context.sh), PreToolUse guard (git-save-guard.sh), PostToolUse OpenBrain audit (openbrain-audit-reminder.sh)
 
 ## Current Status
 Phase: Forward testing + charting. 4 paper bots running on cloud (gld-test, iau-test, slv-test, gdx-test).
