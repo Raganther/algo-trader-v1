@@ -6,6 +6,8 @@
 ## Memory system upgrade (2026-03-22)
 Added PostToolUse hook (openbrain-audit-reminder.sh) — fires after every git save and prompts OpenBrain audit. This project now has all three hooks: SessionStart, PreToolUse guard, PostToolUse audit reminder. Future git saves will include an OpenBrain audit step for cross-project knowledge candidates.
 
+OpenBrain is live. First batch of candidates identified (2026-03-22) — pending write after this git save. 10 candidates across 3 categories: broker-alpaca (5 API gotchas), trading-system (4 methodology patterns), strategy-research (1 validated edge). Global CLAUDE.md description confirmed sufficient to guide candidate selection — no project-level guide file needed.
+
 ---
 
 ## Calibration methodology (established Mar 16)

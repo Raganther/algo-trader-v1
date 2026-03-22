@@ -3,13 +3,33 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-22** — chore: set up OpenBrain workflow and identify first candidates
+Confirmed OpenBrain hooks are live (all three: SessionStart, PreToolUse guard, PostToolUse audit reminder). Identified 10 candidates for first OpenBrain write: 5 Alpaca API gotchas, 4 trading system methodology patterns, 1 validated edge. Removed redundant openbrain_guide.md — global CLAUDE.md description is sufficient to guide candidate selection.
+
+ memory/observations.md | 2 ++
+ 1 file changed, 2 insertions(+)
+
+----
+**2026-03-22** — chore: add OpenBrain audit hook to memory system
+Added openbrain-audit-reminder.sh PostToolUse hook — fires after every git save and prompts OpenBrain audit for cross-project knowledge candidates. Project now has all three standard hooks. Future git saves will include an OpenBrain audit step.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+ .claude/hooks/openbrain-audit-reminder.sh | 19 +++++++++++++++++++
+ .claude/settings.json                     | 11 +++++++++++
+ CLAUDE.md                                 |  1 +
+ memory/observations.md                    |  5 +++++
+ 4 files changed, 36 insertions(+)
+
+----
 **2026-03-21** — chore: update calibration window to Mar 20 – Apr 20
 Adjusted calibration window start from Mar 16 to Mar 20 — first fully confirmed clean day with current params (trail_atr=0.5, trail_after_bars=1) and all fixes deployed (race condition fix Mar 19, 18/18 audit passed Mar 20). End date moved from Apr 19 to Apr 20 to maintain exactly 1 month window. Updated CLAUDE.md, plan.md, and observations.md.
 
  CLAUDE.md              |  4 ++--
+ memory/MEMORY.md       | 22 +++++++++++-----------
  memory/observations.md | 12 +++++++-----
  memory/plan.md         |  4 ++--
- 3 files changed, 11 insertions(+), 9 deletions(-)
+ 4 files changed, 22 insertions(+), 20 deletions(-)
 
 ----
 **2026-03-19** — chore: set Apr 19 as calibration target date
@@ -64,22 +84,4 @@ Reduced trail_atr from 2.0 to 0.5 and trail_after_bars from 3 to 1 on all 4 bots
  scripts/run_iau_test.sh |  2 +-
  scripts/run_slv_test.sh |  2 +-
  7 files changed, 26 insertions(+), 20 deletions(-)
-
-----
-**2026-03-17** — chore: Mar 17 end-of-day audit — all 4 bots, all records matched
-Full Alpaca vs pm2 audit for Mar 17. GDX server stop fired intrabar at 19:06 UTC (stop loss exit) — caught post-check. SLV trail ratcheted but closed via K-signal. Trailing stop firing in profit still unconfirmed. 4/4 clean record match.
-
- CLAUDE.md              |  2 +-
- memory/MEMORY.md       | 24 ++++++++++++------------
- memory/observations.md |  2 +-
- 3 files changed, 14 insertions(+), 14 deletions(-)
-
-----
-**2026-03-17** — chore: Mar 17 bot check — all 4 flat, no trades
-Routine session check. All bots healthy, market open, no trades today. Yesterday's SLV fill timeout confirmed as pre-fix artifact. No code changes this session.
-
- CLAUDE.md              |  1 +
- memory/MEMORY.md       | 20 ++++++++++----------
- memory/observations.md |  1 +
- 3 files changed, 12 insertions(+), 10 deletions(-)
 
