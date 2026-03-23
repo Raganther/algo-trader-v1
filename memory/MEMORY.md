@@ -3,11 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-23** — feat: trailing stop fire in profit confirmed + Mar 23 audit
+GDX server stop fired intrabar at $83.317 vs entry $80.05 — first confirmed trailing stop fire in profit. Full Alpaca audit passed (9 trades, all records matched). Both server-side exit mechanics now verified: stop loss (Mar 10) and trailing stop in profit (Mar 23). Marked step complete in plan.md.
+
+ CLAUDE.md              | 2 +-
+ memory/observations.md | 1 +
+ memory/plan.md         | 2 +-
+ 3 files changed, 3 insertions(+), 2 deletions(-)
+
+----
 **2026-03-22** — chore: set up OpenBrain workflow and identify first candidates
 Confirmed OpenBrain hooks are live (all three: SessionStart, PreToolUse guard, PostToolUse audit reminder). Identified 10 candidates for first OpenBrain write: 5 Alpaca API gotchas, 4 trading system methodology patterns, 1 validated edge. Removed redundant openbrain_guide.md — global CLAUDE.md description is sufficient to guide candidate selection.
 
- memory/observations.md | 2 ++
- 1 file changed, 2 insertions(+)
+ memory/MEMORY.md       | 40 +++++++++++++++++++++-------------------
+ memory/observations.md |  2 ++
+ 2 files changed, 23 insertions(+), 19 deletions(-)
 
 ----
 **2026-03-22** — chore: add OpenBrain audit hook to memory system
@@ -71,17 +81,4 @@ All 4 bots traded Mar 18, all flat EOD. SLV server stop fired (another stop loss
  memory/observations.md | 14 ++++++++++++++
  memory/plan.md         |  2 +-
  4 files changed, 28 insertions(+), 10 deletions(-)
-
-----
-**2026-03-17** — feat: tighten trail params to provoke trailing stop fire in profit
-Reduced trail_atr from 2.0 to 0.5 and trail_after_bars from 3 to 1 on all 4 bots. Goal: see trailing stop fire intrabar in profit — the last unconfirmed mechanic. Paper money so calibration impact is acceptable. Deployed and restarted.
-
- CLAUDE.md               | 10 +++++-----
- memory/MEMORY.md        | 27 ++++++++++++++++-----------
- memory/observations.md  |  1 +
- scripts/run_gdx_test.sh |  2 +-
- scripts/run_gld_test.sh |  2 +-
- scripts/run_iau_test.sh |  2 +-
- scripts/run_slv_test.sh |  2 +-
- 7 files changed, 26 insertions(+), 20 deletions(-)
 

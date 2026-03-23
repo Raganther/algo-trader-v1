@@ -13,7 +13,7 @@ All known long-side bugs are fixed. Bots are running cleanly from Mar 16 onwards
 ## Active steps
 
 ### Mechanics still to confirm
-- [ ] **Trailing stop FIRING in profit** — passive wait. Mar 18 diagnostic confirmed: with OLD trail params (2.0 ATR, 3 bars), backtest predicts ZERO profitable trail fires in Jan-Mar 2026 — matches live exactly. With TIGHTENED params (0.5 ATR, 1 bar, live since Mar 17), backtest predicts ~5 per symbol for same window. Only 2 days on new params so far — just need the right conditions (oversold bounce that rallies enough for trail to ratchet above entry before reversing intrabar).
+- [x] **Trailing stop FIRING in profit** — confirmed Mar 23. GDX: entry $80.05 (Mar 20), trail ratcheted to $83.35, server stop fired intrabar @ $83.317 (+$3.27/share, ~$958 paper). Multi-day hold gave trail time to ratchet well above entry before intrabar reversal triggered it.
 
 ### Short trading — must be enabled before real money
 - [ ] **Fix live_broker sell() guard** — current guard blocks ALL sells from flat. Need to distinguish: (a) closing a long = allow, (b) opening a short from flat = allow when `long_only=False`, (c) duplicate exit = block. Fix: check strategy position state, not Alpaca position.

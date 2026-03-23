@@ -94,7 +94,7 @@ Remaining before real money: (1) confirm trailing stop firing in profit, (2) fix
 
 **Confirmed working:** bot-initiated exits, trailing stop updates (ratchets up), order cancellation before exit, position sync on restart, heartbeat logging, DAY TIF stops, DB reconciliation on startup, server-side stop FIRING (confirmed Mar 10 — SLV stop at $80.49 auto-filled at $80.43). GDX started trading Mar 16 — resolves zero-trade open question.
 
-**Not yet confirmed:** trailing stop FIRING in profit (same Alpaca server-side mechanism — needs trail ratcheted above entry before firing). Mar 16: trailing stop ratcheted on both SLV and GDX but both closed via K-signal, not server stop.
+**Trailing stop FIRING in profit — confirmed Mar 23.** GDX: entry $80.05 (Mar 20), trail ratcheted to $83.35 over 3-day hold, server stop fired intrabar @ $83.317 (+$958 paper). Both server-side exit mechanics now fully confirmed.
 
 **Long-only baseline established (Mar 14):** Bots currently run long-only. Full vs long-only Sharpe: GLD 2.54→~1.91, IAU ~2.0→~1.33, SLV 2.54→~3.29 (better!), GDX 2.41→~1.54. SLV viable long-only; GLD/IAU/GDX meaningfully weaker. See strategy cards for full breakdown.
 
