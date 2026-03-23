@@ -3,11 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-23** — chore: plan preliminary backtest check for Mar 30
+All long-side mechanics now confirmed. Decision: let bots run until Apr 20 for full calibration. Preliminary diagnostic backtest planned for ~Mar 30 as early warning check — not the calibration, just sanity check for obvious misalignments. Proper comparison needs ~80-100 trades per symbol.
+
+ memory/plan.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+----
 **2026-03-23** — chore: document calibration integrity reasoning
 Confirmed that all bug fixes are in the execution layer — signal generation is untouched. Calibration comparison between backtest and live is clean. Documented signal vs execution layer separation in observations.md as a key insight for the Apr 20 calibration review.
 
- memory/observations.md | 7 +++++++
- 1 file changed, 7 insertions(+)
+ memory/MEMORY.md       | 26 ++++++++++++--------------
+ memory/observations.md |  7 +++++++
+ 2 files changed, 19 insertions(+), 14 deletions(-)
 
 ----
 **2026-03-23** — feat: trailing stop fire in profit confirmed + Mar 23 audit
@@ -67,16 +75,4 @@ GDX trail update failed today: cancel_order_by_id returns immediately but Alpaca
  memory/MEMORY.md       | 41 ++++++++++++++++++++++-------------------
  memory/observations.md | 10 ++++++++++
  3 files changed, 33 insertions(+), 19 deletions(-)
-
-----
-**2026-03-19** — fix: add 1s sleep after cancel in update_stop_order to fix trail update race condition
-Alpaca processes cancel_order asynchronously. Without a pause, the new stop
-placement races against the cancel — Alpaca still sees shares held_for_orders
-and rejects with code 40310000. 1s sleep gives the cancel time to propagate.
-Observed in GDX today: trail update to $79.75 failed, fallback re-placed at $79.48.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- backend/engine/live_broker.py | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
 
