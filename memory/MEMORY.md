@@ -3,13 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-23** — chore: document calibration integrity reasoning
+Confirmed that all bug fixes are in the execution layer — signal generation is untouched. Calibration comparison between backtest and live is clean. Documented signal vs execution layer separation in observations.md as a key insight for the Apr 20 calibration review.
+
+ memory/observations.md | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+----
 **2026-03-23** — feat: trailing stop fire in profit confirmed + Mar 23 audit
 GDX server stop fired intrabar at $83.317 vs entry $80.05 — first confirmed trailing stop fire in profit. Full Alpaca audit passed (9 trades, all records matched). Both server-side exit mechanics now verified: stop loss (Mar 10) and trailing stop in profit (Mar 23). Marked step complete in plan.md.
 
- CLAUDE.md              | 2 +-
- memory/observations.md | 1 +
- memory/plan.md         | 2 +-
- 3 files changed, 3 insertions(+), 2 deletions(-)
+ CLAUDE.md              |  2 +-
+ memory/MEMORY.md       | 27 ++++++++++++---------------
+ memory/observations.md |  1 +
+ memory/plan.md         |  2 +-
+ 4 files changed, 15 insertions(+), 17 deletions(-)
 
 ----
 **2026-03-22** — chore: set up OpenBrain workflow and identify first candidates
@@ -71,14 +79,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
  backend/engine/live_broker.py | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
-
-----
-**2026-03-18** — chore: Mar 18 bot check + trailing stop diagnostic
-All 4 bots traded Mar 18, all flat EOD. SLV server stop fired (another stop loss confirmation). Ran per-trade exit-type diagnostic: with old trail params (2.0 ATR), backtest predicts zero profitable trail fires in Jan-Mar 2026 — matches live exactly, no bug. With tightened params (0.5 ATR, since Mar 17), predicts ~5 per symbol. The trailing stop Sharpe improvement is earned in bull markets; this metals selloff window never gives the trail enough room to ratchet above entry with 2.0 ATR distance. Also caught dynamic_adx gotcha: defaults True and overrides adx_threshold silently.
-
- CLAUDE.md              |  2 ++
- memory/MEMORY.md       | 20 +++++++++++---------
- memory/observations.md | 14 ++++++++++++++
- memory/plan.md         |  2 +-
- 4 files changed, 28 insertions(+), 10 deletions(-)
 

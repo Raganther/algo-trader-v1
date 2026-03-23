@@ -3,6 +3,13 @@
 
 ---
 
+## Calibration integrity — signal vs execution layer separation (2026-03-23)
+All bug fixes applied over the testing period are in the execution layer (order placement, fill confirmation, stop management, DB logging). None touched signal generation (StochRSI thresholds, ADX check, bar timing). The calibration comparison asks only: "when strategy thresholds are met, does a trade fire?" — which is identical in backtest and live. The fixes made mechanics reliable; they didn't change what the strategy does. Calibration comparison is clean.
+
+One marginal factor: delayed fills at market open (3-4 min on GLD/SLV today) can briefly desync bot state, potentially missing a signal the backtest would catch. This is noise, not systematic drift.
+
+---
+
 ## Memory system upgrade (2026-03-22)
 Added PostToolUse hook (openbrain-audit-reminder.sh) — fires after every git save and prompts OpenBrain audit. This project now has all three hooks: SessionStart, PreToolUse guard, PostToolUse audit reminder. Future git saves will include an OpenBrain audit step for cross-project knowledge candidates.
 
