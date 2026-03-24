@@ -3,11 +3,23 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-24** — chore: graduate observations, create calibration_notes, fix OpenBrain setup
+Graduated calibration methodology from observations.md into .claude/memory/calibration_notes.md. Pruned observations.md to active-only insights (3 sections, down from 9). Created .claude/openbrain-category (algo-trader), updated openbrain-audit-reminder.sh to three-step format with update_memory guidance, migrated 10 OpenBrain memories from wrong categories to algo-trader.
+
+ .claude/hooks/openbrain-audit-reminder.sh |  27 +++++--
+ .claude/memory/calibration_notes.md       |  72 ++++++++++++++++++
+ .claude/openbrain-category                |   1 +
+ CLAUDE.md                                 |   2 +
+ memory/observations.md                    | 119 +++---------------------------
+ 5 files changed, 106 insertions(+), 115 deletions(-)
+
+----
 **2026-03-23** — chore: plan preliminary backtest check for Mar 30
 All long-side mechanics now confirmed. Decision: let bots run until Apr 20 for full calibration. Preliminary diagnostic backtest planned for ~Mar 30 as early warning check — not the calibration, just sanity check for obvious misalignments. Proper comparison needs ~80-100 trades per symbol.
 
- memory/plan.md | 1 +
- 1 file changed, 1 insertion(+)
+ memory/MEMORY.md | 24 ++++++++++--------------
+ memory/plan.md   |  1 +
+ 2 files changed, 11 insertions(+), 14 deletions(-)
 
 ----
 **2026-03-23** — chore: document calibration integrity reasoning
@@ -66,13 +78,4 @@ Formalised the 1-month forward test plan: keep aggressive params (OB 60/OS 40, t
  memory/observations.md | 14 ++++++++------
  memory/plan.md         |  4 ++--
  4 files changed, 23 insertions(+), 19 deletions(-)
-
-----
-**2026-03-19** — fix: trailing stop update race condition + Mar 19 audit
-GDX trail update failed today: cancel_order_by_id returns immediately but Alpaca processes the cancel async, so the new stop placement raced against the cancel and hit 40310000 (insufficient qty). Fixed with 1s sleep in update_stop_order after cancel, before placing new stop. Bug existed since Mar 4 (fallback was added then but root cause left unfixed) and was exposed by trail_after_bars=1 firing the update very early after entry. All 4 bots Mar 19: 4 trades, full Alpaca audit clean, all 12 orders matched.
-
- CLAUDE.md              |  1 +
- memory/MEMORY.md       | 41 ++++++++++++++++++++++-------------------
- memory/observations.md | 10 ++++++++++
- 3 files changed, 33 insertions(+), 19 deletions(-)
 
