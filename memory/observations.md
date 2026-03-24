@@ -3,6 +3,11 @@
 
 ---
 
+## Memory system (complete as of Mar 24)
+All three hooks live and in sync with global CLAUDE.md: SessionStart, PreToolUse guard (now enforces both memory file changes AND domain file discoverability), PostToolUse OpenBrain audit (now enforces update-in-place before appending). OpenBrain migrated to algo-trader category. docs/dev.md removed — ideas/brainstorming now go directly in observations.md. calibration_notes.md created as first graduated domain file.
+
+---
+
 ## Data integrity baseline
 - Mar 03–04: gaps (bugs active, acceptable)
 - Mar 05 onwards: 100% fill capture

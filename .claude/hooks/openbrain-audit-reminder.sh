@@ -1,6 +1,6 @@
 #!/bin/bash
 # PostToolUse hook — fires after git-save.sh
-# Enforces three required steps: graduation check, OpenBrain audit, confirmation.
+# Enforces three required steps: observations check, OpenBrain audit, confirmation.
 
 INPUT=$(cat)
 COMMAND=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_input',{}).get('command',''))" 2>/dev/null)
@@ -12,10 +12,10 @@ fi
 
 echo "Git save complete. Three steps required before continuing:"
 echo ""
-echo "STEP 1 — Graduation check:"
-echo "Did you confirm or resolve anything in observations.md this session?"
-echo "If yes: move it from observations.md to the appropriate .claude/[domain]/ reference file now, then make a follow-up commit."
-echo "If no: state that explicitly and proceed to Step 2."
+echo "STEP 1 — Observations check:"
+echo "a) Update in place: did you revisit any existing topics in observations.md? If yes, update those entries — do not append new entries for the same topic."
+echo "b) Graduation: did you confirm or resolve anything this session? If yes, move it from observations.md to the appropriate .claude/[domain]/ reference file, then make a follow-up commit."
+echo "If neither applies, state that explicitly and proceed to Step 2."
 echo ""
 echo "STEP 2 — OpenBrain audit:"
 echo "Review what was just committed. Propose confirmed/working things as OpenBrain candidates."

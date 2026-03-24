@@ -3,6 +3,16 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-24** — chore: sync hooks with global CLAUDE.md updates
+Updated git-save-guard.sh to enforce domain file discoverability (blocks if .claude/memory/ files not listed in CLAUDE.md). Updated openbrain-audit-reminder.sh Step 1 to require update-in-place check before appending. Removed docs/dev.md reference from project CLAUDE.md. All hooks now in sync with global CLAUDE.md.
+
+ .claude/hooks/git-save-guard.sh           | 29 ++++++++++++++++++++++++++---
+ .claude/hooks/openbrain-audit-reminder.sh | 10 +++++-----
+ CLAUDE.md                                 |  3 +--
+ memory/observations.md                    |  5 +++++
+ 4 files changed, 37 insertions(+), 10 deletions(-)
+
+----
 **2026-03-24** — chore: graduate observations, create calibration_notes, fix OpenBrain setup
 Graduated calibration methodology from observations.md into .claude/memory/calibration_notes.md. Pruned observations.md to active-only insights (3 sections, down from 9). Created .claude/openbrain-category (algo-trader), updated openbrain-audit-reminder.sh to three-step format with update_memory guidance, migrated 10 OpenBrain memories from wrong categories to algo-trader.
 
@@ -10,8 +20,9 @@ Graduated calibration methodology from observations.md into .claude/memory/calib
  .claude/memory/calibration_notes.md       |  72 ++++++++++++++++++
  .claude/openbrain-category                |   1 +
  CLAUDE.md                                 |   2 +
+ memory/MEMORY.md                          |  25 ++++---
  memory/observations.md                    | 119 +++---------------------------
- 5 files changed, 106 insertions(+), 115 deletions(-)
+ 6 files changed, 120 insertions(+), 126 deletions(-)
 
 ----
 **2026-03-23** — chore: plan preliminary backtest check for Mar 30
@@ -68,14 +79,4 @@ Adjusted calibration window start from Mar 16 to Mar 20 — first fully confirme
  memory/observations.md | 12 +++++++-----
  memory/plan.md         |  4 ++--
  4 files changed, 22 insertions(+), 20 deletions(-)
-
-----
-**2026-03-19** — chore: set Apr 19 as calibration target date
-Formalised the 1-month forward test plan: keep aggressive params (OB 60/OS 40, trail 0.5 ATR after 1 bar) running until Apr 19, then run backtest with identical params over the same window. Aggressive params are intentional — they generate ~2x more trades than validated params, giving a more statistically meaningful calibration dataset. Clean window is Mar 16 (all bugs fixed) to Apr 19. Also corrected the calibration command in observations.md to use current trail params (0.5 ATR, 1 bar) instead of old ones.
-
- CLAUDE.md              |  4 ++--
- memory/MEMORY.md       | 20 +++++++++++---------
- memory/observations.md | 14 ++++++++------
- memory/plan.md         |  4 ++--
- 4 files changed, 23 insertions(+), 19 deletions(-)
 
