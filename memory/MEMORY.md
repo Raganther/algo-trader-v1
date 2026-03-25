@@ -3,11 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-25** — chore: add Check 3 to git-save-guard (core memory file discoverability)
+git-save-guard.sh now has three checks matching global CLAUDE.md spec. Check 3 blocks if memory/plan.md, memory/observations.md, or memory/MEMORY.md are missing from CLAUDE.md Session Start section. Closes the gap identified in the gap analysis — auto-load files are now enforced as well as domain files.
+
+ .claude/hooks/git-save-guard.sh | 15 +++++++++++++++
+ memory/observations.md          |  4 ++--
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+
+----
 **2026-03-25** — chore: Mar 24 audit + slippage observation
 Mar 24: 8 trades, full Alpaca audit passed, 5 server stop fires in choppy metals market. GLD+IAU stops fired simultaneously twice — correlated asset behaviour confirmed. Identified two distinct slippage types: spread (modelled in backtest) vs stop execution (not modelled). Stop execution slippage small but consistent (~0.01-0.14/share), will surface in Layer 3 of Apr 20 calibration.
 
+ memory/MEMORY.md       | 20 +++++++++-----------
  memory/observations.md | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ 2 files changed, 17 insertions(+), 13 deletions(-)
 
 ----
 **2026-03-24** — chore: sync hooks with global CLAUDE.md updates
@@ -65,16 +74,4 @@ Confirmed OpenBrain hooks are live (all three: SessionStart, PreToolUse guard, P
  memory/MEMORY.md       | 40 +++++++++++++++++++++-------------------
  memory/observations.md |  2 ++
  2 files changed, 23 insertions(+), 19 deletions(-)
-
-----
-**2026-03-22** — chore: add OpenBrain audit hook to memory system
-Added openbrain-audit-reminder.sh PostToolUse hook — fires after every git save and prompts OpenBrain audit for cross-project knowledge candidates. Project now has all three standard hooks. Future git saves will include an OpenBrain audit step.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- .claude/hooks/openbrain-audit-reminder.sh | 19 +++++++++++++++++++
- .claude/settings.json                     | 11 +++++++++++
- CLAUDE.md                                 |  1 +
- memory/observations.md                    |  5 +++++
- 4 files changed, 36 insertions(+)
 

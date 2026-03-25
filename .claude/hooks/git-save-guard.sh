@@ -44,4 +44,19 @@ if [ -n "$UNLISTED" ]; then
   exit 1
 fi
 
+# Check 3: core memory files must be listed in CLAUDE.md
+MISSING_CORE=""
+for core in "memory/plan.md" "memory/observations.md" "memory/MEMORY.md"; do
+  if ! grep -qF "$core" "$CLAUDE_MD"; then
+    MISSING_CORE="$MISSING_CORE\n  $core"
+  fi
+done
+
+if [ -n "$MISSING_CORE" ]; then
+  echo "⚠️  BLOCKED: The following core memory files are not listed in CLAUDE.md:"
+  echo -e "$MISSING_CORE"
+  echo "   Ensure they appear in the Session Start section of CLAUDE.md."
+  exit 1
+fi
+
 exit 0

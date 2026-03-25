@@ -3,8 +3,8 @@
 
 ---
 
-## Memory system (complete as of Mar 24)
-All three hooks live and in sync with global CLAUDE.md: SessionStart, PreToolUse guard (now enforces both memory file changes AND domain file discoverability), PostToolUse OpenBrain audit (now enforces update-in-place before appending). OpenBrain migrated to algo-trader category. docs/dev.md removed — ideas/brainstorming now go directly in observations.md. calibration_notes.md created as first graduated domain file.
+## Memory system (complete as of Mar 25)
+All three hooks live and in sync with global CLAUDE.md. git-save-guard now has three checks: (1) memory files modified, (2) domain files listed in CLAUDE.md, (3) core memory files (plan.md, observations.md, MEMORY.md) listed in CLAUDE.md. OpenBrain migrated to algo-trader category. calibration_notes.md created as first graduated domain file.
 
 ---
 
