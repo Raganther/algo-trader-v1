@@ -3,12 +3,25 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-25** — chore: audit cleanup — remove redundant and legacy files
+Deleted .claude/workflows/git_save.md (old superseded process doc referencing scripts that no longer exist), .claude/memory/MEMORY.md (legacy relic with wrong timezone instruction), and .claude/archive/ (3 completed plan docs). Insights from archived plans already live in strategy cards, calibration_notes.md, and OpenBrain. Git history preserves the originals. .claude/ is now clean.
+
+ .claude/archive/edge_enhancement_plan.md     |  188 ----
+ .claude/archive/forward_testing_plan.md      |  735 -------------
+ .claude/archive/strategy_discovery_engine.md | 1483 --------------------------
+ .claude/memory/MEMORY.md                     |    5 -
+ .claude/workflows/git_save.md                |  116 --
+ memory/observations.md                       |    5 +-
+ 6 files changed, 3 insertions(+), 2529 deletions(-)
+
+----
 **2026-03-25** — chore: add Check 3 to git-save-guard (core memory file discoverability)
 git-save-guard.sh now has three checks matching global CLAUDE.md spec. Check 3 blocks if memory/plan.md, memory/observations.md, or memory/MEMORY.md are missing from CLAUDE.md Session Start section. Closes the gap identified in the gap analysis — auto-load files are now enforced as well as domain files.
 
  .claude/hooks/git-save-guard.sh | 15 +++++++++++++++
+ memory/MEMORY.md                | 23 ++++++++++-------------
  memory/observations.md          |  4 ++--
- 2 files changed, 17 insertions(+), 2 deletions(-)
+ 3 files changed, 27 insertions(+), 15 deletions(-)
 
 ----
 **2026-03-25** — chore: Mar 24 audit + slippage observation
@@ -66,12 +79,4 @@ GDX server stop fired intrabar at $83.317 vs entry $80.05 — first confirmed tr
  memory/observations.md |  1 +
  memory/plan.md         |  2 +-
  4 files changed, 15 insertions(+), 17 deletions(-)
-
-----
-**2026-03-22** — chore: set up OpenBrain workflow and identify first candidates
-Confirmed OpenBrain hooks are live (all three: SessionStart, PreToolUse guard, PostToolUse audit reminder). Identified 10 candidates for first OpenBrain write: 5 Alpaca API gotchas, 4 trading system methodology patterns, 1 validated edge. Removed redundant openbrain_guide.md — global CLAUDE.md description is sufficient to guide candidate selection.
-
- memory/MEMORY.md       | 40 +++++++++++++++++++++-------------------
- memory/observations.md |  2 ++
- 2 files changed, 23 insertions(+), 19 deletions(-)
 
