@@ -14,11 +14,17 @@ All three hooks live and in sync with global CLAUDE.md: SessionStart, PreToolUse
 - Mar 16–19: full Alpaca audits — all records matched pm2 logs across all 4 bots
 - Mar 20: clean window starts — 18/18 orders matched, all fixes deployed
 - Mar 23: 9 trades across all 4 bots, full audit passed. GDX server stop fired in profit (entry $80.05, exit $83.317, +$958 paper). Trail fire confirmed ✅
+- Mar 24: 8 trades across all 4 bots, full audit passed. 5 of 8 exits via server stop (choppy market). GLD+IAU stops fired at identical timestamps (15:10 UTC and 18:58 UTC) — correlated assets hit by same intrabar market move simultaneously. All fills matched pm2 logs exactly.
 
 ---
 
-## Trailing stop pattern (Mar 23)
-Same-day trades tend to exit via K-signal before the trailing stop can fire in profit — the K-signal (end-of-move reversal) fires at candle close while the trail needs an intrabar reversal. Multi-day holds give the trail time to ratchet far above entry, making an intrabar reversal more likely to hit it first. GDX held 3 days ($80.05 → trail $83.35 → fired $83.317).
+## Trailing stop pattern (updated Mar 24)
+Same-day trades tend to exit via K-signal before the trailing stop can fire in profit. Multi-day holds give the trail time to ratchet far above entry. Mar 24 added a new data point: in choppy markets, the 0.5 ATR trail activates after 1 bar and sits very close to price — server stop fires frequently, often below entry, before the move has time to develop. 5 of 8 trades exited via server stop on Mar 24. K-signal exits (2 of 8) were the profitable ones.
+
+---
+
+## Two types of slippage — only one is modelled
+The backtest models **spread slippage** via `--spread 0.0003` (0.03% bid-ask cost on every order). It does NOT model **stop execution slippage** — the gap between stop price and actual fill when Alpaca converts a triggered stop to a market order intrabar. Live data shows this is small (typically $0.01–0.14/share) but consistent. Will surface in Layer 3 of the Apr 20 calibration comparison (stop fill prices vs backtest). If systematic, worth adding a small stop-slippage assumption to the backtest model.
 
 ---
 

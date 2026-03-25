@@ -3,14 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-25** — chore: Mar 24 audit + slippage observation
+Mar 24: 8 trades, full Alpaca audit passed, 5 server stop fires in choppy metals market. GLD+IAU stops fired simultaneously twice — correlated asset behaviour confirmed. Identified two distinct slippage types: spread (modelled in backtest) vs stop execution (not modelled). Stop execution slippage small but consistent (~0.01-0.14/share), will surface in Layer 3 of Apr 20 calibration.
+
+ memory/observations.md | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+----
 **2026-03-24** — chore: sync hooks with global CLAUDE.md updates
 Updated git-save-guard.sh to enforce domain file discoverability (blocks if .claude/memory/ files not listed in CLAUDE.md). Updated openbrain-audit-reminder.sh Step 1 to require update-in-place check before appending. Removed docs/dev.md reference from project CLAUDE.md. All hooks now in sync with global CLAUDE.md.
 
  .claude/hooks/git-save-guard.sh           | 29 ++++++++++++++++++++++++++---
  .claude/hooks/openbrain-audit-reminder.sh | 10 +++++-----
  CLAUDE.md                                 |  3 +--
+ memory/MEMORY.md                          | 23 ++++++++++++-----------
  memory/observations.md                    |  5 +++++
- 4 files changed, 37 insertions(+), 10 deletions(-)
+ 5 files changed, 49 insertions(+), 21 deletions(-)
 
 ----
 **2026-03-24** — chore: graduate observations, create calibration_notes, fix OpenBrain setup
@@ -69,14 +77,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  CLAUDE.md                                 |  1 +
  memory/observations.md                    |  5 +++++
  4 files changed, 36 insertions(+)
-
-----
-**2026-03-21** — chore: update calibration window to Mar 20 – Apr 20
-Adjusted calibration window start from Mar 16 to Mar 20 — first fully confirmed clean day with current params (trail_atr=0.5, trail_after_bars=1) and all fixes deployed (race condition fix Mar 19, 18/18 audit passed Mar 20). End date moved from Apr 19 to Apr 20 to maintain exactly 1 month window. Updated CLAUDE.md, plan.md, and observations.md.
-
- CLAUDE.md              |  4 ++--
- memory/MEMORY.md       | 22 +++++++++++-----------
- memory/observations.md | 12 +++++++-----
- memory/plan.md         |  4 ++--
- 4 files changed, 22 insertions(+), 20 deletions(-)
 
