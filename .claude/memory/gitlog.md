@@ -3,19 +3,27 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-25** — chore: Mar 25 audit — 1 GDX trade
+Mar 25: GDX only trade. Buy .80, trail updated to .49 after 1 bar, server stop fired .48 (below entry). GLD/IAU/SLV flat. Alpaca audit matched: 3 records per trailing-stop trade (buy + initial stop canceled + trail stop filled) — confirmed normal pattern.
+
+ .claude/memory/observations.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+----
 **2026-03-25** — chore: migrate domain files out of memory/ into domain folders
 Moved .claude/memory/strategies/ → .claude/strategies/ and .claude/memory/calibration_notes.md → .claude/calibration/calibration_notes.md. Updated CLAUDE.md Architecture and Session Start sections to reference new paths. .claude/memory/ now holds only the three core files (plan.md, observations.md, gitlog.md) per global CLAUDE.md spec. Future graduated files go in .claude/[domain]/, never in memory/.
 
- .claude/{memory => calibration}/calibration_notes.md     | 0
- .claude/memory/observations.md                           | 3 ++-
- .claude/{memory => }/strategies/composable_results.md    | 0
- .claude/{memory => }/strategies/event_surprise.md        | 0
- .claude/{memory => }/strategies/stochrsi_enhanced_gdx.md | 0
- .claude/{memory => }/strategies/stochrsi_enhanced_gld.md | 0
- .claude/{memory => }/strategies/stochrsi_enhanced_iau.md | 0
- .claude/{memory => }/strategies/stochrsi_enhanced_slv.md | 0
- CLAUDE.md                                                | 8 ++++----
- 9 files changed, 6 insertions(+), 5 deletions(-)
+ .../{memory => calibration}/calibration_notes.md   |  0
+ .claude/memory/gitlog.md                           | 27 ++++++++++++++--------
+ .claude/memory/observations.md                     |  3 ++-
+ .../{memory => }/strategies/composable_results.md  |  0
+ .claude/{memory => }/strategies/event_surprise.md  |  0
+ .../strategies/stochrsi_enhanced_gdx.md            |  0
+ .../strategies/stochrsi_enhanced_gld.md            |  0
+ .../strategies/stochrsi_enhanced_iau.md            |  0
+ .../strategies/stochrsi_enhanced_slv.md            |  0
+ CLAUDE.md                                          |  8 +++----
+ 10 files changed, 23 insertions(+), 15 deletions(-)
 
 ----
 **2026-03-25** — chore: migrate memory files to .claude/memory/
@@ -82,12 +90,4 @@ Graduated calibration methodology from observations.md into .claude/memory/calib
  memory/MEMORY.md                          |  25 ++++---
  memory/observations.md                    | 119 +++---------------------------
  6 files changed, 120 insertions(+), 126 deletions(-)
-
-----
-**2026-03-23** — chore: plan preliminary backtest check for Mar 30
-All long-side mechanics now confirmed. Decision: let bots run until Apr 20 for full calibration. Preliminary diagnostic backtest planned for ~Mar 30 as early warning check — not the calibration, just sanity check for obvious misalignments. Proper comparison needs ~80-100 trades per symbol.
-
- memory/MEMORY.md | 24 ++++++++++--------------
- memory/plan.md   |  1 +
- 2 files changed, 11 insertions(+), 14 deletions(-)
 

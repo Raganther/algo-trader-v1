@@ -17,6 +17,7 @@ Mar 25 migration: domain files moved out of .claude/memory/ into proper domain f
 - Mar 20: clean window starts — 18/18 orders matched, all fixes deployed
 - Mar 23: 9 trades across all 4 bots, full audit passed. GDX server stop fired in profit (entry $80.05, exit $83.317, +$958 paper). Trail fire confirmed ✅
 - Mar 24: 8 trades across all 4 bots, full audit passed. 5 of 8 exits via server stop (choppy market). GLD+IAU stops fired at identical timestamps (15:10 UTC and 18:58 UTC) — correlated assets hit by same intrabar market move simultaneously. All fills matched pm2 logs exactly.
+- Mar 25: 1 trade (GDX only). Buy $86.80 → trail updated to $86.49 after 1 bar → server stop fired $86.48 (-$0.32/share, below entry). GLD/IAU/SLV flat. Alpaca audit: 3 records (buy + initial stop canceled + trail stop filled) — confirmed normal pattern for trades with trail update.
 
 ---
 
