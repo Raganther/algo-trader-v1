@@ -1,5 +1,5 @@
 #!/bin/bash
-# git-save.sh — commit, regenerate memory/MEMORY.md, push to origin
+# git-save.sh — commit, regenerate .claude/memory/gitlog.md, push to origin
 # Usage: ./scripts/git-save.sh "commit message"
 
 set -e
@@ -13,9 +13,8 @@ fi
 git add -A
 git commit -m "$1" ${2:+-m "$2"}
 
-# 2. Regenerate memory/MEMORY.md from last 8 git log entries
-MEMORY_FILE="memory/MEMORY.md"
-mkdir -p memory
+# 2. Regenerate .claude/memory/gitlog.md from last 8 git log entries
+MEMORY_FILE=".claude/memory/gitlog.md"
 
 cat > "$MEMORY_FILE" << 'HEADER'
 # Recent Git History
@@ -37,5 +36,5 @@ git push origin main
 
 echo ""
 echo "✓ Committed: $1"
-echo "✓ memory/MEMORY.md updated with last 8 saves (full detail)"
+echo "✓ .claude/memory/gitlog.md updated with last 8 saves (full detail)"
 echo "✓ Pushed to origin main"

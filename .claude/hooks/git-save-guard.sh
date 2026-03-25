@@ -12,10 +12,10 @@ if ! echo "$COMMAND" | grep -q "git-save.sh"; then
 fi
 
 # Check 1: memory files must have been modified since last commit
-CHANGED=$(git -C "$CLAUDE_PROJECT_DIR" diff HEAD --name-only -- memory/plan.md memory/observations.md 2>/dev/null)
+CHANGED=$(git -C "$CLAUDE_PROJECT_DIR" diff HEAD --name-only -- .claude/memory/plan.md .claude/memory/observations.md 2>/dev/null)
 
 if [ -z "$CHANGED" ]; then
-  echo "⚠️  BLOCKED: memory/plan.md and memory/observations.md are unchanged since last commit."
+  echo "⚠️  BLOCKED: .claude/memory/plan.md and .claude/memory/observations.md are unchanged since last commit."
   echo "   Update these files before running git save."
   exit 1
 fi
@@ -24,11 +24,11 @@ fi
 CLAUDE_MD="$CLAUDE_PROJECT_DIR/CLAUDE.md"
 UNLISTED=""
 
-# Find all files in .claude/ excluding hooks/, settings files, openbrain-category, MEMORY.md
+# Find all files in .claude/ excluding hooks/, settings files, openbrain-category, and core memory files
 while IFS= read -r -d '' file; do
   relative="${file#$CLAUDE_PROJECT_DIR/}"
-  # Skip hooks, settings, openbrain-category, MEMORY.md, archive/, workflows/
-  if echo "$relative" | grep -qE "^\.claude/hooks/|^\.claude/settings|^\.claude/openbrain-category|MEMORY\.md|^\.claude/archive/|^\.claude/workflows/"; then
+  # Skip hooks, settings, openbrain-category, and core memory files
+  if echo "$relative" | grep -qE "^\.claude/hooks/|^\.claude/settings|^\.claude/openbrain-category|^\.claude/memory/plan\.md|^\.claude/memory/observations\.md|^\.claude/memory/gitlog\.md"; then
     continue
   fi
   # Check if listed in CLAUDE.md
@@ -46,7 +46,7 @@ fi
 
 # Check 3: core memory files must be listed in CLAUDE.md
 MISSING_CORE=""
-for core in "memory/plan.md" "memory/observations.md" "memory/MEMORY.md"; do
+for core in ".claude/memory/plan.md" ".claude/memory/observations.md" ".claude/memory/gitlog.md"; do
   if ! grep -qF "$core" "$CLAUDE_MD"; then
     MISSING_CORE="$MISSING_CORE\n  $core"
   fi

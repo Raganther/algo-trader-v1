@@ -3,6 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-25** — chore: migrate memory files to .claude/memory/
+Move plan.md, observations.md, MEMORY.md (renamed gitlog.md) from memory/ root into .claude/memory/ to consolidate all Claude files under .claude/. Update git-save.sh, git-save-guard.sh, load-context.sh, and CLAUDE.md to use new paths. Matches updated global CLAUDE.md design.
+
+ .claude/hooks/git-save-guard.sh              | 12 ++++++------
+ .claude/hooks/load-context.sh                |  6 +++---
+ memory/MEMORY.md => .claude/memory/gitlog.md |  0
+ {memory => .claude/memory}/observations.md   |  0
+ {memory => .claude/memory}/plan.md           |  0
+ CLAUDE.md                                    |  6 +++---
+ scripts/git-save.sh                          |  9 ++++-----
+ 7 files changed, 16 insertions(+), 17 deletions(-)
+
+----
 **2026-03-25** — chore: audit cleanup — remove redundant and legacy files
 Deleted .claude/workflows/git_save.md (old superseded process doc referencing scripts that no longer exist), .claude/memory/MEMORY.md (legacy relic with wrong timezone instruction), and .claude/archive/ (3 completed plan docs). Insights from archived plans already live in strategy cards, calibration_notes.md, and OpenBrain. Git history preserves the originals. .claude/ is now clean.
 
@@ -11,8 +24,9 @@ Deleted .claude/workflows/git_save.md (old superseded process doc referencing sc
  .claude/archive/strategy_discovery_engine.md | 1483 --------------------------
  .claude/memory/MEMORY.md                     |    5 -
  .claude/workflows/git_save.md                |  116 --
+ memory/MEMORY.md                             |   23 +-
  memory/observations.md                       |    5 +-
- 6 files changed, 3 insertions(+), 2529 deletions(-)
+ 7 files changed, 17 insertions(+), 2538 deletions(-)
 
 ----
 **2026-03-25** — chore: add Check 3 to git-save-guard (core memory file discoverability)
@@ -69,14 +83,4 @@ Confirmed that all bug fixes are in the execution layer — signal generation is
  memory/MEMORY.md       | 26 ++++++++++++--------------
  memory/observations.md |  7 +++++++
  2 files changed, 19 insertions(+), 14 deletions(-)
-
-----
-**2026-03-23** — feat: trailing stop fire in profit confirmed + Mar 23 audit
-GDX server stop fired intrabar at $83.317 vs entry $80.05 — first confirmed trailing stop fire in profit. Full Alpaca audit passed (9 trades, all records matched). Both server-side exit mechanics now verified: stop loss (Mar 10) and trailing stop in profit (Mar 23). Marked step complete in plan.md.
-
- CLAUDE.md              |  2 +-
- memory/MEMORY.md       | 27 ++++++++++++---------------
- memory/observations.md |  1 +
- memory/plan.md         |  2 +-
- 4 files changed, 15 insertions(+), 17 deletions(-)
 

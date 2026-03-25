@@ -19,9 +19,9 @@ echo ""
 
 # Remind about key files
 echo "📂 Key context files (read in this order):"
-echo "  → memory/MEMORY.md (recent git saves)"
-echo "  → memory/plan.md (active steps)"
-echo "  → memory/observations.md (running insights)"
+echo "  → .claude/memory/gitlog.md (recent git saves)"
+echo "  → .claude/memory/plan.md (active steps)"
+echo "  → .claude/memory/observations.md (running insights)"
 echo ""
 
 # Check if we can reach cloud (quick timeout)
