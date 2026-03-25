@@ -3,17 +3,32 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-25** — chore: migrate domain files out of memory/ into domain folders
+Moved .claude/memory/strategies/ → .claude/strategies/ and .claude/memory/calibration_notes.md → .claude/calibration/calibration_notes.md. Updated CLAUDE.md Architecture and Session Start sections to reference new paths. .claude/memory/ now holds only the three core files (plan.md, observations.md, gitlog.md) per global CLAUDE.md spec. Future graduated files go in .claude/[domain]/, never in memory/.
+
+ .claude/{memory => calibration}/calibration_notes.md     | 0
+ .claude/memory/observations.md                           | 3 ++-
+ .claude/{memory => }/strategies/composable_results.md    | 0
+ .claude/{memory => }/strategies/event_surprise.md        | 0
+ .claude/{memory => }/strategies/stochrsi_enhanced_gdx.md | 0
+ .claude/{memory => }/strategies/stochrsi_enhanced_gld.md | 0
+ .claude/{memory => }/strategies/stochrsi_enhanced_iau.md | 0
+ .claude/{memory => }/strategies/stochrsi_enhanced_slv.md | 0
+ CLAUDE.md                                                | 8 ++++----
+ 9 files changed, 6 insertions(+), 5 deletions(-)
+
+----
 **2026-03-25** — chore: migrate memory files to .claude/memory/
 Move plan.md, observations.md, MEMORY.md (renamed gitlog.md) from memory/ root into .claude/memory/ to consolidate all Claude files under .claude/. Update git-save.sh, git-save-guard.sh, load-context.sh, and CLAUDE.md to use new paths. Matches updated global CLAUDE.md design.
 
  .claude/hooks/git-save-guard.sh              | 12 ++++++------
  .claude/hooks/load-context.sh                |  6 +++---
- memory/MEMORY.md => .claude/memory/gitlog.md |  0
+ memory/MEMORY.md => .claude/memory/gitlog.md | 26 +++++++++++++++-----------
  {memory => .claude/memory}/observations.md   |  0
  {memory => .claude/memory}/plan.md           |  0
  CLAUDE.md                                    |  6 +++---
  scripts/git-save.sh                          |  9 ++++-----
- 7 files changed, 16 insertions(+), 17 deletions(-)
+ 7 files changed, 31 insertions(+), 28 deletions(-)
 
 ----
 **2026-03-25** — chore: audit cleanup — remove redundant and legacy files
@@ -75,12 +90,4 @@ All long-side mechanics now confirmed. Decision: let bots run until Apr 20 for f
  memory/MEMORY.md | 24 ++++++++++--------------
  memory/plan.md   |  1 +
  2 files changed, 11 insertions(+), 14 deletions(-)
-
-----
-**2026-03-23** — chore: document calibration integrity reasoning
-Confirmed that all bug fixes are in the execution layer — signal generation is untouched. Calibration comparison between backtest and live is clean. Documented signal vs execution layer separation in observations.md as a key insight for the Apr 20 calibration review.
-
- memory/MEMORY.md       | 26 ++++++++++++--------------
- memory/observations.md |  7 +++++++
- 2 files changed, 19 insertions(+), 14 deletions(-)
 

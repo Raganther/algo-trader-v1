@@ -12,8 +12,8 @@ Read in order on every cold start:
 3. `.claude/memory/observations.md` — running insights from current testing phase
 
 Read on demand only:
-- `.claude/memory/strategies/` — per-strategy research and params
-- `.claude/memory/calibration_notes.md` — calibration methodology and Apr 20 commands
+- `.claude/strategies/` — per-strategy research and params
+- `.claude/calibration/calibration_notes.md` — calibration methodology and Apr 20 commands
 
 ## Run Commands
 
@@ -52,8 +52,8 @@ python3 scripts/fetch_price_data.py --symbols GLD,IAU,SLV,GDX --start 2020-01-01
 - **Indicators:** `backend/indicators/` — StochRSI, RSI, MACD, ADX, Bollinger, ATR, SMA, CHOP
 - **DB:** `backend/research.db` — experiments, live trades
 - **Frontend:** `frontend/` — Next.js dashboard, DB-driven
-- **Strategy notes:** `.claude/memory/strategies/` — per-strategy research and params
-- **Calibration notes:** `.claude/memory/calibration_notes.md` — methodology, Apr 20 commands, snapshots
+- **Strategy notes:** `.claude/strategies/` — per-strategy research and params
+- **Calibration notes:** `.claude/calibration/calibration_notes.md` — methodology, Apr 20 commands, snapshots
 - **OpenBrain category:** `.claude/openbrain-category` — `algo-trader`
 - **Hooks:** SessionStart (load-context.sh), PreToolUse guard (git-save-guard.sh), PostToolUse OpenBrain audit (openbrain-audit-reminder.sh)
 

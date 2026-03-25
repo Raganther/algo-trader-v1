@@ -5,7 +5,8 @@
 
 ## Memory system (audited and cleaned Mar 25)
 All three hooks live and in sync with global CLAUDE.md. git-save-guard has three checks: (1) memory files modified, (2) domain files listed in CLAUDE.md, (3) core memory files (plan.md, observations.md, MEMORY.md) listed in CLAUDE.md. OpenBrain migrated to algo-trader category. calibration_notes.md created as first graduated domain file.
-Mar 25 audit cleanup: deleted .claude/workflows/git_save.md (old superseded process doc), .claude/memory/MEMORY.md (old relic with wrong timezone instruction), and .claude/archive/ (3 completed plan docs — insights already in reference files and OpenBrain, git history preserves originals). .claude/ is now clean — hooks, settings, openbrain-category, and domain files only.
+Mar 25 audit cleanup: deleted .claude/workflows/git_save.md, .claude/memory/MEMORY.md (old relic), and .claude/archive/ (3 completed plan docs). .claude/ is now clean.
+Mar 25 migration: domain files moved out of .claude/memory/ into proper domain folders (.claude/strategies/, .claude/calibration/). .claude/memory/ now holds only the three core files (plan.md, observations.md, gitlog.md). CLAUDE.md updated to reflect new paths. This is the correct structure per global CLAUDE.md spec — future graduated files go in .claude/[domain]/, never in .claude/memory/.
 
 ---
 
