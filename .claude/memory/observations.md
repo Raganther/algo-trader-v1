@@ -3,6 +3,12 @@
 
 ---
 
+## Graduation Candidates
+<!-- Entries ready to graduate this session. git-save-guard blocks if non-empty. -->
+<!-- Either graduate to .claude/[domain]/ and clear, or explicitly remove if not ready. -->
+
+---
+
 ## Memory system (audited and cleaned Mar 25)
 All three hooks live and in sync with global CLAUDE.md. git-save-guard has three checks: (1) memory files modified, (2) domain files listed in CLAUDE.md, (3) core memory files (plan.md, observations.md, MEMORY.md) listed in CLAUDE.md. OpenBrain migrated to algo-trader category. calibration_notes.md created as first graduated domain file.
 Mar 25 audit cleanup: deleted .claude/workflows/git_save.md, .claude/memory/MEMORY.md (old relic), and .claude/archive/ (3 completed plan docs). .claude/ is now clean.

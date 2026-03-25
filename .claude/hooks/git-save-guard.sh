@@ -59,4 +59,32 @@ if [ -n "$MISSING_CORE" ]; then
   exit 1
 fi
 
+# Check 4: Graduation Candidates section in observations.md must be empty
+OBSERVATIONS="$CLAUDE_PROJECT_DIR/.claude/memory/observations.md"
+if [ -f "$OBSERVATIONS" ]; then
+  IN_SECTION=0
+  HAS_CANDIDATES=0
+  while IFS= read -r line; do
+    if echo "$line" | grep -q "^## Graduation Candidates"; then
+      IN_SECTION=1
+      continue
+    fi
+    if [ $IN_SECTION -eq 1 ]; then
+      if echo "$line" | grep -q "^## "; then
+        break
+      fi
+      if echo "$line" | grep -qE "[^[:space:]]"; then
+        HAS_CANDIDATES=1
+        break
+      fi
+    fi
+  done < "$OBSERVATIONS"
+
+  if [ $HAS_CANDIDATES -eq 1 ]; then
+    echo "⚠️  BLOCKED: observations.md has pending Graduation Candidates."
+    echo "   Graduate them to a .claude/[domain]/ file, or explicitly clear the section before saving."
+    exit 1
+  fi
+fi
+
 exit 0

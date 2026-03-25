@@ -1,5 +1,6 @@
 # Active Plan — Forward Testing & Mechanics Verification
 Started: 2026-02-27
+Domain files consulted: None
 
 ## What we're doing right now
 Running 4 paper bots with aggressive test params (OB 60/OS 40, ADX 50, 3-bar hold/trail) to:

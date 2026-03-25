@@ -3,11 +3,24 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-25** — chore: sync hooks with global CLAUDE.md — graduation enforcement
+Added Check 4 to git-save-guard (blocks if Graduation Candidates section non-empty). Updated openbrain-audit-reminder to structured KEEP/GRADUATE/REMOVE triage plus domain file revision check. Created plan-domain-reminder.sh (fires on plan.md edits, prompts domain file review). Registered new hook in settings.json. Added Graduation Candidates section to observations.md and Domain files consulted line to plan.md.
+
+ .claude/hooks/git-save-guard.sh           | 28 ++++++++++++++++++++++++++++
+ .claude/hooks/openbrain-audit-reminder.sh | 22 +++++++++++++++++-----
+ .claude/hooks/plan-domain-reminder.sh     | 31 +++++++++++++++++++++++++++++++
+ .claude/memory/observations.md            |  6 ++++++
+ .claude/memory/plan.md                    |  1 +
+ .claude/settings.json                     | 18 ++++++++++++++++++
+ 6 files changed, 101 insertions(+), 5 deletions(-)
+
+----
 **2026-03-25** — chore: Mar 25 audit — 1 GDX trade
 Mar 25: GDX only trade. Buy .80, trail updated to .49 after 1 bar, server stop fired .48 (below entry). GLD/IAU/SLV flat. Alpaca audit matched: 3 records per trailing-stop trade (buy + initial stop canceled + trail stop filled) — confirmed normal pattern.
 
- .claude/memory/observations.md | 1 +
- 1 file changed, 1 insertion(+)
+ .claude/memory/gitlog.md       | 36 ++++++++++++++++++------------------
+ .claude/memory/observations.md |  1 +
+ 2 files changed, 19 insertions(+), 18 deletions(-)
 
 ----
 **2026-03-25** — chore: migrate domain files out of memory/ into domain folders
@@ -78,16 +91,4 @@ Updated git-save-guard.sh to enforce domain file discoverability (blocks if .cla
  memory/MEMORY.md                          | 23 ++++++++++++-----------
  memory/observations.md                    |  5 +++++
  5 files changed, 49 insertions(+), 21 deletions(-)
-
-----
-**2026-03-24** — chore: graduate observations, create calibration_notes, fix OpenBrain setup
-Graduated calibration methodology from observations.md into .claude/memory/calibration_notes.md. Pruned observations.md to active-only insights (3 sections, down from 9). Created .claude/openbrain-category (algo-trader), updated openbrain-audit-reminder.sh to three-step format with update_memory guidance, migrated 10 OpenBrain memories from wrong categories to algo-trader.
-
- .claude/hooks/openbrain-audit-reminder.sh |  27 +++++--
- .claude/memory/calibration_notes.md       |  72 ++++++++++++++++++
- .claude/openbrain-category                |   1 +
- CLAUDE.md                                 |   2 +
- memory/MEMORY.md                          |  25 ++++---
- memory/observations.md                    | 119 +++---------------------------
- 6 files changed, 120 insertions(+), 126 deletions(-)
 
