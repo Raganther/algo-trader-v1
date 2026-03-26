@@ -11,7 +11,7 @@
 
 ## Memory system (audited Mar 25, compliance pass Mar 26)
 Mar 25: hooks synced with global CLAUDE.md. domain files migrated to .claude/[domain]/. archive cleared. .claude/memory/ holds only three core files. OpenBrain category set to algo-trader.
-Mar 26 compliance pass against global CLAUDE.md:
+Mar 26 compliance pass against global CLAUDE.md (procedure extracted → .claude/procedures/memory-harness-compliance-audit.md):
 - openbrain-audit-reminder.sh updated verbatim: 3 steps → 4 steps, procedure extraction added as Step 2.
 - git-save-guard.sh: Check 2 now excludes .claude/procedures/; Check 5 added (blocks if procedure files not in _index.md).
 - .claude/procedures/_index.md created (empty, ready for first extraction).

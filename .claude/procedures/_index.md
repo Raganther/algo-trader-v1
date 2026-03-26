@@ -2,4 +2,4 @@
 
 > Each entry: `[name](file.md)` — one-line description of when to apply.
 
-*(No procedures extracted yet.)*
+- [memory-harness-compliance-audit](memory-harness-compliance-audit.md) — audit hooks and domain files against global CLAUDE.md spec; run when global spec updates or new project setup

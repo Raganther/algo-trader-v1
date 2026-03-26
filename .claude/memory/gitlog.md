@@ -3,23 +3,33 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-26** — chore: extract memory harness compliance audit procedure
+First procedure extracted from this project. Covers how to audit hook scripts, domain files, and CLAUDE.md against the global spec. Includes example from Mar 26 session. Registered in .claude/procedures/_index.md.
+
+ .claude/memory/observations.md                     |  2 +-
+ .claude/procedures/_index.md                       |  2 +-
+ .../procedures/memory-harness-compliance-audit.md  | 40 ++++++++++++++++++++++
+ 3 files changed, 42 insertions(+), 2 deletions(-)
+
+----
 **2026-03-26** — chore: compliance audit — sync hooks and domain files with global CLAUDE.md
 Added procedure extraction (Step 2) to openbrain-audit-reminder, Check 5 to git-save-guard, and created .claude/procedures/_index.md. Replaced directory-level strategy pointer in CLAUDE.md with 7 individual file listings, fixing the Check 2 gap. Added Status: current to all 7 domain files. Cleaned stale forward testing sections from strategy cards — mechanics are all confirmed, cards now refer to CLAUDE.md/calibration_notes.md for operational state.
 
  .claude/calibration/calibration_notes.md    |  2 ++
- .claude/hooks/git-save-guard.sh             | 28 +++++++++++++++++++++++++++-
- .claude/hooks/openbrain-audit-reminder.sh   | 17 ++++++++++++-----
- .claude/memory/observations.md              | 12 ++++++++----
+ .claude/hooks/git-save-guard.sh             | 28 +++++++++++++++++++++++-
+ .claude/hooks/openbrain-audit-reminder.sh   | 17 ++++++++++-----
+ .claude/memory/gitlog.md                    | 33 ++++++++++++++++++-----------
+ .claude/memory/observations.md              | 12 +++++++----
  .claude/memory/plan.md                      |  2 +-
  .claude/procedures/_index.md                |  5 +++++
  .claude/strategies/composable_results.md    |  4 +++-
- .claude/strategies/event_surprise.md        | 15 ++++++---------
- .claude/strategies/stochrsi_enhanced_gdx.md | 13 ++++++-------
- .claude/strategies/stochrsi_enhanced_gld.md | 28 +++++++---------------------
- .claude/strategies/stochrsi_enhanced_iau.md | 11 ++++++-----
- .claude/strategies/stochrsi_enhanced_slv.md | 13 ++++++-------
- CLAUDE.md                                   | 14 ++++++++++----
- 13 files changed, 99 insertions(+), 65 deletions(-)
+ .claude/strategies/event_surprise.md        | 15 ++++++-------
+ .claude/strategies/stochrsi_enhanced_gdx.md | 13 ++++++------
+ .claude/strategies/stochrsi_enhanced_gld.md | 28 ++++++------------------
+ .claude/strategies/stochrsi_enhanced_iau.md | 11 +++++-----
+ .claude/strategies/stochrsi_enhanced_slv.md | 13 ++++++------
+ CLAUDE.md                                   | 14 ++++++++----
+ 14 files changed, 120 insertions(+), 77 deletions(-)
 
 ----
 **2026-03-25** — chore: sync hooks with global CLAUDE.md — graduation enforcement
@@ -92,12 +102,4 @@ git-save-guard.sh now has three checks matching global CLAUDE.md spec. Check 3 b
  memory/MEMORY.md                | 23 ++++++++++-------------
  memory/observations.md          |  4 ++--
  3 files changed, 27 insertions(+), 15 deletions(-)
-
-----
-**2026-03-25** — chore: Mar 24 audit + slippage observation
-Mar 24: 8 trades, full Alpaca audit passed, 5 server stop fires in choppy metals market. GLD+IAU stops fired simultaneously twice — correlated asset behaviour confirmed. Identified two distinct slippage types: spread (modelled in backtest) vs stop execution (not modelled). Stop execution slippage small but consistent (~0.01-0.14/share), will surface in Layer 3 of Apr 20 calibration.
-
- memory/MEMORY.md       | 20 +++++++++-----------
- memory/observations.md | 10 ++++++++--
- 2 files changed, 17 insertions(+), 13 deletions(-)
 
