@@ -3,16 +3,36 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-26** — chore: compliance audit — sync hooks and domain files with global CLAUDE.md
+Added procedure extraction (Step 2) to openbrain-audit-reminder, Check 5 to git-save-guard, and created .claude/procedures/_index.md. Replaced directory-level strategy pointer in CLAUDE.md with 7 individual file listings, fixing the Check 2 gap. Added Status: current to all 7 domain files. Cleaned stale forward testing sections from strategy cards — mechanics are all confirmed, cards now refer to CLAUDE.md/calibration_notes.md for operational state.
+
+ .claude/calibration/calibration_notes.md    |  2 ++
+ .claude/hooks/git-save-guard.sh             | 28 +++++++++++++++++++++++++++-
+ .claude/hooks/openbrain-audit-reminder.sh   | 17 ++++++++++++-----
+ .claude/memory/observations.md              | 12 ++++++++----
+ .claude/memory/plan.md                      |  2 +-
+ .claude/procedures/_index.md                |  5 +++++
+ .claude/strategies/composable_results.md    |  4 +++-
+ .claude/strategies/event_surprise.md        | 15 ++++++---------
+ .claude/strategies/stochrsi_enhanced_gdx.md | 13 ++++++-------
+ .claude/strategies/stochrsi_enhanced_gld.md | 28 +++++++---------------------
+ .claude/strategies/stochrsi_enhanced_iau.md | 11 ++++++-----
+ .claude/strategies/stochrsi_enhanced_slv.md | 13 ++++++-------
+ CLAUDE.md                                   | 14 ++++++++++----
+ 13 files changed, 99 insertions(+), 65 deletions(-)
+
+----
 **2026-03-25** — chore: sync hooks with global CLAUDE.md — graduation enforcement
 Added Check 4 to git-save-guard (blocks if Graduation Candidates section non-empty). Updated openbrain-audit-reminder to structured KEEP/GRADUATE/REMOVE triage plus domain file revision check. Created plan-domain-reminder.sh (fires on plan.md edits, prompts domain file review). Registered new hook in settings.json. Added Graduation Candidates section to observations.md and Domain files consulted line to plan.md.
 
  .claude/hooks/git-save-guard.sh           | 28 ++++++++++++++++++++++++++++
  .claude/hooks/openbrain-audit-reminder.sh | 22 +++++++++++++++++-----
  .claude/hooks/plan-domain-reminder.sh     | 31 +++++++++++++++++++++++++++++++
+ .claude/memory/gitlog.md                  | 29 +++++++++++++++--------------
  .claude/memory/observations.md            |  6 ++++++
  .claude/memory/plan.md                    |  1 +
  .claude/settings.json                     | 18 ++++++++++++++++++
- 6 files changed, 101 insertions(+), 5 deletions(-)
+ 7 files changed, 116 insertions(+), 19 deletions(-)
 
 ----
 **2026-03-25** — chore: Mar 25 audit — 1 GDX trade
@@ -80,15 +100,4 @@ Mar 24: 8 trades, full Alpaca audit passed, 5 server stop fires in choppy metals
  memory/MEMORY.md       | 20 +++++++++-----------
  memory/observations.md | 10 ++++++++--
  2 files changed, 17 insertions(+), 13 deletions(-)
-
-----
-**2026-03-24** — chore: sync hooks with global CLAUDE.md updates
-Updated git-save-guard.sh to enforce domain file discoverability (blocks if .claude/memory/ files not listed in CLAUDE.md). Updated openbrain-audit-reminder.sh Step 1 to require update-in-place check before appending. Removed docs/dev.md reference from project CLAUDE.md. All hooks now in sync with global CLAUDE.md.
-
- .claude/hooks/git-save-guard.sh           | 29 ++++++++++++++++++++++++++---
- .claude/hooks/openbrain-audit-reminder.sh | 10 +++++-----
- CLAUDE.md                                 |  3 +--
- memory/MEMORY.md                          | 23 ++++++++++++-----------
- memory/observations.md                    |  5 +++++
- 5 files changed, 49 insertions(+), 21 deletions(-)
 

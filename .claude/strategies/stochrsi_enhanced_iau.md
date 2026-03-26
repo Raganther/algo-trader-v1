@@ -1,6 +1,7 @@
 # StochRSI Enhanced — IAU 15m
 
-> **Status:** VALIDATED (Sharpe ~2.0, Feb 28 2026)
+Status: current
+
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 
 ## Validated Parameters
@@ -92,12 +93,12 @@ Live bots run long-only — Alpaca rejects fractional short orders.
 **Year-by-year (long-only):** 2020: +0.23% | 2021: +0.98% | 2022: +3.27% | 2023: +2.95% | 2024: +5.37% | 2025: +6.49%
 All years profitable but 2020–2021 are very slim. The short side is especially important for IAU's early-period performance.
 
-## Forward Testing Status (as of Mar 10 2026)
+## Forward Testing
 
-iau-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail).
+iau-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — see `CLAUDE.md` and `.claude/calibration/calibration_notes.md`.
 
-**Backtest prediction for test params (Dec 2025 – Mar 2026):** -0.50%, 54 trades, 37% WR — weakest of the 4 symbols under test params. IAU closely tracks GLD so this may reflect the same choppy period.
+Backtest prediction for test params (Dec 2025 – Mar 2026): -0.50%, 54 trades, 37% WR — weakest of the 4 symbols under test params.
 
 ---
 
-*Last updated: 2026-03-14 (Long-only baseline added. Forward testing active.)*
+*Last updated: 2026-03-26*

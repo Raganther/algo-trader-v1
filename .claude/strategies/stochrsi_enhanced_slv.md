@@ -1,6 +1,7 @@
 # StochRSI Enhanced — SLV 15m
 
-> **Status:** VALIDATED (Sharpe 2.54, Feb 27 2026)
+Status: current
+
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 
 ## Validated Parameters
@@ -76,14 +77,12 @@ Most consistent year-by-year profile of the four assets. All years strongly posi
 
 **Implication:** SLV long-only is viable as-is. No urgency to fix short selling for SLV specifically.
 
-## Forward Testing Status (as of Mar 10 2026)
+## Forward Testing
 
-slv-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail).
+slv-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — see `CLAUDE.md` and `.claude/calibration/calibration_notes.md`.
 
-**Backtest prediction for test params (Dec 2025 – Mar 2026):** +14.25%, 44 trades, 57% WR — strongest of the 4 symbols, consistent with silver's higher volatility.
-
-**Mar 09 observation:** Trail ratcheted from $76.15 → $77.23 on a live trade. Bot K-signal exited first at $77.92 before trail could fire. Trailing stop UPDATE confirmed working. Trail FIRING still unconfirmed.
+Backtest prediction for test params (Dec 2025 – Mar 2026): +14.25%, 44 trades, 57% WR — strongest of the 4 symbols under test params.
 
 ---
 
-*Last updated: 2026-03-14 (Long-only baseline added. Forward testing active.)*
+*Last updated: 2026-03-26*

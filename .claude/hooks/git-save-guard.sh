@@ -28,7 +28,7 @@ UNLISTED=""
 while IFS= read -r -d '' file; do
   relative="${file#$CLAUDE_PROJECT_DIR/}"
   # Skip hooks, settings, openbrain-category, and core memory files
-  if echo "$relative" | grep -qE "^\.claude/hooks/|^\.claude/settings|^\.claude/openbrain-category|^\.claude/memory/plan\.md|^\.claude/memory/observations\.md|^\.claude/memory/gitlog\.md"; then
+  if echo "$relative" | grep -qE "^\.claude/hooks/|^\.claude/settings|^\.claude/openbrain-category|^\.claude/procedures/|^\.claude/memory/plan\.md|^\.claude/memory/observations\.md|^\.claude/memory/gitlog\.md"; then
     continue
   fi
   # Check if listed in CLAUDE.md
@@ -85,6 +85,32 @@ if [ -f "$OBSERVATIONS" ]; then
     echo "   Graduate them to a .claude/[domain]/ file, or explicitly clear the section before saving."
     exit 1
   fi
+fi
+
+# Check 5: any new procedure files in .claude/procedures/ must be listed in _index.md
+PROCEDURES_DIR="$CLAUDE_PROJECT_DIR/.claude/procedures"
+PROCEDURES_INDEX="$PROCEDURES_DIR/_index.md"
+UNLISTED_PROCEDURES=""
+
+if [ -d "$PROCEDURES_DIR" ]; then
+  while IFS= read -r -d '' file; do
+    relative="${file#$PROCEDURES_DIR/}"
+    # Skip _index.md itself
+    if [ "$relative" = "_index.md" ]; then
+      continue
+    fi
+    # Check if listed in _index.md
+    if [ ! -f "$PROCEDURES_INDEX" ] || ! grep -qF "$relative" "$PROCEDURES_INDEX"; then
+      UNLISTED_PROCEDURES="$UNLISTED_PROCEDURES\n  $relative"
+    fi
+  done < <(find "$PROCEDURES_DIR" -type f -print0 2>/dev/null)
+fi
+
+if [ -n "$UNLISTED_PROCEDURES" ]; then
+  echo "⚠️  BLOCKED: The following procedure files are not listed in .claude/procedures/_index.md:"
+  echo -e "$UNLISTED_PROCEDURES"
+  echo "   Add them to _index.md before saving."
+  exit 1
 fi
 
 exit 0

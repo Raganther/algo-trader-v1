@@ -34,4 +34,4 @@ All known long-side bugs are fixed. Bots are running cleanly from Mar 16 onwards
 
 ---
 
-*Running insights → `memory/observations.md`*
+*Running insights → `.claude/memory/observations.md`*

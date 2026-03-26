@@ -9,10 +9,14 @@
 
 ---
 
-## Memory system (audited and cleaned Mar 25)
-All three hooks live and in sync with global CLAUDE.md. git-save-guard has three checks: (1) memory files modified, (2) domain files listed in CLAUDE.md, (3) core memory files (plan.md, observations.md, MEMORY.md) listed in CLAUDE.md. OpenBrain migrated to algo-trader category. calibration_notes.md created as first graduated domain file.
-Mar 25 audit cleanup: deleted .claude/workflows/git_save.md, .claude/memory/MEMORY.md (old relic), and .claude/archive/ (3 completed plan docs). .claude/ is now clean.
-Mar 25 migration: domain files moved out of .claude/memory/ into proper domain folders (.claude/strategies/, .claude/calibration/). .claude/memory/ now holds only the three core files (plan.md, observations.md, gitlog.md). CLAUDE.md updated to reflect new paths. This is the correct structure per global CLAUDE.md spec — future graduated files go in .claude/[domain]/, never in .claude/memory/.
+## Memory system (audited Mar 25, compliance pass Mar 26)
+Mar 25: hooks synced with global CLAUDE.md. domain files migrated to .claude/[domain]/. archive cleared. .claude/memory/ holds only three core files. OpenBrain category set to algo-trader.
+Mar 26 compliance pass against global CLAUDE.md:
+- openbrain-audit-reminder.sh updated verbatim: 3 steps → 4 steps, procedure extraction added as Step 2.
+- git-save-guard.sh: Check 2 now excludes .claude/procedures/; Check 5 added (blocks if procedure files not in _index.md).
+- .claude/procedures/_index.md created (empty, ready for first extraction).
+- CLAUDE.md: directory-level pointer (.claude/strategies/) replaced with 7 individual file listings. plan-domain-reminder.sh added to Architecture hooks line.
+- All 7 domain files: Status: current added as standard header. Stale "Forward Testing Status" / "Next Steps" sections removed from strategy cards — replaced with brief prose notes referencing CLAUDE.md and calibration_notes.md.
 
 ---
 

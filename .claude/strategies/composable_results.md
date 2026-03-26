@@ -1,8 +1,10 @@
 # Phase 3 — Composable Strategy Results
 
-> **Status:** Complete. 3 validated combos found, not yet deployed.
+Status: current
+
 > **Code:** `backend/optimizer/composable_strategy.py`, `backend/optimizer/building_blocks.py`
 > **Run script:** `backend/optimizer/run_composable.py`
+> **Note:** 3 validated combos found, not yet paper tested or deployed.
 
 ## Summary
 

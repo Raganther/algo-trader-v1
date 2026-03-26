@@ -1,9 +1,11 @@
 # EventSurprise — Economic Data Surprise Trading
 
-> **Status:** BUILT, initial backtest positive, not yet paper tested
+Status: current
+
 > **Strategy file:** `backend/strategies/event_surprise.py`
 > **Bot script:** `scripts/run_event_surprise_test.sh`
 > **Diagnostic scripts:** `backend/scripts/event_surprise_analysis.py`, `backend/scripts/event_surprise_gaps.py`
+> **Note:** Built and backtested — not yet paper tested or deployed.
 
 ## Concept
 
@@ -108,15 +110,10 @@ python3 -m backend.runner backtest --strategy EventSurprise --symbol GLD --timef
   --parameters '{"event_types":["CPI m/m","CPI y/y","Non-Farm Employment Change","Unemployment Rate"],"hold_bars":4,"stop_pct":0.5,"entry_delay":1,"trade_beats":true}'
 ```
 
-## Next Steps
+## Future Work
 
-- [ ] Paper test on cloud (CPI-only config) — `scripts/run_event_surprise_test.sh`
-- [ ] Test wider hold windows (hold_bars=8 for 2h, hold_bars=16 for 4h) — diagnostic showed moves continue
-- [ ] Test on SLV/IAU (gold-correlated ETFs) — should show similar CPI sensitivity
-- [ ] Explore FOMC rate decisions as additional event type
-- [ ] Consider combining with StochRSI — event surprise as entry filter for existing strategy
-- [ ] Explore actual vs forecast surprise magnitude for position sizing (larger surprise = larger position)
+Parked — not current priority. When ready: paper test on cloud (CPI-only config), test wider hold windows (hold_bars=8/16), test on SLV/IAU, explore FOMC rate decisions, consider combining with StochRSI as entry filter, explore surprise magnitude for position sizing.
 
 ---
 
-*Last updated: 2026-02-17 (Strategy built, initial backtests run)*
+*Last updated: 2026-03-26*

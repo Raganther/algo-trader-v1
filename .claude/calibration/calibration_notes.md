@@ -1,5 +1,7 @@
 # Calibration Notes — Algo Trader V1
 
+Status: current
+
 Confirmed methodology for validating the backtest engine against live results.
 
 ---

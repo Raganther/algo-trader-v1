@@ -1,6 +1,6 @@
 #!/bin/bash
 # PostToolUse hook — fires after git-save.sh
-# Enforces three required steps: observations check, OpenBrain audit, confirmation.
+# Enforces four required steps: graduation check, skill extraction, OpenBrain audit, confirmation.
 
 INPUT=$(cat)
 COMMAND=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_input',{}).get('command',''))" 2>/dev/null)
@@ -10,7 +10,7 @@ if [[ "$COMMAND" != *"git-save.sh"* ]]; then
   exit 0
 fi
 
-echo "Git save complete. Three steps required before continuing:"
+echo "Git save complete. Four steps required before continuing:"
 echo ""
 echo "STEP 1 — Triage:"
 echo ""
@@ -29,7 +29,14 @@ echo "If plan.md has no domain files consulted, skip this check."
 echo ""
 echo "State your triage explicitly before proceeding to Step 2."
 echo ""
-echo "STEP 2 — OpenBrain audit:"
+echo "STEP 2 — Procedure extraction:"
+echo "Review the session's work. Ask: what reusable procedural pattern did we apply that isn't yet named as a procedure?"
+echo "A procedure is a repeatable process — how to do a class of task — not a fact (domain file) or a step (plan.md)."
+echo "For each candidate, propose: name, when to apply, steps, example from this session."
+echo "Wait for user approval before writing. Approved procedures go in .claude/procedures/ with a matching entry in .claude/procedures/_index.md."
+echo "If no procedure candidates, state that explicitly."
+echo ""
+echo "STEP 3 — OpenBrain audit:"
 echo "Review what was just committed. Propose confirmed/working things as OpenBrain candidates."
 echo "Use the project name as category (check .claude/openbrain-category)."
 echo "Run list_memories(category='<project>') first — for each candidate:"
@@ -38,7 +45,7 @@ echo "  - If it is genuinely new: propose remember(content, category)."
 echo "Wait for user approval before writing anything."
 echo "If no candidates or updates, state that explicitly."
 echo ""
-echo "STEP 3 — Confirm completion."
-echo "State that both triage and audit are done before resuming other work."
+echo "STEP 4 — Confirm completion."
+echo "State that triage, procedure extraction, and OpenBrain audit are all done before resuming other work."
 
 exit 0

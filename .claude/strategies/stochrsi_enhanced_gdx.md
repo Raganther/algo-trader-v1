@@ -1,6 +1,7 @@
 # StochRSI Enhanced — GDX 15m
 
-> **Status:** VALIDATED (Sharpe 2.41, Feb 27 2026)
+Status: current
+
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 
 ## Validated Parameters
@@ -78,14 +79,12 @@ All years profitable but 2020–2021 are slim compared to the full strategy. 202
 
 **Implication:** Short selling matters most for GDX. Solving fractional short selling is highest priority for GDX specifically.
 
-## Forward Testing Status (as of Mar 10 2026)
+## Forward Testing
 
-gdx-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail).
+gdx-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — including trailing stop FIRING in profit (Mar 23: entry $80.05, trail ratcheted to $83.35, server stop fired intrabar @ $83.317, +$958 paper). See `CLAUDE.md` and `.claude/calibration/calibration_notes.md`.
 
-**Backtest prediction for test params (Dec 2025 – Mar 2026):** +2.45%, 69 trades, 59% WR.
-
-**Mar 09 observation:** Trail ratcheted from $96.60 → $96.99 on a live trade. Bot exit signal fired at $98.90. Trail UPDATE confirmed working on GDX as well as SLV.
+Backtest prediction for test params (Dec 2025 – Mar 2026): +2.45%, 69 trades, 59% WR.
 
 ---
 
-*Last updated: 2026-03-14 (Long-only baseline added. Forward testing active.)*
+*Last updated: 2026-03-26*
