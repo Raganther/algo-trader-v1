@@ -8,6 +8,7 @@ Running 4 paper bots with aggressive test params (OB 60/OS 40, ADX 50, 3-bar hol
 2. Generate a calibration dataset to validate the backtest engine
 
 All known long-side bugs are fixed. Bots are running cleanly from Mar 16 onwards.
+Mar 26: pending_fills no-stop bug fixed — stop_loss now carried through delayed fill path.
 
 ---
 

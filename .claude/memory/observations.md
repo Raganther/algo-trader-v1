@@ -28,6 +28,7 @@ Mar 26 compliance pass against global CLAUDE.md (procedure extracted → .claude
 - Mar 23: 9 trades across all 4 bots, full audit passed. GDX server stop fired in profit (entry $80.05, exit $83.317, +$958 paper). Trail fire confirmed ✅
 - Mar 24: 8 trades across all 4 bots, full audit passed. 5 of 8 exits via server stop (choppy market). GLD+IAU stops fired at identical timestamps (15:10 UTC and 18:58 UTC) — correlated assets hit by same intrabar market move simultaneously. All fills matched pm2 logs exactly.
 - Mar 25: 1 trade (GDX only). Buy $86.80 → trail updated to $86.49 after 1 bar → server stop fired $86.48 (-$0.32/share, below entry). GLD/IAU/SLV flat. Alpaca audit: 3 records (buy + initial stop canceled + trail stop filled) — confirmed normal pattern for trades with trail update.
+- Mar 26: 7 trades (GLD×2, IAU×1, SLV×2, GDX×2). All 4 bots flat EOD. Full Alpaca audit passed. SLV T1 had delayed fill (no stop placed — bug confirmed and fixed same day). Day P&L ~+$237 paper, led by GLD/SLV.
 
 ---
 
@@ -41,5 +42,6 @@ The backtest models **spread slippage** via `--spread 0.0003` (0.03% bid-ask cos
 
 ---
 
-## Market open fill delays
-GLD and SLV first buys on Mar 23 took 3–4 minutes to fill (placed at 13:31 UTC, market open). The 30s pending_fills timeout fired correctly — fills were eventually confirmed. This is normal at open, not a bug. Happens occasionally on other days too.
+## Market open fill delays (fixed Mar 26)
+Fills at market open regularly take 1–4 minutes, exceeding the 30s pending_fills timeout. Previously: fill would eventually confirm via pending_fills, but the server-side stop was never placed — position ran unprotected until the next exit signal. Confirmed on Mar 26: SLV buy at 13:31, filled 13:33, no stop in Alpaca, exited via K-signal at 14:16 (43 min unprotected).
+Fixed in live_broker.py: `stop_loss` now stored in pending_fills entry at timeout; `get_new_trades()` places the stop when the fill resolves. Log line: `🛡️ SERVER STOP placed at $X.XX ... [delayed fill]`.

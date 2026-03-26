@@ -3,13 +3,23 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-26** — fix: place server stop after delayed buy fill (pending_fills gap)
+When a buy fill timed out (30s) and was queued to pending_fills, stop_loss was not stored — so no server-side stop was placed when the fill eventually resolved. Confirmed on Mar 26: SLV ran 43 min unprotected. Fix: store stop_loss in pending_fills entry at timeout; place stop in get_new_trades() when fill resolves. Deployed to cloud.
+
+ .claude/memory/observations.md |  6 ++++--
+ .claude/memory/plan.md         |  1 +
+ backend/engine/live_broker.py  | 21 ++++++++++++++++++++-
+ 3 files changed, 25 insertions(+), 3 deletions(-)
+
+----
 **2026-03-26** — chore: extract memory harness compliance audit procedure
 First procedure extracted from this project. Covers how to audit hook scripts, domain files, and CLAUDE.md against the global spec. Includes example from Mar 26 session. Registered in .claude/procedures/_index.md.
 
+ .claude/memory/gitlog.md                           | 38 ++++++++++----------
  .claude/memory/observations.md                     |  2 +-
  .claude/procedures/_index.md                       |  2 +-
  .../procedures/memory-harness-compliance-audit.md  | 40 ++++++++++++++++++++++
- 3 files changed, 42 insertions(+), 2 deletions(-)
+ 4 files changed, 62 insertions(+), 20 deletions(-)
 
 ----
 **2026-03-26** — chore: compliance audit — sync hooks and domain files with global CLAUDE.md
@@ -93,13 +103,4 @@ Deleted .claude/workflows/git_save.md (old superseded process doc referencing sc
  memory/MEMORY.md                             |   23 +-
  memory/observations.md                       |    5 +-
  7 files changed, 17 insertions(+), 2538 deletions(-)
-
-----
-**2026-03-25** — chore: add Check 3 to git-save-guard (core memory file discoverability)
-git-save-guard.sh now has three checks matching global CLAUDE.md spec. Check 3 blocks if memory/plan.md, memory/observations.md, or memory/MEMORY.md are missing from CLAUDE.md Session Start section. Closes the gap identified in the gap analysis — auto-load files are now enforced as well as domain files.
-
- .claude/hooks/git-save-guard.sh | 15 +++++++++++++++
- memory/MEMORY.md                | 23 ++++++++++-------------
- memory/observations.md          |  4 ++--
- 3 files changed, 27 insertions(+), 15 deletions(-)
 

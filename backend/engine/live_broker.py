@@ -125,6 +125,25 @@ class LiveBroker:
                     'order_id': pf['order_id']
                 })
                 print(f"✅ PENDING FILL resolved: {pf['side']} @ {fill_price} (order {pf['order_id'][:8]}...)")
+
+                # Place server-side stop for delayed buy fills (stop was dropped at timeout)
+                is_crypto = '/' in self.symbol
+                stop_loss = pf.get('stop_loss')
+                if pf['side'] == 'buy' and stop_loss and not is_crypto:
+                    try:
+                        stop_res = self.trader.place_stop_order(
+                            symbol=self.symbol,
+                            qty=pf['qty'],
+                            side='sell',
+                            stop_price=stop_loss
+                        )
+                        self.pending_stop_order_id = stop_res['id']
+                        self.pending_stop_qty = pf['qty']
+                        self.pending_stop_side = 'sell'
+                        self._last_stop_price = stop_loss
+                        print(f"🛡️ SERVER STOP placed at ${stop_loss:.2f} (order {stop_res['id'][:8]}...) [delayed fill]")
+                    except Exception as e:
+                        print(f"⚠️ Server stop failed after delayed fill: {e} — bot will manage stop locally")
             else:
                 still_pending.append(pf)
         self.pending_fills = still_pending
@@ -236,7 +255,7 @@ class LiveBroker:
                     self.pending_stop_qty = None
                     self.pending_stop_side = None
         else:
-            self.pending_fills.append({'order_id': res['id'], 'signal_price': price, 'side': 'buy', 'qty': size})
+            self.pending_fills.append({'order_id': res['id'], 'signal_price': price, 'side': 'buy', 'qty': size, 'stop_loss': stop_loss})
             print(f"⏳ Buy order {res['id'][:8]}... queued in pending_fills for retry")
 
         return res
