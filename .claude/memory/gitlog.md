@@ -3,11 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-27** — chore: preliminary calibration check — Mar 27
+Ran backtest (aggressive params + trading_hours filter) over Mar 20-27 calibration window. Backtest predicts 40 trades vs 31 live (1.3x); P&L direction aligned (near-zero/slightly negative across all 4 symbols). No red flags. For Apr 20 calibration: always add trading_hours:[13,20] to match live bot's market hours gate — the main systematic correction required.
+
+ .claude/memory/observations.md | 19 +++++++++++++++++++
+ .claude/memory/plan.md         |  2 +-
+ 2 files changed, 20 insertions(+), 1 deletion(-)
+
+----
 **2026-03-27** — chore: correct Mar 23 trade count (9 → 7)
 Cross-referenced Mar 23 Alpaca export against pm2 log-based observation. 7 round trips confirmed (GLD×2, SLV×2, IAU×2, GDX T2 close). Original '9' was a counting error from log events, not a forward test bug.
 
- .claude/memory/observations.md | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .claude/memory/gitlog.md       | 23 +++++++++--------------
+ .claude/memory/observations.md |  2 +-
+ 2 files changed, 10 insertions(+), 15 deletions(-)
 
 ----
 **2026-03-27** — chore: note phantom sell = blocked short entry
@@ -77,20 +86,4 @@ Mar 25: GDX only trade. Buy .80, trail updated to .49 after 1 bar, server stop f
  .claude/memory/gitlog.md       | 36 ++++++++++++++++++------------------
  .claude/memory/observations.md |  1 +
  2 files changed, 19 insertions(+), 18 deletions(-)
-
-----
-**2026-03-25** — chore: migrate domain files out of memory/ into domain folders
-Moved .claude/memory/strategies/ → .claude/strategies/ and .claude/memory/calibration_notes.md → .claude/calibration/calibration_notes.md. Updated CLAUDE.md Architecture and Session Start sections to reference new paths. .claude/memory/ now holds only the three core files (plan.md, observations.md, gitlog.md) per global CLAUDE.md spec. Future graduated files go in .claude/[domain]/, never in memory/.
-
- .../{memory => calibration}/calibration_notes.md   |  0
- .claude/memory/gitlog.md                           | 27 ++++++++++++++--------
- .claude/memory/observations.md                     |  3 ++-
- .../{memory => }/strategies/composable_results.md  |  0
- .claude/{memory => }/strategies/event_surprise.md  |  0
- .../strategies/stochrsi_enhanced_gdx.md            |  0
- .../strategies/stochrsi_enhanced_gld.md            |  0
- .../strategies/stochrsi_enhanced_iau.md            |  0
- .../strategies/stochrsi_enhanced_slv.md            |  0
- CLAUDE.md                                          |  8 +++----
- 10 files changed, 23 insertions(+), 15 deletions(-)
 

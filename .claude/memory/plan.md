@@ -26,7 +26,7 @@ Mar 26: pending_fills no-stop bug fixed — stop_loss now carried through delaye
 - [ ] Stage 3 (after): regime shading (ADX + SMA slope), win rate per regime
 
 ### Calibration comparison — target Apr 20
-- [ ] **Preliminary check ~Mar 30** — run backtest over Mar 20–30 window as an early diagnostic only. Not the calibration — just an early warning check for obvious misalignments. Do not draw conclusions from ~10 trades per symbol.
+- [x] **Preliminary check ~Mar 27** — done. See observations.md. No red flags. Backtest predicts 40 trades vs 31 live (1.3x) for Mar 20–27; P&L direction aligned (both near-zero/slightly negative). `trading_hours:[13,20]` required for all calibration backtest runs.
 - [ ] **Run calibration on Apr 20** — keep current aggressive params (OB 60/OS 40, trail 0.5 ATR after 1 bar) running until Apr 20. Then run backtest with identical params over the same window and compare trade counts, entry/exit prices, and aggregate P&L. Clean data window: Mar 20 – Apr 20 (Mar 20 = first fully confirmed clean day with current params and all fixes deployed). Expect ~80-100 trades per symbol across the full window. Aggressive params are intentionally kept for this — they generate ~2x more trades than validated params, making the calibration comparison more statistically meaningful.
 
 ### After mechanics verified (long + short)

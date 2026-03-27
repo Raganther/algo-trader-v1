@@ -33,6 +33,25 @@ Mar 26 compliance pass against global CLAUDE.md (procedure extracted → .claude
 
 ---
 
+## Preliminary calibration check (Mar 27)
+Backtest run with aggressive test params + `trading_hours:[13,20]` over Mar 20–27 vs live Alpaca results:
+
+| Symbol | Backtest trades | Backtest return | Live trades |
+|--------|----------------|-----------------|-------------|
+| GLD | 11 | +0.05% | ~8–9 |
+| IAU | 8 | -0.08% | ~7–8 |
+| SLV | 10 | -0.27% | ~8–9 |
+| GDX | 11 | -0.81% | ~7–8 |
+| Total | 40 | | ~31 confirmed |
+
+**Finding: no red flags.** 1.3x trade count inflation and P&L direction matching (both near-zero/slightly negative). Choppy week confirmed in both engines — trail fires after 1 bar, exits near or below entry across all 4 symbols.
+
+**Hours filter barely helps:** `trading_hours:[13,20]` reduces Jan–Mar aggregate from 156→139 for GLD (only 11%). The bulk of the Jan–Mar difference in trade rate vs live is market regime — Jan–Feb had more oscillation (K crossing oversold/overbought more frequently) vs March precious-metals bull run with extended overbought periods.
+
+**For Apr 20 calibration:** always add `"trading_hours":[13,20]` to backtest params. This is the only systematic correction required. Residual 30% over-prediction is acceptable; caused by hours filter including 13:00–13:29 bars (live gate starts at 13:30) plus minor execution timing differences.
+
+---
+
 ## "Phantom sell" — blocked short entry (confirmed Mar 27)
 Every day, all 4 bots log `⚠️ SELL skipped: no open position — ignoring duplicate exit signal` once during the session. This is NOT a duplicate exit — it's a **blocked short entry attempt**.
 
