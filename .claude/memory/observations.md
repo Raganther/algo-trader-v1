@@ -25,7 +25,7 @@ Mar 26 compliance pass against global CLAUDE.md (procedure extracted → .claude
 - Mar 05 onwards: 100% fill capture
 - Mar 16–19: full Alpaca audits — all records matched pm2 logs across all 4 bots
 - Mar 20: clean window starts — 18/18 orders matched, all fixes deployed
-- Mar 23: 9 trades across all 4 bots, full audit passed. GDX server stop fired in profit (entry $80.05, exit $83.317, +$958 paper). Trail fire confirmed ✅
+- Mar 23: 7 trades across all 4 bots, full audit passed. GLD×2, SLV×2, IAU×2 (all K-signal exits), GDX T2 close via server stop (entered Mar 20, held over weekend). GDX server stop fired in profit (entry $80.05, exit $83.317, +$958 paper). Trail fire confirmed ✅
 - Mar 24: 8 trades across all 4 bots, full audit passed. 5 of 8 exits via server stop (choppy market). GLD+IAU stops fired at identical timestamps (15:10 UTC and 18:58 UTC) — correlated assets hit by same intrabar market move simultaneously. All fills matched pm2 logs exactly.
 - Mar 25: 1 trade (GDX only). Buy $86.80 → trail updated to $86.49 after 1 bar → server stop fired $86.48 (-$0.32/share, below entry). GLD/IAU/SLV flat. Alpaca audit: 3 records (buy + initial stop canceled + trail stop filled) — confirmed normal pattern for trades with trail update.
 - Mar 26: 7 trades (GLD×2, IAU×1, SLV×2, GDX×2). All 4 bots flat EOD. Full Alpaca audit passed. SLV T1 had delayed fill (no stop placed — bug confirmed and fixed same day). Day P&L ~+$237 paper, led by GLD/SLV.

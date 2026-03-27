@@ -3,11 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-27** — chore: correct Mar 23 trade count (9 → 7)
+Cross-referenced Mar 23 Alpaca export against pm2 log-based observation. 7 round trips confirmed (GLD×2, SLV×2, IAU×2, GDX T2 close). Original '9' was a counting error from log events, not a forward test bug.
+
+ .claude/memory/observations.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+----
 **2026-03-27** — chore: note phantom sell = blocked short entry
 Investigated daily SELL skipped warning on all 4 bots. Confirmed it is the strategy's short entry logic firing (in_overbought_zone + K < 50) and being blocked by live_broker.sell() fractional short guard. Not a duplicate exit — warning message is misleading. State stays clean; resolves when whole-share sizing enables shorts.
 
+ .claude/memory/gitlog.md       | 23 +++++++++--------------
  .claude/memory/observations.md | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ 2 files changed, 21 insertions(+), 14 deletions(-)
 
 ----
 **2026-03-26** — fix: place server stop after delayed buy fill (pending_fills gap)
@@ -85,17 +93,4 @@ Moved .claude/memory/strategies/ → .claude/strategies/ and .claude/memory/cali
  .../strategies/stochrsi_enhanced_slv.md            |  0
  CLAUDE.md                                          |  8 +++----
  10 files changed, 23 insertions(+), 15 deletions(-)
-
-----
-**2026-03-25** — chore: migrate memory files to .claude/memory/
-Move plan.md, observations.md, MEMORY.md (renamed gitlog.md) from memory/ root into .claude/memory/ to consolidate all Claude files under .claude/. Update git-save.sh, git-save-guard.sh, load-context.sh, and CLAUDE.md to use new paths. Matches updated global CLAUDE.md design.
-
- .claude/hooks/git-save-guard.sh              | 12 ++++++------
- .claude/hooks/load-context.sh                |  6 +++---
- memory/MEMORY.md => .claude/memory/gitlog.md | 26 +++++++++++++++-----------
- {memory => .claude/memory}/observations.md   |  0
- {memory => .claude/memory}/plan.md           |  0
- CLAUDE.md                                    |  6 +++---
- scripts/git-save.sh                          |  9 ++++-----
- 7 files changed, 31 insertions(+), 28 deletions(-)
 
