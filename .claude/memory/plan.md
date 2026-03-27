@@ -33,6 +33,10 @@ Mar 26: pending_fills no-stop bug fixed — stop_loss now carried through delaye
 - [ ] Switch to validated params (OB 80/OS 15, hold 10, trail 10, skip Monday)
 - [ ] Start real-money micro trading (€100-200, fractional shares)
 
+### After Apr 20 calibration passes
+- [ ] Apply calibration corrections (spread adjustment, stop slippage param if needed)
+- [ ] Begin rolling validation — 4–8 week forward tests on new assets/strategies to continuously verify backtester reliability (see observations.md)
+
 ---
 
 *Running insights → `.claude/memory/observations.md`*

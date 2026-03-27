@@ -33,6 +33,26 @@ Mar 26 compliance pass against global CLAUDE.md (procedure extracted → .claude
 
 ---
 
+## Post-calibration research process (planned, Mar 27)
+Once the Apr 20 calibration passes, the backtester becomes a validated instrument. The intended workflow going forward:
+
+**Three-phase research loop:**
+1. **Research** — run backtests freely. Filter for Sharpe > 2, max DD < 3%, walk-forward passes.
+2. **Validate** — for anything that clears the filter, run a 4–8 week forward test. Compare live results to backtest prediction. Goal is prediction accuracy, not profit.
+3. **Deploy** — if forward test passes, deploy with real money.
+
+**Execution layer vs signal layer:**
+The Apr 20 calibration validates the *execution layer* — spread, stop slippage, bar timing. These corrections apply universally to any indicator or asset. A new strategy still needs its own forward test to validate its *signal layer* (the indicator logic itself). The hierarchy of confidence:
+- Same strategy, new time period: highest confidence
+- Same strategy, different correlated asset: high
+- Same strategy, very different asset: medium (execution fine, signal behaviour unknown)
+- Different indicator, same assets: medium (execution applies, signals untested)
+- Different indicator, different assets: low until forward tested
+
+**Rolling validation idea:** run short (4–8 week) forward tests on different assets and strategies after calibration. Each successful prediction (backtest and live agree on direction/magnitude) adds confidence in the engine. Don't need to be profitable — just predictable. Lock calibration params after Apr 20; don't tweak to fit each new test (that's curve-fitting the calibration).
+
+---
+
 ## Preliminary calibration check (Mar 27)
 Backtest run with aggressive test params + `trading_hours:[13,20]` over Mar 20–27 vs live Alpaca results:
 

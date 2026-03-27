@@ -3,11 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-27** — chore: note post-calibration research process and rolling validation plan
+Strategic discussion: after Apr 20 calibration, use rolling 4-8 week forward tests on new assets/strategies to continuously validate the backtester. Execution layer calibrations apply universally; signal layer needs per-strategy forward test. Three-phase loop: research → validate → deploy. Added to observations and plan.
+
+ .claude/memory/observations.md | 20 ++++++++++++++++++++
+ .claude/memory/plan.md         |  4 ++++
+ 2 files changed, 24 insertions(+)
+
+----
 **2026-03-27** — chore: update calibration_notes — trading_hours required, Mar 27 snapshot
 Added trading_hours:[13,20] as a required param for all Apr 20 calibration backtest runs. Without it, backtest inflates trade count by ~11% by processing pre/post-market bars. Added Mar 20-27 preliminary snapshot (40 backtest vs 31 live, 1.3x, P&L direction aligned). Also removed long_only:true from the Apr 20 command — bots don't use that param.
 
  .claude/calibration/calibration_notes.md | 21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ .claude/memory/gitlog.md                 | 18 +++++++++---------
+ 2 files changed, 29 insertions(+), 10 deletions(-)
 
 ----
 **2026-03-27** — chore: preliminary calibration check — Mar 27
@@ -73,17 +82,4 @@ Added procedure extraction (Step 2) to openbrain-audit-reminder, Check 5 to git-
  .claude/strategies/stochrsi_enhanced_slv.md | 13 ++++++------
  CLAUDE.md                                   | 14 ++++++++----
  14 files changed, 120 insertions(+), 77 deletions(-)
-
-----
-**2026-03-25** — chore: sync hooks with global CLAUDE.md — graduation enforcement
-Added Check 4 to git-save-guard (blocks if Graduation Candidates section non-empty). Updated openbrain-audit-reminder to structured KEEP/GRADUATE/REMOVE triage plus domain file revision check. Created plan-domain-reminder.sh (fires on plan.md edits, prompts domain file review). Registered new hook in settings.json. Added Graduation Candidates section to observations.md and Domain files consulted line to plan.md.
-
- .claude/hooks/git-save-guard.sh           | 28 ++++++++++++++++++++++++++++
- .claude/hooks/openbrain-audit-reminder.sh | 22 +++++++++++++++++-----
- .claude/hooks/plan-domain-reminder.sh     | 31 +++++++++++++++++++++++++++++++
- .claude/memory/gitlog.md                  | 29 +++++++++++++++--------------
- .claude/memory/observations.md            |  6 ++++++
- .claude/memory/plan.md                    |  1 +
- .claude/settings.json                     | 18 ++++++++++++++++++
- 7 files changed, 116 insertions(+), 19 deletions(-)
 
