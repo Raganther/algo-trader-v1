@@ -29,6 +29,18 @@ Mar 26 compliance pass against global CLAUDE.md (procedure extracted → .claude
 - Mar 24: 8 trades across all 4 bots, full audit passed. 5 of 8 exits via server stop (choppy market). GLD+IAU stops fired at identical timestamps (15:10 UTC and 18:58 UTC) — correlated assets hit by same intrabar market move simultaneously. All fills matched pm2 logs exactly.
 - Mar 25: 1 trade (GDX only). Buy $86.80 → trail updated to $86.49 after 1 bar → server stop fired $86.48 (-$0.32/share, below entry). GLD/IAU/SLV flat. Alpaca audit: 3 records (buy + initial stop canceled + trail stop filled) — confirmed normal pattern for trades with trail update.
 - Mar 26: 7 trades (GLD×2, IAU×1, SLV×2, GDX×2). All 4 bots flat EOD. Full Alpaca audit passed. SLV T1 had delayed fill (no stop placed — bug confirmed and fixed same day). Day P&L ~+$237 paper, led by GLD/SLV.
+- Mar 27: 3 trades (GLD×1, IAU×1, SLV×1). GDX flat. All 4 bots flat EOD. Full Alpaca audit passed (9/9 records matched). All 3 entries within 31s of each other (18:46 UTC), all 3 exits within 2 min (19:03–19:05 UTC) — correlated metals hit by same move. Trail fired after 1 bar on all 3, exits below entry (same choppy pattern as Mar 25).
+
+---
+
+## "Phantom sell" — blocked short entry (confirmed Mar 27)
+Every day, all 4 bots log `⚠️ SELL skipped: no open position — ignoring duplicate exit signal` once during the session. This is NOT a duplicate exit — it's a **blocked short entry attempt**.
+
+What happens: K spends time above overbought (60) → `in_overbought_zone = True`. When K later drops below 50, the strategy's short entry logic fires `self.sell()` with a `stop_loss`. `live_broker.sell()` blocks it (fractional short selling unsupported) and prints the misleading warning. `in_overbought_zone` resets to False (line 295) — no further attempts that session.
+
+State stays clean after it. No bad trades. Fires once per overbought zone crossing.
+Two issues: (1) warning message says "duplicate exit" when it's a "blocked short entry" — misleading. (2) `self.current_sl` gets set to the short stop value before the sell is blocked — stale but harmless (overwritten on next long entry, and stop loss check requires `position == 'long'`).
+Both resolve naturally when whole-share sizing is implemented and shorts re-enabled.
 
 ---
 

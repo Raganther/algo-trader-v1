@@ -3,13 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-27** — chore: note phantom sell = blocked short entry
+Investigated daily SELL skipped warning on all 4 bots. Confirmed it is the strategy's short entry logic firing (in_overbought_zone + K < 50) and being blocked by live_broker.sell() fractional short guard. Not a duplicate exit — warning message is misleading. State stays clean; resolves when whole-share sizing enables shorts.
+
+ .claude/memory/observations.md | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+----
 **2026-03-26** — fix: place server stop after delayed buy fill (pending_fills gap)
 When a buy fill timed out (30s) and was queued to pending_fills, stop_loss was not stored — so no server-side stop was placed when the fill eventually resolved. Confirmed on Mar 26: SLV ran 43 min unprotected. Fix: store stop_loss in pending_fills entry at timeout; place stop in get_new_trades() when fill resolves. Deployed to cloud.
 
+ .claude/memory/gitlog.md       | 21 +++++++++++----------
  .claude/memory/observations.md |  6 ++++--
  .claude/memory/plan.md         |  1 +
  backend/engine/live_broker.py  | 21 ++++++++++++++++++++-
- 3 files changed, 25 insertions(+), 3 deletions(-)
+ 4 files changed, 36 insertions(+), 13 deletions(-)
 
 ----
 **2026-03-26** — chore: extract memory harness compliance audit procedure
@@ -90,17 +98,4 @@ Move plan.md, observations.md, MEMORY.md (renamed gitlog.md) from memory/ root i
  CLAUDE.md                                    |  6 +++---
  scripts/git-save.sh                          |  9 ++++-----
  7 files changed, 31 insertions(+), 28 deletions(-)
-
-----
-**2026-03-25** — chore: audit cleanup — remove redundant and legacy files
-Deleted .claude/workflows/git_save.md (old superseded process doc referencing scripts that no longer exist), .claude/memory/MEMORY.md (legacy relic with wrong timezone instruction), and .claude/archive/ (3 completed plan docs). Insights from archived plans already live in strategy cards, calibration_notes.md, and OpenBrain. Git history preserves the originals. .claude/ is now clean.
-
- .claude/archive/edge_enhancement_plan.md     |  188 ----
- .claude/archive/forward_testing_plan.md      |  735 -------------
- .claude/archive/strategy_discovery_engine.md | 1483 --------------------------
- .claude/memory/MEMORY.md                     |    5 -
- .claude/workflows/git_save.md                |  116 --
- memory/MEMORY.md                             |   23 +-
- memory/observations.md                       |    5 +-
- 7 files changed, 17 insertions(+), 2538 deletions(-)
 
