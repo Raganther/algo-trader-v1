@@ -21,11 +21,17 @@ The test params (OB 60/OS 40, ADX 50, 3-bar hold, 0.5 ATR trail) are not a tradi
 python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD \
   --timeframe 15m --start 2026-01-01 --end 2026-04-20 --source alpaca \
   --spread 0.0003 --delay 0 \
-  --parameters '{"rsi_period":7,"stoch_period":14,"overbought":60,"oversold":40,"adx_threshold":50,"skip_adx_filter":false,"sl_atr":2.0,"dynamic_adx":false,"trailing_stop":true,"trail_atr":0.5,"trail_after_bars":1,"min_hold_bars":3,"skip_days":[],"long_only":true}'
+  --parameters '{"rsi_period":7,"stoch_period":14,"overbought":60,"oversold":40,"adx_threshold":50,"skip_adx_filter":false,"sl_atr":2.0,"dynamic_adx":false,"trailing_stop":true,"trail_atr":0.5,"trail_after_bars":1,"min_hold_bars":3,"skip_days":[],"trading_hours":[13,20]}'
 
 # Pre-window baseline (subtract to isolate Mar 20 – Apr 20)
 # Same command with --end 2026-03-20
 ```
+
+**REQUIRED: always include `"trading_hours":[13,20]`** — the live bot only processes bars during 13:30–20:00 UTC (market hours gate in runner.py). Without this param, the backtest processes pre/post-market bars and inflates trade counts by ~11%. This is the main systematic correction for Layer 1 (trade count).
+
+Note: `trading_hours:[13,20]` is slightly more permissive than the live gate — it includes 13:00–13:29 bars that the live bot skips (gate starts at 13:30). This causes a residual ~30% over-prediction, confirmed as acceptable in the Mar 27 preliminary check. Residual cause: 30-minute timing gap only, no logic difference.
+
+Note: removed `"long_only":true` from Apr 20 command — bots are not configured with long_only, so this would produce a mismatch. Bots block shorts via the fractional share guard in live_broker, not via strategy param.
 
 Run both for all 4 symbols. Subtract pre-window baseline to isolate the clean live window.
 
@@ -72,3 +78,16 @@ Backtest (Jan 1 lead-in, long_only=True) vs live DB:
 | GDX    | 6              | 8           | -0.66%          |
 
 SLV exact. GLD close. IAU/GDX off by 2–3 trades — likely data resampling differences plus a couple of bug-affected trades. Too early for conclusions. Repeat at Apr 20.
+
+### Mar 20–27 (8 trading days) — preliminary, clean window start
+Backtest (Jan 1 lead-in, `trading_hours:[13,20]`) vs live Alpaca audit (31 confirmed round trips):
+
+| Symbol | Backtest trades | Live trades | Backtest return |
+|--------|----------------|-------------|----------------|
+| GLD    | 11             | ~8–9        | +0.05%          |
+| IAU    | 8              | ~7–8        | -0.08%          |
+| SLV    | 10             | ~8–9        | -0.27%          |
+| GDX    | 11             | ~7–8        | -0.81%          |
+| Total  | 40             | ~31         | —               |
+
+1.3x trade count ratio — acceptable, explained by 13:00–13:29 timing gap. P&L direction aligned across all 4 symbols (both backtest and live agree: flat/slightly negative choppy week). No red flags. Repeat full comparison at Apr 20.

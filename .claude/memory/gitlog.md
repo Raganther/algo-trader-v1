@@ -3,12 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-27** — chore: update calibration_notes — trading_hours required, Mar 27 snapshot
+Added trading_hours:[13,20] as a required param for all Apr 20 calibration backtest runs. Without it, backtest inflates trade count by ~11% by processing pre/post-market bars. Added Mar 20-27 preliminary snapshot (40 backtest vs 31 live, 1.3x, P&L direction aligned). Also removed long_only:true from the Apr 20 command — bots don't use that param.
+
+ .claude/calibration/calibration_notes.md | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
+
+----
 **2026-03-27** — chore: preliminary calibration check — Mar 27
 Ran backtest (aggressive params + trading_hours filter) over Mar 20-27 calibration window. Backtest predicts 40 trades vs 31 live (1.3x); P&L direction aligned (near-zero/slightly negative across all 4 symbols). No red flags. For Apr 20 calibration: always add trading_hours:[13,20] to match live bot's market hours gate — the main systematic correction required.
 
+ .claude/memory/gitlog.md       | 29 +++++++++++------------------
  .claude/memory/observations.md | 19 +++++++++++++++++++
  .claude/memory/plan.md         |  2 +-
- 2 files changed, 20 insertions(+), 1 deletion(-)
+ 3 files changed, 31 insertions(+), 19 deletions(-)
 
 ----
 **2026-03-27** — chore: correct Mar 23 trade count (9 → 7)
@@ -78,12 +86,4 @@ Added Check 4 to git-save-guard (blocks if Graduation Candidates section non-emp
  .claude/memory/plan.md                    |  1 +
  .claude/settings.json                     | 18 ++++++++++++++++++
  7 files changed, 116 insertions(+), 19 deletions(-)
-
-----
-**2026-03-25** — chore: Mar 25 audit — 1 GDX trade
-Mar 25: GDX only trade. Buy .80, trail updated to .49 after 1 bar, server stop fired .48 (below entry). GLD/IAU/SLV flat. Alpaca audit matched: 3 records per trailing-stop trade (buy + initial stop canceled + trail stop filled) — confirmed normal pattern.
-
- .claude/memory/gitlog.md       | 36 ++++++++++++++++++------------------
- .claude/memory/observations.md |  1 +
- 2 files changed, 19 insertions(+), 18 deletions(-)
 
