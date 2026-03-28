@@ -31,7 +31,8 @@ echo "" >> "$MEMORY_FILE"
 git add "$MEMORY_FILE"
 git commit --amend --no-edit
 
-# 4. Push to origin
+# 4. Pull --rebase then push to origin
+git pull --rebase origin main || echo "⚠️  Pull failed — check remote for conflicts before pushing"
 git push origin main
 
 echo ""

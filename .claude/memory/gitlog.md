@@ -3,14 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-28** — chore: add pull --rebase before push in git-save.sh
+Ensures local is synced with remote before pushing. Prevents push failures if remote has diverged (e.g. edits via GitHub web UI or from another machine). Matches the pull-rebase+push pattern documented in global CLAUDE.md.
+
+ scripts/git-save.sh | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+----
 **2026-03-28** — feat: XLE 15m research — Sharpe 2.06, WF 4/4, Rolling Validation Test #1
 XLE 15m backtest with validated precious metals params (no retuning): Sharpe 2.06, +85.2% return, 3.35% DD, WF 4/4. Every year 2020-2025 profitable. Confirms StochRSI mean reversion at 15m works across sectors, not just precious metals. Strategy card created. Forward test queued as Rolling Validation Test #1 after Apr 20 calibration.
 
+ .claude/memory/gitlog.md                    | 25 ++++----
  .claude/memory/observations.md              |  2 +
  .claude/memory/plan.md                      |  2 +-
  .claude/strategies/stochrsi_enhanced_xle.md | 91 +++++++++++++++++++++++++++++
  CLAUDE.md                                   |  1 +
- 4 files changed, 95 insertions(+), 1 deletion(-)
+ 5 files changed, 108 insertions(+), 13 deletions(-)
 
 ----
 **2026-03-28** — chore: add domain file check instruction to global and project CLAUDE.md
@@ -61,14 +69,4 @@ Investigated daily SELL skipped warning on all 4 bots. Confirmed it is the strat
  .claude/memory/gitlog.md       | 23 +++++++++--------------
  .claude/memory/observations.md | 12 ++++++++++++
  2 files changed, 21 insertions(+), 14 deletions(-)
-
-----
-**2026-03-26** — fix: place server stop after delayed buy fill (pending_fills gap)
-When a buy fill timed out (30s) and was queued to pending_fills, stop_loss was not stored — so no server-side stop was placed when the fill eventually resolved. Confirmed on Mar 26: SLV ran 43 min unprotected. Fix: store stop_loss in pending_fills entry at timeout; place stop in get_new_trades() when fill resolves. Deployed to cloud.
-
- .claude/memory/gitlog.md       | 21 +++++++++++----------
- .claude/memory/observations.md |  6 ++++--
- .claude/memory/plan.md         |  1 +
- backend/engine/live_broker.py  | 21 ++++++++++++++++++++-
- 4 files changed, 36 insertions(+), 13 deletions(-)
 
