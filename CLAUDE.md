@@ -11,6 +11,8 @@ Read in order on every cold start:
 2. `.claude/memory/plan.md` — active steps
 3. `.claude/memory/observations.md` — running insights from current testing phase
 
+**Before starting any update, new feature, or bug fix — scan the list below and read any relevant domain files first.**
+
 Read on demand only:
 - `.claude/procedures/_index.md` — index of extracted procedures; scan at plan creation for relevant how-to patterns
 - `.claude/strategies/stochrsi_enhanced_gld.md` — GLD 15m validated params, full audit data, bear market test, long-only baseline

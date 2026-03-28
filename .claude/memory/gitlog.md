@@ -3,12 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-28** — chore: add domain file check instruction to global and project CLAUDE.md
+Added explicit workflow instruction: before any update, new feature, or bug fix, scan and read relevant domain files first. Added to global CLAUDE.md Workflow section and project CLAUDE.md Session Start section. Closes the gap where unplanned work bypassed the domain file review loop entirely.
+
+ CLAUDE.md | 2 ++
+ 1 file changed, 2 insertions(+)
+
+----
 **2026-03-27** — chore: note post-calibration research process and rolling validation plan
 Strategic discussion: after Apr 20 calibration, use rolling 4-8 week forward tests on new assets/strategies to continuously validate the backtester. Execution layer calibrations apply universally; signal layer needs per-strategy forward test. Three-phase loop: research → validate → deploy. Added to observations and plan.
 
+ .claude/memory/gitlog.md       | 24 ++++++++++--------------
  .claude/memory/observations.md | 20 ++++++++++++++++++++
  .claude/memory/plan.md         |  4 ++++
- 2 files changed, 24 insertions(+)
+ 3 files changed, 34 insertions(+), 14 deletions(-)
 
 ----
 **2026-03-27** — chore: update calibration_notes — trading_hours required, Mar 27 snapshot
@@ -62,24 +70,4 @@ First procedure extracted from this project. Covers how to audit hook scripts, d
  .claude/procedures/_index.md                       |  2 +-
  .../procedures/memory-harness-compliance-audit.md  | 40 ++++++++++++++++++++++
  4 files changed, 62 insertions(+), 20 deletions(-)
-
-----
-**2026-03-26** — chore: compliance audit — sync hooks and domain files with global CLAUDE.md
-Added procedure extraction (Step 2) to openbrain-audit-reminder, Check 5 to git-save-guard, and created .claude/procedures/_index.md. Replaced directory-level strategy pointer in CLAUDE.md with 7 individual file listings, fixing the Check 2 gap. Added Status: current to all 7 domain files. Cleaned stale forward testing sections from strategy cards — mechanics are all confirmed, cards now refer to CLAUDE.md/calibration_notes.md for operational state.
-
- .claude/calibration/calibration_notes.md    |  2 ++
- .claude/hooks/git-save-guard.sh             | 28 +++++++++++++++++++++++-
- .claude/hooks/openbrain-audit-reminder.sh   | 17 ++++++++++-----
- .claude/memory/gitlog.md                    | 33 ++++++++++++++++++-----------
- .claude/memory/observations.md              | 12 +++++++----
- .claude/memory/plan.md                      |  2 +-
- .claude/procedures/_index.md                |  5 +++++
- .claude/strategies/composable_results.md    |  4 +++-
- .claude/strategies/event_surprise.md        | 15 ++++++-------
- .claude/strategies/stochrsi_enhanced_gdx.md | 13 ++++++------
- .claude/strategies/stochrsi_enhanced_gld.md | 28 ++++++------------------
- .claude/strategies/stochrsi_enhanced_iau.md | 11 +++++-----
- .claude/strategies/stochrsi_enhanced_slv.md | 13 ++++++------
- CLAUDE.md                                   | 14 ++++++++----
- 14 files changed, 120 insertions(+), 77 deletions(-)
 
