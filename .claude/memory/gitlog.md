@@ -3,11 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-28** — chore: clarify short trading is deferred, not blocking real money
+Short trading cannot be enabled at starting capital (€100) because Alpaca rejects fractional short selling and whole-share sizing is not feasible at that level. Removed from the 'remaining before real money' checklist. Long-only until capital grows. Also corrects a session where short trading was mistakenly suggested as the next priority.
+
+ .claude/memory/plan.md | 5 ++---
+ CLAUDE.md              | 2 +-
+ 2 files changed, 3 insertions(+), 4 deletions(-)
+
+----
 **2026-03-28** — chore: confirm OpenBrain auto-backup to GitHub is active
 Verified ~/.openbrain/ git repo, sync.sh, and three global PostToolUse hooks all in place. Every OpenBrain write auto-syncs to Raganther/openbrain private repo. Global infrastructure — no per-project changes needed.
 
- .claude/memory/observations.md | 1 +
- 1 file changed, 1 insertion(+)
+ .claude/memory/gitlog.md       | 18 +++++++++---------
+ .claude/memory/observations.md |  1 +
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
 ----
 **2026-03-28** — chore: note Mar 28 memory system and workflow updates
@@ -60,13 +69,4 @@ Added trading_hours:[13,20] as a required param for all Apr 20 calibration backt
  .claude/calibration/calibration_notes.md | 21 ++++++++++++++++++++-
  .claude/memory/gitlog.md                 | 18 +++++++++---------
  2 files changed, 29 insertions(+), 10 deletions(-)
-
-----
-**2026-03-27** — chore: preliminary calibration check — Mar 27
-Ran backtest (aggressive params + trading_hours filter) over Mar 20-27 calibration window. Backtest predicts 40 trades vs 31 live (1.3x); P&L direction aligned (near-zero/slightly negative across all 4 symbols). No red flags. For Apr 20 calibration: always add trading_hours:[13,20] to match live bot's market hours gate — the main systematic correction required.
-
- .claude/memory/gitlog.md       | 29 +++++++++++------------------
- .claude/memory/observations.md | 19 +++++++++++++++++++
- .claude/memory/plan.md         |  2 +-
- 3 files changed, 31 insertions(+), 19 deletions(-)
 

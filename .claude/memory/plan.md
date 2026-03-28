@@ -17,9 +17,8 @@ Mar 26: pending_fills no-stop bug fixed — stop_loss now carried through delaye
 ### Mechanics still to confirm
 - [x] **Trailing stop FIRING in profit** — confirmed Mar 23. GDX: entry $80.05 (Mar 20), trail ratcheted to $83.35, server stop fired intrabar @ $83.317 (+$3.27/share, ~$958 paper). Multi-day hold gave trail time to ratchet well above entry before intrabar reversal triggered it.
 
-### Short trading — must be enabled before real money
-- [ ] **Fix live_broker sell() guard** — current guard blocks ALL sells from flat. Need to distinguish: (a) closing a long = allow, (b) opening a short from flat = allow when `long_only=False`, (c) duplicate exit = block. Fix: check strategy position state, not Alpaca position.
-- [ ] **Verify short mechanics in live** — short entry, buy stop loss (above entry), trailing stop ratchets DOWN, short exit. Full mechanics checklist same as longs.
+### Short trading — deferred (not blocking real money)
+Alpaca rejects fractional short selling. At starting capital (€100) fractional shares are required — whole-share sizing not possible. Long-only until capital grows to support whole-share qty. Not a blocker for the micro-trading phase.
 
 ### Chart — trade overlays (Stage 2)
 - [ ] Fetch entries/exits from `live_trade_log`, plot markers on chart (entry, exit, stop level), toggle live vs backtest

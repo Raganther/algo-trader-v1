@@ -80,7 +80,7 @@ Mar 18: 4 trades across all 4 bots, all flat EOD. SLV server stop fired (stop lo
 Mar 19: 4 trades, all flat ~18:46 UTC. Full Alpaca audit — all 12 orders matched. GDX trail update failed (race condition in update_stop_order — cancel async, new stop placed before shares freed). Fixed with 1s sleep after cancel. Bug existed since Mar 4 fallback was added, exposed by tighter trail_after_bars=1. Deployed fix.
 Infrastructure assessment: core is sound. 13 bugs found and fixed. Data integrity 100% from Mar 5 onwards.
 **Calibration target: Apr 20.** Running current aggressive params until then, then backtest same window with identical params to validate the backtest engine. Aggressive params kept deliberately — they generate ~2x more trades than validated params, making the calibration comparison statistically meaningful. Clean data window: Mar 20 – Apr 20 (Mar 20 = first fully confirmed clean day with current params and all fixes deployed).
-Remaining before real money: (1) confirm trailing stop firing in profit, (2) fix short entry guard + verify short mechanics end-to-end, (3) calibration comparison on Apr 20.
+Remaining before real money: (1) ~~confirm trailing stop firing in profit~~ ✅ confirmed Mar 23, (2) calibration comparison on Apr 20. Short trading is deferred — Alpaca blocks fractional short selling, and at starting capital (€100) fractional shares are required. Long-only until capital allows whole-share sizing.
 
 **Test bots:**
 
