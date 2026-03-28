@@ -3,11 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-28** — chore: note Mar 28 memory system and workflow updates
+Session summary: domain file check instruction added to both CLAUDE.md files, tested successfully with XLE research via plan mode. git-save.sh pull-rebase safety net added. GitHub repo confirmed already syncing on every save — no functional change to normal workflow.
+
+ .claude/memory/observations.md | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+----
 **2026-03-28** — chore: add pull --rebase before push in git-save.sh
 Ensures local is synced with remote before pushing. Prevents push failures if remote has diverged (e.g. edits via GitHub web UI or from another machine). Matches the pull-rebase+push pattern documented in global CLAUDE.md.
 
- scripts/git-save.sh | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .claude/memory/gitlog.md | 20 +++++++++-----------
+ scripts/git-save.sh      |  3 ++-
+ 2 files changed, 11 insertions(+), 12 deletions(-)
 
 ----
 **2026-03-28** — feat: XLE 15m research — Sharpe 2.06, WF 4/4, Rolling Validation Test #1
@@ -61,12 +69,4 @@ Cross-referenced Mar 23 Alpaca export against pm2 log-based observation. 7 round
  .claude/memory/gitlog.md       | 23 +++++++++--------------
  .claude/memory/observations.md |  2 +-
  2 files changed, 10 insertions(+), 15 deletions(-)
-
-----
-**2026-03-27** — chore: note phantom sell = blocked short entry
-Investigated daily SELL skipped warning on all 4 bots. Confirmed it is the strategy's short entry logic firing (in_overbought_zone + K < 50) and being blocked by live_broker.sell() fractional short guard. Not a duplicate exit — warning message is misleading. State stays clean; resolves when whole-share sizing enables shorts.
-
- .claude/memory/gitlog.md       | 23 +++++++++--------------
- .claude/memory/observations.md | 12 ++++++++++++
- 2 files changed, 21 insertions(+), 14 deletions(-)
 

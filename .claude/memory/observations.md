@@ -9,7 +9,15 @@
 
 ---
 
-## Memory system (audited Mar 25, compliance pass Mar 26)
+## Memory system (audited Mar 25, compliance pass Mar 26, workflow update Mar 28)
+Mar 28 additions:
+- Domain file check instruction added to global CLAUDE.md (Workflow section) and project CLAUDE.md (Session Start) — explicit rule to scan domain files before any update, new feature, or bug fix.
+- Domain file loop tested in the wild: XLE research used plan mode + domain file review. GLD card revealed XLE 1h was already done; calibration_notes gave the quality bar framing. Loop worked as intended.
+- git-save.sh updated: `pull --rebase` added before push — prevents push failures if remote ever gets ahead of local. GitHub repo was already being synced on every save; this is a safety net for edge cases only.
+
+---
+
+
 Mar 25: hooks synced with global CLAUDE.md. domain files migrated to .claude/[domain]/. archive cleared. .claude/memory/ holds only three core files. OpenBrain category set to algo-trader.
 Mar 26 compliance pass against global CLAUDE.md (procedure extracted → .claude/procedures/memory-harness-compliance-audit.md):
 - openbrain-audit-reminder.sh updated verbatim: 3 steps → 4 steps, procedure extraction added as Step 2.
