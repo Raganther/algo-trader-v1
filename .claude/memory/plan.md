@@ -35,7 +35,7 @@ Mar 26: pending_fills no-stop bug fixed — stop_loss now carried through delaye
 
 ### After Apr 20 calibration passes
 - [ ] Apply calibration corrections (spread adjustment, stop slippage param if needed)
-- [ ] Begin rolling validation — 4–8 week forward tests on new assets/strategies to continuously verify backtester reliability (see observations.md)
+- [ ] Rolling Validation Test #1 — deploy XLE as 5th paper bot (4–8 weeks). Strategy card: `.claude/strategies/stochrsi_enhanced_xle.md`
 
 ---
 

@@ -20,6 +20,7 @@ Read on demand only:
 - `.claude/strategies/stochrsi_enhanced_slv.md` — SLV 15m validated params and performance summary
 - `.claude/strategies/stochrsi_enhanced_gdx.md` — GDX 15m validated params and performance summary
 - `.claude/strategies/composable_results.md` — Phase 3 composable strategy results (3 validated combos, not yet deployed)
+- `.claude/strategies/stochrsi_enhanced_xle.md` — XLE 15m validated params, Sharpe 2.06, WF 4/4, Rolling Validation Test #1 candidate
 - `.claude/strategies/event_surprise.md` — EventSurprise strategy: CPI/NFP research, backtest results, parked
 - `.claude/calibration/calibration_notes.md` — calibration methodology, Apr 20 commands, Mar 5–16 snapshot
 

@@ -51,6 +51,8 @@ The Apr 20 calibration validates the *execution layer* — spread, stop slippage
 
 **Rolling validation idea:** run short (4–8 week) forward tests on different assets and strategies after calibration. Each successful prediction (backtest and live agree on direction/magnitude) adds confidence in the engine. Don't need to be profitable — just predictable. Lock calibration params after Apr 20; don't tweak to fit each new test (that's curve-fitting the calibration).
 
+**Test #1 candidate — XLE 15m (researched Mar 28 2026):** Sharpe 2.06, +85.2%, 3.35% DD, WF 4/4. Same validated params as precious metals, no retuning. Confirms StochRSI mean reversion at 15m is a general microstructure pattern, not precious-metals-specific. Strategy card: `.claude/strategies/stochrsi_enhanced_xle.md`. Forward test starts after Apr 20.
+
 ---
 
 ## Preliminary calibration check (Mar 27)

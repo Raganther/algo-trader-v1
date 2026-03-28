@@ -3,11 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-28** — feat: XLE 15m research — Sharpe 2.06, WF 4/4, Rolling Validation Test #1
+XLE 15m backtest with validated precious metals params (no retuning): Sharpe 2.06, +85.2% return, 3.35% DD, WF 4/4. Every year 2020-2025 profitable. Confirms StochRSI mean reversion at 15m works across sectors, not just precious metals. Strategy card created. Forward test queued as Rolling Validation Test #1 after Apr 20 calibration.
+
+ .claude/memory/observations.md              |  2 +
+ .claude/memory/plan.md                      |  2 +-
+ .claude/strategies/stochrsi_enhanced_xle.md | 91 +++++++++++++++++++++++++++++
+ CLAUDE.md                                   |  1 +
+ 4 files changed, 95 insertions(+), 1 deletion(-)
+
+----
 **2026-03-28** — chore: add domain file check instruction to global and project CLAUDE.md
 Added explicit workflow instruction: before any update, new feature, or bug fix, scan and read relevant domain files first. Added to global CLAUDE.md Workflow section and project CLAUDE.md Session Start section. Closes the gap where unplanned work bypassed the domain file review loop entirely.
 
- CLAUDE.md | 2 ++
- 1 file changed, 2 insertions(+)
+ .claude/memory/gitlog.md | 30 +++++++++---------------------
+ CLAUDE.md                |  2 ++
+ 2 files changed, 11 insertions(+), 21 deletions(-)
 
 ----
 **2026-03-27** — chore: note post-calibration research process and rolling validation plan
@@ -60,14 +71,4 @@ When a buy fill timed out (30s) and was queued to pending_fills, stop_loss was n
  .claude/memory/plan.md         |  1 +
  backend/engine/live_broker.py  | 21 ++++++++++++++++++++-
  4 files changed, 36 insertions(+), 13 deletions(-)
-
-----
-**2026-03-26** — chore: extract memory harness compliance audit procedure
-First procedure extracted from this project. Covers how to audit hook scripts, domain files, and CLAUDE.md against the global spec. Includes example from Mar 26 session. Registered in .claude/procedures/_index.md.
-
- .claude/memory/gitlog.md                           | 38 ++++++++++----------
- .claude/memory/observations.md                     |  2 +-
- .claude/procedures/_index.md                       |  2 +-
- .../procedures/memory-harness-compliance-audit.md  | 40 ++++++++++++++++++++++
- 4 files changed, 62 insertions(+), 20 deletions(-)
 
