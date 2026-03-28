@@ -3,11 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-28** — chore: confirm OpenBrain auto-backup to GitHub is active
+Verified ~/.openbrain/ git repo, sync.sh, and three global PostToolUse hooks all in place. Every OpenBrain write auto-syncs to Raganther/openbrain private repo. Global infrastructure — no per-project changes needed.
+
+ .claude/memory/observations.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+----
 **2026-03-28** — chore: note Mar 28 memory system and workflow updates
 Session summary: domain file check instruction added to both CLAUDE.md files, tested successfully with XLE research via plan mode. git-save.sh pull-rebase safety net added. GitHub repo confirmed already syncing on every save — no functional change to normal workflow.
 
+ .claude/memory/gitlog.md       | 20 ++++++++++----------
  .claude/memory/observations.md | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ 2 files changed, 19 insertions(+), 11 deletions(-)
 
 ----
 **2026-03-28** — chore: add pull --rebase before push in git-save.sh
@@ -61,12 +69,4 @@ Ran backtest (aggressive params + trading_hours filter) over Mar 20-27 calibrati
  .claude/memory/observations.md | 19 +++++++++++++++++++
  .claude/memory/plan.md         |  2 +-
  3 files changed, 31 insertions(+), 19 deletions(-)
-
-----
-**2026-03-27** — chore: correct Mar 23 trade count (9 → 7)
-Cross-referenced Mar 23 Alpaca export against pm2 log-based observation. 7 round trips confirmed (GLD×2, SLV×2, IAU×2, GDX T2 close). Original '9' was a counting error from log events, not a forward test bug.
-
- .claude/memory/gitlog.md       | 23 +++++++++--------------
- .claude/memory/observations.md |  2 +-
- 2 files changed, 10 insertions(+), 15 deletions(-)
 

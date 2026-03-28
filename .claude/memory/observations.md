@@ -14,6 +14,7 @@ Mar 28 additions:
 - Domain file check instruction added to global CLAUDE.md (Workflow section) and project CLAUDE.md (Session Start) — explicit rule to scan domain files before any update, new feature, or bug fix.
 - Domain file loop tested in the wild: XLE research used plan mode + domain file review. GLD card revealed XLE 1h was already done; calibration_notes gave the quality bar framing. Loop worked as intended.
 - git-save.sh updated: `pull --rebase` added before push — prevents push failures if remote ever gets ahead of local. GitHub repo was already being synced on every save; this is a safety net for edge cases only.
+- OpenBrain auto-backup confirmed working: `~/.openbrain/` is a git repo synced to `Raganther/openbrain` (private). Global PostToolUse hooks fire `sync.sh` after every remember/update_memory/forget call. Global infrastructure — no per-project setup required.
 
 ---
 
