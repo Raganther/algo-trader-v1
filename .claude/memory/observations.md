@@ -22,7 +22,7 @@ Mar 30 migration (global CLAUDE.md updated spec):
 - All 8 domain files: headers extended to `Status: current | Epistemic: confirmed | Last verified: YYYY-MM-DD` (dates from git log per file).
 - CLAUDE.md pointers: reformatted to "read when X" trigger conditions.
 - All 8 domain files renamed underscores → hyphens (e.g. `stochrsi_enhanced_gld.md` → `stochrsi-enhanced-gld.md`). All cross-references updated across CLAUDE.md, plan.md, observations.md, and 4 strategy cards.
-- Procedure extracted: `memory-harness-migration.md` added to `.claude/procedures/`.
+- Procedures extracted: `memory-harness-migration.md` and `daily-trade-audit.md` added to `.claude/procedures/`.
 
 ---
 

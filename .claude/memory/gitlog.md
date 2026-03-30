@@ -3,13 +3,23 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-30** — chore: add daily-trade-audit procedure
+Extracted the daily trade audit process as a reusable procedure. Covers querying cloud DB, cross-referencing Alpaca records, reconstructing trades, and logging to live-trade-log.md. Based on the Mar 20-27 backfill work done this session.
+
+ .claude/memory/observations.md          |  2 +-
+ .claude/procedures/_index.md            |  1 +
+ .claude/procedures/daily-trade-audit.md | 47 +++++++++++++++++++++++++++++++++
+ 3 files changed, 49 insertions(+), 1 deletion(-)
+
+----
 **2026-03-30** — feat: create live-trade-log.md — per-trade calibration data Mar 20-27
 Created .claude/calibration/live-trade-log.md to capture per-trade detail (entry/exit prices, stop levels, slippage) for the Mar 20–Apr 20 calibration window. Populated Mar 20–27 from DB + Alpaca cross-reference — all days PASS (9+13+16+2+14+6 = 60 records matched). Corrected Mar 24 server stop count from 5→6 in observations.md. Domain file registered in CLAUDE.md.
 
  .claude/calibration/live-trade-log.md | 136 ++++++++++++++++++++++++++++++++++
+ .claude/memory/gitlog.md              |  24 +++---
  .claude/memory/observations.md        |  14 ++--
  CLAUDE.md                             |   2 +
- 3 files changed, 146 insertions(+), 6 deletions(-)
+ 4 files changed, 159 insertions(+), 17 deletions(-)
 
 ----
 **2026-03-30** — chore: rename domain files to hyphenated convention, add migration procedure
@@ -83,15 +93,4 @@ Ensures local is synced with remote before pushing. Prevents push failures if re
  .claude/memory/gitlog.md | 20 +++++++++-----------
  scripts/git-save.sh      |  3 ++-
  2 files changed, 11 insertions(+), 12 deletions(-)
-
-----
-**2026-03-28** — feat: XLE 15m research — Sharpe 2.06, WF 4/4, Rolling Validation Test #1
-XLE 15m backtest with validated precious metals params (no retuning): Sharpe 2.06, +85.2% return, 3.35% DD, WF 4/4. Every year 2020-2025 profitable. Confirms StochRSI mean reversion at 15m works across sectors, not just precious metals. Strategy card created. Forward test queued as Rolling Validation Test #1 after Apr 20 calibration.
-
- .claude/memory/gitlog.md                    | 25 ++++----
- .claude/memory/observations.md              |  2 +
- .claude/memory/plan.md                      |  2 +-
- .claude/strategies/stochrsi_enhanced_xle.md | 91 +++++++++++++++++++++++++++++
- CLAUDE.md                                   |  1 +
- 5 files changed, 108 insertions(+), 13 deletions(-)
 
