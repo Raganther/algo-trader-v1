@@ -41,12 +41,14 @@ Mar 26 compliance pass against global CLAUDE.md (procedure extracted → .claude
 - Mar 03–04: gaps (bugs active, acceptable)
 - Mar 05 onwards: 100% fill capture
 - Mar 16–19: full Alpaca audits — all records matched pm2 logs across all 4 bots
-- Mar 20: clean window starts — 18/18 orders matched, all fixes deployed
-- Mar 23: 7 trades across all 4 bots, full audit passed. GLD×2, SLV×2, IAU×2 (all K-signal exits), GDX T2 close via server stop (entered Mar 20, held over weekend). GDX server stop fired in profit (entry $80.05, exit $83.317, +$958 paper). Trail fire confirmed ✅
-- Mar 24: 8 trades across all 4 bots, full audit passed. 5 of 8 exits via server stop (choppy market). GLD+IAU stops fired at identical timestamps (15:10 UTC and 18:58 UTC) — correlated assets hit by same intrabar market move simultaneously. All fills matched pm2 logs exactly.
-- Mar 25: 1 trade (GDX only). Buy $86.80 → trail updated to $86.49 after 1 bar → server stop fired $86.48 (-$0.32/share, below entry). GLD/IAU/SLV flat. Alpaca audit: 3 records (buy + initial stop canceled + trail stop filled) — confirmed normal pattern for trades with trail update.
-- Mar 26: 7 trades (GLD×2, IAU×1, SLV×2, GDX×2). All 4 bots flat EOD. Full Alpaca audit passed. SLV T1 had delayed fill (no stop placed — bug confirmed and fixed same day). Day P&L ~+$237 paper, led by GLD/SLV.
-- Mar 27: 3 trades (GLD×1, IAU×1, SLV×1). GDX flat. All 4 bots flat EOD. Full Alpaca audit passed (9/9 records matched). All 3 entries within 31s of each other (18:46 UTC), all 3 exits within 2 min (19:03–19:05 UTC) — correlated metals hit by same move. Trail fired after 1 bar on all 3, exits below entry (same choppy pattern as Mar 25).
+- Mar 20: clean window starts — 9/9 DB records matched Alpaca. 4 intraday trades (SLV TS, GLD K, IAU K, GDX T1 TS) + GDX T2 overnight hold (exits Mar 23).
+- Mar 23: 13/13 matched. 7 trades: GLD×2 K, SLV×2 K, IAU×2 K, GDX T2 TS (trail fire in profit confirmed ✅). Profitable day.
+- Mar 24: 16/16 matched. 8 trades: 6 of 8 exits via TS (choppy). GLD+IAU simultaneous stop fires at 15:10 and 18:58 UTC — correlated intrabar moves.
+- Mar 25: 2/2 matched. 1 trade (GDX only). TS below entry.
+- Mar 26: 14/14 matched. 7 trades. SLV T1 delayed fill — no stop placed (pending_fills bug, fixed same day). 4 K-exits, 3 TS.
+- Mar 27: 6/6 matched. 3 trades (GLD, IAU, SLV — GDX flat). All TS, all entries within 31s, all exits within 1:06. Correlated metals.
+
+**Full per-trade detail (entry/exit prices, stop levels, slippage) now in `.claude/calibration/live-trade-log.md`.**
 
 ---
 

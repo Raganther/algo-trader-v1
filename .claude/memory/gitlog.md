@@ -3,14 +3,24 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-30** — feat: create live-trade-log.md — per-trade calibration data Mar 20-27
+Created .claude/calibration/live-trade-log.md to capture per-trade detail (entry/exit prices, stop levels, slippage) for the Mar 20–Apr 20 calibration window. Populated Mar 20–27 from DB + Alpaca cross-reference — all days PASS (9+13+16+2+14+6 = 60 records matched). Corrected Mar 24 server stop count from 5→6 in observations.md. Domain file registered in CLAUDE.md.
+
+ .claude/calibration/live-trade-log.md | 136 ++++++++++++++++++++++++++++++++++
+ .claude/memory/observations.md        |  14 ++--
+ CLAUDE.md                             |   2 +
+ 3 files changed, 146 insertions(+), 6 deletions(-)
+
+----
 **2026-03-30** — chore: rename domain files to hyphenated convention, add migration procedure
 Renamed all 8 domain files from underscores to hyphens to comply with lowercase-hyphenated naming convention enforced by the new domain-naming-guard.sh. Updated all cross-references across CLAUDE.md, plan.md, observations.md, and internal strategy card links. Also committed procedure file memory-harness-migration.md and updated _index.md — these were written last session but not yet committed.
 
  .../{calibration_notes.md => calibration-notes.md} |  0
- .claude/memory/observations.md                     | 10 +++++---
+ .claude/memory/gitlog.md                           | 31 +++++++++++++++-------
+ .claude/memory/observations.md                     | 10 ++++---
  .claude/memory/plan.md                             |  2 +-
  .claude/procedures/_index.md                       |  1 +
- .claude/procedures/memory-harness-migration.md     | 30 ++++++++++++++++++++++
+ .claude/procedures/memory-harness-migration.md     | 30 +++++++++++++++++++++
  ...composable_results.md => composable-results.md} |  0
  .../{event_surprise.md => event-surprise.md}       |  0
  ...si_enhanced_gdx.md => stochrsi-enhanced-gdx.md} |  2 +-
@@ -19,7 +29,7 @@ Renamed all 8 domain files from underscores to hyphens to comply with lowercase-
  ...si_enhanced_slv.md => stochrsi-enhanced-slv.md} |  2 +-
  ...si_enhanced_xle.md => stochrsi-enhanced-xle.md} |  0
  CLAUDE.md                                          | 18 ++++++-------
- 13 files changed, 51 insertions(+), 18 deletions(-)
+ 14 files changed, 72 insertions(+), 28 deletions(-)
 
 ----
 **2026-03-30** — chore: memory harness migration — check 6, naming guard, epistemic headers, read-when pointers
@@ -84,12 +94,4 @@ XLE 15m backtest with validated precious metals params (no retuning): Sharpe 2.0
  .claude/strategies/stochrsi_enhanced_xle.md | 91 +++++++++++++++++++++++++++++
  CLAUDE.md                                   |  1 +
  5 files changed, 108 insertions(+), 13 deletions(-)
-
-----
-**2026-03-28** — chore: add domain file check instruction to global and project CLAUDE.md
-Added explicit workflow instruction: before any update, new feature, or bug fix, scan and read relevant domain files first. Added to global CLAUDE.md Workflow section and project CLAUDE.md Session Start section. Closes the gap where unplanned work bypassed the domain file review loop entirely.
-
- .claude/memory/gitlog.md | 30 +++++++++---------------------
- CLAUDE.md                |  2 ++
- 2 files changed, 11 insertions(+), 21 deletions(-)
 

@@ -23,6 +23,7 @@ Read on demand only:
 - `.claude/strategies/stochrsi-enhanced-xle.md` — read when working on XLE or planning Rolling Validation Test #1
 - `.claude/strategies/event-surprise.md` — read when researching economic event strategies or revisiting CPI/NFP trading
 - `.claude/calibration/calibration-notes.md` — read when running calibration, checking Apr 20 methodology, or comparing backtest vs live
+- `.claude/calibration/live-trade-log.md` — read when auditing trades, filling in daily trade data, or running the Apr 20 calibration comparison
 
 ## Run Commands
 
@@ -63,6 +64,7 @@ python3 scripts/fetch_price_data.py --symbols GLD,IAU,SLV,GDX --start 2020-01-01
 - **Frontend:** `frontend/` — Next.js dashboard, DB-driven
 - **Strategy notes:** `.claude/strategies/` — 6 domain files, individually listed in Session Start above
 - **Calibration notes:** `.claude/calibration/calibration-notes.md` — methodology, Apr 20 commands, snapshots
+- **Live trade log:** `.claude/calibration/live-trade-log.md` — per-trade records for Mar 20–Apr 20 calibration window
 - **OpenBrain category:** `.claude/openbrain-category` — `algo-trader`
 - **Hooks:** SessionStart (load-context.sh), PreToolUse guard (git-save-guard.sh), PreToolUse naming guard (domain-naming-guard.sh), PostToolUse OpenBrain audit (openbrain-audit-reminder.sh), PostToolUse plan domain reminder (plan-domain-reminder.sh)
 
