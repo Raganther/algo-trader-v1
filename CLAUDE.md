@@ -14,15 +14,15 @@ Read in order on every cold start:
 **Before starting any update, new feature, or bug fix — scan the list below and read any relevant domain files first.**
 
 Read on demand only:
-- `.claude/procedures/_index.md` — index of extracted procedures; scan at plan creation for relevant how-to patterns
-- `.claude/strategies/stochrsi_enhanced_gld.md` — GLD 15m validated params, full audit data, bear market test, long-only baseline
-- `.claude/strategies/stochrsi_enhanced_iau.md` — IAU 15m validated params and performance summary
-- `.claude/strategies/stochrsi_enhanced_slv.md` — SLV 15m validated params and performance summary
-- `.claude/strategies/stochrsi_enhanced_gdx.md` — GDX 15m validated params and performance summary
-- `.claude/strategies/composable_results.md` — Phase 3 composable strategy results (3 validated combos, not yet deployed)
-- `.claude/strategies/stochrsi_enhanced_xle.md` — XLE 15m validated params, Sharpe 2.06, WF 4/4, Rolling Validation Test #1 candidate
-- `.claude/strategies/event_surprise.md` — EventSurprise strategy: CPI/NFP research, backtest results, parked
-- `.claude/calibration/calibration_notes.md` — calibration methodology, Apr 20 commands, Mar 5–16 snapshot
+- `.claude/procedures/_index.md` — scan at plan creation for relevant how-to patterns
+- `.claude/strategies/stochrsi_enhanced_gld.md` — read when working on GLD, reviewing long-only vs full strategy, or checking the audit baseline
+- `.claude/strategies/stochrsi_enhanced_iau.md` — read when working on IAU or reviewing 15m strategy params
+- `.claude/strategies/stochrsi_enhanced_slv.md` — read when working on SLV or reviewing 15m strategy params
+- `.claude/strategies/stochrsi_enhanced_gdx.md` — read when working on GDX or reviewing 15m strategy params
+- `.claude/strategies/composable_results.md` — read when combining strategies or planning composable bot deployment
+- `.claude/strategies/stochrsi_enhanced_xle.md` — read when working on XLE or planning Rolling Validation Test #1
+- `.claude/strategies/event_surprise.md` — read when researching economic event strategies or revisiting CPI/NFP trading
+- `.claude/calibration/calibration_notes.md` — read when running calibration, checking Apr 20 methodology, or comparing backtest vs live
 
 ## Run Commands
 
@@ -64,7 +64,7 @@ python3 scripts/fetch_price_data.py --symbols GLD,IAU,SLV,GDX --start 2020-01-01
 - **Strategy notes:** `.claude/strategies/` — 6 domain files, individually listed in Session Start above
 - **Calibration notes:** `.claude/calibration/calibration_notes.md` — methodology, Apr 20 commands, snapshots
 - **OpenBrain category:** `.claude/openbrain-category` — `algo-trader`
-- **Hooks:** SessionStart (load-context.sh), PreToolUse guard (git-save-guard.sh), PostToolUse OpenBrain audit (openbrain-audit-reminder.sh), PostToolUse plan domain reminder (plan-domain-reminder.sh)
+- **Hooks:** SessionStart (load-context.sh), PreToolUse guard (git-save-guard.sh), PreToolUse naming guard (domain-naming-guard.sh), PostToolUse OpenBrain audit (openbrain-audit-reminder.sh), PostToolUse plan domain reminder (plan-domain-reminder.sh)
 
 ## Current Status
 Phase: Forward testing + charting. 4 paper bots running on cloud (gld-test, iau-test, slv-test, gdx-test).

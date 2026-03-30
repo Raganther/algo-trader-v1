@@ -1,6 +1,6 @@
 # StochRSI Enhanced — XLE 15m
 
-Status: current
+Status: current | Epistemic: confirmed | Last verified: 2026-03-28
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 

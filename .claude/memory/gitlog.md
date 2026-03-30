@@ -3,12 +3,32 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-30** — chore: memory harness migration — check 6, naming guard, epistemic headers, read-when pointers
+Migrated project to updated global CLAUDE.md spec. Added git-save-guard Check 6 (blocks missing Epistemic/Last verified headers), created domain-naming-guard.sh (PreToolUse Write, enforces lowercase-hyphenated naming), extended all 8 domain file headers with Epistemic and Last verified fields (dates from git log), and reformatted CLAUDE.md domain file pointers from content summaries to read-when-X trigger conditions.
+
+ .claude/calibration/calibration_notes.md    |  2 +-
+ .claude/hooks/domain-naming-guard.sh        | 34 +++++++++++++++++++++++++++++
+ .claude/hooks/git-save-guard.sh             | 32 ++++++++++++++++++++++++++-
+ .claude/memory/observations.md              | 16 +++++++++-----
+ .claude/settings.json                       |  9 ++++++++
+ .claude/strategies/composable_results.md    |  2 +-
+ .claude/strategies/event_surprise.md        |  2 +-
+ .claude/strategies/stochrsi_enhanced_gdx.md |  2 +-
+ .claude/strategies/stochrsi_enhanced_gld.md |  2 +-
+ .claude/strategies/stochrsi_enhanced_iau.md |  2 +-
+ .claude/strategies/stochrsi_enhanced_slv.md |  2 +-
+ .claude/strategies/stochrsi_enhanced_xle.md |  2 +-
+ CLAUDE.md                                   | 20 ++++++++---------
+ 13 files changed, 103 insertions(+), 24 deletions(-)
+
+----
 **2026-03-28** — chore: clarify short trading is deferred, not blocking real money
 Short trading cannot be enabled at starting capital (€100) because Alpaca rejects fractional short selling and whole-share sizing is not feasible at that level. Removed from the 'remaining before real money' checklist. Long-only until capital grows. Also corrects a session where short trading was mistakenly suggested as the next priority.
 
- .claude/memory/plan.md | 5 ++---
- CLAUDE.md              | 2 +-
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ .claude/memory/gitlog.md | 22 +++++++++++-----------
+ .claude/memory/plan.md   |  5 ++---
+ CLAUDE.md                |  2 +-
+ 3 files changed, 14 insertions(+), 15 deletions(-)
 
 ----
 **2026-03-28** — chore: confirm OpenBrain auto-backup to GitHub is active
@@ -61,12 +81,4 @@ Strategic discussion: after Apr 20 calibration, use rolling 4-8 week forward tes
  .claude/memory/observations.md | 20 ++++++++++++++++++++
  .claude/memory/plan.md         |  4 ++++
  3 files changed, 34 insertions(+), 14 deletions(-)
-
-----
-**2026-03-27** — chore: update calibration_notes — trading_hours required, Mar 27 snapshot
-Added trading_hours:[13,20] as a required param for all Apr 20 calibration backtest runs. Without it, backtest inflates trade count by ~11% by processing pre/post-market bars. Added Mar 20-27 preliminary snapshot (40 backtest vs 31 live, 1.3x, P&L direction aligned). Also removed long_only:true from the Apr 20 command — bots don't use that param.
-
- .claude/calibration/calibration_notes.md | 21 ++++++++++++++++++++-
- .claude/memory/gitlog.md                 | 18 +++++++++---------
- 2 files changed, 29 insertions(+), 10 deletions(-)
 

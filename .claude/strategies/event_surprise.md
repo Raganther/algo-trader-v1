@@ -1,6 +1,6 @@
 # EventSurprise — Economic Data Surprise Trading
 
-Status: current
+Status: current | Epistemic: confirmed | Last verified: 2026-03-26
 
 > **Strategy file:** `backend/strategies/event_surprise.py`
 > **Bot script:** `scripts/run_event_surprise_test.sh`

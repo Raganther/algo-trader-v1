@@ -1,6 +1,6 @@
 # Phase 3 — Composable Strategy Results
 
-Status: current
+Status: current | Epistemic: confirmed | Last verified: 2026-03-26
 
 > **Code:** `backend/optimizer/composable_strategy.py`, `backend/optimizer/building_blocks.py`
 > **Run script:** `backend/optimizer/run_composable.py`

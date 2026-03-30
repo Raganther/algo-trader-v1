@@ -1,6 +1,6 @@
 # Calibration Notes — Algo Trader V1
 
-Status: current
+Status: current | Epistemic: confirmed | Last verified: 2026-03-27
 
 Confirmed methodology for validating the backtest engine against live results.
 

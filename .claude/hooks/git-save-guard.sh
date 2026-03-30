@@ -28,7 +28,7 @@ UNLISTED=""
 while IFS= read -r -d '' file; do
   relative="${file#$CLAUDE_PROJECT_DIR/}"
   # Skip hooks, settings, openbrain-category, and core memory files
-  if echo "$relative" | grep -qE "^\.claude/hooks/|^\.claude/settings|^\.claude/openbrain-category|^\.claude/procedures/|^\.claude/memory/plan\.md|^\.claude/memory/observations\.md|^\.claude/memory/gitlog\.md"; then
+  if echo "$relative" | grep -qE "^\.claude/hooks/|^\.claude/settings|^\.claude/openbrain-category|^\.claude/procedures/|^\.claude/agents/|^\.claude/memory/plan\.md|^\.claude/memory/observations\.md|^\.claude/memory/gitlog\.md"; then
     continue
   fi
   # Check if listed in CLAUDE.md
@@ -110,6 +110,36 @@ if [ -n "$UNLISTED_PROCEDURES" ]; then
   echo "⚠️  BLOCKED: The following procedure files are not listed in .claude/procedures/_index.md:"
   echo -e "$UNLISTED_PROCEDURES"
   echo "   Add them to _index.md before saving."
+  exit 1
+fi
+
+# Check 6: domain files modified this session must have Epistemic: and Last verified: headers
+MISSING_HEADERS=""
+while IFS= read -r file; do
+  if ! echo "$file" | grep -q "^\.claude/"; then
+    continue
+  fi
+  if echo "$file" | grep -qE "^\.claude/(hooks|memory|procedures|agents)/|^\.claude/settings|^\.claude/openbrain-category"; then
+    continue
+  fi
+  if [[ "$file" != *.md ]]; then
+    continue
+  fi
+  full_path="$CLAUDE_PROJECT_DIR/$file"
+  if [ -f "$full_path" ]; then
+    if ! grep -q "Epistemic:" "$full_path" || ! grep -q "Last verified:" "$full_path"; then
+      MISSING_HEADERS="$MISSING_HEADERS\n  $file"
+    fi
+  fi
+done < <(
+  git -C "$CLAUDE_PROJECT_DIR" diff HEAD --name-only 2>/dev/null
+  git -C "$CLAUDE_PROJECT_DIR" ls-files --others --exclude-standard 2>/dev/null
+)
+
+if [ -n "$MISSING_HEADERS" ]; then
+  echo "⚠️  BLOCKED: The following domain files are missing Epistemic: or Last verified: headers:"
+  echo -e "$MISSING_HEADERS"
+  echo "   Add 'Status: current | Epistemic: confirmed/assumed | Last verified: YYYY-MM-DD' before saving."
   exit 1
 fi
 

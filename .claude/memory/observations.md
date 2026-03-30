@@ -9,12 +9,18 @@
 
 ---
 
-## Memory system (audited Mar 25, compliance pass Mar 26, workflow update Mar 28)
+## Memory system (audited Mar 25, compliance pass Mar 26, workflow update Mar 28, full migration Mar 30)
 Mar 28 additions:
-- Domain file check instruction added to global CLAUDE.md (Workflow section) and project CLAUDE.md (Session Start) — explicit rule to scan domain files before any update, new feature, or bug fix.
-- Domain file loop tested in the wild: XLE research used plan mode + domain file review. GLD card revealed XLE 1h was already done; calibration_notes gave the quality bar framing. Loop worked as intended.
-- git-save.sh updated: `pull --rebase` added before push — prevents push failures if remote ever gets ahead of local. GitHub repo was already being synced on every save; this is a safety net for edge cases only.
-- OpenBrain auto-backup confirmed working: `~/.openbrain/` is a git repo synced to `Raganther/openbrain` (private). Global PostToolUse hooks fire `sync.sh` after every remember/update_memory/forget call. Global infrastructure — no per-project setup required.
+- Domain file check instruction added to global CLAUDE.md (Workflow section) and project CLAUDE.md (Session Start).
+- git-save.sh: `pull --rebase` added before push.
+- OpenBrain auto-backup confirmed working.
+
+Mar 30 migration (global CLAUDE.md updated spec):
+- git-save-guard.sh: added `agents/` exclusion to Check 2; added Check 6 (blocks if modified domain files missing `Epistemic:` or `Last verified:` headers).
+- domain-naming-guard.sh: new hook, PreToolUse Write — enforces lowercase-hyphenated naming for `.claude/*.md` files.
+- settings.json: registered domain-naming-guard.sh under PreToolUse Write.
+- All 8 domain files: headers extended from `Status: current` to `Status: current | Epistemic: confirmed | Last verified: YYYY-MM-DD` (dates from git log per file).
+- CLAUDE.md pointers: reformatted from "contains Y" content summaries to "read when X" trigger conditions.
 
 ---
 

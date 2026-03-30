@@ -1,6 +1,6 @@
 # StochRSI Enhanced — GLD 15m (Best Edge)
 
-Status: current
+Status: current | Epistemic: confirmed | Last verified: 2026-03-26
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 > **Bot scripts:** `scripts/run_gld_test.sh`, `scripts/run_iau_test.sh`
