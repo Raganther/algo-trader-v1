@@ -34,7 +34,7 @@ Alpaca rejects fractional short selling. At starting capital (€100) fractional
 
 ### After Apr 20 calibration passes
 - [ ] Apply calibration corrections (spread adjustment, stop slippage param if needed)
-- [ ] Rolling Validation Test #1 — deploy XLE as 5th paper bot (4–8 weeks). Strategy card: `.claude/strategies/stochrsi_enhanced_xle.md`
+- [ ] Rolling Validation Test #1 — deploy XLE as 5th paper bot (4–8 weeks). Strategy card: `.claude/strategies/stochrsi-enhanced-xle.md`
 
 ---
 

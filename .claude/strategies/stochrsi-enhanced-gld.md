@@ -231,7 +231,7 @@ All years profitable. Consistent upward trend.
 
 ## Forward Testing
 
-gld-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — see `CLAUDE.md` current status and `.claude/calibration/calibration_notes.md` for calibration plan (target Apr 20).
+gld-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — see `CLAUDE.md` current status and `.claude/calibration/calibration-notes.md` for calibration plan (target Apr 20).
 
 Backtest prediction for test params (Dec 2025 – Mar 2026): +0.16%, 58 trades, 48% WR.
 

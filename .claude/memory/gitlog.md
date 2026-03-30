@@ -3,12 +3,32 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-30** — chore: rename domain files to hyphenated convention, add migration procedure
+Renamed all 8 domain files from underscores to hyphens to comply with lowercase-hyphenated naming convention enforced by the new domain-naming-guard.sh. Updated all cross-references across CLAUDE.md, plan.md, observations.md, and internal strategy card links. Also committed procedure file memory-harness-migration.md and updated _index.md — these were written last session but not yet committed.
+
+ .../{calibration_notes.md => calibration-notes.md} |  0
+ .claude/memory/observations.md                     | 10 +++++---
+ .claude/memory/plan.md                             |  2 +-
+ .claude/procedures/_index.md                       |  1 +
+ .claude/procedures/memory-harness-migration.md     | 30 ++++++++++++++++++++++
+ ...composable_results.md => composable-results.md} |  0
+ .../{event_surprise.md => event-surprise.md}       |  0
+ ...si_enhanced_gdx.md => stochrsi-enhanced-gdx.md} |  2 +-
+ ...si_enhanced_gld.md => stochrsi-enhanced-gld.md} |  2 +-
+ ...si_enhanced_iau.md => stochrsi-enhanced-iau.md} |  2 +-
+ ...si_enhanced_slv.md => stochrsi-enhanced-slv.md} |  2 +-
+ ...si_enhanced_xle.md => stochrsi-enhanced-xle.md} |  0
+ CLAUDE.md                                          | 18 ++++++-------
+ 13 files changed, 51 insertions(+), 18 deletions(-)
+
+----
 **2026-03-30** — chore: memory harness migration — check 6, naming guard, epistemic headers, read-when pointers
 Migrated project to updated global CLAUDE.md spec. Added git-save-guard Check 6 (blocks missing Epistemic/Last verified headers), created domain-naming-guard.sh (PreToolUse Write, enforces lowercase-hyphenated naming), extended all 8 domain file headers with Epistemic and Last verified fields (dates from git log), and reformatted CLAUDE.md domain file pointers from content summaries to read-when-X trigger conditions.
 
  .claude/calibration/calibration_notes.md    |  2 +-
  .claude/hooks/domain-naming-guard.sh        | 34 +++++++++++++++++++++++++++++
  .claude/hooks/git-save-guard.sh             | 32 ++++++++++++++++++++++++++-
+ .claude/memory/gitlog.md                    | 34 +++++++++++++++++++----------
  .claude/memory/observations.md              | 16 +++++++++-----
  .claude/settings.json                       |  9 ++++++++
  .claude/strategies/composable_results.md    |  2 +-
@@ -19,7 +39,7 @@ Migrated project to updated global CLAUDE.md spec. Added git-save-guard Check 6 
  .claude/strategies/stochrsi_enhanced_slv.md |  2 +-
  .claude/strategies/stochrsi_enhanced_xle.md |  2 +-
  CLAUDE.md                                   | 20 ++++++++---------
- 13 files changed, 103 insertions(+), 24 deletions(-)
+ 14 files changed, 126 insertions(+), 35 deletions(-)
 
 ----
 **2026-03-28** — chore: clarify short trading is deferred, not blocking real money
@@ -72,13 +92,4 @@ Added explicit workflow instruction: before any update, new feature, or bug fix,
  .claude/memory/gitlog.md | 30 +++++++++---------------------
  CLAUDE.md                |  2 ++
  2 files changed, 11 insertions(+), 21 deletions(-)
-
-----
-**2026-03-27** — chore: note post-calibration research process and rolling validation plan
-Strategic discussion: after Apr 20 calibration, use rolling 4-8 week forward tests on new assets/strategies to continuously validate the backtester. Execution layer calibrations apply universally; signal layer needs per-strategy forward test. Three-phase loop: research → validate → deploy. Added to observations and plan.
-
- .claude/memory/gitlog.md       | 24 ++++++++++--------------
- .claude/memory/observations.md | 20 ++++++++++++++++++++
- .claude/memory/plan.md         |  4 ++++
- 3 files changed, 34 insertions(+), 14 deletions(-)
 

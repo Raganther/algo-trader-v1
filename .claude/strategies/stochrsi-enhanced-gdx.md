@@ -81,7 +81,7 @@ All years profitable but 2020–2021 are slim compared to the full strategy. 202
 
 ## Forward Testing
 
-gdx-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — including trailing stop FIRING in profit (Mar 23: entry $80.05, trail ratcheted to $83.35, server stop fired intrabar @ $83.317, +$958 paper). See `CLAUDE.md` and `.claude/calibration/calibration_notes.md`.
+gdx-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — including trailing stop FIRING in profit (Mar 23: entry $80.05, trail ratcheted to $83.35, server stop fired intrabar @ $83.317, +$958 paper). See `CLAUDE.md` and `.claude/calibration/calibration-notes.md`.
 
 Backtest prediction for test params (Dec 2025 – Mar 2026): +2.45%, 69 trades, 59% WR.
 

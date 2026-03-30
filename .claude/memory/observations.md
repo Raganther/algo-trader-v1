@@ -19,8 +19,10 @@ Mar 30 migration (global CLAUDE.md updated spec):
 - git-save-guard.sh: added `agents/` exclusion to Check 2; added Check 6 (blocks if modified domain files missing `Epistemic:` or `Last verified:` headers).
 - domain-naming-guard.sh: new hook, PreToolUse Write — enforces lowercase-hyphenated naming for `.claude/*.md` files.
 - settings.json: registered domain-naming-guard.sh under PreToolUse Write.
-- All 8 domain files: headers extended from `Status: current` to `Status: current | Epistemic: confirmed | Last verified: YYYY-MM-DD` (dates from git log per file).
-- CLAUDE.md pointers: reformatted from "contains Y" content summaries to "read when X" trigger conditions.
+- All 8 domain files: headers extended to `Status: current | Epistemic: confirmed | Last verified: YYYY-MM-DD` (dates from git log per file).
+- CLAUDE.md pointers: reformatted to "read when X" trigger conditions.
+- All 8 domain files renamed underscores → hyphens (e.g. `stochrsi_enhanced_gld.md` → `stochrsi-enhanced-gld.md`). All cross-references updated across CLAUDE.md, plan.md, observations.md, and 4 strategy cards.
+- Procedure extracted: `memory-harness-migration.md` added to `.claude/procedures/`.
 
 ---
 
@@ -31,7 +33,7 @@ Mar 26 compliance pass against global CLAUDE.md (procedure extracted → .claude
 - git-save-guard.sh: Check 2 now excludes .claude/procedures/; Check 5 added (blocks if procedure files not in _index.md).
 - .claude/procedures/_index.md created (empty, ready for first extraction).
 - CLAUDE.md: directory-level pointer (.claude/strategies/) replaced with 7 individual file listings. plan-domain-reminder.sh added to Architecture hooks line.
-- All 7 domain files: Status: current added as standard header. Stale "Forward Testing Status" / "Next Steps" sections removed from strategy cards — replaced with brief prose notes referencing CLAUDE.md and calibration_notes.md.
+- All 7 domain files: Status: current added as standard header. Stale "Forward Testing Status" / "Next Steps" sections removed from strategy cards — replaced with brief prose notes referencing CLAUDE.md and calibration-notes.md.
 
 ---
 
@@ -66,7 +68,7 @@ The Apr 20 calibration validates the *execution layer* — spread, stop slippage
 
 **Rolling validation idea:** run short (4–8 week) forward tests on different assets and strategies after calibration. Each successful prediction (backtest and live agree on direction/magnitude) adds confidence in the engine. Don't need to be profitable — just predictable. Lock calibration params after Apr 20; don't tweak to fit each new test (that's curve-fitting the calibration).
 
-**Test #1 candidate — XLE 15m (researched Mar 28 2026):** Sharpe 2.06, +85.2%, 3.35% DD, WF 4/4. Same validated params as precious metals, no retuning. Confirms StochRSI mean reversion at 15m is a general microstructure pattern, not precious-metals-specific. Strategy card: `.claude/strategies/stochrsi_enhanced_xle.md`. Forward test starts after Apr 20.
+**Test #1 candidate — XLE 15m (researched Mar 28 2026):** Sharpe 2.06, +85.2%, 3.35% DD, WF 4/4. Same validated params as precious metals, no retuning. Confirms StochRSI mean reversion at 15m is a general microstructure pattern, not precious-metals-specific. Strategy card: `.claude/strategies/stochrsi-enhanced-xle.md`. Forward test starts after Apr 20.
 
 ---
 
