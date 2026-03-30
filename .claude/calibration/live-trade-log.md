@@ -131,6 +131,16 @@ Weekend — market closed.
 
 ## 2026-03-30
 
-**Audit status:** (data needed)
+**Audit status:** PASS (15/15 Alpaca records matched pm2 logs — GLD flat, 5 trades across 3 bots)
+
+| Bot | Entry time (UTC) | Entry $ | Exit time (UTC) | Exit $ | Exit type | Stop level at exit | P&L/share | Notes |
+|-----|-----------------|---------|-----------------|--------|-----------|-------------------|-----------|-------|
+| slv-test | 14:36 | 64.403 | 14:46 | 63.820 | K | - | -0.583 | Fill delay: placed 14:31, filled 14:36 (4:46 delay). set_entry_metadata warning — bars_held not initialised, K-exit fired after 1 bar despite min_hold=3 |
+| gdx-test | 14:35 | 87.211 | 14:46 | 86.678 | K | - | -0.533 | Fill delay: placed 14:31, filled 14:35 (4:00 delay). Same issue as SLV T1 — set_entry_metadata failure, K-exit after 1 bar |
+| gdx-test | 16:01 | 87.200 | 16:57 | 87.073 | TS | 87.10 | -0.127 | Trail ratcheted 3× ($85.65→$86.37→$86.51→$87.10). Slippage: -0.027 |
+| slv-test | 16:46 | 64.463 | 17:04 | 64.045 | TS | 64.05 | -0.418 | Trail ratcheted 1× ($63.57→$64.05). Slippage: -0.005 |
+| iau-test | 17:01 | 85.558 | 17:30 | 85.380 | TS | 85.38 | -0.178 | Trail ratcheted 1× ($84.96→$85.38). Slippage: ~0.000 |
+
+*All 5 exits losing. SLV/GDX T1 simultaneous delayed fills (14:31 UTC) — both K-exited on next bar due to set_entry_metadata failure. GDX T2 had 3 ratchets over 56 min but TS still fired near entry. Choppy session.*
 
 ---

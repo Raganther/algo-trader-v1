@@ -114,6 +114,9 @@ The backtest models **spread slippage** via `--spread 0.0003` (0.03% bid-ask cos
 
 ---
 
-## Market open fill delays (fixed Mar 26)
-Fills at market open regularly take 1–4 minutes, exceeding the 30s pending_fills timeout. Previously: fill would eventually confirm via pending_fills, but the server-side stop was never placed — position ran unprotected until the next exit signal. Confirmed on Mar 26: SLV buy at 13:31, filled 13:33, no stop in Alpaca, exited via K-signal at 14:16 (43 min unprotected).
-Fixed in live_broker.py: `stop_loss` now stored in pending_fills entry at timeout; `get_new_trades()` places the stop when the fill resolves. Log line: `🛡️ SERVER STOP placed at $X.XX ... [delayed fill]`.
+## Market open fill delays (two fixes applied)
+Fills at market open regularly take 1–4 minutes, exceeding the 30s pending_fills timeout.
+
+**Fix 1 (Mar 26):** server-side stop was never placed for delayed fills — position ran unprotected until the next exit signal. Fixed: `stop_loss` stored in pending_fills entry; `get_new_trades()` places the stop when fill resolves. Log: `🛡️ SERVER STOP placed at $X.XX ... [delayed fill]`.
+
+**Fix 2 (Mar 30):** entry metadata (`entry_time`, `entry_hour`, `entry_dow`, `atr_at_entry`) was silently dropped for delayed fills. Root cause: `set_entry_metadata()` attaches to `new_trades[-1]`, but on delayed fills `new_trades` is empty at call time (order still in pending_fills). Fixed: metadata stored in `_pending_entry_metadata[symbol]`; `get_new_trades()` pops and attaches it when the fill resolves. No more `⚠️ Warning: set_entry_metadata` log line.

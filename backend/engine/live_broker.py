@@ -40,6 +40,7 @@ class LiveBroker:
         self.pending_stop_side = None  # 'sell' for long positions, 'buy' for short positions
         self._last_stop_price = None  # Track last stop price for fallback on update failure
         self.pending_fills = []  # Timed-out orders that may still be in-flight
+        self._pending_entry_metadata = {}  # Metadata for delayed fills, keyed by symbol
         self.refresh()
 
     def refresh(self):
@@ -113,7 +114,7 @@ class LiveBroker:
             if order and order['status'] == 'filled':
                 fill_price = order['filled_avg_price']
                 slippage = pf['signal_price'] - fill_price if pf['side'] == 'sell' else fill_price - pf['signal_price']
-                self.new_trades.append({
+                trade = {
                     'symbol': self.symbol,
                     'side': pf['side'],
                     'qty': pf['qty'],
@@ -123,7 +124,13 @@ class LiveBroker:
                     'spread': 0.0,
                     'timestamp': order['filled_at'],
                     'order_id': pf['order_id']
-                })
+                }
+                # Attach any metadata stored at entry time (delayed fill path)
+                if pf['side'] == 'buy':
+                    pending_meta = self._pending_entry_metadata.pop(self.symbol, None)
+                    if pending_meta:
+                        trade.update(pending_meta)
+                self.new_trades.append(trade)
                 print(f"✅ PENDING FILL resolved: {pf['side']} @ {fill_price} (order {pf['order_id'][:8]}...)")
 
                 # Place server-side stop for delayed buy fills (stop was dropped at timeout)
@@ -159,15 +166,14 @@ class LiveBroker:
         """
         Updates the last trade for the symbol with metadata.
         This is called by strategies to attach analysis data (e.g. regime, atr) to the trade.
+        For delayed fills (pending_fills path), new_trades is empty at call time — store metadata
+        to attach when the fill resolves in get_new_trades().
         """
-        # Find partial trade in new_trades
         if self.new_trades:
-            # Assuming the last trade is the one we just made
-            # We could filter by symbol if needed, but usually execution is sequential.
             self.new_trades[-1].update(metadata)
         else:
-            # This might happen if order failed or wasn't tracked
-            print(f"⚠️ Warning: set_entry_metadata called but no new trades found for {symbol}")
+            # Delayed fill — order is in-flight via pending_fills. Store metadata to attach on resolution.
+            self._pending_entry_metadata[symbol] = metadata
 
     def _wait_for_fill(self, order_id, retries=15):
         """Polls Alpaca for order fill. 15 retries × 2s = 30s timeout."""

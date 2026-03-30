@@ -3,13 +3,23 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-30** — fix: attach entry metadata to delayed fill trades in live_broker
+When buy() timed out (>30s market open fills), set_entry_metadata() was called but new_trades was empty — metadata silently dropped. Fix: store in _pending_entry_metadata[symbol], attach when pending_fills resolves the fill. entry_time/entry_hour/entry_dow/atr_at_entry now correctly written to DB for all delayed fill trades.
+
+ .claude/calibration/live-trade-log.md | 12 +++++++++++-
+ .claude/memory/observations.md        |  9 ++++++---
+ backend/engine/live_broker.py         | 20 +++++++++++++-------
+ 3 files changed, 30 insertions(+), 11 deletions(-)
+
+----
 **2026-03-30** — chore: add daily-trade-audit procedure
 Extracted the daily trade audit process as a reusable procedure. Covers querying cloud DB, cross-referencing Alpaca records, reconstructing trades, and logging to live-trade-log.md. Based on the Mar 20-27 backfill work done this session.
 
+ .claude/memory/gitlog.md                | 23 ++++++++--------
  .claude/memory/observations.md          |  2 +-
  .claude/procedures/_index.md            |  1 +
  .claude/procedures/daily-trade-audit.md | 47 +++++++++++++++++++++++++++++++++
- 3 files changed, 49 insertions(+), 1 deletion(-)
+ 4 files changed, 60 insertions(+), 13 deletions(-)
 
 ----
 **2026-03-30** — feat: create live-trade-log.md — per-trade calibration data Mar 20-27
@@ -85,12 +95,4 @@ Session summary: domain file check instruction added to both CLAUDE.md files, te
  .claude/memory/gitlog.md       | 20 ++++++++++----------
  .claude/memory/observations.md | 10 +++++++++-
  2 files changed, 19 insertions(+), 11 deletions(-)
-
-----
-**2026-03-28** — chore: add pull --rebase before push in git-save.sh
-Ensures local is synced with remote before pushing. Prevents push failures if remote has diverged (e.g. edits via GitHub web UI or from another machine). Matches the pull-rebase+push pattern documented in global CLAUDE.md.
-
- .claude/memory/gitlog.md | 20 +++++++++-----------
- scripts/git-save.sh      |  3 ++-
- 2 files changed, 11 insertions(+), 12 deletions(-)
 
