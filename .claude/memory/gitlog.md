@@ -3,13 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-31** — chore: log Mar 31 trades, correct Mar 30 notes, deploy metadata fix
+Mar 31 audit: PASS 36/36 Alpaca records matched. Strong metals rally day — 5/7 closed trades profitable (GLD/IAU/SLV K-exits, GDX both server stops near entry). SLV T3 overnight hold active. Metadata fix confirmed working — no set_entry_metadata warnings on today's delayed fills. Also corrected Mar 30 T1/T2 exit notes (local SL hits, not min_hold bypass) and deployed live_broker metadata fix that was committed but not yet pulled to server.
+
+ .claude/calibration/live-trade-log.md | 23 +++++++++++++++++++++--
+ .claude/memory/observations.md        |  6 +++++-
+ 2 files changed, 26 insertions(+), 3 deletions(-)
+
+----
 **2026-03-30** — fix: attach entry metadata to delayed fill trades in live_broker
 When buy() timed out (>30s market open fills), set_entry_metadata() was called but new_trades was empty — metadata silently dropped. Fix: store in _pending_entry_metadata[symbol], attach when pending_fills resolves the fill. entry_time/entry_hour/entry_dow/atr_at_entry now correctly written to DB for all delayed fill trades.
 
  .claude/calibration/live-trade-log.md | 12 +++++++++++-
+ .claude/memory/gitlog.md              | 20 +++++++++++---------
  .claude/memory/observations.md        |  9 ++++++---
  backend/engine/live_broker.py         | 20 +++++++++++++-------
- 3 files changed, 30 insertions(+), 11 deletions(-)
+ 4 files changed, 41 insertions(+), 20 deletions(-)
 
 ----
 **2026-03-30** — chore: add daily-trade-audit procedure
@@ -87,12 +96,4 @@ Verified ~/.openbrain/ git repo, sync.sh, and three global PostToolUse hooks all
  .claude/memory/gitlog.md       | 18 +++++++++---------
  .claude/memory/observations.md |  1 +
  2 files changed, 10 insertions(+), 9 deletions(-)
-
-----
-**2026-03-28** — chore: note Mar 28 memory system and workflow updates
-Session summary: domain file check instruction added to both CLAUDE.md files, tested successfully with XLE research via plan mode. git-save.sh pull-rebase safety net added. GitHub repo confirmed already syncing on every save — no functional change to normal workflow.
-
- .claude/memory/gitlog.md       | 20 ++++++++++----------
- .claude/memory/observations.md | 10 +++++++++-
- 2 files changed, 19 insertions(+), 11 deletions(-)
 

@@ -117,6 +117,25 @@ Weekend — market closed.
 
 ---
 
+## 2026-03-31
+
+**Audit status:** PASS (36/36 Alpaca orders matched pm2 logs — strong metals rally day, 7 completed trades + 1 overnight)
+
+| Bot | Entry time (UTC) | Entry $ | Exit time (UTC) | Exit $ | Exit type | Stop level at exit | P&L/share | Notes |
+|-----|-----------------|---------|-----------------|--------|-----------|-------------------|-----------|-------|
+| gld-test | 14:32 | 419.834 | 15:01 | 423.817 | K | - | +3.983 | Fill delay: placed 14:31, filled 14:32 (1:26). Trail ratcheted 1× ($417.77→$423.21) |
+| iau-test | 14:33 | 86.031 | 15:01 | 86.855 | K | - | +0.824 | Fill delay: placed 14:31, filled 14:33 (2:37). Trail ratcheted 1× ($85.53→$86.68) |
+| slv-test | 14:32 | 65.880 | 15:16 | 66.901 | K | - | +1.021 | Fill delay: placed 14:31, filled 14:32 (1:46). Trail ratcheted 2× ($64.95→$66.40→$66.70) |
+| gdx-test | 17:46 | 90.891 | 18:24 | 90.787 | TS | 90.81 | -0.104 | Trail ratcheted 2× ($89.49→$90.65→$90.81). Slippage: -0.023 |
+| slv-test | 17:46 | 67.384 | 19:01 | 67.909 | K | - | +0.525 | Trail ratcheted 4× ($66.70→$67.37→$67.37→$67.47→$67.60). Duplicate at $67.37 (same ATR calc on consecutive bars — harmless) |
+| gld-test | 18:31 | 427.426 | 19:16 | 428.550 | K | - | +1.124 | Trail ratcheted 2× ($424.05→$427.15→$427.85) |
+| gdx-test | 19:31 | 91.072 | 20:06 | 90.880 | TS | 90.89 | -0.192 | Trail ratcheted 2× ($89.96→$90.81→$90.89). Slippage: -0.010 |
+| slv-test | 20:46 | 68.100 | — (Apr 1) | — | — | 67.50 | — | Overnight hold. Stop $67.42 expired 21:00 (DAY TIF). New stop $67.50 placed 22:10 UTC after bot restart — expected mechanism is re-placement at market open Apr 1, so timing is unexpected. Position protected for tomorrow |
+
+*GLD/IAU/SLV all delayed fills at open (simultaneous 14:31 entries), all profitable K-exits. GDX going against metals rally — both TS exits near entry. 5 of 7 closed trades profitable.*
+
+---
+
 ## 2026-03-28
 
 **Audit status:** (data needed)
@@ -135,8 +154,8 @@ Weekend — market closed.
 
 | Bot | Entry time (UTC) | Entry $ | Exit time (UTC) | Exit $ | Exit type | Stop level at exit | P&L/share | Notes |
 |-----|-----------------|---------|-----------------|--------|-----------|-------------------|-----------|-------|
-| slv-test | 14:36 | 64.403 | 14:46 | 63.820 | K | - | -0.583 | Fill delay: placed 14:31, filled 14:36 (4:46 delay). set_entry_metadata warning — bars_held not initialised, K-exit fired after 1 bar despite min_hold=3 |
-| gdx-test | 14:35 | 87.211 | 14:46 | 86.678 | K | - | -0.533 | Fill delay: placed 14:31, filled 14:35 (4:00 delay). Same issue as SLV T1 — set_entry_metadata failure, K-exit after 1 bar |
+| slv-test | 14:36 | 64.403 | 14:46 | 63.820 | K | - | -0.583 | Fill delay: placed 14:31, filled 14:36 (4:46 delay). Exit via local SL check (no min_hold guard) — price hit SL within 1 bar. set_entry_metadata warning = metadata loss bug (fixed Mar 30) |
+| gdx-test | 14:35 | 87.211 | 14:46 | 86.678 | K | - | -0.533 | Fill delay: placed 14:31, filled 14:35 (4:00 delay). Same as SLV T1 — local SL hit after 1 bar. set_entry_metadata warning = metadata loss bug (fixed Mar 30) |
 | gdx-test | 16:01 | 87.200 | 16:57 | 87.073 | TS | 87.10 | -0.127 | Trail ratcheted 3× ($85.65→$86.37→$86.51→$87.10). Slippage: -0.027 |
 | slv-test | 16:46 | 64.463 | 17:04 | 64.045 | TS | 64.05 | -0.418 | Trail ratcheted 1× ($63.57→$64.05). Slippage: -0.005 |
 | iau-test | 17:01 | 85.558 | 17:30 | 85.380 | TS | 85.38 | -0.178 | Trail ratcheted 1× ($84.96→$85.38). Slippage: ~0.000 |
