@@ -104,12 +104,17 @@ Both resolve naturally when whole-share sizing is implemented and shorts re-enab
 
 ---
 
+## Trade log analysis (Mar 20–31)
+Full analysis co-located with data in `.claude/calibration/live-trade-log.md`. Key headline: K-exits 76% win rate vs TS exits 14% across 43 trades. GDX underperforming vs backtest prediction. Correlated simultaneous entries = 6% portfolio exposure — needs position sizing adjustment before real money.
+
+---
+
 ## Trailing stop pattern (updated Mar 31)
-Same-day trades tend to exit via K-signal before the trailing stop can fire in profit. Multi-day holds give the trail time to ratchet far above entry. Mar 24 added a new data point: in choppy markets, the 0.5 ATR trail activates after 1 bar and sits very close to price — server stop fires frequently, often below entry, before the move has time to develop. 5 of 8 trades exited via server stop on Mar 24. K-signal exits (2 of 8) were the profitable ones.
+Same-day trades tend to exit via K-signal before the trailing stop can fire in profit. Multi-day holds give the trail time to ratchet far above entry. Mar 24: in choppy markets, the 0.5 ATR trail activates after 1 bar and sits very close to price — server stop fires frequently, often below entry. 5 of 8 trades exited via server stop on Mar 24; K-signal exits (2 of 8) were the profitable ones.
 
 Mar 31 (strong rally day): opposite pattern — 5 of 7 K-exits, all profitable. GLD/IAU/SLV K-exited in profit; GDX (against metals trend) both exited via server stop near entry. Confirms K-exits are the profitable exits when momentum is sustained.
 
-**Overnight stop timing (SLV T3, Mar 31):** DAY TIF stop expired 21:00 UTC as expected. New stop placed at 22:10 UTC (after bot restart at 21:09 UTC) — $67.50 vs expected $67.42. Documented mechanism says stop re-placed on first market-hours bar (13:30 UTC next day), so 22:10 UTC placement is unexpected. Hypothesis: position sync on restart triggers a trailing stop update on the last processed bar even outside market hours. Position IS protected. Investigate before Apr 20.
+**Overnight stop timing (SLV T3, Mar 31):** DAY TIF stop expired 20:00 UTC as expected. New stop placed at 21:10 UTC (after bot restart at 20:09 UTC) — $67.50 vs expected $67.42. Documented mechanism says stop re-placed on first market-hours bar (13:30 UTC next day), so 21:10 UTC placement is unexpected. Hypothesis: position sync on restart triggers a trailing stop update on the last processed bar even outside market hours. Position IS protected. Investigate before Apr 20.
 
 ---
 

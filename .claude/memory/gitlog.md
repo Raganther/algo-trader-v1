@@ -3,12 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-31** — chore: correct Mar 31 timestamps IST→UTC, co-locate trade log analysis
+All Mar 31 entry/exit times were 1h fast (Irish DST started Mar 29, Alpaca UI showing UTC+1 after that). Corrected all Mar 31 timestamps to UTC. Mar 21 and Mar 28 backfilled as confirmed zero-trade days. Trade log analysis (43 trades, K-exit 76% vs TS 14%, GDX divergence, correlated entry risk) moved from observations.md into live-trade-log.md — co-located with the data it describes. observations.md now holds a one-line pointer.
+
+ .claude/calibration/live-trade-log.md | 87 +++++++++++++++++++++++++++--------
+ .claude/memory/observations.md        |  9 +++-
+ 2 files changed, 76 insertions(+), 20 deletions(-)
+
+----
 **2026-03-31** — chore: log Mar 31 trades, correct Mar 30 notes, deploy metadata fix
 Mar 31 audit: PASS 36/36 Alpaca records matched. Strong metals rally day — 5/7 closed trades profitable (GLD/IAU/SLV K-exits, GDX both server stops near entry). SLV T3 overnight hold active. Metadata fix confirmed working — no set_entry_metadata warnings on today's delayed fills. Also corrected Mar 30 T1/T2 exit notes (local SL hits, not min_hold bypass) and deployed live_broker metadata fix that was committed but not yet pulled to server.
 
  .claude/calibration/live-trade-log.md | 23 +++++++++++++++++++++--
+ .claude/memory/gitlog.md              | 19 ++++++++++---------
  .claude/memory/observations.md        |  6 +++++-
- 2 files changed, 26 insertions(+), 3 deletions(-)
+ 3 files changed, 36 insertions(+), 12 deletions(-)
 
 ----
 **2026-03-30** — fix: attach entry metadata to delayed fill trades in live_broker
@@ -88,12 +97,4 @@ Short trading cannot be enabled at starting capital (€100) because Alpaca reje
  .claude/memory/plan.md   |  5 ++---
  CLAUDE.md                |  2 +-
  3 files changed, 14 insertions(+), 15 deletions(-)
-
-----
-**2026-03-28** — chore: confirm OpenBrain auto-backup to GitHub is active
-Verified ~/.openbrain/ git repo, sync.sh, and three global PostToolUse hooks all in place. Every OpenBrain write auto-syncs to Raganther/openbrain private repo. Global infrastructure — no per-project changes needed.
-
- .claude/memory/gitlog.md       | 18 +++++++++---------
- .claude/memory/observations.md |  1 +
- 2 files changed, 10 insertions(+), 9 deletions(-)
 
