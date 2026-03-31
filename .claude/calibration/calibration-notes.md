@@ -1,6 +1,6 @@
 # Calibration Notes — Algo Trader V1
 
-Status: current | Epistemic: confirmed | Last verified: 2026-03-27
+Status: current | Epistemic: confirmed | Last verified: 2026-03-31
 
 Confirmed methodology for validating the backtest engine against live results.
 
@@ -54,6 +54,25 @@ Stop if a layer fails before proceeding to the next.
 - Paper fills ≠ real-money fills — Alpaca paper simulates at market price
 - Calibration is a snapshot — valid for the market conditions during the test window only
 - Need ~80–100 trades for P&L comparison to be statistically meaningful
+
+---
+
+## Market regime during calibration window
+
+The Mar 20 – Apr 20 calibration window coincides with an extreme and historically unusual market regime for precious metals.
+
+**Background:** A US-Israeli military operation against Iran (Operation Epic Fury) launched February 28, 2026 triggered one of the most volatile periods in precious metals history. Gold hit an all-time high of ~$5,600 in late January, then crashed ~25% to ~$4,100 by mid-March — its worst weekly performance since 1983. Silver had its single worst day since 1980. Counterintuitively, safe-haven flows went into the US dollar rather than metals, because $120 oil locked the Fed into high rates, making non-yielding assets expensive to hold.
+
+**GLD during our window:** ~$400–430 (gold spot ~$4,000–4,300) — the post-crash partial recovery phase.
+
+**Implications for the Apr 20 calibration:**
+
+- **Execution layer** (spread, slippage, bar timing) — unaffected by market regime. These mechanics are consistent regardless of what price is doing. The calibration of these parameters is valid.
+- **Signal layer** (does StochRSI mean reversion work here?) — the backtest Sharpe of 2.54 was built on 2020–2025 data which didn't include this event. We're inadvertently forward-testing the signal layer under conditions outside the training sample. A weaker-than-predicted result doesn't necessarily mean the backtest is wrong — it may mean the regime is genuinely different.
+- **GDX divergence** — mining equities are more correlated to broader equity markets than the metal itself. In a risk-off geopolitical environment, GDX selling off while GLD/IAU/SLV hold fits this context.
+- **Choppy, reversing price action** — consistent with a market in the middle of a historic crash and partial recovery. Explains the high rate of 1-bar TS exits and exits near entry throughout Mar 20–31.
+
+**Interpreting Apr 20 results in this context:** if the calibration shows the backtest over-predicting profitability, consider whether it reflects an execution model error or simply an unusual market regime. The execution layer check (trade counts, entry/exit prices, stop slippage) is regime-independent and remains the primary validation target.
 
 ---
 

@@ -3,12 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-03-31** — chore: update memory harness, add market regime context to calibration notes
+Revised global CLAUDE.md memory harness: observations.md now acts as short-term memory with domain file links; new living domain file rule (update in place, don't re-graduate); triage options updated to GRADUATE/UPDATE-DOMAIN/REMOVE. Cleaned observations.md — removed resolved entries (memory system changelog, market open fill delays), trimmed remaining entries to one-line summaries with domain file links. Added market regime section to calibration-notes.md: calibration window coincides with historic precious metals crash (Iran war, gold -25% from ATH) — documented implications for interpreting Apr 20 execution vs signal layer results.
+
+ .claude/calibration/calibration-notes.md  | 21 ++++++-
+ .claude/hooks/openbrain-audit-reminder.sh |  7 ++-
+ .claude/memory/observations.md            | 93 ++++---------------------------
+ 3 files changed, 36 insertions(+), 85 deletions(-)
+
+----
 **2026-03-31** — chore: correct Mar 31 timestamps IST→UTC, co-locate trade log analysis
 All Mar 31 entry/exit times were 1h fast (Irish DST started Mar 29, Alpaca UI showing UTC+1 after that). Corrected all Mar 31 timestamps to UTC. Mar 21 and Mar 28 backfilled as confirmed zero-trade days. Trade log analysis (43 trades, K-exit 76% vs TS 14%, GDX divergence, correlated entry risk) moved from observations.md into live-trade-log.md — co-located with the data it describes. observations.md now holds a one-line pointer.
 
  .claude/calibration/live-trade-log.md | 87 +++++++++++++++++++++++++++--------
+ .claude/memory/gitlog.md              | 19 ++++----
  .claude/memory/observations.md        |  9 +++-
- 2 files changed, 76 insertions(+), 20 deletions(-)
+ 3 files changed, 86 insertions(+), 29 deletions(-)
 
 ----
 **2026-03-31** — chore: log Mar 31 trades, correct Mar 30 notes, deploy metadata fix
@@ -88,13 +98,4 @@ Migrated project to updated global CLAUDE.md spec. Added git-save-guard Check 6 
  .claude/strategies/stochrsi_enhanced_xle.md |  2 +-
  CLAUDE.md                                   | 20 ++++++++---------
  14 files changed, 126 insertions(+), 35 deletions(-)
-
-----
-**2026-03-28** — chore: clarify short trading is deferred, not blocking real money
-Short trading cannot be enabled at starting capital (€100) because Alpaca rejects fractional short selling and whole-share sizing is not feasible at that level. Removed from the 'remaining before real money' checklist. Long-only until capital grows. Also corrects a session where short trading was mistakenly suggested as the next priority.
-
- .claude/memory/gitlog.md | 22 +++++++++++-----------
- .claude/memory/plan.md   |  5 ++---
- CLAUDE.md                |  2 +-
- 3 files changed, 14 insertions(+), 15 deletions(-)
 
