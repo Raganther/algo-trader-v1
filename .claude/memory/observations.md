@@ -55,7 +55,7 @@ Same-day TS exits: almost always losses (0.5 ATR trail fires on noise before pos
 ---
 
 ## Alpaca MCP — partially integrated (Apr 1)
-57 tools audited; 3 validated and in use (get_clock, get_all_positions, get_orders), 5 untested (portfolio_history, stock_bars, calendar, corporate_actions, account_activities). Triage step 1c added to audit reminder to catch domain file body staleness. Procedures now carry `Related domain file:` headers for traceability.
+57 tools audited; 3 validated and in use (get_clock, get_all_positions, get_orders), 5 untested (portfolio_history, stock_bars, calendar, corporate_actions, account_activities). Triage step 1c and traceability rule added to global CLAUDE.md and audit reminder hook to catch domain file body staleness. Procedures carry `Related domain file:` headers for traceability.
 → Domain file: `.claude/integrations/alpaca-mcp.md`
 
 ---

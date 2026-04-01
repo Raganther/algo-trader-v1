@@ -3,14 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-01** — chore: add traceability rule to global CLAUDE.md, update hook description
+Documented the Related domain file convention as a formal rule in global CLAUDE.md (the traceability rule). Updated PostToolUse hook description to accurately reflect all four steps including Step 1c reverse domain file check. Completes the harness improvements from this session — all changes now reflected in both project and global config.
+
+ .claude/memory/observations.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+----
 **2026-04-01** — chore: add reverse domain file check to triage, backfill MCP domain file
 Added Step 1c to openbrain-audit-reminder.sh — reverse domain file check forces verification that domain file bodies (not just status lines) reflect session work. Added Related domain file header convention to procedures for traceability. Backfilled alpaca-mcp.md with Integration status section: 3 tools validated and in use, 5 untested, SSH-only items listed. Updated global CLAUDE.md hook code block to match.
 
  .claude/hooks/openbrain-audit-reminder.sh |  5 +++++
  .claude/integrations/alpaca-mcp.md        | 31 ++++++++++++++++++++++++++++++-
+ .claude/memory/gitlog.md                  | 23 ++++++++++++-----------
  .claude/memory/observations.md            |  4 ++--
  .claude/procedures/daily-trade-audit.md   |  1 +
- 4 files changed, 38 insertions(+), 3 deletions(-)
+ 5 files changed, 50 insertions(+), 14 deletions(-)
 
 ----
 **2026-04-01** — chore: integrate Alpaca MCP into check-bots and trade audit workflows
@@ -70,14 +78,4 @@ Mar 31 audit: PASS 36/36 Alpaca records matched. Strong metals rally day — 5/7
  .claude/memory/gitlog.md              | 19 ++++++++++---------
  .claude/memory/observations.md        |  6 +++++-
  3 files changed, 36 insertions(+), 12 deletions(-)
-
-----
-**2026-03-30** — fix: attach entry metadata to delayed fill trades in live_broker
-When buy() timed out (>30s market open fills), set_entry_metadata() was called but new_trades was empty — metadata silently dropped. Fix: store in _pending_entry_metadata[symbol], attach when pending_fills resolves the fill. entry_time/entry_hour/entry_dow/atr_at_entry now correctly written to DB for all delayed fill trades.
-
- .claude/calibration/live-trade-log.md | 12 +++++++++++-
- .claude/memory/gitlog.md              | 20 +++++++++++---------
- .claude/memory/observations.md        |  9 ++++++---
- backend/engine/live_broker.py         | 20 +++++++++++++-------
- 4 files changed, 41 insertions(+), 20 deletions(-)
 
