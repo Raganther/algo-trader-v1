@@ -3,14 +3,25 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-01** — chore: add reverse domain file check to triage, backfill MCP domain file
+Added Step 1c to openbrain-audit-reminder.sh — reverse domain file check forces verification that domain file bodies (not just status lines) reflect session work. Added Related domain file header convention to procedures for traceability. Backfilled alpaca-mcp.md with Integration status section: 3 tools validated and in use, 5 untested, SSH-only items listed. Updated global CLAUDE.md hook code block to match.
+
+ .claude/hooks/openbrain-audit-reminder.sh |  5 +++++
+ .claude/integrations/alpaca-mcp.md        | 31 ++++++++++++++++++++++++++++++-
+ .claude/memory/observations.md            |  4 ++--
+ .claude/procedures/daily-trade-audit.md   |  1 +
+ 4 files changed, 38 insertions(+), 3 deletions(-)
+
+----
 **2026-04-01** — chore: integrate Alpaca MCP into check-bots and trade audit workflows
 Rewrote CLAUDE.md Run Commands — check bots now uses MCP as primary method (get_clock, get_all_positions, get_orders), SSH retained for pm2 process health only. Rewrote daily-trade-audit procedure to use get_orders instead of SSH→DB→Alpaca cross-reference. Validated by comparing Mar 23 MCP output against existing trade log — 26 orders, 7 trades, all prices and trail ratchets matched exactly.
 
  .claude/integrations/alpaca-mcp.md      |  2 +-
+ .claude/memory/gitlog.md                | 23 ++++-----
  .claude/memory/observations.md          |  4 +-
  .claude/procedures/daily-trade-audit.md | 86 ++++++++++++++++++++++-----------
  CLAUDE.md                               | 24 ++++++---
- 4 files changed, 77 insertions(+), 39 deletions(-)
+ 5 files changed, 89 insertions(+), 50 deletions(-)
 
 ----
 **2026-04-01** — chore: add Alpaca MCP domain file — full 57-tool audit
@@ -69,14 +80,4 @@ When buy() timed out (>30s market open fills), set_entry_metadata() was called b
  .claude/memory/observations.md        |  9 ++++++---
  backend/engine/live_broker.py         | 20 +++++++++++++-------
  4 files changed, 41 insertions(+), 20 deletions(-)
-
-----
-**2026-03-30** — chore: add daily-trade-audit procedure
-Extracted the daily trade audit process as a reusable procedure. Covers querying cloud DB, cross-referencing Alpaca records, reconstructing trades, and logging to live-trade-log.md. Based on the Mar 20-27 backfill work done this session.
-
- .claude/memory/gitlog.md                | 23 ++++++++--------
- .claude/memory/observations.md          |  2 +-
- .claude/procedures/_index.md            |  1 +
- .claude/procedures/daily-trade-audit.md | 47 +++++++++++++++++++++++++++++++++
- 4 files changed, 60 insertions(+), 13 deletions(-)
 

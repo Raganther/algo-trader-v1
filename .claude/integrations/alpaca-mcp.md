@@ -1,6 +1,6 @@
 # Alpaca MCP — Tool Reference
 
-Status: current | Epistemic: confirmed | Last verified: 2026-04-01 | Implementation: integrated
+Status: current | Epistemic: confirmed | Last verified: 2026-04-01 | Implementation: partially integrated
 
 Alpaca MCP server (`uvx alpaca-mcp-server`) configured in `~/.claude/settings.json`. Uses existing Alpaca paper trading keys. Requires Claude Code restart to activate after config changes.
 
@@ -85,6 +85,35 @@ Ranked by impact for the forward testing / calibration phase:
 | 6 | `get_calendar` | Manual count | Confirm trading days in calibration window |
 | 7 | `get_corporate_action_announcements` | Web search | Check for dividends/splits causing price gaps |
 | 8 | `get_clock` | SSH → `date -u` | Market status check |
+
+---
+
+## Integration status
+
+**Validated and in use:**
+
+| Tool | Replaces | Validated | Status |
+|------|----------|-----------|--------|
+| `get_clock` | SSH `date -u` | Apr 1 | In use — "check bots" step 1 |
+| `get_all_positions` | SSH pm2 log grep for overnight holds | Apr 1 | In use — "check bots" step 2 |
+| `get_orders` | SSH → DB query → Alpaca UI cross-reference | Apr 1 (Mar 23 data: 26 orders, 7 trades, all matched) | In use — "check bots" step 3 + daily trade audit primary method |
+
+**Validated but not yet routine:**
+
+| Tool | Use case | Validated |
+|------|----------|-----------|
+| `get_portfolio_history` | Daily equity curve for Apr 20 calibration | Not yet — planned for Apr 20 |
+| `get_stock_bars` | Spot-check price action on specific trade days | Not yet |
+| `get_calendar` | Confirm trading days in calibration window | Not yet |
+| `get_corporate_action_announcements` | Check for dividends/splits causing price gaps | Not yet |
+| `get_account_activities(FILL)` | Fill-level detail as alternative to get_orders | Not yet |
+
+**Still requires SSH (MCP cannot replace):**
+- `pm2 status` — bot process health (running/stopped/errored)
+- pm2 log grep — application-level warnings, heartbeats, errors, bot startup confirmation
+- Deploy commands — git pull, pm2 restart
+
+**Validation detail (Apr 1 2026):** Pulled Mar 23 orders via `get_orders(status="closed", symbols="GLD,IAU,SLV,GDX", after="2026-03-23T00:00:00Z", until="2026-03-24T00:00:00Z")`. Returned 26 orders (13 filled + 13 canceled). Reconstructed 7 trades — all prices, timestamps, and trail ratchet levels matched the existing trade log exactly. Exit types derivable from order data: `type="market"` sell = K-exit, `type="stop"` sell filled = TS/SS. Trail ratchet history recoverable from canceled stop order sequence.
 
 ---
 

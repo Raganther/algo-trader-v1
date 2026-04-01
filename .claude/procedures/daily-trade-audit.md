@@ -1,6 +1,7 @@
 # Procedure: Daily Trade Audit
 
 **When to apply:** after each trading day to verify live bot execution, or when backfilling the calibration window. Run before git save on any day with active trades.
+**Related domain file:** `.claude/integrations/alpaca-mcp.md`
 
 ## Steps
 
