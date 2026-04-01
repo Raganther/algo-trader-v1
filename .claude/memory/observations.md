@@ -43,7 +43,7 @@ Both resolve naturally when whole-share sizing is implemented and shorts re-enab
 ---
 
 ## Trade log analysis (Mar 20–31)
-K-exits 76% win rate vs TS exits 14% (43 trades). GDX underperforming vs backtest prediction. Correlated simultaneous GLD/IAU/SLV entries = 6% portfolio exposure — needs position sizing adjustment before real money.
+K-exits 76% win rate vs TS exits 14% (43 trades). GDX underperforming vs backtest prediction. Correlated simultaneous GLD/IAU/SLV entries = 6% portfolio exposure — needs position sizing adjustment before real money. News correlation confirmed (Apr 1): Mar 23 best day = first bounce after flash crash; Mar 31 best day = Iran de-escalation news (Trump ends military campaign, GLD +3.79%). Mar 24/27/30 losses = choppy reversals in post-crash volatility. GDX underperformance structurally explained — see calibration-notes.md.
 → Domain file: `.claude/calibration/live-trade-log.md`
 
 ---

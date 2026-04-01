@@ -1,6 +1,6 @@
 # Calibration Notes — Algo Trader V1
 
-Status: current | Epistemic: confirmed | Last verified: 2026-03-31
+Status: current | Epistemic: confirmed | Last verified: 2026-04-01
 
 Confirmed methodology for validating the backtest engine against live results.
 
@@ -65,11 +65,19 @@ The Mar 20 – Apr 20 calibration window coincides with an extreme and historica
 
 **GLD during our window:** ~$400–430 (gold spot ~$4,000–4,300) — the post-crash partial recovery phase.
 
+**Key dates confirmed via news (Apr 1):**
+- **Mar 19:** Flash crash trigger — Middle East energy infrastructure attacks + hawkish Fed (Warsh). Gold -6.9%, Silver -12.5% intraday.
+- **Mar 23:** First sustained bounce after crash — explains best trade day in the log (GLD +5.333, SLV +2.102, all K-exits).
+- **Mar 31:** Iran de-escalation catalyst — Trump signals end to military campaign, risk-on open. GLD closed +3.79%. Explains second-best day in log (GLD/IAU/SLV all profitable K-exits from open).
+- **Mar 24/27/30:** Choppy reversals mid-recovery — explains correlated TS fires and all-loss days.
+
+**GDX structural divergence:** Gold fell 17% in March; GDX fell 29%. Cause: Iran war → oil spike → mining energy costs surge → margin compression. Miners underperformed bullion by ~12 percentage points. GDX bot underperforming backtest predictions is expected given this dynamic — not a model error.
+
 **Implications for the Apr 20 calibration:**
 
 - **Execution layer** (spread, slippage, bar timing) — unaffected by market regime. These mechanics are consistent regardless of what price is doing. The calibration of these parameters is valid.
 - **Signal layer** (does StochRSI mean reversion work here?) — the backtest Sharpe of 2.54 was built on 2020–2025 data which didn't include this event. We're inadvertently forward-testing the signal layer under conditions outside the training sample. A weaker-than-predicted result doesn't necessarily mean the backtest is wrong — it may mean the regime is genuinely different.
-- **GDX divergence** — mining equities are more correlated to broader equity markets than the metal itself. In a risk-off geopolitical environment, GDX selling off while GLD/IAU/SLV hold fits this context.
+- **GDX divergence** — structurally explained by oil/energy cost margin compression. Don't chase with parameter adjustments at Apr 20.
 - **Choppy, reversing price action** — consistent with a market in the middle of a historic crash and partial recovery. Explains the high rate of 1-bar TS exits and exits near entry throughout Mar 20–31.
 
 **Interpreting Apr 20 results in this context:** if the calibration shows the backtest over-predicting profitability, consider whether it reflects an execution model error or simply an unusual market regime. The execution layer check (trade counts, entry/exit prices, stop slippage) is regime-independent and remains the primary validation target.

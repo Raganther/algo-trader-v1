@@ -3,13 +3,23 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-01** — chore: add Alpaca MCP, correlate trade log with news
+Configured official Alpaca MCP server (uvx alpaca-mcp-server) in global Claude settings — provides live news, market data, and account access. Requires restart to activate. Cross-referenced Mar 20–31 trade log with news: Mar 23 best day = post-crash bounce; Mar 31 best day = Iran de-escalation (Trump ends campaign, GLD +3.79%); choppy loss days tied to post-crash whipsaw volatility. GDX underperformance confirmed structural — gold -17% vs GDX -29% due to mining margin compression from oil spike. Added specific news triggers and GDX -29% figure to calibration-notes.md.
+
+ .claude/calibration/calibration-notes.md | 12 ++++++++++--
+ .claude/memory/observations.md           |  2 +-
+ CLAUDE.md                                |  1 +
+ 3 files changed, 12 insertions(+), 3 deletions(-)
+
+----
 **2026-03-31** — chore: update memory harness, add market regime context to calibration notes
 Revised global CLAUDE.md memory harness: observations.md now acts as short-term memory with domain file links; new living domain file rule (update in place, don't re-graduate); triage options updated to GRADUATE/UPDATE-DOMAIN/REMOVE. Cleaned observations.md — removed resolved entries (memory system changelog, market open fill delays), trimmed remaining entries to one-line summaries with domain file links. Added market regime section to calibration-notes.md: calibration window coincides with historic precious metals crash (Iran war, gold -25% from ATH) — documented implications for interpreting Apr 20 execution vs signal layer results.
 
  .claude/calibration/calibration-notes.md  | 21 ++++++-
  .claude/hooks/openbrain-audit-reminder.sh |  7 ++-
+ .claude/memory/gitlog.md                  | 21 +++----
  .claude/memory/observations.md            | 93 ++++---------------------------
- 3 files changed, 36 insertions(+), 85 deletions(-)
+ 4 files changed, 47 insertions(+), 95 deletions(-)
 
 ----
 **2026-03-31** — chore: correct Mar 31 timestamps IST→UTC, co-locate trade log analysis
@@ -78,24 +88,4 @@ Renamed all 8 domain files from underscores to hyphens to comply with lowercase-
  ...si_enhanced_xle.md => stochrsi-enhanced-xle.md} |  0
  CLAUDE.md                                          | 18 ++++++-------
  14 files changed, 72 insertions(+), 28 deletions(-)
-
-----
-**2026-03-30** — chore: memory harness migration — check 6, naming guard, epistemic headers, read-when pointers
-Migrated project to updated global CLAUDE.md spec. Added git-save-guard Check 6 (blocks missing Epistemic/Last verified headers), created domain-naming-guard.sh (PreToolUse Write, enforces lowercase-hyphenated naming), extended all 8 domain file headers with Epistemic and Last verified fields (dates from git log), and reformatted CLAUDE.md domain file pointers from content summaries to read-when-X trigger conditions.
-
- .claude/calibration/calibration_notes.md    |  2 +-
- .claude/hooks/domain-naming-guard.sh        | 34 +++++++++++++++++++++++++++++
- .claude/hooks/git-save-guard.sh             | 32 ++++++++++++++++++++++++++-
- .claude/memory/gitlog.md                    | 34 +++++++++++++++++++----------
- .claude/memory/observations.md              | 16 +++++++++-----
- .claude/settings.json                       |  9 ++++++++
- .claude/strategies/composable_results.md    |  2 +-
- .claude/strategies/event_surprise.md        |  2 +-
- .claude/strategies/stochrsi_enhanced_gdx.md |  2 +-
- .claude/strategies/stochrsi_enhanced_gld.md |  2 +-
- .claude/strategies/stochrsi_enhanced_iau.md |  2 +-
- .claude/strategies/stochrsi_enhanced_slv.md |  2 +-
- .claude/strategies/stochrsi_enhanced_xle.md |  2 +-
- CLAUDE.md                                   | 20 ++++++++---------
- 14 files changed, 126 insertions(+), 35 deletions(-)
 
