@@ -24,6 +24,7 @@ Read on demand only:
 - `.claude/strategies/event-surprise.md` — read when researching economic event strategies or revisiting CPI/NFP trading
 - `.claude/calibration/calibration-notes.md` — read when running calibration, checking Apr 20 methodology, or comparing backtest vs live
 - `.claude/calibration/live-trade-log.md` — read when auditing trades, filling in daily trade data, or running the Apr 20 calibration comparison
+- `.claude/integrations/alpaca-mcp.md` — read when using Alpaca MCP tools, running trade audits via MCP, or checking what data is available without SSH
 
 ## Run Commands
 
@@ -66,7 +67,8 @@ python3 scripts/fetch_price_data.py --symbols GLD,IAU,SLV,GDX --start 2020-01-01
 - **Calibration notes:** `.claude/calibration/calibration-notes.md` — methodology, Apr 20 commands, snapshots
 - **Live trade log:** `.claude/calibration/live-trade-log.md` — per-trade records for Mar 20–Apr 20 calibration window
 - **OpenBrain category:** `.claude/openbrain-category` — `algo-trader`
-- **Alpaca MCP:** configured in `~/.claude/settings.json` — provides live news, market data, account/order access. Requires Claude Code restart to activate. Uses existing Alpaca paper trading keys. `uvx` installed at `~/.local/bin/uvx`.
+- **Alpaca MCP:** configured in `~/.claude/settings.json` — 57 tools for market data, orders, positions, portfolio history. No news endpoint. Requires Claude Code restart to activate. Uses existing Alpaca paper trading keys. `uvx` installed at `~/.local/bin/uvx`.
+- **Integrations:** `.claude/integrations/alpaca-mcp.md` — full tool reference, high-value tools ranked, usage notes
 - **Hooks:** SessionStart (load-context.sh), PreToolUse guard (git-save-guard.sh), PreToolUse naming guard (domain-naming-guard.sh), PostToolUse OpenBrain audit (openbrain-audit-reminder.sh), PostToolUse plan domain reminder (plan-domain-reminder.sh)
 
 ## Current Status

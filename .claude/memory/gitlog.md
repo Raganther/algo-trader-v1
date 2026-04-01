@@ -3,13 +3,23 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-01** — chore: add Alpaca MCP domain file — full 57-tool audit
+Audited all Alpaca MCP tools and created .claude/integrations/alpaca-mcp.md as a reference. 57 tools across 11 categories — high-value tools ranked for trade audit and calibration workflows. No news endpoint confirmed (web search still needed). Paper accounts must use feed=iex. Registered in CLAUDE.md and observations.md.
+
+ .claude/integrations/alpaca-mcp.md | 121 +++++++++++++++++++++++++++++++++++++
+ .claude/memory/observations.md     |   6 ++
+ CLAUDE.md                          |   4 +-
+ 3 files changed, 130 insertions(+), 1 deletion(-)
+
+----
 **2026-04-01** — chore: add Alpaca MCP, correlate trade log with news
 Configured official Alpaca MCP server (uvx alpaca-mcp-server) in global Claude settings — provides live news, market data, and account access. Requires restart to activate. Cross-referenced Mar 20–31 trade log with news: Mar 23 best day = post-crash bounce; Mar 31 best day = Iran de-escalation (Trump ends campaign, GLD +3.79%); choppy loss days tied to post-crash whipsaw volatility. GDX underperformance confirmed structural — gold -17% vs GDX -29% due to mining margin compression from oil spike. Added specific news triggers and GDX -29% figure to calibration-notes.md.
 
  .claude/calibration/calibration-notes.md | 12 ++++++++++--
+ .claude/memory/gitlog.md                 | 32 +++++++++++---------------------
  .claude/memory/observations.md           |  2 +-
  CLAUDE.md                                |  1 +
- 3 files changed, 12 insertions(+), 3 deletions(-)
+ 4 files changed, 23 insertions(+), 24 deletions(-)
 
 ----
 **2026-03-31** — chore: update memory harness, add market regime context to calibration notes
@@ -68,24 +78,4 @@ Created .claude/calibration/live-trade-log.md to capture per-trade detail (entry
  .claude/memory/observations.md        |  14 ++--
  CLAUDE.md                             |   2 +
  4 files changed, 159 insertions(+), 17 deletions(-)
-
-----
-**2026-03-30** — chore: rename domain files to hyphenated convention, add migration procedure
-Renamed all 8 domain files from underscores to hyphens to comply with lowercase-hyphenated naming convention enforced by the new domain-naming-guard.sh. Updated all cross-references across CLAUDE.md, plan.md, observations.md, and internal strategy card links. Also committed procedure file memory-harness-migration.md and updated _index.md — these were written last session but not yet committed.
-
- .../{calibration_notes.md => calibration-notes.md} |  0
- .claude/memory/gitlog.md                           | 31 +++++++++++++++-------
- .claude/memory/observations.md                     | 10 ++++---
- .claude/memory/plan.md                             |  2 +-
- .claude/procedures/_index.md                       |  1 +
- .claude/procedures/memory-harness-migration.md     | 30 +++++++++++++++++++++
- ...composable_results.md => composable-results.md} |  0
- .../{event_surprise.md => event-surprise.md}       |  0
- ...si_enhanced_gdx.md => stochrsi-enhanced-gdx.md} |  2 +-
- ...si_enhanced_gld.md => stochrsi-enhanced-gld.md} |  2 +-
- ...si_enhanced_iau.md => stochrsi-enhanced-iau.md} |  2 +-
- ...si_enhanced_slv.md => stochrsi-enhanced-slv.md} |  2 +-
- ...si_enhanced_xle.md => stochrsi-enhanced-xle.md} |  0
- CLAUDE.md                                          | 18 ++++++-------
- 14 files changed, 72 insertions(+), 28 deletions(-)
 

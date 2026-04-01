@@ -54,6 +54,12 @@ Same-day TS exits: almost always losses (0.5 ATR trail fires on noise before pos
 
 ---
 
+## Alpaca MCP audit (Apr 1)
+57 tools across 11 categories. No news endpoint — web search still needed for market context. High-value tools: `get_orders`, `get_account_activities(FILL)`, `get_portfolio_history` — can replace SSH→DB audit workflow for trade log and Apr 20 calibration. Paper accounts must use `feed="iex"` to avoid 403s.
+→ Domain file: `.claude/integrations/alpaca-mcp.md`
+
+---
+
 ## Two types of slippage — only one is modelled
 Spread slippage modelled (`--spread 0.0003`). Stop execution slippage not modelled — live shows $0.00–$0.14/share, typically under $0.05. Will surface in Layer 3 of Apr 20 calibration. If systematic, add to backtest model.
 → Domain file: `.claude/calibration/calibration-notes.md`
