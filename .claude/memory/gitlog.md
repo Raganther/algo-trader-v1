@@ -3,13 +3,24 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-01** — chore: integrate Alpaca MCP into check-bots and trade audit workflows
+Rewrote CLAUDE.md Run Commands — check bots now uses MCP as primary method (get_clock, get_all_positions, get_orders), SSH retained for pm2 process health only. Rewrote daily-trade-audit procedure to use get_orders instead of SSH→DB→Alpaca cross-reference. Validated by comparing Mar 23 MCP output against existing trade log — 26 orders, 7 trades, all prices and trail ratchets matched exactly.
+
+ .claude/integrations/alpaca-mcp.md      |  2 +-
+ .claude/memory/observations.md          |  4 +-
+ .claude/procedures/daily-trade-audit.md | 86 ++++++++++++++++++++++-----------
+ CLAUDE.md                               | 24 ++++++---
+ 4 files changed, 77 insertions(+), 39 deletions(-)
+
+----
 **2026-04-01** — chore: add Alpaca MCP domain file — full 57-tool audit
 Audited all Alpaca MCP tools and created .claude/integrations/alpaca-mcp.md as a reference. 57 tools across 11 categories — high-value tools ranked for trade audit and calibration workflows. No news endpoint confirmed (web search still needed). Paper accounts must use feed=iex. Registered in CLAUDE.md and observations.md.
 
  .claude/integrations/alpaca-mcp.md | 121 +++++++++++++++++++++++++++++++++++++
+ .claude/memory/gitlog.md           |  32 ++++------
  .claude/memory/observations.md     |   6 ++
  CLAUDE.md                          |   4 +-
- 3 files changed, 130 insertions(+), 1 deletion(-)
+ 4 files changed, 141 insertions(+), 22 deletions(-)
 
 ----
 **2026-04-01** — chore: add Alpaca MCP, correlate trade log with news
@@ -68,14 +79,4 @@ Extracted the daily trade audit process as a reusable procedure. Covers querying
  .claude/procedures/_index.md            |  1 +
  .claude/procedures/daily-trade-audit.md | 47 +++++++++++++++++++++++++++++++++
  4 files changed, 60 insertions(+), 13 deletions(-)
-
-----
-**2026-03-30** — feat: create live-trade-log.md — per-trade calibration data Mar 20-27
-Created .claude/calibration/live-trade-log.md to capture per-trade detail (entry/exit prices, stop levels, slippage) for the Mar 20–Apr 20 calibration window. Populated Mar 20–27 from DB + Alpaca cross-reference — all days PASS (9+13+16+2+14+6 = 60 records matched). Corrected Mar 24 server stop count from 5→6 in observations.md. Domain file registered in CLAUDE.md.
-
- .claude/calibration/live-trade-log.md | 136 ++++++++++++++++++++++++++++++++++
- .claude/memory/gitlog.md              |  24 +++---
- .claude/memory/observations.md        |  14 ++--
- CLAUDE.md                             |   2 +
- 4 files changed, 159 insertions(+), 17 deletions(-)
 

@@ -1,6 +1,6 @@
 # Alpaca MCP — Tool Reference
 
-Status: current | Epistemic: confirmed | Last verified: 2026-04-01
+Status: current | Epistemic: confirmed | Last verified: 2026-04-01 | Implementation: integrated
 
 Alpaca MCP server (`uvx alpaca-mcp-server`) configured in `~/.claude/settings.json`. Uses existing Alpaca paper trading keys. Requires Claude Code restart to activate after config changes.
 

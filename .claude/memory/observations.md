@@ -54,8 +54,8 @@ Same-day TS exits: almost always losses (0.5 ATR trail fires on noise before pos
 
 ---
 
-## Alpaca MCP audit (Apr 1)
-57 tools across 11 categories. No news endpoint — web search still needed for market context. High-value tools: `get_orders`, `get_account_activities(FILL)`, `get_portfolio_history` — can replace SSH→DB audit workflow for trade log and Apr 20 calibration. Paper accounts must use `feed="iex"` to avoid 403s.
+## Alpaca MCP — integrated (Apr 1)
+57 tools audited, now integrated into workflow. "Check bots" uses MCP as primary method (get_clock → get_all_positions → get_orders). Daily trade audit procedure rewritten to use get_orders instead of SSH→DB→Alpaca cross-reference. Validated Apr 1: Mar 23 MCP output matched trade log exactly (26 orders, 7 trades, all prices/timestamps/trail ratchets). SSH retained for pm2 process health and application logs only.
 → Domain file: `.claude/integrations/alpaca-mcp.md`
 
 ---

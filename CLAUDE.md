@@ -28,18 +28,26 @@ Read on demand only:
 
 ## Run Commands
 
+### Check bots (MCP — primary method)
+When asked to "check bots", run these Alpaca MCP calls in order:
+1. `get_clock` — market open/closed, establishes time context
+2. `get_all_positions` — any open positions (overnight holds)
+3. `get_orders(status="closed", symbols="GLD,IAU,SLV,GDX", after="<today>T00:00:00Z", direction="asc")` — today's completed trades
+
+### Check bots (SSH — process health only)
+Use SSH only when MCP can't answer the question: bot process status, application logs, errors/warnings.
+```bash
+# Bot process health (running/stopped/errored)
+gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="pm2 status"
+
+# Bot logs — errors, warnings, heartbeats (not trade data — use MCP for that)
+gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="for bot in gld-test iau-test slv-test gdx-test; do echo \"=== \$bot ===\"; logs=\$(ls -t /home/alistairelliman/.pm2/logs/\${bot}-out*.log | head -2); today=\$(echo \"\$logs\" | head -1); yesterday=\$(echo \"\$logs\" | tail -1); echo \"-- today --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$today\" 2>/dev/null; echo \"-- yesterday --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$yesterday\" 2>/dev/null; done"
+```
+
+### Other commands
 ```bash
 # Backtest (validated params)
 python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD --timeframe 15m --start 2020-01-01 --end 2025-12-31 --source alpaca --spread 0.0003 --delay 0 --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
-
-# Get current server time (always run this first when checking bots — establishes UTC anchor)
-gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="date -u"
-
-# Check cloud bots
-gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="pm2 status"
-
-# Check recent trades across all bots (today + yesterday shown separately — never add HEARTBEAT to this grep)
-gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="for bot in gld-test iau-test slv-test gdx-test; do echo \"=== \$bot ===\"; logs=\$(ls -t /home/alistairelliman/.pm2/logs/\${bot}-out*.log | head -2); today=\$(echo \"\$logs\" | head -1); yesterday=\$(echo \"\$logs\" | tail -1); echo \"-- today --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$today\" 2>/dev/null; echo \"-- yesterday --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$yesterday\" 2>/dev/null; done"
 
 # Deploy code changes to cloud
 git push origin main
