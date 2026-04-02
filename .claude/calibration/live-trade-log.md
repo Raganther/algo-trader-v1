@@ -7,6 +7,16 @@ Used for Apr 20 calibration comparison: Layer 2 (entry/exit prices vs backtest) 
 
 **Exit types:** `K` = bot K-signal at candle close | `SS` = server-side stop (stop loss) | `TS` = trailing stop fired intrabar
 
+## Plan
+
+### Active
+- [ ] Log each trading day through Apr 20 — check bots daily, add trade rows, update analysis totals
+- [ ] Run Apr 20 calibration comparison — see `.claude/calibration/calibration-notes.md` for commands and framework
+
+### Research
+- [ ] After Apr 20: does the backtest reproduce the 50/50 K/TS split? If not, stop execution model needs investigation
+- [ ] After Apr 20: does backtest show GDX underperforming the other three, or does it predict GDX strong? Determines whether GDX divergence is regime or model issue
+
 ## Knowledge
 
 ### Analysis — Mar 20–Apr 2 (50 completed trades)
@@ -224,3 +234,10 @@ Weekend — market closed.
 | gld-test | 18:31 | 427.800 | 19:16 | 429.080 | K | - | +1.280 | Trail ratcheted 2× (425.38→427.88→428.71), K-signal fired |
 
 *5/6 trades profitable. GLD T1 TS exit in profit — another server-side trail fire confirmed. IAU T1 TS fired below entry (1 ratchet, still short of entry). GDX/SLV clean K-signal exits with good ratchet progression. All bots flat EOD.*
+
+## Open Questions
+
+- **Time-of-day filter** — market open (13:31–14:15 UTC) is consistently the most active and most profitable window. Whether this is a persistent edge or regime-specific (post-crash recovery bouncing at open) is unknown. Worth testing as an explicit parameter in backtest after Apr 20.
+- **GDX separate params** — GDX behaves structurally differently from GLD/IAU/SLV (mining equity beta layered on physical metal beta). Whether it warrants different OB/OS thresholds or ADX settings, or whether it simply doesn't suit this strategy at all, won't be clear until Apr 20 calibration shows whether the backtest also predicts GDX underperforming. Don't adjust params before then.
+- **Overnight hold strategy** — the GDX +3.267 multi-day hold outperformed 49 other trades. Validated params partially capture this pattern (trail after 10 bars). Whether an explicit multi-day hold strategy variant is worth designing is a post-calibration, post-validated-params question.
+- **Correlation-aware position sizing** — GLD/IAU/SLV enter simultaneously multiple times per week. At 2% risk per trade, three simultaneous entries = 6% portfolio in one correlated move. Implementation approach (minimum K-value gap to stagger entries vs reduced per-trade risk when 3+ bots in simultaneously) not yet decided. Pre-real-money requirement.

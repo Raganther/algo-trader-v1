@@ -3,10 +3,18 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-03** — chore: restructure calibration files to v3 format — add Plan and Open Questions sections
+
+ .claude/calibration/calibration-notes.md |  8 ++++++++
+ .claude/calibration/live-trade-log.md    | 17 +++++++++++++++++
+ 2 files changed, 25 insertions(+)
+
+----
 **2026-04-03** — chore: add signal vs full-edge distinction to analysis — K-exit confirms signal, not full validated edge
 
- .claude/calibration/live-trade-log.md | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ .claude/calibration/live-trade-log.md |  8 ++++++++
+ .claude/memory/gitlog.md              | 20 ++++++++------------
+ 2 files changed, 16 insertions(+), 12 deletions(-)
 
 ----
 **2026-04-02** — chore: extend analysis to Apr 2 — 50 trades, K 80% / TS 16%, GLD TS win first same-day
@@ -78,12 +86,4 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 
  backend/runner.py | 28 ++++++++++++++++++++++++++++
  1 file changed, 28 insertions(+)
-
-----
-**2026-04-01** — chore: add traceability rule to global CLAUDE.md, update hook description
-Documented the Related domain file convention as a formal rule in global CLAUDE.md (the traceability rule). Updated PostToolUse hook description to accurately reflect all four steps including Step 1c reverse domain file check. Completes the harness improvements from this session — all changes now reflected in both project and global config.
-
- .claude/memory/gitlog.md       | 20 +++++++++-----------
- .claude/memory/observations.md |  2 +-
- 2 files changed, 10 insertions(+), 12 deletions(-)
 

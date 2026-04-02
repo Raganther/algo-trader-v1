@@ -109,6 +109,14 @@ Backtest (Jan 1 lead-in, long_only=True) vs live DB:
 
 SLV exact. GLD close. IAU/GDX off by 2–3 trades — likely data resampling differences plus a couple of bug-affected trades. Too early for conclusions. Repeat at Apr 20.
 
+## Open Questions
+
+- **Intrabar stop timing in backtest** — backtest may fire stops at bar close rather than intrabar. If so, it would under-predict TS exits and over-predict K-exits relative to the live 50/50 split. This is the most likely source of K/TS ratio divergence at Apr 20. If confirmed, the stop execution model needs an intrabar simulation component.
+- **Execution layer calibration across regimes** — the Apr 20 calibration is a snapshot of one unusual regime (post-metals-crash recovery, high intraday volatility). Whether spread and slippage assumptions hold in calmer or more strongly trending conditions is untested. Calibration is valid for this window; treat it as a lower bound on confidence, not a universal constant.
+- **Whether stop slippage is systematic** — live range $0.00–$0.14/share, most under $0.05. Sample is 50 trades across 12 days — too small to determine if there's a directional bias. Apr 20 Layer 3 will give a larger sample. If systematic (e.g. always negative, always under $0.05), worth adding a fixed slippage assumption to the backtest stop model.
+
+### Snapshots
+
 #### Mar 20–27 (8 trading days) — preliminary, clean window start
 Backtest (Jan 1 lead-in, `trading_hours:[13,20]`) vs live Alpaca audit (31 confirmed round trips):
 
