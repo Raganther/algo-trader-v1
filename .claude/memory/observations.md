@@ -62,7 +62,7 @@ Same-day TS exits: almost always losses (0.5 ATR trail fires on noise before pos
 ---
 
 ## Overnight stop gap — fixed Apr 2
-DAY stops expire at 20:00 UTC. Startup sync (runner.py ~line 638) tries to re-place on restart but is rejected post-market. Previously the stop wasn't re-placed until `on_bar` fired at ~13:45 UTC — a 15-min unprotected window at market open. Traced via Apr 1 Alpaca UI: rejected stop @ $67.50 on Mar 31 21:10 UTC, confirmed the gap existed since Mar 4 (`cedc865` comment said "re-placed on next bar" but never built). Fix: loop now checks `pending_stop_order_id` before each `on_bar` call and re-places if missing. Deployed Apr 2.
+DAY stops expire at 20:00 UTC. Startup sync (runner.py ~line 638) tries to re-place on restart but is rejected post-market. Previously the stop wasn't re-placed until `on_bar` fired at ~13:45 UTC — a 15-min unprotected window at market open. Traced via Apr 1 Alpaca UI: rejected stop @ $67.50 on Mar 31 21:10 UTC, confirmed the gap existed since Mar 4 (`cedc865` comment said "re-placed on next bar" but never built). Fix: loop now checks `pending_stop_order_id` before each `on_bar` call and re-places if missing. Deployed Apr 2. Also corrected Mar 31 T3 notes in live-trade-log.md — $67.50 stop was REJECTED not placed (confirmed from Alpaca UI).
 
 ## Two types of slippage — only one is modelled
 Spread slippage modelled (`--spread 0.0003`). Stop execution slippage not modelled — live shows $0.00–$0.14/share, typically under $0.05. Will surface in Layer 3 of Apr 20 calibration. If systematic, add to backtest model.

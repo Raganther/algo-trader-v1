@@ -3,12 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-02** — chore: log Apr 1 trades, correct Mar 31 T3 stop note
+Added Apr 1 trade log entry: SLV 2 trades (overnight SS exit -0.259/share, same-day TS exit -0.078/share), GLD/IAU/GDX 0 trades. Also corrected Mar 31 T3 overnight hold note — the $67.50 stop at 21:10 UTC was REJECTED by Alpaca (market closed), not placed as originally recorded. Confirmed from Alpaca UI during the overnight stop gap investigation.
+
+ .claude/calibration/live-trade-log.md | 17 +++++++++++++++--
+ .claude/memory/observations.md        |  2 +-
+ 2 files changed, 16 insertions(+), 3 deletions(-)
+
+----
 **2026-04-02** — fix: overnight stop gap — re-place DAY stop at market open
 DAY stops expire at 20:00 UTC. Startup sync may fail post-market (rejected by Alpaca), leaving position unprotected at next market open. Loop now re-places stop before on_bar if pending_stop_order_id is None. Gap existed since Mar 4 — cedc865 noted the intention but never built it. Discovered via rejected stop order in Alpaca UI (Mar 31 21:10 UTC). Also logged Apr 1 audit: SLV 2 trades, GLD/IAU/GDX 0 trades, all bots flat EOD.
 
- .claude/memory/observations.md | 8 ++++++--
- CLAUDE.md                      | 3 ++-
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ .claude/memory/gitlog.md       | 45 +++++++++++++++++++++++-------------------
+ .claude/memory/observations.md |  8 ++++++--
+ CLAUDE.md                      |  3 ++-
+ 3 files changed, 33 insertions(+), 23 deletions(-)
 
 ----
 **2026-04-02** — fix: re-place DAY stop at market open for overnight positions
@@ -73,14 +82,4 @@ Configured official Alpaca MCP server (uvx alpaca-mcp-server) in global Claude s
  .claude/memory/observations.md           |  2 +-
  CLAUDE.md                                |  1 +
  4 files changed, 23 insertions(+), 24 deletions(-)
-
-----
-**2026-03-31** — chore: update memory harness, add market regime context to calibration notes
-Revised global CLAUDE.md memory harness: observations.md now acts as short-term memory with domain file links; new living domain file rule (update in place, don't re-graduate); triage options updated to GRADUATE/UPDATE-DOMAIN/REMOVE. Cleaned observations.md — removed resolved entries (memory system changelog, market open fill delays), trimmed remaining entries to one-line summaries with domain file links. Added market regime section to calibration-notes.md: calibration window coincides with historic precious metals crash (Iran war, gold -25% from ATH) — documented implications for interpreting Apr 20 execution vs signal layer results.
-
- .claude/calibration/calibration-notes.md  | 21 ++++++-
- .claude/hooks/openbrain-audit-reminder.sh |  7 ++-
- .claude/memory/gitlog.md                  | 21 +++----
- .claude/memory/observations.md            | 93 ++++---------------------------
- 4 files changed, 47 insertions(+), 95 deletions(-)
 

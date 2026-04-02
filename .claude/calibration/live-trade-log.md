@@ -1,6 +1,6 @@
 # Live Trade Log — Calibration Window
 
-Status: current | Epistemic: confirmed | Last verified: 2026-03-31
+Status: current | Epistemic: confirmed | Last verified: 2026-04-02
 
 Detailed per-trade records for the Mar 20 – Apr 20 calibration window.
 Used for Apr 20 calibration comparison: Layer 2 (entry/exit prices vs backtest) and Layer 3 (stop fill slippage).
@@ -164,6 +164,19 @@ Weekend — market closed.
 
 ---
 
+## 2026-04-01
+
+**Audit status:** PASS (4/4 Alpaca orders matched — SLV only active bot, GLD/IAU/GDX 0 trades)
+
+| Bot | Entry time (UTC) | Entry $ | Exit time (UTC) | Exit $ | Exit type | Stop level at exit | P&L/share | Notes |
+|-----|-----------------|---------|-----------------|--------|-----------|-------------------|-----------|-------|
+| slv-test | Mar 31 19:46 | 68.100 | 13:42 | 67.841 | SS | 67.87 | -0.259 | Overnight hold from Mar 31. Stop re-placed at market open 13:31 UTC (startup sync). Slippage: -0.029 |
+| slv-test | 15:01 | 68.210 | 15:30 | 68.132 | TS | 68.14 | -0.078 | Trail ratcheted 1× ($67.54→$68.14). Fired below entry — same-day TS loss pattern. Slippage: -0.008 |
+
+*GLD/IAU/GDX: no signals. SLV: overnight exit (SS loss) + same-day TS loss. Both SLV exits losing — choppy day, no sustained momentum.*
+
+---
+
 ## 2026-03-31
 
 **Audit status:** PASS (36/36 Alpaca orders matched pm2 logs — strong metals rally day, 7 completed trades + 1 overnight)
@@ -179,7 +192,7 @@ Weekend — market closed.
 | slv-test | 16:46 | 67.384 | 18:01 | 67.909 | K | - | +0.525 | Trail ratcheted 4× ($66.70→$67.37→$67.37→$67.47→$67.60). Duplicate at $67.37 (same ATR calc on consecutive bars — harmless) |
 | gld-test | 17:31 | 427.426 | 18:16 | 428.550 | K | - | +1.124 | Trail ratcheted 2× ($424.05→$427.15→$427.85) |
 | gdx-test | 18:31 | 91.072 | 19:06 | 90.880 | TS | 90.89 | -0.192 | Trail ratcheted 2× ($89.96→$90.81→$90.89). Slippage: -0.010 |
-| slv-test | 19:46 | 68.100 | — (Apr 1) | — | — | 67.50 | — | Overnight hold. Stop $67.42 expired 20:00 UTC (DAY TIF). New stop $67.50 placed 21:10 UTC after bot restart at 20:09 UTC — expected mechanism is re-placement at market open Apr 1, so timing is unexpected. Position protected for tomorrow |
+| slv-test | 19:46 | 68.100 | Apr 1 13:42 | 67.841 | SS | 67.87 | -0.259 | Overnight hold exits Apr 1. Stop $67.42 expired 20:00 UTC. Stop $67.50 attempt at 21:10 UTC — REJECTED (market closed, not placed as originally noted). New stop $67.87 placed at market open Apr 1 13:31 UTC (startup sync on bot restart). Slippage: -0.029 |
 
 *GLD/IAU/SLV all delayed fills at open (simultaneous 13:31 entries), all profitable K-exits. GDX going against metals rally — both TS exits near entry. 5 of 7 closed trades profitable.*
 
