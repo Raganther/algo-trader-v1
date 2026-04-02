@@ -15,6 +15,7 @@
 - Mar 16–19: full Alpaca audits — all records matched pm2 logs across all 4 bots
 - Mar 20: clean window starts — 9/9 DB records matched Alpaca. 4 intraday trades (SLV TS, GLD K, IAU K, GDX T1 TS) + GDX T2 overnight hold (exits Mar 23).
 - Mar 23–31: all days PASS. Full per-trade detail in domain file.
+- Apr 1: SLV 2 trades (overnight hold exit via server stop 13:42 UTC + new entry exited via TS 15:30 UTC). GLD/IAU/GDX: 0 trades. All 4 bots flat EOD. MCP audit clean.
 → Domain file: `.claude/calibration/live-trade-log.md`
 
 ---
@@ -48,8 +49,8 @@ K-exits 76% win rate vs TS exits 14% (43 trades). GDX underperforming vs backtes
 
 ---
 
-## Trailing stop pattern (updated Mar 31)
-Same-day TS exits: almost always losses (0.5 ATR trail fires on noise before position moves). K-exits: profitable when momentum sustained. Multi-day holds give trail time to ratchet well above entry. Open: overnight stop re-placement fires at restart time (21:10 UTC) not next market open — investigate before Apr 20.
+## Trailing stop pattern (updated Apr 2)
+Same-day TS exits: almost always losses (0.5 ATR trail fires on noise before position moves). K-exits: profitable when momentum sustained. Multi-day holds give trail time to ratchet well above entry. Overnight stop gap fixed Apr 2 — see below.
 → Domain file: `.claude/calibration/live-trade-log.md`
 
 ---
@@ -59,6 +60,9 @@ Same-day TS exits: almost always losses (0.5 ATR trail fires on noise before pos
 → Domain file: `.claude/integrations/alpaca-mcp.md`
 
 ---
+
+## Overnight stop gap — fixed Apr 2
+DAY stops expire at 20:00 UTC. Startup sync (runner.py ~line 638) tries to re-place on restart but is rejected post-market. Previously the stop wasn't re-placed until `on_bar` fired at ~13:45 UTC — a 15-min unprotected window at market open. Traced via Apr 1 Alpaca UI: rejected stop @ $67.50 on Mar 31 21:10 UTC, confirmed the gap existed since Mar 4 (`cedc865` comment said "re-placed on next bar" but never built). Fix: loop now checks `pending_stop_order_id` before each `on_bar` call and re-places if missing. Deployed Apr 2.
 
 ## Two types of slippage — only one is modelled
 Spread slippage modelled (`--spread 0.0003`). Stop execution slippage not modelled — live shows $0.00–$0.14/share, typically under $0.05. Will surface in Layer 3 of Apr 20 calibration. If systematic, add to backtest model.

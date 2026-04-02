@@ -3,11 +3,34 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-02** — fix: overnight stop gap — re-place DAY stop at market open
+DAY stops expire at 20:00 UTC. Startup sync may fail post-market (rejected by Alpaca), leaving position unprotected at next market open. Loop now re-places stop before on_bar if pending_stop_order_id is None. Gap existed since Mar 4 — cedc865 noted the intention but never built it. Discovered via rejected stop order in Alpaca UI (Mar 31 21:10 UTC). Also logged Apr 1 audit: SLV 2 trades, GLD/IAU/GDX 0 trades, all bots flat EOD.
+
+ .claude/memory/observations.md | 8 ++++++--
+ CLAUDE.md                      | 3 ++-
+ 2 files changed, 8 insertions(+), 3 deletions(-)
+
+----
+**2026-04-02** — fix: re-place DAY stop at market open for overnight positions
+DAY stops expire at 20:00 UTC. Startup sync may fail post-market (rejected
+by Alpaca), leaving the position unprotected until the first on_bar fires
+at ~13:45 UTC — a 15-minute gap at market open. New loop check re-places
+the stop at strategy.current_sl on the first market-hours bar if no
+pending_stop_order_id is set. Also ensures trail logic can run on that bar
+(update_stop_order silently skips if pending_stop_order_id is None).
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
+ backend/runner.py | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+----
 **2026-04-01** — chore: add traceability rule to global CLAUDE.md, update hook description
 Documented the Related domain file convention as a formal rule in global CLAUDE.md (the traceability rule). Updated PostToolUse hook description to accurately reflect all four steps including Step 1c reverse domain file check. Completes the harness improvements from this session — all changes now reflected in both project and global config.
 
- .claude/memory/observations.md | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .claude/memory/gitlog.md       | 20 +++++++++-----------
+ .claude/memory/observations.md |  2 +-
+ 2 files changed, 10 insertions(+), 12 deletions(-)
 
 ----
 **2026-04-01** — chore: add reverse domain file check to triage, backfill MCP domain file
@@ -60,22 +83,4 @@ Revised global CLAUDE.md memory harness: observations.md now acts as short-term 
  .claude/memory/gitlog.md                  | 21 +++----
  .claude/memory/observations.md            | 93 ++++---------------------------
  4 files changed, 47 insertions(+), 95 deletions(-)
-
-----
-**2026-03-31** — chore: correct Mar 31 timestamps IST→UTC, co-locate trade log analysis
-All Mar 31 entry/exit times were 1h fast (Irish DST started Mar 29, Alpaca UI showing UTC+1 after that). Corrected all Mar 31 timestamps to UTC. Mar 21 and Mar 28 backfilled as confirmed zero-trade days. Trade log analysis (43 trades, K-exit 76% vs TS 14%, GDX divergence, correlated entry risk) moved from observations.md into live-trade-log.md — co-located with the data it describes. observations.md now holds a one-line pointer.
-
- .claude/calibration/live-trade-log.md | 87 +++++++++++++++++++++++++++--------
- .claude/memory/gitlog.md              | 19 ++++----
- .claude/memory/observations.md        |  9 +++-
- 3 files changed, 86 insertions(+), 29 deletions(-)
-
-----
-**2026-03-31** — chore: log Mar 31 trades, correct Mar 30 notes, deploy metadata fix
-Mar 31 audit: PASS 36/36 Alpaca records matched. Strong metals rally day — 5/7 closed trades profitable (GLD/IAU/SLV K-exits, GDX both server stops near entry). SLV T3 overnight hold active. Metadata fix confirmed working — no set_entry_metadata warnings on today's delayed fills. Also corrected Mar 30 T1/T2 exit notes (local SL hits, not min_hold bypass) and deployed live_broker metadata fix that was committed but not yet pulled to server.
-
- .claude/calibration/live-trade-log.md | 23 +++++++++++++++++++++--
- .claude/memory/gitlog.md              | 19 ++++++++++---------
- .claude/memory/observations.md        |  6 +++++-
- 3 files changed, 36 insertions(+), 12 deletions(-)
 
