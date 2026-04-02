@@ -884,6 +884,34 @@ def run_live_trading(args):
                     if not is_market_hours:
                         print(f"[DEBUG] Pre/post-market bar ({bar_h:02d}:{bar_m:02d} UTC) — skipping order logic")
                     else:
+                        # Re-place stop if position held but no server-side stop active.
+                        # DAY stops expire at 20:00 UTC — startup sync may fail post-market,
+                        # leaving the position unprotected until the first on_bar fires.
+                        # Placing here (before on_bar) also ensures trail logic can run on this bar.
+                        is_crypto = '/' in args.symbol
+                        if (not is_crypto
+                                and strategy.position in ('long', 'short')
+                                and not broker.pending_stop_order_id
+                                and strategy.current_sl):
+                            pos_size = abs(broker.get_position(args.symbol))
+                            if pos_size > 0.0001:
+                                stop_side = 'sell' if strategy.position == 'long' else 'buy'
+                                try:
+                                    broker.trader.cancel_all_orders_for_symbol(args.symbol)
+                                    stop_res = broker.trader.place_stop_order(
+                                        symbol=args.symbol,
+                                        qty=pos_size,
+                                        side=stop_side,
+                                        stop_price=strategy.current_sl
+                                    )
+                                    broker.pending_stop_order_id = stop_res['id']
+                                    broker.pending_stop_qty = pos_size
+                                    broker.pending_stop_side = stop_side
+                                    broker._last_stop_price = strategy.current_sl
+                                    print(f"[LOOP] ⚡ Stop re-placed at ${strategy.current_sl:.2f} (DAY stop gap recovery)")
+                                except Exception as e:
+                                    print(f"[LOOP] ⚠️ Stop re-place failed: {e}")
+
                         strategy.on_bar(last_row, last_index, latest_data)
 
                     # Log Trades (always run — pending_fills may resolve outside market hours)
