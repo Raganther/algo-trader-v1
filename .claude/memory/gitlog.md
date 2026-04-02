@@ -3,6 +3,12 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-02** — chore: log Apr 2 trades — 6 trades, 5 profitable, GLD TS fire in profit
+
+ .claude/calibration/live-trade-log.md | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+----
 **2026-04-02** — chore: migrate memory harness to v3
 
  .claude/calibration/calibration-notes.md       |  43 +++++-----
@@ -12,6 +18,7 @@
  .claude/hooks/openbrain-audit-reminder.sh      |  22 ++---
  .claude/hooks/plan-domain-reminder.sh          |  31 -------
  .claude/integrations/alpaca-mcp.md             |  68 ++++++---------
+ .claude/memory/gitlog.md                       |  37 +++++---
  .claude/memory/observations.md                 |  74 ++--------------
  .claude/memory/plan.md                         |  41 ---------
  .claude/procedures/memory-harness-migration.md |  11 +++
@@ -24,7 +31,7 @@
  .claude/strategies/stochrsi-enhanced-slv.md    |  26 +++---
  .claude/strategies/stochrsi-enhanced-xle.md    |  33 ++++---
  CLAUDE.md                                      |   5 +-
- 19 files changed, 238 insertions(+), 457 deletions(-)
+ 20 files changed, 264 insertions(+), 468 deletions(-)
 
 ----
 **2026-04-02** — chore: log Apr 1 trades, correct Mar 31 T3 stop note
@@ -87,14 +94,4 @@ Rewrote CLAUDE.md Run Commands — check bots now uses MCP as primary method (ge
  .claude/procedures/daily-trade-audit.md | 86 ++++++++++++++++++++++-----------
  CLAUDE.md                               | 24 ++++++---
  5 files changed, 89 insertions(+), 50 deletions(-)
-
-----
-**2026-04-01** — chore: add Alpaca MCP domain file — full 57-tool audit
-Audited all Alpaca MCP tools and created .claude/integrations/alpaca-mcp.md as a reference. 57 tools across 11 categories — high-value tools ranked for trade audit and calibration workflows. No news endpoint confirmed (web search still needed). Paper accounts must use feed=iex. Registered in CLAUDE.md and observations.md.
-
- .claude/integrations/alpaca-mcp.md | 121 +++++++++++++++++++++++++++++++++++++
- .claude/memory/gitlog.md           |  32 ++++------
- .claude/memory/observations.md     |   6 ++
- CLAUDE.md                          |   4 +-
- 4 files changed, 141 insertions(+), 22 deletions(-)
 

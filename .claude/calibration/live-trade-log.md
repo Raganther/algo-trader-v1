@@ -197,3 +197,20 @@ Weekend — market closed.
 | slv-test | 15:01 | 68.210 | 15:30 | 68.132 | TS | 68.14 | -0.078 | Trail ratcheted 1× ($67.54→$68.14). Fired below entry — same-day TS loss pattern. Slippage: -0.008 |
 
 *GLD/IAU/GDX: no signals. SLV: overnight exit (SS loss) + same-day TS loss. Both SLV exits losing — choppy day, no sustained momentum.*
+
+### 2026-04-02
+
+**Audit status:** PASS (30 Alpaca orders confirmed via MCP — 6 trades across all 4 bots)
+
+*Note: Good Friday Apr 3 is market holiday — next session Monday Apr 6.*
+
+| Bot | Entry time (UTC) | Entry $ | Exit time (UTC) | Exit $ | Exit type | Stop level at exit | P&L/share | Notes |
+|-----|-----------------|---------|-----------------|--------|-----------|-------------------|-----------|-------|
+| gdx-test | 14:01 | 93.486 | 14:46 | 94.920 | K | - | +1.434 | Trail ratcheted 3× (91.86→93.51→93.82→94.31), K-signal fired |
+| slv-test | 14:01 | 64.462 | 14:46 | 65.910 | K | - | +1.448 | Trail ratcheted 3× (63.43→64.48→64.65→65.62), K-signal fired |
+| gld-test | 14:17 | 427.590 | 14:50 | 429.585 | TS | 429.64 | +1.995 | Trail ratcheted 2× (422.45→427.09→429.64); stop fired in profit. Slippage: -0.055 |
+| iau-test | 14:46 | 88.170 | 15:22 | 87.700 | TS | 87.71 | -0.470 | Trail ratcheted 1× (87.12→87.71); stop fired below entry (no sustained move). Slippage: -0.010 |
+| iau-test | 18:18 | 87.610 | 19:01 | 87.920 | K | - | +0.310 | Trail ratcheted 3× (87.16→87.50→87.67→87.80), K-signal fired |
+| gld-test | 18:31 | 427.800 | 19:16 | 429.080 | K | - | +1.280 | Trail ratcheted 2× (425.38→427.88→428.71), K-signal fired |
+
+*5/6 trades profitable. GLD T1 TS exit in profit — another server-side trail fire confirmed. IAU T1 TS fired below entry (1 ratchet, still short of entry). GDX/SLV clean K-signal exits with good ratchet progression. All bots flat EOD.*
