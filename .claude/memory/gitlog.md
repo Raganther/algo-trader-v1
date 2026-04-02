@@ -3,10 +3,17 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-03** — chore: add signal vs full-edge distinction to analysis — K-exit confirms signal, not full validated edge
+
+ .claude/calibration/live-trade-log.md | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+----
 **2026-04-02** — chore: extend analysis to Apr 2 — 50 trades, K 80% / TS 16%, GLD TS win first same-day
 
  .claude/calibration/live-trade-log.md | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ .claude/memory/gitlog.md              | 20 ++++++++------------
+ 2 files changed, 22 insertions(+), 24 deletions(-)
 
 ----
 **2026-04-02** — chore: log Apr 2 trades — 6 trades, 5 profitable, GLD TS fire in profit
@@ -79,15 +86,4 @@ Documented the Related domain file convention as a formal rule in global CLAUDE.
  .claude/memory/gitlog.md       | 20 +++++++++-----------
  .claude/memory/observations.md |  2 +-
  2 files changed, 10 insertions(+), 12 deletions(-)
-
-----
-**2026-04-01** — chore: add reverse domain file check to triage, backfill MCP domain file
-Added Step 1c to openbrain-audit-reminder.sh — reverse domain file check forces verification that domain file bodies (not just status lines) reflect session work. Added Related domain file header convention to procedures for traceability. Backfilled alpaca-mcp.md with Integration status section: 3 tools validated and in use, 5 untested, SSH-only items listed. Updated global CLAUDE.md hook code block to match.
-
- .claude/hooks/openbrain-audit-reminder.sh |  5 +++++
- .claude/integrations/alpaca-mcp.md        | 31 ++++++++++++++++++++++++++++++-
- .claude/memory/gitlog.md                  | 23 ++++++++++++-----------
- .claude/memory/observations.md            |  4 ++--
- .claude/procedures/daily-trade-audit.md   |  1 +
- 5 files changed, 50 insertions(+), 14 deletions(-)
 
