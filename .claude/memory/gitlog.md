@@ -3,12 +3,37 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-02** — chore: migrate memory harness to v3
+
+ .claude/calibration/calibration-notes.md       |  43 +++++-----
+ .claude/calibration/live-trade-log.md          | 114 +++++++++----------------
+ .claude/hooks/git-save-guard.sh                |  42 ++-------
+ .claude/hooks/load-context.sh                  |   3 +-
+ .claude/hooks/openbrain-audit-reminder.sh      |  22 ++---
+ .claude/hooks/plan-domain-reminder.sh          |  31 -------
+ .claude/integrations/alpaca-mcp.md             |  68 ++++++---------
+ .claude/memory/observations.md                 |  74 ++--------------
+ .claude/memory/plan.md                         |  41 ---------
+ .claude/procedures/memory-harness-migration.md |  11 +++
+ .claude/settings.json                          |  18 ----
+ .claude/strategies/composable-results.md       |  18 ++--
+ .claude/strategies/event-surprise.md           |  46 +++++-----
+ .claude/strategies/stochrsi-enhanced-gdx.md    |  26 +++---
+ .claude/strategies/stochrsi-enhanced-gld.md    |  46 +++++-----
+ .claude/strategies/stochrsi-enhanced-iau.md    |  28 +++---
+ .claude/strategies/stochrsi-enhanced-slv.md    |  26 +++---
+ .claude/strategies/stochrsi-enhanced-xle.md    |  33 ++++---
+ CLAUDE.md                                      |   5 +-
+ 19 files changed, 238 insertions(+), 457 deletions(-)
+
+----
 **2026-04-02** — chore: log Apr 1 trades, correct Mar 31 T3 stop note
 Added Apr 1 trade log entry: SLV 2 trades (overnight SS exit -0.259/share, same-day TS exit -0.078/share), GLD/IAU/GDX 0 trades. Also corrected Mar 31 T3 overnight hold note — the $67.50 stop at 21:10 UTC was REJECTED by Alpaca (market closed), not placed as originally recorded. Confirmed from Alpaca UI during the overnight stop gap investigation.
 
  .claude/calibration/live-trade-log.md | 17 +++++++++++++++--
+ .claude/memory/gitlog.md              | 25 ++++++++++++-------------
  .claude/memory/observations.md        |  2 +-
- 2 files changed, 16 insertions(+), 3 deletions(-)
+ 3 files changed, 28 insertions(+), 16 deletions(-)
 
 ----
 **2026-04-02** — fix: overnight stop gap — re-place DAY stop at market open
@@ -72,14 +97,4 @@ Audited all Alpaca MCP tools and created .claude/integrations/alpaca-mcp.md as a
  .claude/memory/observations.md     |   6 ++
  CLAUDE.md                          |   4 +-
  4 files changed, 141 insertions(+), 22 deletions(-)
-
-----
-**2026-04-01** — chore: add Alpaca MCP, correlate trade log with news
-Configured official Alpaca MCP server (uvx alpaca-mcp-server) in global Claude settings — provides live news, market data, and account access. Requires restart to activate. Cross-referenced Mar 20–31 trade log with news: Mar 23 best day = post-crash bounce; Mar 31 best day = Iran de-escalation (Trump ends campaign, GLD +3.79%); choppy loss days tied to post-crash whipsaw volatility. GDX underperformance confirmed structural — gold -17% vs GDX -29% due to mining margin compression from oil spike. Added specific news triggers and GDX -29% figure to calibration-notes.md.
-
- .claude/calibration/calibration-notes.md | 12 ++++++++++--
- .claude/memory/gitlog.md                 | 32 +++++++++++---------------------
- .claude/memory/observations.md           |  2 +-
- CLAUDE.md                                |  1 +
- 4 files changed, 23 insertions(+), 24 deletions(-)
 

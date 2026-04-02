@@ -1,20 +1,27 @@
-# Calibration Notes — Algo Trader V1
-
 Status: current | Epistemic: confirmed | Last verified: 2026-04-01
+
+# Calibration Notes — Algo Trader V1
 
 Confirmed methodology for validating the backtest engine against live results.
 
----
+## Plan
 
-## What calibration is
+### Active
+- [ ] **Run Apr 20 calibration comparison** — backtest with identical params over Mar 20–Apr 20 window. Compare trade counts (Layer 1), entry/exit prices (Layer 2), stop slippage (Layer 3), aggregate P&L (Layer 4). Commands in Knowledge section. Stop if a layer fails before proceeding to next.
+- [ ] **Apply calibration corrections post-Apr-20** — if spread or slippage models are off, adjust backtest params accordingly before switching to validated params.
+
+### Research
+- [ ] **Post-calibration research loop (three phases):** Research (backtest, filter Sharpe > 2 / DD < 3% / WF pass) → Validate (4–8 week forward test, goal is prediction accuracy not profit) → Deploy (real money). Execution layer corrections from Apr 20 apply universally; signal layer needs its own forward test per new strategy.
+
+## Knowledge
+
+### What calibration is
 
 The test params (OB 60/OS 40, ADX 50, 3-bar hold, 0.5 ATR trail) are not a trading strategy — they're a calibration instrument. By running the same params in backtest and live simultaneously, we verify whether the backtest engine faithfully models reality.
 
 **Clean window: Mar 20 – Apr 20, 2026.** Mar 20 = first fully confirmed clean day with all fixes deployed (race condition fix Mar 19, 18/18 Alpaca orders matched). Target: ~80–100 trades per symbol across the window.
 
----
-
-## How to run the comparison (run on Apr 20)
+### How to run the comparison (run on Apr 20)
 
 ```bash
 # Full window + lead-in (for indicator warmup)
@@ -37,9 +44,7 @@ Run both for all 4 symbols. Subtract pre-window baseline to isolate the clean li
 
 **Why the lead-in matters:** backtest needs ~50 bars of warmup before indicators are valid. Starting from Jan 1 ensures warmup completes before the comparison window opens.
 
----
-
-## Layered comparison framework
+### Layered comparison framework
 
 | What you compare | What it confirms |
 |---|---|
@@ -55,9 +60,7 @@ Stop if a layer fails before proceeding to the next.
 - Calibration is a snapshot — valid for the market conditions during the test window only
 - Need ~80–100 trades for P&L comparison to be statistically meaningful
 
----
-
-## Market regime during calibration window
+### Market regime during calibration window
 
 The Mar 20 – Apr 20 calibration window coincides with an extreme and historically unusual market regime for precious metals.
 
@@ -82,19 +85,19 @@ The Mar 20 – Apr 20 calibration window coincides with an extreme and historica
 
 **Interpreting Apr 20 results in this context:** if the calibration shows the backtest over-predicting profitability, consider whether it reflects an execution model error or simply an unusual market regime. The execution layer check (trade counts, entry/exit prices, stop slippage) is regime-independent and remains the primary validation target.
 
----
-
-## Calibration integrity — signal vs execution layer
+### Calibration integrity — signal vs execution layer
 
 All bug fixes applied during testing are in the execution layer (order placement, fill confirmation, stop management, DB logging). None touched signal generation (StochRSI thresholds, ADX check, bar timing). The calibration comparison is asking only: "when strategy thresholds are met, does a trade fire?" — identical in backtest and live. The fixes made mechanics reliable; they didn't change what the strategy does.
 
 One marginal factor: delayed fills at market open (3–4 min on some symbols) can briefly desync bot state, potentially missing a signal the backtest would catch. This is noise, not systematic drift.
 
----
+### Two types of slippage — only one is modelled
 
-## Snapshots
+Spread slippage modelled (`--spread 0.0003`). Stop execution slippage not modelled — live shows $0.00–$0.14/share, typically under $0.05. Will surface in Layer 3 of Apr 20 calibration. If systematic, add to backtest model.
 
-### Mar 5–16 (11 trading days) — preliminary, pre-clean-window
+### Snapshots
+
+#### Mar 5–16 (11 trading days) — preliminary, pre-clean-window
 Backtest (Jan 1 lead-in, long_only=True) vs live DB:
 
 | Symbol | Backtest trades | Live trades | Backtest return |
@@ -106,7 +109,7 @@ Backtest (Jan 1 lead-in, long_only=True) vs live DB:
 
 SLV exact. GLD close. IAU/GDX off by 2–3 trades — likely data resampling differences plus a couple of bug-affected trades. Too early for conclusions. Repeat at Apr 20.
 
-### Mar 20–27 (8 trading days) — preliminary, clean window start
+#### Mar 20–27 (8 trading days) — preliminary, clean window start
 Backtest (Jan 1 lead-in, `trading_hours:[13,20]`) vs live Alpaca audit (31 confirmed round trips):
 
 | Symbol | Backtest trades | Live trades | Backtest return |

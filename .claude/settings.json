@@ -40,24 +40,6 @@
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/openbrain-audit-reminder.sh"
           }
         ]
-      },
-      {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/plan-domain-reminder.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/plan-domain-reminder.sh"
-          }
-        ]
       }
     ]
   },

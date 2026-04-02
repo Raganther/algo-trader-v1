@@ -1,72 +1,16 @@
 # Observations — Algo Trader V1
-*Running insights from the forward testing phase. Graduate to confirmed knowledge when settled.*
+Staging area for new topics and cross-domain coordination.
 
 ---
 
-## Graduation Candidates
-<!-- Entries ready to graduate this session. git-save-guard blocks if non-empty. -->
-<!-- Either graduate to .claude/[domain]/ and clear, or explicitly remove if not ready. -->
+## Active Work
 
----
+1. **Calibration comparison — Apr 20** — run backtest with identical params over Mar 20–Apr 20 window, compare trade counts, entry/exit prices, aggregate P&L. See `## Plan` in `.claude/calibration/calibration-notes.md`.
+2. **Chart trade overlays (Stage 2)** — fetch entries/exits from `live_trade_log`, plot markers on chart (entry, exit, stop level), toggle live vs backtest. No domain file yet.
+3. **Post-Apr-20: switch to validated params** — OB 80/OS 15, hold 10, trail 10, skip Monday. Affects all 4 bots. See strategy domain files.
+4. **Post-Apr-20: XLE forward test** — deploy as 5th paper bot after calibration passes. See `## Plan` in `.claude/strategies/stochrsi-enhanced-xle.md`.
+5. **Short trading deferred** — Alpaca rejects fractional short sells. Long-only until capital supports whole-share sizing.
 
-## Data integrity baseline
-- Mar 03–04: gaps (bugs active, acceptable)
-- Mar 05 onwards: 100% fill capture
-- Mar 16–19: full Alpaca audits — all records matched pm2 logs across all 4 bots
-- Mar 20: clean window starts — 9/9 DB records matched Alpaca. 4 intraday trades (SLV TS, GLD K, IAU K, GDX T1 TS) + GDX T2 overnight hold (exits Mar 23).
-- Mar 23–31: all days PASS. Full per-trade detail in domain file.
-- Apr 1: SLV 2 trades (overnight hold exit via server stop 13:42 UTC + new entry exited via TS 15:30 UTC). GLD/IAU/GDX: 0 trades. All 4 bots flat EOD. MCP audit clean.
-→ Domain file: `.claude/calibration/live-trade-log.md`
+## Staging
 
----
-
-## Post-calibration research process (planned, Mar 27)
-Three-phase loop: Research (backtest, filter Sharpe > 2 / DD < 3% / WF pass) → Validate (4–8 week forward test, goal is prediction accuracy not profit) → Deploy (real money). Execution layer corrections from Apr 20 apply universally; signal layer needs its own forward test per new strategy. Test #1 candidate: XLE 15m — Sharpe 2.06, +85.2%, 3.35% DD, WF 4/4. Forward test starts after Apr 20. Note: calibration window coincides with historically extreme precious metals volatility (Iran war, post-ATH crash) — see domain file for context on interpreting Apr 20 results.
-→ Domain file: `.claude/calibration/calibration-notes.md` | XLE card: `.claude/strategies/stochrsi-enhanced-xle.md`
-
----
-
-## Preliminary calibration check (Mar 27)
-No red flags. Backtest (Mar 20–27, aggressive params + trading_hours:[13,20]): 40 trades vs 31 live (1.3x inflation, acceptable). P&L direction aligned across all 4 symbols. Always include `"trading_hours":[13,20]` in calibration backtest params — required to match live market hours gate.
-→ Domain file: `.claude/calibration/calibration-notes.md`
-
----
-
-## "Phantom sell" — blocked short entry (confirmed Mar 27)
-Every day, all 4 bots log `⚠️ SELL skipped: no open position — ignoring duplicate exit signal` once during the session. This is NOT a duplicate exit — it's a **blocked short entry attempt**.
-
-What happens: K spends time above overbought (60) → `in_overbought_zone = True`. When K later drops below 50, the strategy's short entry logic fires `self.sell()` with a `stop_loss`. `live_broker.sell()` blocks it (fractional short selling unsupported) and prints the misleading warning. `in_overbought_zone` resets to False (line 295) — no further attempts that session.
-
-State stays clean after it. No bad trades. Fires once per overbought zone crossing.
-Two issues: (1) warning message says "duplicate exit" when it's a "blocked short entry" — misleading. (2) `self.current_sl` gets set to the short stop value before the sell is blocked — stale but harmless (overwritten on next long entry, and stop loss check requires `position == 'long'`).
-Both resolve naturally when whole-share sizing is implemented and shorts re-enabled.
-
----
-
-## Trade log analysis (Mar 20–31)
-K-exits 76% win rate vs TS exits 14% (43 trades). GDX underperforming vs backtest prediction. Correlated simultaneous GLD/IAU/SLV entries = 6% portfolio exposure — needs position sizing adjustment before real money. News correlation confirmed (Apr 1): Mar 23 best day = first bounce after flash crash; Mar 31 best day = Iran de-escalation news (Trump ends military campaign, GLD +3.79%). Mar 24/27/30 losses = choppy reversals in post-crash volatility. GDX underperformance structurally explained — see calibration-notes.md.
-→ Domain file: `.claude/calibration/live-trade-log.md`
-
----
-
-## Trailing stop pattern (updated Apr 2)
-Same-day TS exits: almost always losses (0.5 ATR trail fires on noise before position moves). K-exits: profitable when momentum sustained. Multi-day holds give trail time to ratchet well above entry. Overnight stop gap fixed Apr 2 — see below.
-→ Domain file: `.claude/calibration/live-trade-log.md`
-
----
-
-## Alpaca MCP — partially integrated (Apr 1)
-57 tools audited; 3 validated and in use (get_clock, get_all_positions, get_orders), 5 untested (portfolio_history, stock_bars, calendar, corporate_actions, account_activities). Triage step 1c and traceability rule added to global CLAUDE.md and audit reminder hook to catch domain file body staleness. Procedures carry `Related domain file:` headers for traceability.
-→ Domain file: `.claude/integrations/alpaca-mcp.md`
-
----
-
-## Overnight stop gap — fixed Apr 2
-DAY stops expire at 20:00 UTC. Startup sync (runner.py ~line 638) tries to re-place on restart but is rejected post-market. Previously the stop wasn't re-placed until `on_bar` fired at ~13:45 UTC — a 15-min unprotected window at market open. Traced via Apr 1 Alpaca UI: rejected stop @ $67.50 on Mar 31 21:10 UTC, confirmed the gap existed since Mar 4 (`cedc865` comment said "re-placed on next bar" but never built). Fix: loop now checks `pending_stop_order_id` before each `on_bar` call and re-places if missing. Deployed Apr 2. Also corrected Mar 31 T3 notes in live-trade-log.md — $67.50 stop was REJECTED not placed (confirmed from Alpaca UI).
-
-## Two types of slippage — only one is modelled
-Spread slippage modelled (`--spread 0.0003`). Stop execution slippage not modelled — live shows $0.00–$0.14/share, typically under $0.05. Will surface in Layer 3 of Apr 20 calibration. If systematic, add to backtest model.
-→ Domain file: `.claude/calibration/calibration-notes.md`
-
----
-
+- **"Phantom sell"** — every session, bots log `⚠️ SELL skipped: no open position`. Not a duplicate exit — it's a blocked short entry attempt. K above OB (60) → `in_overbought_zone = True` → K drops below 50 → `sell()` fires → `live_broker.py` blocks it (fractional short unsupported) → misleading warning logged. State stays clean after block. `in_overbought_zone` resets to False. Two issues: (1) warning says "duplicate exit" — should say "blocked short entry"; (2) `current_sl` set to short stop value before block — stale but harmless. Both resolve when whole-share sizing added. No domain file yet.

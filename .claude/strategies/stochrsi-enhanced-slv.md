@@ -1,10 +1,12 @@
-# StochRSI Enhanced — SLV 15m
-
 Status: current | Epistemic: confirmed | Last verified: 2026-03-26
+
+# StochRSI Enhanced — SLV 15m
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 
-## Validated Parameters
+## Knowledge
+
+### Validated Parameters
 
 Same params as GLD 15m — no tuning needed, transferred directly.
 
@@ -23,21 +25,21 @@ Same params as GLD 15m — no tuning needed, transferred directly.
 | Min hold | `min_hold_bars` | 10 |
 | Skip days | `skip_days` | [0] (Monday) |
 
-### Backtest command:
+#### Backtest command:
 ```bash
 python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol SLV --timeframe 15m \
   --start 2020-01-01 --end 2025-12-31 --source alpaca --spread 0.0003 --delay 0 \
   --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 ```
 
-## Performance Summary (validated Feb 27 2026)
+### Performance Summary (validated Feb 27 2026)
 
 - **Full-period return (2020–2025):** +105.3%, **Max drawdown:** 2.00%, **Trades:** 544
 - **Sharpe:** 2.54
 - **Holdout test (2024–2025):** +29.9%, Sharpe 2.30 — minimal degradation
 - **Walk-forward:** 4/4 windows positive (100%)
 
-## Year-by-Year (Walk-Forward Windows)
+### Year-by-Year (Walk-Forward Windows)
 
 | Test Period | Return | Sharpe | Trades |
 |---|---|---|---|
@@ -46,7 +48,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol SLV
 | 2024 | +16.6% | 2.28 | 103 |
 | 2025 | +11.3% | 2.50 | 101 |
 
-## Key Findings
+### Key Findings
 
 **Why it works:** Silver shares the same mean-reversion structure as GLD within a precious metals trend. Same macro drivers (CPI, USD, rates) produce the same short-term oscillations. Params transferred without any tuning.
 
@@ -54,11 +56,11 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol SLV
 
 **Baseline (unenhanced) was already Sharpe 1.31.** Enhancement (trailing stop + min hold + skip Monday) improved it to 2.54 — same ~76% Sharpe improvement seen on GLD.
 
-## Thesis Validation
+### Thesis Validation
 
 This result confirms the **precious metals thesis**: the StochRSI Enhanced edge is not GLD-specific. It is a structural property of precious metals mean-reverting at 15m within a longer-term trend.
 
-## Long-Only Baseline (live constraint — Mar 14 2026)
+### Long-Only Baseline (live constraint — Mar 14 2026)
 
 Live bots run long-only — Alpaca rejects fractional short orders.
 
@@ -77,12 +79,8 @@ Most consistent year-by-year profile of the four assets. All years strongly posi
 
 **Implication:** SLV long-only is viable as-is. No urgency to fix short selling for SLV specifically.
 
-## Forward Testing
+### Forward Testing
 
 slv-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — see `CLAUDE.md` and `.claude/calibration/calibration-notes.md`.
 
 Backtest prediction for test params (Dec 2025 – Mar 2026): +14.25%, 44 trades, 57% WR — strongest of the 4 symbols under test params.
-
----
-
-*Last updated: 2026-03-26*

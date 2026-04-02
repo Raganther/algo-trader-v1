@@ -8,8 +8,7 @@ Phase: Forward testing — verifying live execution mechanics on 4 paper bots be
 ## Session Start
 Read in order on every cold start:
 1. `.claude/memory/gitlog.md` — recent git saves
-2. `.claude/memory/plan.md` — active steps
-3. `.claude/memory/observations.md` — running insights from current testing phase
+2. `.claude/memory/observations.md` — active work + staging
 
 **Before starting any update, new feature, or bug fix — scan the list below and read any relevant domain files first.**
 
@@ -77,7 +76,7 @@ python3 scripts/fetch_price_data.py --symbols GLD,IAU,SLV,GDX --start 2020-01-01
 - **OpenBrain category:** `.claude/openbrain-category` — `algo-trader`
 - **Alpaca MCP:** configured in `~/.claude/settings.json` — 57 tools for market data, orders, positions, portfolio history. No news endpoint. Requires Claude Code restart to activate. Uses existing Alpaca paper trading keys. `uvx` installed at `~/.local/bin/uvx`.
 - **Integrations:** `.claude/integrations/alpaca-mcp.md` — full tool reference, high-value tools ranked, usage notes
-- **Hooks:** SessionStart (load-context.sh), PreToolUse guard (git-save-guard.sh), PreToolUse naming guard (domain-naming-guard.sh), PostToolUse OpenBrain audit (openbrain-audit-reminder.sh), PostToolUse plan domain reminder (plan-domain-reminder.sh)
+- **Hooks:** SessionStart (load-context.sh), PreToolUse guard (git-save-guard.sh), PreToolUse naming guard (domain-naming-guard.sh), PostToolUse OpenBrain audit (openbrain-audit-reminder.sh)
 
 ## Current Status
 Phase: Forward testing + charting. 4 paper bots running on cloud (gld-test, iau-test, slv-test, gdx-test).

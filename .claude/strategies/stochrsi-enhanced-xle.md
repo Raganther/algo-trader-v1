@@ -1,10 +1,17 @@
-# StochRSI Enhanced — XLE 15m
-
 Status: current | Epistemic: confirmed | Last verified: 2026-03-28
+
+# StochRSI Enhanced — XLE 15m
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 
-## Validated Parameters
+## Plan
+
+### Active
+- [ ] Deploy as 5th paper bot (Rolling Validation Test #1) after Apr 20 calibration passes. 4–8 week forward test, compare live results to backtest prediction to validate the engine on a new asset.
+
+## Knowledge
+
+### Validated Parameters
 
 Same params as GLD/IAU/SLV/GDX — no retuning. Cross-asset generalisation thesis confirmed.
 
@@ -24,7 +31,7 @@ Same params as GLD/IAU/SLV/GDX — no retuning. Cross-asset generalisation thesi
 | min_hold_bars | 10 |
 | skip_days | [0] (Monday) |
 
-## Performance Summary (2020–2025)
+### Performance Summary (2020–2025)
 
 - **Total return:** +85.2%
 - **Max drawdown:** 3.35%
@@ -35,7 +42,7 @@ Same params as GLD/IAU/SLV/GDX — no retuning. Cross-asset generalisation thesi
 
 Every year profitable (2020–2025). Strong consistency across all periods.
 
-## Year-by-Year
+### Year-by-Year
 
 | Year | Return | Max DD | Trades |
 |---|---|---|---|
@@ -48,7 +55,7 @@ Every year profitable (2020–2025). Strong consistency across all periods.
 
 2022 was the standout year (+17.2%) — energy sector rallied hard post-Ukraine. 2023 was the weakest full year (+6.85%) but still solidly positive.
 
-## Walk-Forward Validation (Mar 28 2026)
+### Walk-Forward Validation (Mar 28 2026)
 
 | Window | Period | Return | Max DD | Trades | Win Rate |
 |--------|--------|--------|--------|--------|----------|
@@ -59,14 +66,14 @@ Every year profitable (2020–2025). Strong consistency across all periods.
 
 4/4 windows positive. Consistent returns across all splits. DD spikes in windows including 2022–2023 (volatile energy sector) but within acceptable range.
 
-## Context
+### Context
 
 - **Asset:** XLE = Energy Select Sector SPDR (S&P 500 energy companies — oil majors, energy services)
 - **Correlation:** Oil prices, not gold — deliberately different from precious metals thesis assets
 - **Data:** 37,237 bars, Jul 2020 – Mar 2026 (Alpaca IEX)
 - **Validated:** Mar 28 2026 as Rolling Validation Test #1 candidate
 
-## Cross-Asset Comparison
+### Cross-Asset Comparison
 
 | Asset | Sharpe | Return | Max DD | WF |
 |---|---|---|---|---|
@@ -78,14 +85,6 @@ Every year profitable (2020–2025). Strong consistency across all periods.
 
 XLE sits at the bottom of the Sharpe range (matching IAU) with the highest DD of the group. Still passes the quality bar (Sharpe ≥ 2.0, WF 4/4). The higher DD reflects energy sector volatility vs gold's safe-haven stability.
 
-## Significance
+### Significance
 
 XLE is in a completely different sector from the four precious metals ETFs. Its inclusion confirms that StochRSI mean reversion at 15m is a **general market microstructure pattern**, not a precious-metals-specific effect. Same params, different asset class, consistent results.
-
-## Next Step
-
-Forward test as Rolling Validation Test #1 — deploy as a 5th paper bot **after Apr 20 calibration passes**. 4–8 week forward test, compare live results to backtest prediction to validate the engine on a new asset.
-
----
-
-*Last updated: 2026-03-28*

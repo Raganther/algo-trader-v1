@@ -1,11 +1,13 @@
-# StochRSI Enhanced — GLD 15m (Best Edge)
-
 Status: current | Epistemic: confirmed | Last verified: 2026-03-26
+
+# StochRSI Enhanced — GLD 15m (Best Edge)
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 > **Bot scripts:** `scripts/run_gld_test.sh`, `scripts/run_iau_test.sh`
 
-## Validated Parameters
+## Knowledge
+
+### Validated Parameters
 
 | Param | Code name | Value | Notes |
 |---|---|---|---|
@@ -22,7 +24,7 @@ Status: current | Epistemic: confirmed | Last verified: 2026-03-26
 | Min hold | `min_hold_bars` | 10 | **NOT `min_hold`** — Filters noise trades |
 | Skip days | `skip_days` | [0] | Monday (0=Mon) |
 
-### Correct backtest command (verified Feb 26):
+#### Correct backtest command (verified Feb 26):
 ```bash
 python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD --timeframe 15m \
   --start 2020-01-01 --end 2025-12-31 --source alpaca --spread 0.0003 --delay 0 \
@@ -31,7 +33,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 **WARNING:** Wrong param names silently fall back to defaults. `stop_loss_atr`, `min_hold`, and missing `skip_adx_filter:false` all caused a bad run (5.61% / 1996 trades instead of 43% / 689 trades).
 
-## Performance Summary (full audit Feb 27)
+### Performance Summary (full audit Feb 27)
 
 - **Full-period return (2020–Feb 2026):** 44.7%, **Max drawdown:** 0.69%, **Trades:** 710
 - **2026 YTD (to Feb 27):** +1.16%, 21 trades
@@ -42,7 +44,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 - **Multi-asset:** GLD +38%, SLV +92%, IAU +31% — generalises strongly
 - **Previous baseline:** Sharpe 1.57, 664 trades, 1.2% DD — enhancements nearly doubled Sharpe
 
-## Year-by-Year Breakdown
+### Year-by-Year Breakdown
 
 | Year | Return | Max DD | Trades |
 |---|---|---|---|
@@ -57,16 +59,16 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 - Every year profitable. 2024 best (+7.90%), 2023 weakest full year (+4.44%).
 - ~115 trades/year = ~9-10/month with validated params.
 
-## Feb 27 Comprehensive Audit
+### Feb 27 Comprehensive Audit
 
-### Data Quality
+#### Data Quality
 
 - **Source:** Alpaca IEX (free tier) — resampled 1m → 15m bars
 - **Bar count:** 36,075 bars covering Jan 2020 – Feb 2026
 - **Data continuity:** Gaps around major US holidays only — expected for IEX
 - **Assessment:** Data quality sufficient. Resampling from 1m is standard practice, matches live execution.
 
-### Parameter Sensitivity
+#### Parameter Sensitivity
 
 | Variant | Return | Max DD | Trades | Notes |
 |---|---|---|---|---|
@@ -81,7 +83,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 **Key finding:** Strategy is robust to most parameter changes. The `min_hold_bars=10` is the most important parameter — reducing to 5 causes significant degradation. Worth investigating `trail_atr=1.5` further.
 
-### Spread Sensitivity
+#### Spread Sensitivity
 
 | Spread | Return | Still Profitable? |
 |---|---|---|
@@ -94,7 +96,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 **Key finding:** Profitable up to ~0.22% spread. Real GLD market spread is ~0.01–0.03%. We have 7–20× headroom on transaction costs. Strategy is not sensitive to realistic slippage.
 
-### Buy & Hold Comparison
+#### Buy & Hold Comparison
 
 | Metric | StochRSI Enhanced | Buy & Hold GLD |
 |---|---|---|
@@ -112,11 +114,11 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 This is a *risk-adjusted* edge, not a "beat gold" strategy. The real value is the low DD enabling aggressive position sizing and compounding.
 
-### Key Risk
+#### Key Risk
 
 Gold is in a multi-year bull market (2020–2026: +117%). The mean reversion strategy **significantly underperforms buy & hold in trending markets**. If gold enters a bear market, the strategy's non-directional mean reversion edge should hold — but this has not been validated against a sustained gold bear.
 
-## Bear Market Backtest (Daily, Feb 27 2026)
+### Bear Market Backtest (Daily, Feb 27 2026)
 
 Tested on GLD daily bars (Stooq data, 2005–2019) to cover the 2011–2015 bear market (-45.6% peak to trough). Note: this uses daily bars, not 15m — fewer trades but directionally informative.
 
@@ -140,7 +142,7 @@ Tested on GLD daily bars (Stooq data, 2005–2019) to cover the 2011–2015 bear
 
 **Data:** `backend/data/gld_daily_2005_2019.csv` (Stooq, 3,737 daily bars)
 
-## Edge Enhancement Analysis (Feb 13)
+### Edge Enhancement Analysis (Feb 13)
 
 Diagnostic analysis found three key leaks in the baseline strategy:
 
@@ -159,7 +161,7 @@ All 4 tested variants passed full validation:
 
 **Key insight:** Enhancements performed *better* on unseen data than in-sample. The trailing stop is a structural improvement (not curve-fitting) — it also improved SLV (+92%) and IAU (+31%).
 
-## Profit Projections by Position Sizing
+### Profit Projections by Position Sizing
 
 Using equity-proportional risk sizing (returns scale with capital):
 
@@ -172,7 +174,7 @@ Using equity-proportional risk sizing (returns scale with capital):
 
 Key insight: 0.69% max DD gives large headroom to increase position sizing safely. Even at 20% risk/trade, DD stays ~7%.
 
-## Enhancement Verification Bots (deployed Feb 17, first fills Feb 26)
+### Enhancement Verification Bots (deployed Feb 17, first fills Feb 26)
 
 Testing with aggressive params to generate more trades faster:
 
@@ -189,7 +191,7 @@ Testing with aggressive params to generate more trades faster:
 - **Key lesson:** Two bots on same symbol conflict (Alpaca = one shared position per symbol)
 - **First fills post DAY-TIF fix:** Feb 26 — GLD (-$74.90 paper), IAU (+$21.99 paper). Execution confirmed working.
 
-## Event Blackout Analysis (Feb 17)
+### Event Blackout Analysis (Feb 17)
 
 Tested whether avoiding entries near high-impact events (FOMC/NFP/CPI) improves this strategy:
 
@@ -199,7 +201,7 @@ Tested whether avoiding entries near high-impact events (FOMC/NFP/CPI) improves 
 - **Backtest with blackout ON:** Return drops (28% -> 23% at 1h, 21% at 2h) — filter removes some winners too
 - **Conclusion:** Blunt avoidance hurts more than helps for this strategy. Event blackout feature built and available (`event_blackout_hours` param) but left off by default.
 
-## Other Validated StochRSI Edges
+### Other Validated StochRSI Edges
 
 | Asset | TF | Return | Sharpe | Status |
 |---|---|---|---|---|
@@ -210,7 +212,7 @@ Tested whether avoiding entries near high-impact events (FOMC/NFP/CPI) improves 
 | XBI | 1h | +9.0% ann | 0.90 | Sweep positive |
 | TLT | 1h | +8.5% ann | 0.85 | Sweep positive |
 
-## Long-Only Baseline (live constraint — Mar 14 2026)
+### Long-Only Baseline (live constraint — Mar 14 2026)
 
 Live bots run long-only — Alpaca rejects fractional short orders. This is the actual performance baseline for what the bots can execute today.
 
@@ -229,14 +231,10 @@ All years profitable. Consistent upward trend.
 
 **Implication:** Solving fractional short selling (whole-share sizing) is worth the effort for GLD. Live bots should not be considered equivalent to the validated 2.54 Sharpe strategy until shorts are enabled.
 
-## Forward Testing
+### Forward Testing
 
 gld-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — see `CLAUDE.md` current status and `.claude/calibration/calibration-notes.md` for calibration plan (target Apr 20).
 
 Backtest prediction for test params (Dec 2025 – Mar 2026): +0.16%, 58 trades, 48% WR.
 
 Potential future work: investigate trail_atr=1.5 (audit found +47.5% vs +43.0%); increase position sizing given low DD headroom (0.69%).
-
----
-
-*Last updated: 2026-03-26*

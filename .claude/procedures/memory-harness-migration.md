@@ -28,3 +28,14 @@
 - Created `domain-naming-guard.sh` + registered in settings.json
 - Extended 8 domain file headers from `Status: current` to full three-field format
 - Reformatted 8 CLAUDE.md pointers from content summaries to "read when X"
+
+## Example (Apr 2 2026 — v3 migration)
+- `plan.md` eliminated — active steps distributed to domain file `## Plan` sections and `observations.md` Active Work
+- `plan-domain-reminder.sh` deleted, removed from `settings.json` PostToolUse hooks
+- `git-save-guard.sh`: Check 1 narrowed (observations.md only), Check 3 narrowed (observations.md + gitlog.md only), Check 4 (Graduation Candidates) removed, checks renumbered 5→4 and 6→5
+- `openbrain-audit-reminder.sh`: Step 1b (domain files from plan.md) removed; Step 1a updated to v3 staging contract (KEEP-STAGING / CREATE-DOMAIN / REMOVE)
+- `load-context.sh`: plan.md removed from session start output
+- `CLAUDE.md`: plan.md removed from Session Start read order, plan-domain-reminder.sh removed from hooks description
+- 10 domain files restructured: status header moved to line 1, `## Knowledge` section added wrapping all content, existing `##` sections demoted to `###`, `*Last updated:*` footers removed
+- File-specific Plan/Open Questions added: xle.md (Plan.Active), calibration-notes.md (Plan.Active + Plan.Research), event-surprise.md (Plan.Research), alpaca-mcp.md (Open Questions)
+- `observations.md` rewritten to v3 format: Active Work + Staging sections only

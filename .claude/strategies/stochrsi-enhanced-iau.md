@@ -1,10 +1,12 @@
-# StochRSI Enhanced — IAU 15m
-
 Status: current | Epistemic: confirmed | Last verified: 2026-03-26
+
+# StochRSI Enhanced — IAU 15m
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 
-## Validated Parameters
+## Knowledge
+
+### Validated Parameters
 
 Same params as GLD/SLV/GDX 15m — no tuning needed, transferred directly.
 
@@ -23,21 +25,21 @@ Same params as GLD/SLV/GDX 15m — no tuning needed, transferred directly.
 | Min hold | `min_hold_bars` | 10 |
 | Skip days | `skip_days` | [0] (Monday) |
 
-### Backtest command:
+#### Backtest command:
 ```bash
 python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU --timeframe 15m \
   --start 2020-01-01 --end 2025-12-31 --source alpaca --spread 0.0003 --delay 0 \
   --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 ```
 
-## Performance Summary (validated Feb 28 2026)
+### Performance Summary (validated Feb 28 2026)
 
 - **Full-period return (2020–2025):** +32.58%, **Max drawdown:** 0.72%, **Trades:** 679
 - **Sharpe:** ~2.0 (consistent with prior in-sample run)
 - **Holdout test (2024–2025):** +12.55%, DD 0.66% — minimal degradation
 - **Walk-forward:** 4/4 windows positive (100%)
 
-## Year-by-Year
+### Year-by-Year
 
 | Year | Return | DD | Trades |
 |---|---|---|---|
@@ -48,7 +50,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
 | 2024 | +5.19% | 1.46% | 121 |
 | 2025 | +7.19% | 2.27% | 112 |
 
-## Walk-Forward Windows
+### Walk-Forward Windows
 
 | Test Period | Return | DD | Trades |
 |---|---|---|---|
@@ -57,7 +59,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
 | 2024 | +5.00% | 0.66% | 117 |
 | 2025 | +7.17% | 0.63% | 111 |
 
-## Key Findings
+### Key Findings
 
 **IAU is a GLD proxy** — same underlying (gold), different ETF. Slightly cheaper (lower price = lower $ per share), but tracks GLD very closely. The edge transfers perfectly because the price dynamics are identical.
 
@@ -67,7 +69,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
 
 **Lowest drawdown in the precious metals group:** 0.72% vs SLV 2.00% and GDX 2.02%. Being a direct gold-tracking ETF (not silver or miners) = less idiosyncratic risk.
 
-## Precious Metals Thesis — Now 4 Assets Validated
+### Precious Metals Thesis — Now 4 Assets Validated
 
 | Asset | Sharpe | Return | Max DD | WF |
 |---|---|---|---|---|
@@ -76,7 +78,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
 | GDX 15m | 2.41 | +114.1% | 2.02% | 4/4 |
 | **IAU 15m** | **~2.0** | **+32.6%** | **0.72%** | **4/4** |
 
-## Long-Only Baseline (live constraint — Mar 14 2026)
+### Long-Only Baseline (live constraint — Mar 14 2026)
 
 Live bots run long-only — Alpaca rejects fractional short orders.
 
@@ -93,12 +95,8 @@ Live bots run long-only — Alpaca rejects fractional short orders.
 **Year-by-year (long-only):** 2020: +0.23% | 2021: +0.98% | 2022: +3.27% | 2023: +2.95% | 2024: +5.37% | 2025: +6.49%
 All years profitable but 2020–2021 are very slim. The short side is especially important for IAU's early-period performance.
 
-## Forward Testing
+### Forward Testing
 
 iau-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — see `CLAUDE.md` and `.claude/calibration/calibration-notes.md`.
 
 Backtest prediction for test params (Dec 2025 – Mar 2026): -0.50%, 54 trades, 37% WR — weakest of the 4 symbols under test params.
-
----
-
-*Last updated: 2026-03-26*

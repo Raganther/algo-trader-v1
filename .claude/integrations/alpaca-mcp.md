@@ -1,35 +1,35 @@
-# Alpaca MCP — Tool Reference
-
 Status: current | Epistemic: confirmed | Last verified: 2026-04-01 | Implementation: partially integrated
+
+# Alpaca MCP — Tool Reference
 
 Alpaca MCP server (`uvx alpaca-mcp-server`) configured in `~/.claude/settings.json`. Uses existing Alpaca paper trading keys. Requires Claude Code restart to activate after config changes.
 
----
+## Knowledge
 
-## What's available (57 tools, 11 categories)
+### What's available (57 tools, 11 categories)
 
-### Account & Config (4 tools)
+#### Account & Config (4 tools)
 - `get_account_info` — balances, equity, buying power, account status
 - `get_account_config` — trading restrictions, margin, PDT, options level
 - `update_account_config` — change margin, shorting, fractional trading settings
 - `get_account_activities` — fills, dividends, transfers; filterable by type + date range (max 100/page, paginated)
 
-### Orders (7 tools)
+#### Orders (7 tools)
 - `get_orders` — list orders with filters (status, symbols, date range, side); max 500
 - `get_order_by_id` / `get_order_by_client_id` — single order lookup
 - `place_stock_order` — full order placement (market, limit, stop, stop_limit, trailing_stop, bracket)
 - `replace_order_by_id` — modify open order (price, qty, TIF, trail)
 - `cancel_order_by_id` / `cancel_all_orders` — cancel orders
 
-### Positions (3 tools)
+#### Positions (3 tools)
 - `get_all_positions` — all open positions with unrealised P&L
 - `get_open_position` — single position by symbol
 - `close_position` — emergency close (sells at market)
 
-### Portfolio (1 tool)
+#### Portfolio (1 tool)
 - `get_portfolio_history` — equity + P&L curve over time (1Min–1Day resolution, start/end/period)
 
-### Stock Market Data (7 tools)
+#### Stock Market Data (7 tools)
 - `get_stock_bars` — historical OHLCV (1Min–1Month, up to 10k points, feed: sip/iex)
 - `get_stock_latest_bar` — latest minute bar
 - `get_stock_latest_quote` — latest bid/ask
@@ -38,40 +38,36 @@ Alpaca MCP server (`uvx alpaca-mcp-server`) configured in `~/.claude/settings.js
 - `get_stock_trades` — historical tick-level trades
 - `get_stock_snapshot` — combined snapshot (latest trade + quote + minute bar + daily bar)
 
-### Calendar & Assets (4 tools)
+#### Calendar & Assets (4 tools)
 - `get_clock` — market open/closed + next open/close times
 - `get_calendar` — trading calendar with open/close for date range (always pass start+end)
 - `get_asset` — single symbol details (tradable, shortable, fractionable)
 - `get_all_assets` — full asset list (always filter by status/exchange to avoid huge response)
 
-### Market Screeners (2 tools)
+#### Market Screeners (2 tools)
 - `get_market_movers` — top gainers/losers (stocks or crypto)
 - `get_most_active_stocks` — most active by volume or trade count
 
-### Corporate Actions (3 tools)
+#### Corporate Actions (3 tools)
 - `get_corporate_actions` — dividends, splits, mergers by symbol/date
 - `get_corporate_action_announcements` — upcoming/recent announcements (max 90 day range)
 - `get_corporate_action_announcement` — single announcement by ID
 
-### Options (10 tools)
+#### Options (10 tools)
 Chain, contracts, bars, trades, latest quote/trade, snapshot (with Greeks/IV), exchange codes, order placement. Not relevant to current equity/ETF strategy.
 
-### Crypto (7 tools)
+#### Crypto (7 tools)
 Bars, quotes, trades, latest bar/quote/trade, orderbook, snapshot, order placement. Not relevant to precious metals strategy.
 
-### Watchlists (5 tools)
+#### Watchlists (5 tools)
 CRUD for watchlists. Minor utility.
 
----
-
-## What's NOT in the MCP
+### What's NOT in the MCP
 - **News** — no news endpoint. Use web search for market context/news correlation.
 - **Streaming/WebSocket** — request/response only, no real-time streaming.
 - **Account statements** — no tax docs or statement downloads.
 
----
-
-## High-value tools for this project
+### High-value tools for this project
 
 Ranked by impact for the forward testing / calibration phase:
 
@@ -86,9 +82,7 @@ Ranked by impact for the forward testing / calibration phase:
 | 7 | `get_corporate_action_announcements` | Web search | Check for dividends/splits causing price gaps |
 | 8 | `get_clock` | SSH → `date -u` | Market status check |
 
----
-
-## Integration status
+### Integration status
 
 **Validated and in use:**
 
@@ -98,16 +92,6 @@ Ranked by impact for the forward testing / calibration phase:
 | `get_all_positions` | SSH pm2 log grep for overnight holds | Apr 1 | In use — "check bots" step 2 |
 | `get_orders` | SSH → DB query → Alpaca UI cross-reference | Apr 1 (Mar 23 data: 26 orders, 7 trades, all matched) | In use — "check bots" step 3 + daily trade audit primary method |
 
-**Validated but not yet routine:**
-
-| Tool | Use case | Validated |
-|------|----------|-----------|
-| `get_portfolio_history` | Daily equity curve for Apr 20 calibration | Not yet — planned for Apr 20 |
-| `get_stock_bars` | Spot-check price action on specific trade days | Not yet |
-| `get_calendar` | Confirm trading days in calibration window | Not yet |
-| `get_corporate_action_announcements` | Check for dividends/splits causing price gaps | Not yet |
-| `get_account_activities(FILL)` | Fill-level detail as alternative to get_orders | Not yet |
-
 **Still requires SSH (MCP cannot replace):**
 - `pm2 status` — bot process health (running/stopped/errored)
 - pm2 log grep — application-level warnings, heartbeats, errors, bot startup confirmation
@@ -115,9 +99,7 @@ Ranked by impact for the forward testing / calibration phase:
 
 **Validation detail (Apr 1 2026):** Pulled Mar 23 orders via `get_orders(status="closed", symbols="GLD,IAU,SLV,GDX", after="2026-03-23T00:00:00Z", until="2026-03-24T00:00:00Z")`. Returned 26 orders (13 filled + 13 canceled). Reconstructed 7 trades — all prices, timestamps, and trail ratchet levels matched the existing trade log exactly. Exit types derivable from order data: `type="market"` sell = K-exit, `type="stop"` sell filled = TS/SS. Trail ratchet history recoverable from canceled stop order sequence.
 
----
-
-## Usage notes
+### Usage notes
 
 - **Feed parameter:** paper accounts default to `iex` (free). `sip` (all exchanges) requires paid data subscription. For historical bars, specify `feed="iex"` explicitly to avoid 403 errors.
 - **Pagination:** `get_account_activities` and `get_orders` return max 100/500 per page. Use `page_token` / `after_order_id` for full history.
@@ -125,9 +107,7 @@ Ranked by impact for the forward testing / calibration phase:
 - **Order placement tools exist but bots handle all trading.** Only use `place_stock_order` / `close_position` / `cancel_*` in emergencies — never for routine operations.
 - **`get_calendar` and `get_all_assets` produce huge responses without filters.** Always pass date range or status/exchange filters.
 
----
-
-## Example commands for daily audit
+### Example commands for daily audit
 
 ```
 # All closed orders for calibration window
@@ -148,3 +128,11 @@ get_corporate_action_announcements(ca_types="Dividend,Split", symbol="GLD", sinc
 # Spot-check 15m bars for a specific day
 get_stock_bars(symbols="GLD", timeframe="15Min", start="2026-03-23T13:30:00Z", end="2026-03-23T20:00:00Z", feed="iex")
 ```
+
+## Open Questions
+
+- `get_portfolio_history` — not yet validated. Planned for Apr 20 calibration to pull daily equity curve. Confirm timeframe param and date range behaviour before Apr 20.
+- `get_stock_bars` — not yet validated. Use for spot-checking price action on specific trade days. Confirm `feed="iex"` required for paper account.
+- `get_calendar` — not yet validated. Use to confirm exact trading days in Mar 20–Apr 20 window.
+- `get_corporate_action_announcements` — not yet validated. Use to check for dividends/splits affecting GLD/IAU/SLV/GDX during calibration window.
+- `get_account_activities(FILL)` — not yet validated as alternative to `get_orders`. May provide fill-level detail unavailable in order records.

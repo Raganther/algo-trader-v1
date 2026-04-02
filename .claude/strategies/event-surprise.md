@@ -1,19 +1,31 @@
-# EventSurprise — Economic Data Surprise Trading
-
 Status: current | Epistemic: confirmed | Last verified: 2026-03-26
+
+# EventSurprise — Economic Data Surprise Trading
 
 > **Strategy file:** `backend/strategies/event_surprise.py`
 > **Bot script:** `scripts/run_event_surprise_test.sh`
 > **Diagnostic scripts:** `backend/scripts/event_surprise_analysis.py`, `backend/scripts/event_surprise_gaps.py`
 > **Note:** Built and backtested — not yet paper tested or deployed.
 
-## Concept
+## Plan
+
+### Research
+- [ ] Paper test on cloud — CPI-only config first (strongest signal, 86% WR)
+- [ ] Test wider hold windows (hold_bars=8/16)
+- [ ] Test on SLV/IAU (same precious metals drivers)
+- [ ] Explore FOMC rate decisions as additional event type
+- [ ] Consider combining with StochRSI as entry filter
+- [ ] Explore surprise magnitude for position sizing
+
+## Knowledge
+
+### Concept
 
 Trade GLD based on economic data surprise direction. When key releases (CPI, NFP, Unemployment) show significant surprises vs forecast, enter in the implied gold direction with delayed entry and time-based exit.
 
-## Research Findings (Feb 17)
+### Research Findings (Feb 17)
 
-### Gap Analysis (event_surprise_gaps.py) — 5 investigations:
+#### Gap Analysis (event_surprise_gaps.py) — 5 investigations:
 
 **1. Entry Timing — Post-bar move is tradeable:**
 - CPI miss -> gold UP: **+0.80% avg 1h move** with delayed entry (enter 15min after event bar closes)
@@ -42,7 +54,7 @@ Trade GLD based on economic data surprise direction. When key releases (CPI, NFP
 - Misses (actual < forecast) produce cleaner, more directional moves
 - Beats are noisier — `trade_beats=False` by default
 
-## Direction Mapping
+### Direction Mapping
 
 | Event | Beat (actual > forecast) | Miss (actual < forecast) |
 |---|---|---|
@@ -50,7 +62,7 @@ Trade GLD based on economic data surprise direction. When key releases (CPI, NFP
 | NFP | Gold DOWN (strong jobs) | Gold UP (weak jobs) |
 | Unemployment Rate | Gold UP (higher = bad for USD) | Gold DOWN (lower = good for USD) |
 
-## Strategy Parameters
+### Strategy Parameters
 
 | Param | Default | Description |
 |---|---|---|
@@ -63,9 +75,9 @@ Trade GLD based on economic data surprise direction. When key releases (CPI, NFP
 | `trade_beats` | `false` | Whether to also trade beat surprises (weaker signal) |
 | `dedup_minutes` | `5` | Co-release dedup window |
 
-## Backtest Results (Feb 17)
+### Backtest Results (Feb 17)
 
-### CPI-only (misses only — strongest signal):
+#### CPI-only (misses only — strongest signal):
 ```
 Return: 2.36%, Max DD: 0.13%, Trades: 14, Win Rate: 86%
 ```
@@ -73,7 +85,7 @@ Return: 2.36%, Max DD: 0.13%, Trades: 14, Win Rate: 86%
 - All entries are LONG gold on CPI misses
 - Very high win rate but low trade frequency (~3/year)
 
-### All events (CPI + NFP + Unemployment, beats + misses):
+#### All events (CPI + NFP + Unemployment, beats + misses):
 ```
 Return: 2.95%, Max DD: 1.10%, Trades: 58, Win Rate: 48%
 ```
@@ -81,7 +93,7 @@ Return: 2.95%, Max DD: 1.10%, Trades: 58, Win Rate: 48%
 - Mix of long and short entries
 - More trades but lower win rate — beats dilute the signal
 
-### Yearly breakdown (CPI-only):
+#### Yearly breakdown (CPI-only):
 | Year | Return | DD | Trades |
 |---|---|---|---|
 | 2021 | +0.08% | 0.02% | 1 |
@@ -90,13 +102,13 @@ Return: 2.95%, Max DD: 1.10%, Trades: 58, Win Rate: 48%
 | 2024 | +0.46% | 0.15% | 4 |
 | 2025 | +0.11% | 0.00% | 1 |
 
-## How It Works (Technical)
+### How It Works (Technical)
 
 1. **`__init__`:** Loads events via `DataLoader.fetch_economic_events()`, matches each event to GLD bar indices using bisect, deduplicates co-releases (5min window, keeps largest |surprise|), classifies surprises using per-event-type std threshold, builds `event_schedule: {bar_index: event_info}`
 2. **`on_bar`:** Checks stop loss (priority) -> time-based exit (hold_bars) -> new entry (if current bar is in event_schedule). Position sizing: risk_pct * equity / stop_distance, capped at 25% equity.
 3. **Events pre-matched to bars** — no runtime event processing needed. Strategy is self-contained (loads its own event data from CSV).
 
-## Backtest Commands
+### Backtest Commands
 
 ```bash
 # CPI-only (strongest signal)
@@ -109,11 +121,3 @@ python3 -m backend.runner backtest --strategy EventSurprise --symbol GLD --timef
   --start 2020-01-01 --end 2025-12-31 --source alpaca --spread 0.0003 --delay 0 \
   --parameters '{"event_types":["CPI m/m","CPI y/y","Non-Farm Employment Change","Unemployment Rate"],"hold_bars":4,"stop_pct":0.5,"entry_delay":1,"trade_beats":true}'
 ```
-
-## Future Work
-
-Parked — not current priority. When ready: paper test on cloud (CPI-only config), test wider hold windows (hold_bars=8/16), test on SLV/IAU, explore FOMC rate decisions, consider combining with StochRSI as entry filter, explore surprise magnitude for position sizing.
-
----
-
-*Last updated: 2026-03-26*
