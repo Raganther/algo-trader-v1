@@ -3,10 +3,17 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-02** — chore: extend analysis to Apr 2 — 50 trades, K 80% / TS 16%, GLD TS win first same-day
+
+ .claude/calibration/live-trade-log.md | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
+
+----
 **2026-04-02** — chore: log Apr 2 trades — 6 trades, 5 profitable, GLD TS fire in profit
 
  .claude/calibration/live-trade-log.md | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ .claude/memory/gitlog.md              | 19 ++++++++-----------
+ 2 files changed, 25 insertions(+), 11 deletions(-)
 
 ----
 **2026-04-02** — chore: migrate memory harness to v3
@@ -83,15 +90,4 @@ Added Step 1c to openbrain-audit-reminder.sh — reverse domain file check force
  .claude/memory/observations.md            |  4 ++--
  .claude/procedures/daily-trade-audit.md   |  1 +
  5 files changed, 50 insertions(+), 14 deletions(-)
-
-----
-**2026-04-01** — chore: integrate Alpaca MCP into check-bots and trade audit workflows
-Rewrote CLAUDE.md Run Commands — check bots now uses MCP as primary method (get_clock, get_all_positions, get_orders), SSH retained for pm2 process health only. Rewrote daily-trade-audit procedure to use get_orders instead of SSH→DB→Alpaca cross-reference. Validated by comparing Mar 23 MCP output against existing trade log — 26 orders, 7 trades, all prices and trail ratchets matched exactly.
-
- .claude/integrations/alpaca-mcp.md      |  2 +-
- .claude/memory/gitlog.md                | 23 ++++-----
- .claude/memory/observations.md          |  4 +-
- .claude/procedures/daily-trade-audit.md | 86 ++++++++++++++++++++++-----------
- CLAUDE.md                               | 24 ++++++---
- 5 files changed, 89 insertions(+), 50 deletions(-)
 

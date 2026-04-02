@@ -9,31 +9,33 @@ Used for Apr 20 calibration comparison: Layer 2 (entry/exit prices vs backtest) 
 
 ## Knowledge
 
-### Analysis — Mar 20–31 (43 completed trades)
+### Analysis — Mar 20–Apr 2 (50 completed trades)
 
-**Dataset:** 43 completed trades, 10 audited days (Mar 20, 23–27, 30–31). Mar 21 and Mar 28 confirmed zero-trade days (no K crossings met all conditions).
+**Dataset:** 50 completed trades, 12 audited days (Mar 20, 23–27, 30–31, Apr 1–2). Mar 21 and Mar 28 confirmed zero-trade days (no K crossings met all conditions).
 
 #### K-exits are profitable, trailing stops are not — dramatically
 
 | Exit type | Trades | Winners | Win rate |
 |-----------|--------|---------|----------|
-| K-signal | 21 | 16 | 76% |
-| Trailing stop (TS) | 22 | 3 | 14% |
+| K-signal | 25 | 20 | 80% |
+| Trailing stop (TS) | 25 | 4 | 16% |
 
-The 3 TS wins: GDX multi-day hold (+3.267), two near-zero exits (+0.040, +0.020). Every same-day TS exit is a loss. The 0.5 ATR trail after 1 bar fires on normal intrabar noise before the position has moved. Expected for test params — validated params (trail after 10 bars, 2.0 ATR) would look completely different.
+The 4 TS wins: GDX multi-day hold (+3.267), two near-zero exits (+0.040, +0.020), and GLD Apr 2 (+1.995). The GLD Apr 2 TS win is the first same-day profitable TS exit in the dataset — price moved fast enough on a strong momentum day for the trail to ratchet above entry (422.45→427.09→429.64) before reversing. Still the exception: 21 of 25 TS exits are losses. The 0.5 ATR trail after 1 bar fires on normal intrabar noise before the position has moved. Expected for test params — validated params (trail after 10 bars, 2.0 ATR) would look completely different.
+
+K/TS split remains exactly 50/50 (25/25) — consistent with the original 43-trade ratio.
 
 **Calibration signal:** the Apr 20 backtest should show roughly the same 50/50 K vs TS split and similarly poor TS win rate. If backtest shows significantly more K-exits and fewer TS exits, the stop execution model is wrong.
 
 #### GDX diverges from the other three
 
-| Symbol | Trades | Winners |
-|--------|--------|---------|
-| GLD | 10 | 6 |
-| IAU | 8 | 4 |
-| SLV | 12 | 6 |
-| GDX | 11 | 4 |
+| Symbol | Trades | Winners | Win rate |
+|--------|--------|---------|----------|
+| GLD | 12 | 8 | 67% |
+| IAU | 10 | 5 | 50% |
+| SLV | 14 | 7 | 50% |
+| GDX | 12 | 5 | 42% |
 
-GDX TS exits: 9 trades, only 3 positive (the multi-day +3.267 carries almost all of it). Backtest predicted GDX as strongest performer (+2.45% Dec–Mar). If live GDX is flat or negative at Apr 20 while backtest predicts positive, worth investigating.
+GDX still lowest win rate. GLD improving (6/10 → 8/12) driven by strong Apr 2 performance (TS win + K win). GDX TS exits: 9 trades, only 3 positive (the multi-day +3.267 carries almost all of it). Backtest predicted GDX as strongest performer (+2.45% Dec–Mar). If live GDX is flat or negative at Apr 20 while backtest predicts positive, worth investigating.
 
 #### Correlated simultaneous entries — matters for real money
 
