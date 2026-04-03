@@ -3,10 +3,17 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-03** — fix: bar-completion guard — skip generate_signals on partial bar, deduplicate deferral log
+
+ backend/runner.py | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
+
+----
 **2026-04-03** — fix: bar-completion guard — skip on_bar for partial session-open bar at market open
 
- backend/runner.py | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ .claude/memory/gitlog.md | 22 ++++++++++------------
+ backend/runner.py        | 22 +++++++++++++++++++---
+ 2 files changed, 29 insertions(+), 15 deletions(-)
 
 ----
 **2026-04-03** — chore: diagnose 0.90x trade count gap — partial market-open bar confirmed as cause
@@ -53,29 +60,4 @@
  .claude/calibration/live-trade-log.md | 17 +++++++++++++++++
  .claude/memory/gitlog.md              | 19 ++++++++-----------
  2 files changed, 25 insertions(+), 11 deletions(-)
-
-----
-**2026-04-02** — chore: migrate memory harness to v3
-
- .claude/calibration/calibration-notes.md       |  43 +++++-----
- .claude/calibration/live-trade-log.md          | 114 +++++++++----------------
- .claude/hooks/git-save-guard.sh                |  42 ++-------
- .claude/hooks/load-context.sh                  |   3 +-
- .claude/hooks/openbrain-audit-reminder.sh      |  22 ++---
- .claude/hooks/plan-domain-reminder.sh          |  31 -------
- .claude/integrations/alpaca-mcp.md             |  68 ++++++---------
- .claude/memory/gitlog.md                       |  37 +++++---
- .claude/memory/observations.md                 |  74 ++--------------
- .claude/memory/plan.md                         |  41 ---------
- .claude/procedures/memory-harness-migration.md |  11 +++
- .claude/settings.json                          |  18 ----
- .claude/strategies/composable-results.md       |  18 ++--
- .claude/strategies/event-surprise.md           |  46 +++++-----
- .claude/strategies/stochrsi-enhanced-gdx.md    |  26 +++---
- .claude/strategies/stochrsi-enhanced-gld.md    |  46 +++++-----
- .claude/strategies/stochrsi-enhanced-iau.md    |  28 +++---
- .claude/strategies/stochrsi-enhanced-slv.md    |  26 +++---
- .claude/strategies/stochrsi-enhanced-xle.md    |  33 ++++---
- CLAUDE.md                                      |   5 +-
- 20 files changed, 264 insertions(+), 468 deletions(-)
 

@@ -748,6 +748,7 @@ def run_live_trading(args):
     print("Entering Live Loop... (Press Ctrl+C to stop)")
 
     last_bar_time = initial_data.index[-1]
+    _last_deferred_bar = None  # tracks last bar skipped by session-open guard (for log dedup)
     loop_count = 0
 
     try:
@@ -810,19 +811,25 @@ def run_live_trading(args):
                     # detect session-open bars — overnight gap >> 15 min between session bars.
                     now_utc = pd.Timestamp.now(tz='UTC')
                     gap_to_prev_bar_min = (current_last_time - last_bar_time).total_seconds() / 60
-                    is_session_open_bar = gap_to_prev_bar_min > 60
                     bar_age_min = (now_utc - current_last_time).total_seconds() / 60
-                    if is_session_open_bar and bar_age_min < 14:
-                        print(f"⏳ Session-open bar {current_last_time.strftime('%H:%M')} UTC is {bar_age_min:.0f}m old — deferring on_bar to next complete bar")
+                    # Overnight gap (>60 min) means this is the first bar of a new session.
+                    # That bar may be only 1-2 min old in Alpaca's live API — defer until complete.
+                    skip_on_bar = gap_to_prev_bar_min > 60 and bar_age_min < 14
+                    if skip_on_bar:
+                        if _last_deferred_bar != current_last_time:
+                            print(f"⏳ Session-open bar {current_last_time.strftime('%H:%M')} UTC is {bar_age_min:.0f}m old — deferring on_bar to next complete bar")
+                            _last_deferred_bar = current_last_time
                         # Don't update last_bar_time — retry next poll when bar is complete
-                        # get_new_trades() below still runs for pending fills
+                        # broker.refresh(), stop re-placement, and get_new_trades() still run below
                     else:
                         print(f"New Bar: {current_last_time}")
                         last_bar_time = current_last_time
+                        _last_deferred_bar = None
 
-                    # Update Strategy
+                    # Update Strategy (skip on partial session-open bar — no signals needed yet)
                     strategy.data = latest_data
-                    strategy.generate_signals(latest_data)
+                    if not skip_on_bar:
+                        strategy.generate_signals(latest_data)
 
                     # Run Logic
                     last_index = len(latest_data) - 1
@@ -934,7 +941,7 @@ def run_live_trading(args):
                                 except Exception as e:
                                     print(f"[LOOP] ⚠️ Stop re-place failed: {e}")
 
-                        if not (is_session_open_bar and bar_age_min < 14):
+                        if not skip_on_bar:
                             strategy.on_bar(last_row, last_index, latest_data)
 
                     # Log Trades (always run — pending_fills may resolve outside market hours)
