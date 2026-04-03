@@ -3,12 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-03** — chore: diagnose 0.90x trade count gap — partial market-open bar confirmed as cause
+
+ .claude/calibration/calibration-notes.md | 4 ++--
+ backend/runner.py                        | 9 ++++++++-
+ 2 files changed, 10 insertions(+), 3 deletions(-)
+
+----
 **2026-04-03** — fix: calibration command corrected — long_only:true required, trading_hours:[13.5,20] exact gate match
 
  .claude/calibration/calibration-notes.md       | 42 +++++++++++++++++---------
  .claude/calibration/live-trade-log.md          |  1 +
+ .claude/memory/gitlog.md                       | 25 ++++++---------
  backend/strategies/stoch_rsi_mean_reversion.py |  4 ++-
- 3 files changed, 31 insertions(+), 16 deletions(-)
+ 4 files changed, 41 insertions(+), 31 deletions(-)
 
 ----
 **2026-04-03** — chore: restructure calibration files to v3 format — add Plan and Open Questions sections
@@ -72,13 +80,4 @@ Added Apr 1 trade log entry: SLV 2 trades (overnight SS exit -0.259/share, same-
  .claude/memory/gitlog.md              | 25 ++++++++++++-------------
  .claude/memory/observations.md        |  2 +-
  3 files changed, 28 insertions(+), 16 deletions(-)
-
-----
-**2026-04-02** — fix: overnight stop gap — re-place DAY stop at market open
-DAY stops expire at 20:00 UTC. Startup sync may fail post-market (rejected by Alpaca), leaving position unprotected at next market open. Loop now re-places stop before on_bar if pending_stop_order_id is None. Gap existed since Mar 4 — cedc865 noted the intention but never built it. Discovered via rejected stop order in Alpaca UI (Mar 31 21:10 UTC). Also logged Apr 1 audit: SLV 2 trades, GLD/IAU/GDX 0 trades, all bots flat EOD.
-
- .claude/memory/gitlog.md       | 45 +++++++++++++++++++++++-------------------
- .claude/memory/observations.md |  8 ++++++--
- CLAUDE.md                      |  3 ++-
- 3 files changed, 33 insertions(+), 23 deletions(-)
 

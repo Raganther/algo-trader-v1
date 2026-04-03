@@ -69,7 +69,7 @@ def run_backtest(args):
         
         if target_tf == '4h':
             fetch_tf = '1h'
-        elif target_tf in ['5m', '15m']:
+        elif target_tf == '5m':
             fetch_tf = '1m'
         
         # Fetch Data
@@ -310,6 +310,12 @@ def run_backtest(args):
     print(f"Max DD: {results['max_drawdown']}%")
     print(f"Trades: {results['total_trades']}")
     print(f"Win Rate: {results['win_rate'] * 100:.2f}%")
+
+    if getattr(args, 'trades', False):
+        print("\n=== TRADE LIST ===")
+        print("entry_time,symbol,entry_price,exit_price,exit_reason,pnl")
+        for t in results.get('trade_history', []):
+            print(f"TRADE,{t.get('entry_time','')},{t.get('symbol', args.symbol)},{t.get('entry', 0):.4f},{t.get('exit', 0):.4f},{t.get('exit_reason','')},{t.get('pnl', 0):.4f}")
     
     # 5. Save Results (Direct to SQLite)
     # Extract years from date range
@@ -473,6 +479,7 @@ def main():
     bt_parser.add_argument("--tag", type=str, help="Optional tag to identify this run variation")
     bt_parser.add_argument("--iteration", type=int, help="Specific Iteration Index to link (Optional)")
     bt_parser.add_argument("--event-blackout", type=int, default=0, help="Event blackout hours (0=off, e.g. 2=skip entries within 2h of high-impact event)")
+    bt_parser.add_argument("--trades", action='store_true', default=False, help="Print trade-by-trade list (entry_time, symbol, entry/exit price, exit_reason, pnl)")
     
     # Matrix Command
     matrix_parser = subparsers.add_parser('matrix', help='Run matrix research')
