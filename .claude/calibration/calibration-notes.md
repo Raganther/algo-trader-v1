@@ -28,17 +28,15 @@ The test params (OB 60/OS 40, ADX 50, 3-bar hold, 0.5 ATR trail) are not a tradi
 python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD \
   --timeframe 15m --start 2026-01-01 --end 2026-04-20 --source alpaca \
   --spread 0.0003 --delay 0 \
-  --parameters '{"rsi_period":7,"stoch_period":14,"overbought":60,"oversold":40,"adx_threshold":50,"skip_adx_filter":false,"sl_atr":2.0,"dynamic_adx":false,"trailing_stop":true,"trail_atr":0.5,"trail_after_bars":1,"min_hold_bars":3,"skip_days":[],"trading_hours":[13,20]}'
+  --parameters '{"rsi_period":7,"stoch_period":14,"overbought":60,"oversold":40,"adx_threshold":50,"skip_adx_filter":false,"sl_atr":2.0,"dynamic_adx":false,"trailing_stop":true,"trail_atr":0.5,"trail_after_bars":1,"min_hold_bars":3,"skip_days":[],"trading_hours":[13.5,20],"long_only":true}'
 
 # Pre-window baseline (subtract to isolate Mar 20 – Apr 20)
 # Same command with --end 2026-03-20
 ```
 
-**REQUIRED: always include `"trading_hours":[13,20]`** — the live bot only processes bars during 13:30–20:00 UTC (market hours gate in runner.py). Without this param, the backtest processes pre/post-market bars and inflates trade counts by ~11%. This is the main systematic correction for Layer 1 (trade count).
+**REQUIRED: always include `"trading_hours":[13.5,20]`** — the live bot only processes bars during 13:30–20:00 UTC (market hours gate in runner.py). Without this param, the backtest processes pre/post-market bars and inflates trade counts. The value `13.5` = 13:30 exactly matches the live gate. Fractional hour support added Apr 3 — strategy now computes `hour + minute/60` before comparing.
 
-Note: `trading_hours:[13,20]` is slightly more permissive than the live gate — it includes 13:00–13:29 bars that the live bot skips (gate starts at 13:30). This causes a residual ~30% over-prediction, confirmed as acceptable in the Mar 27 preliminary check. Residual cause: 30-minute timing gap only, no logic difference.
-
-Note: removed `"long_only":true` from Apr 20 command — bots are not configured with long_only, so this would produce a mismatch. Bots block shorts via the fractional share guard in live_broker, not via strategy param.
+**REQUIRED: always include `"long_only":true`** — the live bots never execute short trades. Short signals fire in the strategy code but are blocked by the fractional share guard in `live_broker.py`. The backtest has no such guard, so without `long_only:true` it executes both long and short trades — roughly doubling the trade count and producing a fundamentally mismatched comparison. The strategy param `long_only` is not set on live bots, but the *executed behaviour* is long-only regardless of where the block happens. Confirmed Apr 3: without `long_only` ratio was 1.79x; with `long_only` ratio is 0.90x (43 backtest vs ~48 live).
 
 Run both for all 4 symbols. Subtract pre-window baseline to isolate the clean live window.
 
@@ -112,20 +110,34 @@ SLV exact. GLD close. IAU/GDX off by 2–3 trades — likely data resampling dif
 ## Open Questions
 
 - **Intrabar stop timing in backtest** — backtest may fire stops at bar close rather than intrabar. If so, it would under-predict TS exits and over-predict K-exits relative to the live 50/50 split. This is the most likely source of K/TS ratio divergence at Apr 20. If confirmed, the stop execution model needs an intrabar simulation component.
+- **Residual 0.90x under-prediction** — with `long_only:true` and `trading_hours:[13.5,20]`, backtest predicts ~10% fewer trades than live. Cause not yet confirmed — candidates are exact K-threshold timing differences at bar boundaries, or a small number of live entries that occur outside strict backtest signal conditions. Worth watching at Apr 20 to see if the gap holds stable or widens.
 - **Execution layer calibration across regimes** — the Apr 20 calibration is a snapshot of one unusual regime (post-metals-crash recovery, high intraday volatility). Whether spread and slippage assumptions hold in calmer or more strongly trending conditions is untested. Calibration is valid for this window; treat it as a lower bound on confidence, not a universal constant.
 - **Whether stop slippage is systematic** — live range $0.00–$0.14/share, most under $0.05. Sample is 50 trades across 12 days — too small to determine if there's a directional bias. Apr 20 Layer 3 will give a larger sample. If systematic (e.g. always negative, always under $0.05), worth adding a fixed slippage assumption to the backtest stop model.
 
 ### Snapshots
 
-#### Mar 20–27 (8 trading days) — preliminary, clean window start
-Backtest (Jan 1 lead-in, `trading_hours:[13,20]`) vs live Alpaca audit (31 confirmed round trips):
+#### Mar 20–27 (8 trading days) — preliminary, pre-correction (do not use)
+Backtest (`trading_hours:[13,20]`, no `long_only`) vs live Alpaca audit (31 confirmed round trips):
 
-| Symbol | Backtest trades | Live trades | Backtest return |
-|--------|----------------|-------------|----------------|
-| GLD    | 11             | ~8–9        | +0.05%          |
-| IAU    | 8              | ~7–8        | -0.08%          |
-| SLV    | 10             | ~8–9        | -0.27%          |
-| GDX    | 11             | ~7–8        | -0.81%          |
-| Total  | 40             | ~31         | —               |
+| Symbol | Backtest trades | Live trades | Ratio |
+|--------|----------------|-------------|-------|
+| GLD    | 11             | ~8–9        | ~1.3x |
+| IAU    | 8              | ~7–8        | ~1.1x |
+| SLV    | 10             | ~8–9        | ~1.2x |
+| GDX    | 11             | ~7–8        | ~1.4x |
+| Total  | 40             | ~31         | ~1.3x |
 
-1.3x trade count ratio — acceptable, explained by 13:00–13:29 timing gap. P&L direction aligned across all 4 symbols (both backtest and live agree: flat/slightly negative choppy week). No red flags. Repeat full comparison at Apr 20.
+**Invalidated by Apr 3 discovery.** The 1.3x ratio was not explained by the 13:00–13:29 timing gap — it was caused by short trades in the backtest that the live bot never executes. P&L direction alignment was correct but trade counts are not a valid comparison without `long_only:true`. Do not use this snapshot as a calibration reference.
+
+#### Mar 20–Apr 2 (12 trading days) — corrected mid-point snapshot
+Backtest (`trading_hours:[13.5,20]`, `long_only:true`) vs live MCP audit (48 confirmed trades):
+
+| Symbol | Backtest trades | Live trades | Window return (backtest) |
+|--------|----------------|-------------|--------------------------|
+| GLD    | 10             | 12          | -0.04%                   |
+| IAU    | 11             | 10          | -0.37%                   |
+| SLV    | 11             | 14          | +0.03%                   |
+| GDX    | 11             | 12          | -0.66%                   |
+| Total  | 43             | ~48         | —                        |
+
+**Ratio: ~0.90x** — backtest slightly under-predicts live. Residual 10% gap likely due to exact K-threshold timing differences at bar boundaries. P&L direction aligned: GDX weakest in both (-0.66% backtest, 42% win rate live), GLD/SLV near flat. No red flags. Repeat full comparison at Apr 20 with corrected command.

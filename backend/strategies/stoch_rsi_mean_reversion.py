@@ -123,9 +123,11 @@ class StochRSIMeanReversionStrategy(Strategy):
                 skip_entry = True
 
         # Hour-of-day filter (skip entries outside trading hours, but allow exits)
+        # Supports fractional hours (e.g. 13.5 = 13:30) for precise gate matching
         if self.trading_hours and hasattr(row.name, 'hour') and len(self.trading_hours) == 2:
             start_hour, end_hour = self.trading_hours
-            if not (start_hour <= row.name.hour < end_hour):
+            current_hour_frac = row.name.hour + row.name.minute / 60
+            if not (start_hour <= current_hour_frac < end_hour):
                 skip_entry = True
 
         # Event blackout filter (skip entries near high-impact economic events, but allow exits)

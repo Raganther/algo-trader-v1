@@ -73,6 +73,7 @@ The Apr 20 calibration is also the precondition for trusting the validated param
 2. GDX underperformance — does backtest also show GDX trailing GLD/IAU/SLV?
 3. Entry time distribution — does backtest cluster entries at open the same way live does?
 4. Stop slippage — live range $0.000–$0.140/share, most under $0.05; if backtest assumes 0, that's a small but known gap
+5. **Use corrected command** — `trading_hours:[13.5,20]` and `long_only:true` are both required. Without them the comparison is invalid (confirmed Apr 3).
 
 ### Format
 

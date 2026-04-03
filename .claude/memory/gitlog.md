@@ -3,11 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-03** — fix: calibration command corrected — long_only:true required, trading_hours:[13.5,20] exact gate match
+
+ .claude/calibration/calibration-notes.md       | 42 +++++++++++++++++---------
+ .claude/calibration/live-trade-log.md          |  1 +
+ backend/strategies/stoch_rsi_mean_reversion.py |  4 ++-
+ 3 files changed, 31 insertions(+), 16 deletions(-)
+
+----
 **2026-04-03** — chore: restructure calibration files to v3 format — add Plan and Open Questions sections
 
  .claude/calibration/calibration-notes.md |  8 ++++++++
  .claude/calibration/live-trade-log.md    | 17 +++++++++++++++++
- 2 files changed, 25 insertions(+)
+ .claude/memory/gitlog.md                 | 20 ++++++++++----------
+ 3 files changed, 35 insertions(+), 10 deletions(-)
 
 ----
 **2026-04-03** — chore: add signal vs full-edge distinction to analysis — K-exit confirms signal, not full validated edge
@@ -72,18 +81,4 @@ DAY stops expire at 20:00 UTC. Startup sync may fail post-market (rejected by Al
  .claude/memory/observations.md |  8 ++++++--
  CLAUDE.md                      |  3 ++-
  3 files changed, 33 insertions(+), 23 deletions(-)
-
-----
-**2026-04-02** — fix: re-place DAY stop at market open for overnight positions
-DAY stops expire at 20:00 UTC. Startup sync may fail post-market (rejected
-by Alpaca), leaving the position unprotected until the first on_bar fires
-at ~13:45 UTC — a 15-minute gap at market open. New loop check re-places
-the stop at strategy.current_sl on the first market-hours bar if no
-pending_stop_order_id is set. Also ensures trail logic can run on that bar
-(update_stop_order silently skips if pending_stop_order_id is None).
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
-
- backend/runner.py | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
 
