@@ -802,8 +802,23 @@ def run_live_trading(args):
                 # Check for new bar
                 current_last_time = latest_data.index[-1]
                 if current_last_time > last_bar_time:
-                    print(f"New Bar: {current_last_time}")
-                    last_bar_time = current_last_time
+                    # Bar-completion guard: Alpaca bars are left-aligned (open time).
+                    # The first bar of the session appears in the API as soon as the market
+                    # opens, before the 15m bar has closed. Firing on_bar() at that point
+                    # uses 1-2 min of data, producing different K values than the backtest
+                    # (which always uses complete bars). Compute gap from previous bar to
+                    # detect session-open bars — overnight gap >> 15 min between session bars.
+                    now_utc = pd.Timestamp.now(tz='UTC')
+                    gap_to_prev_bar_min = (current_last_time - last_bar_time).total_seconds() / 60
+                    is_session_open_bar = gap_to_prev_bar_min > 60
+                    bar_age_min = (now_utc - current_last_time).total_seconds() / 60
+                    if is_session_open_bar and bar_age_min < 14:
+                        print(f"⏳ Session-open bar {current_last_time.strftime('%H:%M')} UTC is {bar_age_min:.0f}m old — deferring on_bar to next complete bar")
+                        # Don't update last_bar_time — retry next poll when bar is complete
+                        # get_new_trades() below still runs for pending fills
+                    else:
+                        print(f"New Bar: {current_last_time}")
+                        last_bar_time = current_last_time
 
                     # Update Strategy
                     strategy.data = latest_data
@@ -919,7 +934,8 @@ def run_live_trading(args):
                                 except Exception as e:
                                     print(f"[LOOP] ⚠️ Stop re-place failed: {e}")
 
-                        strategy.on_bar(last_row, last_index, latest_data)
+                        if not (is_session_open_bar and bar_age_min < 14):
+                            strategy.on_bar(last_row, last_index, latest_data)
 
                     # Log Trades (always run — pending_fills may resolve outside market hours)
                     new_trades = broker.get_new_trades()

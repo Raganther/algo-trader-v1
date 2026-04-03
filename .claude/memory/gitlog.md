@@ -3,11 +3,18 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-03** — fix: bar-completion guard — skip on_bar for partial session-open bar at market open
+
+ backend/runner.py | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
+
+----
 **2026-04-03** — chore: diagnose 0.90x trade count gap — partial market-open bar confirmed as cause
 
- .claude/calibration/calibration-notes.md | 4 ++--
- backend/runner.py                        | 9 ++++++++-
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ .claude/calibration/calibration-notes.md |  4 ++--
+ .claude/memory/gitlog.md                 | 19 +++++++++----------
+ backend/runner.py                        |  9 ++++++++-
+ 3 files changed, 19 insertions(+), 13 deletions(-)
 
 ----
 **2026-04-03** — fix: calibration command corrected — long_only:true required, trading_hours:[13.5,20] exact gate match
@@ -71,13 +78,4 @@
  .claude/strategies/stochrsi-enhanced-xle.md    |  33 ++++---
  CLAUDE.md                                      |   5 +-
  20 files changed, 264 insertions(+), 468 deletions(-)
-
-----
-**2026-04-02** — chore: log Apr 1 trades, correct Mar 31 T3 stop note
-Added Apr 1 trade log entry: SLV 2 trades (overnight SS exit -0.259/share, same-day TS exit -0.078/share), GLD/IAU/GDX 0 trades. Also corrected Mar 31 T3 overnight hold note — the $67.50 stop at 21:10 UTC was REJECTED by Alpaca (market closed), not placed as originally recorded. Confirmed from Alpaca UI during the overnight stop gap investigation.
-
- .claude/calibration/live-trade-log.md | 17 +++++++++++++++--
- .claude/memory/gitlog.md              | 25 ++++++++++++-------------
- .claude/memory/observations.md        |  2 +-
- 3 files changed, 28 insertions(+), 16 deletions(-)
 
