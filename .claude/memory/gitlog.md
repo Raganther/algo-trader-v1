@@ -3,10 +3,17 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-03** — chore: update CLAUDE.md — Apr 3 bar-completion guard fix documented
+
+ CLAUDE.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+----
 **2026-04-03** — fix: bar-completion guard — skip generate_signals on partial bar, deduplicate deferral log
 
- backend/runner.py | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ .claude/memory/gitlog.md | 36 +++++++++---------------------------
+ backend/runner.py        | 21 ++++++++++++++-------
+ 2 files changed, 23 insertions(+), 34 deletions(-)
 
 ----
 **2026-04-03** — fix: bar-completion guard — skip on_bar for partial session-open bar at market open
@@ -53,11 +60,4 @@
  .claude/calibration/live-trade-log.md | 26 ++++++++++++++------------
  .claude/memory/gitlog.md              | 20 ++++++++------------
  2 files changed, 22 insertions(+), 24 deletions(-)
-
-----
-**2026-04-02** — chore: log Apr 2 trades — 6 trades, 5 profitable, GLD TS fire in profit
-
- .claude/calibration/live-trade-log.md | 17 +++++++++++++++++
- .claude/memory/gitlog.md              | 19 ++++++++-----------
- 2 files changed, 25 insertions(+), 11 deletions(-)
 
