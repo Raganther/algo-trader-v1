@@ -18,6 +18,7 @@ Read on demand only:
 - `.claude/strategies/stochrsi-enhanced-iau.md` — read when working on IAU or reviewing 15m strategy params
 - `.claude/strategies/stochrsi-enhanced-slv.md` — read when working on SLV or reviewing 15m strategy params
 - `.claude/strategies/stochrsi-enhanced-gdx.md` — read when working on GDX or reviewing 15m strategy params
+- `.claude/strategies/research-log.md` — read when deciding what to experiment on next, reviewing cross-strategy learnings, or planning new forward tests
 - `.claude/strategies/composable-results.md` — read when combining strategies or planning composable bot deployment
 - `.claude/strategies/stochrsi-enhanced-xle.md` — read when working on XLE or planning Rolling Validation Test #1
 - `.claude/strategies/event-surprise.md` — read when researching economic event strategies or revisiting CPI/NFP trading

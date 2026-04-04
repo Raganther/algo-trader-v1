@@ -3,10 +3,18 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-04** — chore: create research-log.md — back-populate all strategy explorations, cross-cutting learnings, and open research agenda
+
+ .claude/strategies/research-log.md | 237 +++++++++++++++++++++++++++++++++++++
+ CLAUDE.md                          |   1 +
+ 2 files changed, 238 insertions(+)
+
+----
 **2026-04-04** — chore: update calibration notes — mark 0.90x ratio as fixed, expect 1.0x at Apr 20
 
- .claude/calibration/calibration-notes.md | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .claude/calibration/calibration-notes.md |  2 +-
+ .claude/memory/gitlog.md                 | 22 +++++++++++-----------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
 ----
 **2026-04-04** — chore: sync MEMORY.md, observations, CLAUDE.md and GLD domain file — fix stale exit mechanics and backtest engine status
@@ -64,11 +72,4 @@
  .claude/memory/gitlog.md                       | 18 +++++++++---------
  backend/strategies/stoch_rsi_mean_reversion.py | 19 ++++++++++++-------
  2 files changed, 21 insertions(+), 16 deletions(-)
-
-----
-**2026-04-03** — chore: update CLAUDE.md — Apr 3 bar-completion guard fix documented
-
- .claude/memory/gitlog.md | 18 +++++++++---------
- CLAUDE.md                |  1 +
- 2 files changed, 10 insertions(+), 9 deletions(-)
 
