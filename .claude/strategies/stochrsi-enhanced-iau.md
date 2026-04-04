@@ -65,11 +65,11 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
 
 **IAU is a GLD proxy** — same underlying (gold), different ETF. Slightly cheaper (lower price = lower $ per share), but tracks GLD very closely. The edge transfers perfectly because the price dynamics are identical.
 
-**Lower absolute return than GLD** (+32.6% vs +44.7%) because IAU has a lower price point (~$82 vs ~$260 for GLD), making each % move worth less in dollar terms per share — but the % returns are the same magnitude, just with more trades (679 vs GLD's ~500ish).
+**Lower absolute return than GLD** (+32.7% vs +39.22%) because IAU has a lower price point (~$82 vs ~$260 for GLD), making each % move worth less in dollar terms per share — but the % returns are the same magnitude, just with fewer trades (467 vs GLD's 465 — nearly identical).
 
-**Most consistent year-by-year** of all precious metals assets — no year below +2.97%, very tight return distribution. Lowest per-year drawdown of the group.
+**Most consistent year-by-year** of all precious metals assets — no year below +2.97%, very tight return distribution. *(Year-by-year table pre-fix — trade counts will differ slightly)*
 
-**Lowest drawdown in the precious metals group:** 0.72% vs SLV 2.00% and GDX 2.02%. Being a direct gold-tracking ETF (not silver or miners) = less idiosyncratic risk.
+**Highest drawdown in the gold ETFs:** 0.89% vs GLD 0.73%. Still excellent, but IAU's DD increased slightly with the fix (was 0.72% pre-fix).
 
 ### Precious Metals Thesis — Now 4 Assets Validated
 
@@ -92,7 +92,7 @@ Live bots run long-only — Alpaca rejects fractional short orders.
 | Win Rate | 40% | ~39% |
 | Sharpe (approx) | 1.97 | ~1.20 *(estimate — pre-fix was ~1.33)* |
 
-**Return drop:** -34%. **Sharpe drop:** ~2.0 → ~1.33. IAU is the most impacted asset — short trades add significant alpha here. Long-only IAU is the weakest of the four assets on a risk-adjusted basis.
+**Return drop:** ~-39%. **Sharpe drop:** 1.97 → ~1.20. IAU is the most impacted asset — short trades add significant alpha here. Long-only IAU is the weakest of the four assets on a risk-adjusted basis.
 
 **Year-by-year (long-only):** 2020: +0.23% | 2021: +0.98% | 2022: +3.27% | 2023: +2.95% | 2024: +5.37% | 2025: +6.49%
 All years profitable but 2020–2021 are very slim. The short side is especially important for IAU's early-period performance.

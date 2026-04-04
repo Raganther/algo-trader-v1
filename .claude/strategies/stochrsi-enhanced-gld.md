@@ -57,8 +57,8 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 | 2025 | +7.08% | 2.26% | 108 |
 | 2026 (YTD) | +1.16% | — | 21 |
 
-- Every year profitable. 2024 best (+7.90%), 2023 weakest full year (+4.44%).
-- ~115 trades/year = ~9-10/month with validated params.
+- Every year profitable. 2024 best (+7.90%), 2023 weakest full year (+4.44%). *(Year-by-year table pre-fix — trade counts will differ slightly)*
+- ~78 trades/year = ~6-7/month with validated params *(corrected Apr 4 — was ~115/yr pre-fix)*.
 
 ### Feb 27 Comprehensive Audit
 
@@ -107,9 +107,9 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 | In market | ~15% of time | 100% |
 | Worst year | +3.27% (2020 partial) *(pre-fix)* | -0.3% (2022) |
 
-**Honest assessment:** Buy & Hold returned 2.6× more in absolute terms (2020–2026 was a gold bull run). However:
-- Strategy max DD is 32× lower (0.69% vs 22%)
-- Strategy Sharpe is 2.6× better (2.54 vs 0.98)
+**Honest assessment:** Buy & Hold returned 3× more in absolute terms (2020–2025 was a gold bull run). However:
+- Strategy max DD is 30× lower (0.73% vs 22%)
+- Strategy Sharpe is 2.5× better (2.47 vs 0.98)
 - Strategy is only in-market ~15% of the time — capital can be deployed elsewhere
 - Strategy produces consistent returns in all market conditions; B&H returns are front-loaded to bull phases
 
@@ -173,7 +173,7 @@ Using equity-proportional risk sizing (returns scale with capital):
 | 10% | ~€350 | ~€2,150 | ~3.5% |
 | 20% | ~€700 | ~€4,300 | ~7% |
 
-Key insight: 0.69% max DD gives large headroom to increase position sizing safely. Even at 20% risk/trade, DD stays ~7%.
+Key insight: 0.73% max DD gives large headroom to increase position sizing safely. Even at 20% risk/trade, DD stays ~7%.
 
 ### Enhancement Verification Bots (deployed Feb 17, first fills Feb 26)
 
@@ -225,12 +225,12 @@ Live bots run long-only — Alpaca rejects fractional short orders. This is the 
 | Win Rate | 43% | ~45% |
 | Sharpe (approx) | 2.47 | ~1.80 *(estimate — pre-fix was ~1.91)* |
 
-**Return drop:** -30%. **Sharpe drop:** 2.54 → ~1.91. Short trades contribute meaningfully — GLD is one of the assets where shorts add real alpha. Long-only is still a good strategy but materially weaker.
+**Return drop:** ~-29%. **Sharpe drop:** 2.47 → ~1.80. Short trades contribute meaningfully — GLD is one of the assets where shorts add real alpha. Long-only is still a good strategy but materially weaker.
 
-**Year-by-year (long-only):** 2020: +2.37% | 2021: +2.34% | 2022: +3.50% | 2023: +4.21% | 2024: +6.42% | 2025: +8.23%
+**Year-by-year (long-only):** 2020: +2.37% | 2021: +2.34% | 2022: +3.50% | 2023: +4.21% | 2024: +6.42% | 2025: +8.23% *(pre-fix — directionally valid)*
 All years profitable. Consistent upward trend.
 
-**Implication:** Solving fractional short selling (whole-share sizing) is worth the effort for GLD. Live bots should not be considered equivalent to the validated 2.54 Sharpe strategy until shorts are enabled.
+**Implication:** Solving fractional short selling (whole-share sizing) is worth the effort for GLD. Live bots should not be considered equivalent to the validated 2.47 Sharpe strategy until shorts are enabled.
 
 ### Forward Testing
 
@@ -238,4 +238,4 @@ gld-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/tr
 
 Backtest prediction for test params (Dec 2025 – Mar 2026): +0.16%, 58 trades, 48% WR.
 
-Potential future work: investigate trail_atr=1.5 (audit found +47.5% vs +43.0%); increase position sizing given low DD headroom (0.69%).
+Potential future work: investigate trail_atr=1.5 (pre-fix audit found +47.5% vs +43.0% — needs rerunning); increase position sizing given low DD headroom (0.73%).

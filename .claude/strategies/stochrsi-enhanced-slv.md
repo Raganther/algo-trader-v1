@@ -54,9 +54,9 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol SLV
 
 **Why it works:** Silver shares the same mean-reversion structure as GLD within a precious metals trend. Same macro drivers (CPI, USD, rates) produce the same short-term oscillations. Params transferred without any tuning.
 
-**Higher absolute return than GLD** (+105% vs +44.7%) because silver is more volatile — larger moves per trade. This comes with higher drawdown (2.00% vs 0.69%) — still excellent, but 3× GLD's DD.
+**Higher absolute return than GLD** (+97.96% vs +39.22%) because silver is more volatile — larger moves per trade. This comes with higher drawdown (2.00% vs 0.73%) — still excellent, but 2.7× GLD's DD.
 
-**Baseline (unenhanced) was already Sharpe 1.31.** Enhancement (trailing stop + min hold + skip Monday) improved it to 2.54 — same ~76% Sharpe improvement seen on GLD.
+**Baseline (unenhanced) was already Sharpe 1.31.** Enhancement (trailing stop + min hold + skip Monday) improved it to 2.41 — same structural improvement seen on GLD.
 
 ### Thesis Validation
 
@@ -74,7 +74,7 @@ Live bots run long-only — Alpaca rejects fractional short orders.
 | Win Rate | 46% | ~47% |
 | Sharpe (approx) | 2.41 | ~3.10 *(estimate — pre-fix was ~3.29; long-only SLV still likely best Sharpe of the four)* |
 
-**Return drop:** -35%. **But Sharpe IMPROVES:** 2.54 → ~3.29. SLV is the outlier — the short trades were adding return but also adding disproportionate risk. Long-only SLV has a better risk-adjusted profile than the full strategy. This is notable: for SLV specifically, running long-only is not a degradation.
+**Return drop:** ~-34%. **But Sharpe likely still IMPROVES:** 2.41 → ~3.10 (estimate). SLV is the outlier — the short trades were adding return but also adding disproportionate risk. Long-only SLV has a better risk-adjusted profile than the full strategy. This is notable: for SLV specifically, running long-only is not a degradation.
 
 **Year-by-year (long-only):** 2020: +5.32% | 2021: +8.43% | 2022: +7.78% | 2023: +7.77% | 2024: +12.74% | 2025: +11.44%
 Most consistent year-by-year profile of the four assets. All years strongly positive.

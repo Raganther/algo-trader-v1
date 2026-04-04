@@ -54,7 +54,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GDX
 
 **Why it works:** GDX (gold miners ETF) is a leveraged proxy to gold — miners move 2-3× gold's daily moves due to operating leverage. The same mean-reversion oscillations exist at 15m, but with larger amplitude.
 
-**Highest absolute return of the three** (+114% vs GLD +44.7%, SLV +105.3%) due to the leveraged nature of miners. Drawdown is similar to SLV (2.02%) — acceptable.
+**Highest absolute return of the four** (+129.8% vs GLD +39.22%, SLV +97.96%, IAU +32.7%) due to the leveraged nature of miners. Drawdown is similar to SLV (2.02%) — acceptable.
 
 **2024 was the weakest year** (Sharpe 1.06) — GDX had some idiosyncratic miner-specific volatility. Still positive. 2025 was the strongest (Sharpe 3.52).
 
@@ -76,7 +76,7 @@ Live bots run long-only — Alpaca rejects fractional short orders.
 | Win Rate | 47% | ~47% |
 | Sharpe (approx) | 2.58 | ~1.65 *(estimate — pre-fix was ~1.54; GDX improved with fix so long-only estimate adjusted up)* |
 
-**Return drop:** -42%. **Sharpe drop:** 2.41 → ~1.54. GDX is the most impacted asset — the largest absolute return loss and largest Sharpe decline. Short trades on GDX were highly productive. GDX's leveraged nature (miners move 2-3× gold) means short trades capture larger moves in both directions.
+**Return drop:** ~-42%. **Sharpe drop:** 2.58 → ~1.65. GDX is the most impacted asset — the largest absolute return loss and largest Sharpe decline. Short trades on GDX were highly productive. GDX's leveraged nature (miners move 2-3× gold) means short trades capture larger moves in both directions.
 
 **Year-by-year (long-only):** 2020: +3.28% | 2021: +4.74% | 2022: +11.14% | 2023: +7.80% | 2024: +6.49% | 2025: +18.83%
 All years profitable but 2020–2021 are slim compared to the full strategy. 2025 is exceptionally strong even long-only.

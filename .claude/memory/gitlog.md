@@ -3,11 +3,23 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-04** — chore: sweep all domain files — fix stale narrative figures post stop-check correction
+
+ .claude/strategies/stochrsi-enhanced-gdx.md |  4 ++--
+ .claude/strategies/stochrsi-enhanced-gld.md | 20 ++++++++++----------
+ .claude/strategies/stochrsi-enhanced-iau.md |  8 ++++----
+ .claude/strategies/stochrsi-enhanced-slv.md |  6 +++---
+ .claude/strategies/stochrsi-enhanced-xle.md | 10 +++++-----
+ CLAUDE.md                                   |  2 +-
+ 6 files changed, 25 insertions(+), 25 deletions(-)
+
+----
 **2026-04-04** — chore: document stop slippage analysis and K/TS fix in calibration notes
 
- .claude/calibration/calibration-notes.md | 4 ++--
- .claude/calibration/live-trade-log.md    | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ .claude/calibration/calibration-notes.md |  4 ++--
+ .claude/calibration/live-trade-log.md    |  4 ++--
+ .claude/memory/gitlog.md                 | 18 +++++++++---------
+ 3 files changed, 13 insertions(+), 13 deletions(-)
 
 ----
 **2026-04-04** — chore: update strategy domain files and CLAUDE.md with corrected backtest figures post stop-check fix
@@ -55,13 +67,4 @@
  .claude/memory/gitlog.md                 | 19 +++++++++----------
  backend/runner.py                        |  9 ++++++++-
  3 files changed, 19 insertions(+), 13 deletions(-)
-
-----
-**2026-04-03** — fix: calibration command corrected — long_only:true required, trading_hours:[13.5,20] exact gate match
-
- .claude/calibration/calibration-notes.md       | 42 +++++++++++++++++---------
- .claude/calibration/live-trade-log.md          |  1 +
- .claude/memory/gitlog.md                       | 25 ++++++---------
- backend/strategies/stoch_rsi_mean_reversion.py |  4 ++-
- 4 files changed, 41 insertions(+), 31 deletions(-)
 

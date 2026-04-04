@@ -120,7 +120,7 @@ Remaining before real money: (1) ~~confirm trailing stop firing in profit~~ ✅ 
 
 **Trailing stop FIRING in profit — confirmed Mar 23.** GDX: entry $80.05 (Mar 20), trail ratcheted to $83.35 over 3-day hold, server stop fired intrabar @ $83.317 (+$958 paper). Both server-side exit mechanics now fully confirmed.
 
-**Long-only baseline established (Mar 14):** Bots currently run long-only. Full vs long-only Sharpe: GLD 2.54→~1.91, IAU ~2.0→~1.33, SLV 2.54→~3.29 (better!), GDX 2.41→~1.54. SLV viable long-only; GLD/IAU/GDX meaningfully weaker. See strategy cards for full breakdown.
+**Long-only baseline established (Mar 14):** Bots currently run long-only. Full vs long-only Sharpe (corrected Apr 4): GLD 2.47→~1.80, IAU 1.97→~1.20, SLV 2.41→~3.10 (better!), GDX 2.58→~1.65. SLV viable long-only; GLD/IAU/GDX meaningfully weaker. See strategy cards for full breakdown.
 
 **Two exit mechanics (not three):** (1) bot K-signal exit at candle close, (2) Alpaca server-side stop auto-execution intrabar — covers both stop loss and trailing stop exits.
 

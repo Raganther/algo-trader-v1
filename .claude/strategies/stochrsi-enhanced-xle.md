@@ -77,13 +77,13 @@ Every year profitable (2020–2025). Strong consistency across all periods.
 
 | Asset | Sharpe | Return | Max DD | WF |
 |---|---|---|---|---|
-| GLD | 2.54 | +44.7% | 0.69% | 4/4 |
-| SLV | 2.54 | +105.3% | 2.00% | 4/4 |
-| GDX | 2.41 | +114.1% | 2.02% | 4/4 |
-| IAU | ~2.0 | +32.6% | 0.72% | 4/4 |
+| GLD | 2.47 | +39.22% | 0.73% | 4/4 |
+| SLV | 2.41 | +97.96% | 2.00% | 4/4 |
+| GDX | 2.58 | +129.8% | 2.02% | 4/4 |
+| IAU | 1.97 | +32.7% | 0.89% | 4/4 |
 | **XLE** | **~2.06** | **+85.2%** | **3.35%** | **4/4** |
 
-XLE sits at the bottom of the Sharpe range (matching IAU) with the highest DD of the group. Still passes the quality bar (Sharpe ≥ 2.0, WF 4/4). The higher DD reflects energy sector volatility vs gold's safe-haven stability.
+XLE sits above IAU on Sharpe but below GLD/SLV/GDX. Still passes the quality bar (Sharpe ≥ 2.0, WF 4/4). The higher DD reflects energy sector volatility vs gold's safe-haven stability. *(Precious metals figures corrected Apr 4 — stop-check ordering fix)*
 
 ### Significance
 
