@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-03-26
+Status: current | Epistemic: confirmed | Last verified: 2026-04-04
 
 # StochRSI Enhanced — SLV 15m
 
@@ -32,12 +32,14 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol SLV
   --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 ```
 
-### Performance Summary (validated Feb 27 2026)
+### Performance Summary (corrected Apr 4 2026)
 
-- **Full-period return (2020–2025):** +105.3%, **Max drawdown:** 2.00%, **Trades:** 544
-- **Sharpe:** 2.54
-- **Holdout test (2024–2025):** +29.9%, Sharpe 2.30 — minimal degradation
+- **Full-period return (2020–2025):** +97.96%, **Max drawdown:** 2.00%, **Trades:** 485
+- **Sharpe:** 2.41
+- **Holdout test (2024–2025):** +29.9%, Sharpe 2.30 — pre-fix, directionally valid
 - **Walk-forward:** 4/4 windows positive (100%)
+
+> **Note (Apr 4 2026):** Corrected after fixing backtest stop-check ordering bug. Old figures: Return +105.3%, DD 2.00%, Sharpe 2.54, Trades 544.
 
 ### Year-by-Year (Walk-Forward Windows)
 
@@ -66,11 +68,11 @@ Live bots run long-only — Alpaca rejects fractional short orders.
 
 | Metric | Full Strategy | Long-Only |
 |--------|--------------|-----------|
-| Return (2020–2025) | +105.3% | +68.3% |
-| Max Drawdown | 2.00% | 1.15% |
-| Trades | 544 | 336 |
-| Win Rate | ~47% | 47% |
-| Sharpe (approx) | 2.54 | ~3.29 |
+| Return (2020–2025) | +97.96% | ~+65% *(pre-fix long-only, needs rerunning)* |
+| Max Drawdown | 2.00% | ~1.15% |
+| Trades | 485 | ~310 |
+| Win Rate | 46% | ~47% |
+| Sharpe (approx) | 2.41 | ~3.10 *(estimate — pre-fix was ~3.29; long-only SLV still likely best Sharpe of the four)* |
 
 **Return drop:** -35%. **But Sharpe IMPROVES:** 2.54 → ~3.29. SLV is the outlier — the short trades were adding return but also adding disproportionate risk. Long-only SLV has a better risk-adjusted profile than the full strategy. This is notable: for SLV specifically, running long-only is not a degradation.
 

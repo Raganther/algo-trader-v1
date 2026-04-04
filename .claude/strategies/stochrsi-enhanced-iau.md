@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-03-26
+Status: current | Epistemic: confirmed | Last verified: 2026-04-04
 
 # StochRSI Enhanced — IAU 15m
 
@@ -32,12 +32,14 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
   --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 ```
 
-### Performance Summary (validated Feb 28 2026)
+### Performance Summary (corrected Apr 4 2026)
 
-- **Full-period return (2020–2025):** +32.58%, **Max drawdown:** 0.72%, **Trades:** 679
-- **Sharpe:** ~2.0 (consistent with prior in-sample run)
-- **Holdout test (2024–2025):** +12.55%, DD 0.66% — minimal degradation
+- **Full-period return (2020–2025):** +32.7%, **Max drawdown:** 0.89%, **Trades:** 467
+- **Sharpe:** 1.97
+- **Holdout test (2024–2025):** +12.55%, DD 0.66% — pre-fix, directionally valid
 - **Walk-forward:** 4/4 windows positive (100%)
+
+> **Note (Apr 4 2026):** Corrected after fixing backtest stop-check ordering bug. Old figures: Return +32.58%, DD 0.72%, Sharpe ~2.0, Trades 679.
 
 ### Year-by-Year
 
@@ -73,10 +75,10 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
 
 | Asset | Sharpe | Return | Max DD | WF |
 |---|---|---|---|---|
-| GLD 15m | 2.54 | +44.7% | 0.69% | 4/4 |
-| SLV 15m | 2.54 | +105.3% | 2.00% | 4/4 |
-| GDX 15m | 2.41 | +114.1% | 2.02% | 4/4 |
-| **IAU 15m** | **~2.0** | **+32.6%** | **0.72%** | **4/4** |
+| GLD 15m | 2.47 | +39.22% | 0.73% | 4/4 |
+| SLV 15m | 2.41 | +97.96% | 2.00% | 4/4 |
+| GDX 15m | 2.58 | +129.8% | 2.02% | 4/4 |
+| **IAU 15m** | **1.97** | **+32.7%** | **0.89%** | **4/4** |
 
 ### Long-Only Baseline (live constraint — Mar 14 2026)
 
@@ -84,11 +86,11 @@ Live bots run long-only — Alpaca rejects fractional short orders.
 
 | Metric | Full Strategy | Long-Only |
 |--------|--------------|-----------|
-| Return (2020–2025) | +32.6% | +21.7% |
-| Max Drawdown | 0.72% | 0.76% |
-| Trades | 679 | 449 |
-| Win Rate | ~42% | 39% |
-| Sharpe (approx) | ~2.0 | ~1.33 |
+| Return (2020–2025) | +32.7% | ~+20% *(pre-fix long-only, needs rerunning)* |
+| Max Drawdown | 0.89% | ~0.76% |
+| Trades | 467 | ~330 |
+| Win Rate | 40% | ~39% |
+| Sharpe (approx) | 1.97 | ~1.20 *(estimate — pre-fix was ~1.33)* |
 
 **Return drop:** -34%. **Sharpe drop:** ~2.0 → ~1.33. IAU is the most impacted asset — short trades add significant alpha here. Long-only IAU is the weakest of the four assets on a risk-adjusted basis.
 

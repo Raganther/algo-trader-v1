@@ -140,10 +140,10 @@ Remaining before real money: (1) ~~confirm trailing stop firing in profit~~ ✅ 
 
 | Strategy | Asset | TF | Sharpe | Return | Max DD | WF |
 |---|---|---|---|---|---|---|
-| StochRSI Enhanced | GLD | 15m | 2.54 | +44.7% | 0.69% | Audited |
-| StochRSI Enhanced | SLV | 15m | 2.54 | +105.3% | 2.00% | 4/4 |
-| StochRSI Enhanced | GDX | 15m | 2.41 | +114.1% | 2.02% | 4/4 |
-| StochRSI Enhanced | IAU | 15m | ~2.0 | +32.6% | 0.72% | 4/4 |
+| StochRSI Enhanced | GLD | 15m | 2.47 | +39.22% | 0.73% | Audited |
+| StochRSI Enhanced | SLV | 15m | 2.41 | +97.96% | 2.00% | 4/4 |
+| StochRSI Enhanced | GDX | 15m | 2.58 | +129.8% | 2.02% | 4/4 |
+| StochRSI Enhanced | IAU | 15m | 1.97 | +32.7% | 0.89% | 4/4 |
 
 **Thesis:** Precious metals mean-revert at 15m within trend. Same params work across all 4 without retuning.
 

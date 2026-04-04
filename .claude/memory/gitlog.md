@@ -3,10 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-04** — chore: update strategy domain files and CLAUDE.md with corrected backtest figures post stop-check fix
+
+ .claude/strategies/stochrsi-enhanced-gdx.md | 22 ++++++-----
+ .claude/strategies/stochrsi-enhanced-gld.md | 57 +++++++++++++++--------------
+ .claude/strategies/stochrsi-enhanced-iau.md | 30 ++++++++-------
+ .claude/strategies/stochrsi-enhanced-slv.md | 22 ++++++-----
+ CLAUDE.md                                   |  8 ++--
+ 5 files changed, 73 insertions(+), 66 deletions(-)
+
+----
 **2026-04-04** — fix: backtest stop-check ordering bug — use pre-ratchet stop level for intrabar low/high check
 
+ .claude/memory/gitlog.md                       | 18 +++++++++---------
  backend/strategies/stoch_rsi_mean_reversion.py | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ 2 files changed, 21 insertions(+), 16 deletions(-)
 
 ----
 **2026-04-03** — chore: update CLAUDE.md — Apr 3 bar-completion guard fix documented
@@ -53,11 +64,4 @@
  .claude/calibration/live-trade-log.md    | 17 +++++++++++++++++
  .claude/memory/gitlog.md                 | 20 ++++++++++----------
  3 files changed, 35 insertions(+), 10 deletions(-)
-
-----
-**2026-04-03** — chore: add signal vs full-edge distinction to analysis — K-exit confirms signal, not full validated edge
-
- .claude/calibration/live-trade-log.md |  8 ++++++++
- .claude/memory/gitlog.md              | 20 ++++++++------------
- 2 files changed, 16 insertions(+), 12 deletions(-)
 

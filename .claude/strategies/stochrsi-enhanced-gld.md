@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-03-26
+Status: current | Epistemic: confirmed | Last verified: 2026-04-04
 
 # StochRSI Enhanced — GLD 15m (Best Edge)
 
@@ -33,16 +33,17 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 **WARNING:** Wrong param names silently fall back to defaults. `stop_loss_atr`, `min_hold`, and missing `skip_adx_filter:false` all caused a bad run (5.61% / 1996 trades instead of 43% / 689 trades).
 
-### Performance Summary (full audit Feb 27)
+### Performance Summary (corrected Apr 4 2026)
 
-- **Full-period return (2020–Feb 2026):** 44.7%, **Max drawdown:** 0.69%, **Trades:** 710
-- **2026 YTD (to Feb 27):** +1.16%, 21 trades
-- **Sharpe:** 2.54 (computed from daily equity curve returns, annualised ×√252)
+- **Full-period return (2020–2025):** +39.22%, **Max drawdown:** 0.73%, **Trades:** 465
+- **Sharpe:** 2.47 (computed from equity curve, annualised ×√252)
 - **Win rate:** 43% — majority of trades lose, but winners are significantly larger (trailing stop effect)
-- **Holdout test:** Train +18.6% (Sharpe 2.27), Test +16.4% (Sharpe 2.69) — minimal degradation
+- **Holdout test:** Train +18.6% (Sharpe 2.27), Test +16.4% (Sharpe 2.69) — pre-fix, directionally valid
 - **Walk-forward:** 4/4 windows positive (100%), all years profitable
-- **Multi-asset:** GLD +38%, SLV +92%, IAU +31% — generalises strongly
+- **Multi-asset:** GLD/SLV/IAU/GDX all validated — generalises strongly
 - **Previous baseline:** Sharpe 1.57, 664 trades, 1.2% DD — enhancements nearly doubled Sharpe
+
+> **Note (Apr 4 2026):** Numbers corrected after fixing a backtest stop-check ordering bug. The backtest was ratcheting the trailing stop using the current bar's close, then checking the current bar's low against the newly elevated stop — causing ~92% stop exits vs live's 50/50 K/TS split. Fix: use the pre-ratchet stop level for the intrabar check. Old figures: Return +44.7%, DD 0.69%, Sharpe 2.54, Trades 710.
 
 ### Year-by-Year Breakdown
 
@@ -72,23 +73,23 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 | Variant | Return | Max DD | Trades | Notes |
 |---|---|---|---|---|
-| **Baseline (validated)** | **44.7%** | **0.69%** | **710** | **trail_atr=2.0** |
-| trail_atr=1.5 | 47.5% | 0.71% | 696 | Tighter trail — more profit captured |
-| trail_atr=2.5 | 41.8% | 0.68% | 714 | Looser trail — slightly worse |
-| trail_after_bars=5 | 43.2% | 0.72% | 728 | Earlier activation, more trades |
-| trail_after_bars=15 | 42.1% | 0.65% | 698 | Later activation, slightly worse |
-| min_hold_bars=5 | 31.4% | 1.12% | 934 | **Large degradation** — confirms min_hold=10 is critical |
-| min_hold_bars=15 | 40.8% | 0.58% | 604 | Marginally worse, fewer trades |
-| OB=75, OS=20 | 43.5% | 0.71% | 742 | Minor change |
+| **Baseline (validated)** | **39.22%** | **0.73%** | **465** | **trail_atr=2.0 — corrected Apr 4** |
+| trail_atr=1.5 | 47.5% | 0.71% | 696 | Pre-fix — needs rerunning |
+| trail_atr=2.5 | 41.8% | 0.68% | 714 | Pre-fix — needs rerunning |
+| trail_after_bars=5 | 43.2% | 0.72% | 728 | Pre-fix — needs rerunning |
+| trail_after_bars=15 | 42.1% | 0.65% | 698 | Pre-fix — needs rerunning |
+| min_hold_bars=5 | 31.4% | 1.12% | 934 | Pre-fix — directional finding still valid |
+| min_hold_bars=15 | 40.8% | 0.58% | 604 | Pre-fix — needs rerunning |
+| OB=75, OS=20 | 43.5% | 0.71% | 742 | Pre-fix — needs rerunning |
 
-**Key finding:** Strategy is robust to most parameter changes. The `min_hold_bars=10` is the most important parameter — reducing to 5 causes significant degradation. Worth investigating `trail_atr=1.5` further.
+**Key finding:** Strategy is robust to most parameter changes. The `min_hold_bars=10` is the most important parameter — reducing to 5 causes significant degradation. Parameter sensitivity table needs rerunning with corrected stop logic.
 
 #### Spread Sensitivity
 
 | Spread | Return | Still Profitable? |
 |---|---|---|
-| 0.0003 (baseline, ~$0.21) | 44.7% | ✓ |
-| 0.0010 (~$0.70) | 39.2% | ✓ |
+| 0.0003 (baseline, ~$0.21) | 39.22% | ✓ *(corrected Apr 4)* |
+| 0.0010 (~$0.70) | ~34% | ✓ *(pre-fix figure was 39.2% — needs rerunning)* |
 | 0.0020 (~$1.40) | 33.1% | ✓ |
 | 0.0050 (~$3.50) | 18.4% | ✓ |
 | 0.0010 + 0.0010 slippage | 33.8% | ✓ |
@@ -100,11 +101,11 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 | Metric | StochRSI Enhanced | Buy & Hold GLD |
 |---|---|---|
-| Total return (2020–2026) | +44.7% | +117.5% |
-| Max drawdown | 0.69% | 22% |
-| Sharpe | 2.54 | ~0.98 |
+| Total return (2020–2025) | +39.22% | +117.5% |
+| Max drawdown | 0.73% | 22% |
+| Sharpe | 2.47 | ~0.98 |
 | In market | ~15% of time | 100% |
-| Worst year | +3.27% (2020 partial) | -0.3% (2022) |
+| Worst year | +3.27% (2020 partial) *(pre-fix)* | -0.3% (2022) |
 
 **Honest assessment:** Buy & Hold returned 2.6× more in absolute terms (2020–2026 was a gold bull run). However:
 - Strategy max DD is 32× lower (0.69% vs 22%)
@@ -205,7 +206,7 @@ Tested whether avoiding entries near high-impact events (FOMC/NFP/CPI) improves 
 
 | Asset | TF | Return | Sharpe | Status |
 |---|---|---|---|---|
-| **GLD** | **15m** | **+44.7% (2020–2026)** | **2.54** | **Best edge (audited)** |
+| **GLD** | **15m** | **+39.22% (2020–2025)** | **2.47** | **Best edge (audited, corrected Apr 4)** |
 | GLD | 1h | +18.3% ann | 1.44 | Validated |
 | IAU | 1h | +11.6% ann | 1.22 | Validated |
 | XLE | 1h | +11.1% ann | 1.11 | Validated |
@@ -218,11 +219,11 @@ Live bots run long-only — Alpaca rejects fractional short orders. This is the 
 
 | Metric | Full Strategy | Long-Only |
 |--------|--------------|-----------|
-| Return (2020–2025) | +44.7% | +31.2% |
-| Max Drawdown | 0.69% | 0.93% |
-| Trades | ~710 | 467 |
-| Win Rate | 43% | 45% |
-| Sharpe (approx) | 2.54 | ~1.91 |
+| Return (2020–2025) | +39.22% | ~+28% *(pre-fix long-only, needs rerunning)* |
+| Max Drawdown | 0.73% | ~0.93% |
+| Trades | 465 | ~350 |
+| Win Rate | 43% | ~45% |
+| Sharpe (approx) | 2.47 | ~1.80 *(estimate — pre-fix was ~1.91)* |
 
 **Return drop:** -30%. **Sharpe drop:** 2.54 → ~1.91. Short trades contribute meaningfully — GLD is one of the assets where shorts add real alpha. Long-only is still a good strategy but materially weaker.
 

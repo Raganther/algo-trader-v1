@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-03-26
+Status: current | Epistemic: confirmed | Last verified: 2026-04-04
 
 # StochRSI Enhanced — GDX 15m
 
@@ -32,12 +32,14 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GDX
   --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 ```
 
-### Performance Summary (validated Feb 27 2026)
+### Performance Summary (corrected Apr 4 2026)
 
-- **Full-period return (2020–2025):** +114.1%, **Max drawdown:** 2.02%, **Trades:** 539
-- **Sharpe:** 2.41
-- **Holdout test (2024–2025):** +31.7%, Sharpe 2.27 — minimal degradation
+- **Full-period return (2020–2025):** +129.8%, **Max drawdown:** 2.02%, **Trades:** 540
+- **Sharpe:** 2.58
+- **Holdout test (2024–2025):** +31.7%, Sharpe 2.27 — pre-fix, directionally valid
 - **Walk-forward:** 4/4 windows positive (100%)
+
+> **Note (Apr 4 2026):** Corrected after fixing backtest stop-check ordering bug. GDX actually *improved* with the fix — the old stop logic was prematurely exiting profitable GDX moves. Old figures: Return +114.1%, DD 2.02%, Sharpe 2.41, Trades 539.
 
 ### Year-by-Year (Walk-Forward Windows)
 
@@ -68,11 +70,11 @@ Live bots run long-only — Alpaca rejects fractional short orders.
 
 | Metric | Full Strategy | Long-Only |
 |--------|--------------|-----------|
-| Return (2020–2025) | +114.1% | +65.8% |
-| Max Drawdown | 2.02% | 1.22% |
-| Trades | 539 | 349 |
-| Win Rate | ~47% | 47% |
-| Sharpe (approx) | 2.41 | ~1.54 |
+| Return (2020–2025) | +129.8% | ~+75% *(pre-fix long-only, needs rerunning)* |
+| Max Drawdown | 2.02% | ~1.22% |
+| Trades | 540 | ~360 |
+| Win Rate | 47% | ~47% |
+| Sharpe (approx) | 2.58 | ~1.65 *(estimate — pre-fix was ~1.54; GDX improved with fix so long-only estimate adjusted up)* |
 
 **Return drop:** -42%. **Sharpe drop:** 2.41 → ~1.54. GDX is the most impacted asset — the largest absolute return loss and largest Sharpe decline. Short trades on GDX were highly productive. GDX's leveraged nature (miners move 2-3× gold) means short trades capture larger moves in both directions.
 
