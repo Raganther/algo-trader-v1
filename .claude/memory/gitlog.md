@@ -3,12 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-04** — chore: update calibration notes — mark 0.90x ratio as fixed, expect 1.0x at Apr 20
+
+ .claude/calibration/calibration-notes.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+----
 **2026-04-04** — chore: sync MEMORY.md, observations, CLAUDE.md and GLD domain file — fix stale exit mechanics and backtest engine status
 
- .claude/memory/observations.md              | 2 ++
- .claude/strategies/stochrsi-enhanced-gld.md | 2 +-
- CLAUDE.md                                   | 1 +
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ .claude/memory/gitlog.md                    | 26 ++++++++++++++------------
+ .claude/memory/observations.md              |  2 ++
+ .claude/strategies/stochrsi-enhanced-gld.md |  2 +-
+ CLAUDE.md                                   |  1 +
+ 4 files changed, 18 insertions(+), 13 deletions(-)
 
 ----
 **2026-04-04** — chore: add pre-fix notes to all year-by-year tables across strategy domain files
@@ -64,11 +71,4 @@
  .claude/memory/gitlog.md | 18 +++++++++---------
  CLAUDE.md                |  1 +
  2 files changed, 10 insertions(+), 9 deletions(-)
-
-----
-**2026-04-03** — fix: bar-completion guard — skip generate_signals on partial bar, deduplicate deferral log
-
- .claude/memory/gitlog.md | 36 +++++++++---------------------------
- backend/runner.py        | 21 ++++++++++++++-------
- 2 files changed, 23 insertions(+), 34 deletions(-)
 
