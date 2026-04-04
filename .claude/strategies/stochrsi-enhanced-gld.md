@@ -66,7 +66,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 #### Data Quality
 
-- **Source:** Alpaca IEX (free tier) — resampled 1m → 15m bars
+- **Source:** Alpaca IEX (free tier) — fetched as native 15m bars (corrected Apr 3; was previously resampled from 1m)
 - **Bar count:** 36,075 bars covering Jan 2020 – Feb 2026
 - **Data continuity:** Gaps around major US holidays only — expected for IEX
 - **Assessment:** Data quality sufficient. Resampling from 1m is standard practice, matches live execution.

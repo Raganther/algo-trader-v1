@@ -3,13 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-04** — chore: sync MEMORY.md, observations, CLAUDE.md and GLD domain file — fix stale exit mechanics and backtest engine status
+
+ .claude/memory/observations.md              | 2 ++
+ .claude/strategies/stochrsi-enhanced-gld.md | 2 +-
+ CLAUDE.md                                   | 1 +
+ 3 files changed, 4 insertions(+), 1 deletion(-)
+
+----
 **2026-04-04** — chore: add pre-fix notes to all year-by-year tables across strategy domain files
 
- .claude/strategies/stochrsi-enhanced-gdx.md | 2 ++
- .claude/strategies/stochrsi-enhanced-gld.md | 2 ++
- .claude/strategies/stochrsi-enhanced-iau.md | 2 ++
- .claude/strategies/stochrsi-enhanced-slv.md | 2 ++
- 4 files changed, 8 insertions(+)
+ .claude/memory/gitlog.md                    | 20 +++++++++++---------
+ .claude/strategies/stochrsi-enhanced-gdx.md |  2 ++
+ .claude/strategies/stochrsi-enhanced-gld.md |  2 ++
+ .claude/strategies/stochrsi-enhanced-iau.md |  2 ++
+ .claude/strategies/stochrsi-enhanced-slv.md |  2 ++
+ 5 files changed, 19 insertions(+), 9 deletions(-)
 
 ----
 **2026-04-04** — chore: sweep all domain files — fix stale narrative figures post stop-check correction
@@ -62,11 +71,4 @@
  .claude/memory/gitlog.md | 36 +++++++++---------------------------
  backend/runner.py        | 21 ++++++++++++++-------
  2 files changed, 23 insertions(+), 34 deletions(-)
-
-----
-**2026-04-03** — fix: bar-completion guard — skip on_bar for partial session-open bar at market open
-
- .claude/memory/gitlog.md | 22 ++++++++++------------
- backend/runner.py        | 22 +++++++++++++++++++---
- 2 files changed, 29 insertions(+), 15 deletions(-)
 
