@@ -47,6 +47,8 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 ### Year-by-Year Breakdown
 
+> *Pre-fix data — return figures are directionally valid but trade counts and exact returns will differ slightly after the Apr 4 stop-check correction. Needs rerunning post-Apr-20.*
+
 | Year | Return | Max DD | Trades |
 |---|---|---|---|
 | 2020 | +3.27% | 0.73% | 54 *(partial — starts Jul)* |

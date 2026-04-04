@@ -3,15 +3,25 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-04** — chore: add pre-fix notes to all year-by-year tables across strategy domain files
+
+ .claude/strategies/stochrsi-enhanced-gdx.md | 2 ++
+ .claude/strategies/stochrsi-enhanced-gld.md | 2 ++
+ .claude/strategies/stochrsi-enhanced-iau.md | 2 ++
+ .claude/strategies/stochrsi-enhanced-slv.md | 2 ++
+ 4 files changed, 8 insertions(+)
+
+----
 **2026-04-04** — chore: sweep all domain files — fix stale narrative figures post stop-check correction
 
+ .claude/memory/gitlog.md                    | 27 +++++++++++++++------------
  .claude/strategies/stochrsi-enhanced-gdx.md |  4 ++--
  .claude/strategies/stochrsi-enhanced-gld.md | 20 ++++++++++----------
  .claude/strategies/stochrsi-enhanced-iau.md |  8 ++++----
  .claude/strategies/stochrsi-enhanced-slv.md |  6 +++---
  .claude/strategies/stochrsi-enhanced-xle.md | 10 +++++-----
  CLAUDE.md                                   |  2 +-
- 6 files changed, 25 insertions(+), 25 deletions(-)
+ 7 files changed, 40 insertions(+), 37 deletions(-)
 
 ----
 **2026-04-04** — chore: document stop slippage analysis and K/TS fix in calibration notes
@@ -59,12 +69,4 @@
  .claude/memory/gitlog.md | 22 ++++++++++------------
  backend/runner.py        | 22 +++++++++++++++++++---
  2 files changed, 29 insertions(+), 15 deletions(-)
-
-----
-**2026-04-03** — chore: diagnose 0.90x trade count gap — partial market-open bar confirmed as cause
-
- .claude/calibration/calibration-notes.md |  4 ++--
- .claude/memory/gitlog.md                 | 19 +++++++++----------
- backend/runner.py                        |  9 ++++++++-
- 3 files changed, 19 insertions(+), 13 deletions(-)
 

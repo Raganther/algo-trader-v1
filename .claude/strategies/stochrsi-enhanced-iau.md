@@ -43,6 +43,8 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
 
 ### Year-by-Year
 
+> *Pre-fix data — directionally valid but trade counts and exact returns will differ slightly after the Apr 4 stop-check correction. Needs rerunning post-Apr-20.*
+
 | Year | Return | DD | Trades |
 |---|---|---|---|
 | 2020 | +2.97% | 0.81% | 63 |

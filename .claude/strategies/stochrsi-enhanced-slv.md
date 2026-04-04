@@ -43,6 +43,8 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol SLV
 
 ### Year-by-Year (Walk-Forward Windows)
 
+> *Pre-fix data — directionally valid but exact figures will differ after the Apr 4 stop-check correction. Needs rerunning post-Apr-20.*
+
 | Test Period | Return | Sharpe | Trades |
 |---|---|---|---|
 | 2022 | +23.3% | 4.65 | 82 |
