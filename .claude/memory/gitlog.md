@@ -3,14 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-04** — chore: document stop slippage analysis and K/TS fix in calibration notes
+
+ .claude/calibration/calibration-notes.md | 4 ++--
+ .claude/calibration/live-trade-log.md    | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+----
 **2026-04-04** — chore: update strategy domain files and CLAUDE.md with corrected backtest figures post stop-check fix
 
+ .claude/memory/gitlog.md                    | 20 ++++++----
  .claude/strategies/stochrsi-enhanced-gdx.md | 22 ++++++-----
  .claude/strategies/stochrsi-enhanced-gld.md | 57 +++++++++++++++--------------
  .claude/strategies/stochrsi-enhanced-iau.md | 30 ++++++++-------
  .claude/strategies/stochrsi-enhanced-slv.md | 22 ++++++-----
  CLAUDE.md                                   |  8 ++--
- 5 files changed, 73 insertions(+), 66 deletions(-)
+ 6 files changed, 85 insertions(+), 74 deletions(-)
 
 ----
 **2026-04-04** — fix: backtest stop-check ordering bug — use pre-ratchet stop level for intrabar low/high check
@@ -56,12 +64,4 @@
  .claude/memory/gitlog.md                       | 25 ++++++---------
  backend/strategies/stoch_rsi_mean_reversion.py |  4 ++-
  4 files changed, 41 insertions(+), 31 deletions(-)
-
-----
-**2026-04-03** — chore: restructure calibration files to v3 format — add Plan and Open Questions sections
-
- .claude/calibration/calibration-notes.md |  8 ++++++++
- .claude/calibration/live-trade-log.md    | 17 +++++++++++++++++
- .claude/memory/gitlog.md                 | 20 ++++++++++----------
- 3 files changed, 35 insertions(+), 10 deletions(-)
 

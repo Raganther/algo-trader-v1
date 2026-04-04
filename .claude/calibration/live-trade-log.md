@@ -69,10 +69,10 @@ The Apr 20 calibration is also the precondition for trusting the validated param
 
 #### Apr 20 calibration — specific things to watch
 
-1. K vs TS exit ratio — should be close to 50/50, matching live
+1. ~~K vs TS exit ratio~~ — **RESOLVED (Apr 4).** Backtest stop-check ordering bug fixed. Backtest now matches live 50/50. No longer an open question.
 2. GDX underperformance — does backtest also show GDX trailing GLD/IAU/SLV?
 3. Entry time distribution — does backtest cluster entries at open the same way live does?
-4. Stop slippage — live range $0.000–$0.140/share, most under $0.05; if backtest assumes 0, that's a small but known gap
+4. Stop slippage — **CHARACTERISED (Apr 4).** Mean $0.022/share, median $0.010/share, 100% negative direction (27 exits). Backtest assumes $0. Known ~$0.010–0.022/share systematic bias — will cause small P&L overstatement in Layer 4. Decision: add `stop_slippage` param only after Apr 20 confirms bias on larger sample.
 5. **Use corrected command** — `trading_hours:[13.5,20]` and `long_only:true` are both required. Without them the comparison is invalid (confirmed Apr 3).
 
 ### Format
