@@ -3,10 +3,17 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-04** — fix: backtest stop-check ordering bug — use pre-ratchet stop level for intrabar low/high check
+
+ backend/strategies/stoch_rsi_mean_reversion.py | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
+
+----
 **2026-04-03** — chore: update CLAUDE.md — Apr 3 bar-completion guard fix documented
 
- CLAUDE.md | 1 +
- 1 file changed, 1 insertion(+)
+ .claude/memory/gitlog.md | 18 +++++++++---------
+ CLAUDE.md                |  1 +
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
 ----
 **2026-04-03** — fix: bar-completion guard — skip generate_signals on partial bar, deduplicate deferral log
@@ -53,11 +60,4 @@
  .claude/calibration/live-trade-log.md |  8 ++++++++
  .claude/memory/gitlog.md              | 20 ++++++++------------
  2 files changed, 16 insertions(+), 12 deletions(-)
-
-----
-**2026-04-02** — chore: extend analysis to Apr 2 — 50 trades, K 80% / TS 16%, GLD TS win first same-day
-
- .claude/calibration/live-trade-log.md | 26 ++++++++++++++------------
- .claude/memory/gitlog.md              | 20 ++++++++------------
- 2 files changed, 22 insertions(+), 24 deletions(-)
 

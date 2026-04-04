@@ -134,6 +134,11 @@ class StochRSIMeanReversionStrategy(Strategy):
         if self.event_blackout_hours > 0 and row.name in self.blackout_times:
             skip_entry = True
 
+        # Capture stop level before ratcheting — intrabar check uses the stop set at end of
+        # the previous bar, matching live behaviour (Alpaca server-side stop is only updated
+        # at bar close; the ratchet from this bar takes effect next bar).
+        sl_for_check = self.current_sl
+
         # Trailing stop update (move stop to lock in profits)
         if self.trailing_stop and self.entry_bar is not None and self.current_sl is not None:
             bars_held = i - self.entry_bar
@@ -189,25 +194,25 @@ class StochRSIMeanReversionStrategy(Strategy):
                 if current_adx > self.adx_threshold:
                     return
 
-        # 0. Check Stop Loss (Priority)
-        if self.position == 'long' and self.current_sl:
-            if row['Low'] <= self.current_sl:
+        # 0. Check Stop Loss (Priority) — use sl_for_check (stop level from previous bar)
+        if self.position == 'long' and sl_for_check:
+            if row['Low'] <= sl_for_check:
                 # SL Hit
                 qty = abs(self.broker.get_position(self.symbol))
                 if qty > 0:
-                    result = self.sell(price=self.current_sl, size=qty, timestamp=i, exit_reason='stop')
+                    result = self.sell(price=sl_for_check, size=qty, timestamp=i, exit_reason='stop')
                     if result is not None:
                         self.position = 0
                         self.current_sl = None
                         self.entry_bar = None
                 return # Exit logic done
 
-        elif self.position == 'short' and self.current_sl:
-            if row['High'] >= self.current_sl:
+        elif self.position == 'short' and sl_for_check:
+            if row['High'] >= sl_for_check:
                 # SL Hit
                 qty = abs(self.broker.get_position(self.symbol))
                 if qty > 0:
-                    result = self.buy(price=self.current_sl, size=qty, timestamp=i, exit_reason='stop')
+                    result = self.buy(price=sl_for_check, size=qty, timestamp=i, exit_reason='stop')
                     if result is not None:
                         self.position = 0
                         self.current_sl = None
