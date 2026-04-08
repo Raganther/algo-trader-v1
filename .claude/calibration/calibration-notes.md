@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-01
+Status: current | Epistemic: confirmed | Last verified: 2026-04-08
 
 # Calibration Notes — Algo Trader V1
 
@@ -95,6 +95,32 @@ Spread slippage modelled (`--spread 0.0003`). Stop execution slippage not modell
 
 ### Snapshots
 
+#### Mar 20–Apr 7 (13 trading days) — live equity curve via Alpaca portfolio history
+
+Pulled Apr 8 via `get_portfolio_history` MCP. Base value: $94,353 (Mar 18).
+
+| Date | Equity | Day P&L | Day % |
+|------|--------|---------|-------|
+| Mar 20 | $94,212 | -$141 | -0.15% |
+| Mar 21 | $93,865 | -$347 | -0.37% |
+| Mar 23 | $96,411 | +$2,546 | +2.71% |
+| Mar 24 | $96,459 | +$47 | +0.05% |
+| Mar 25 | $96,370 | -$89 | -0.09% |
+| Mar 26 | $96,609 | +$239 | +0.25% |
+| Mar 27 | $96,367 | -$241 | -0.25% |
+| Mar 30 | $95,762 | -$605 | -0.63% |
+| Mar 31 | $96,776 | +$1,013 | +1.06% |
+| Apr 1 | $96,642 | -$134 | -0.14% |
+| Apr 2 | $97,695 | +$1,053 | +1.09% |
+| Apr 6 | $97,423 | -$271 | -0.28% |
+| Apr 7 | $97,837 | +$414 | +0.42% |
+
+**Total: +$3,626 (+3.85%) over 13 trading days.** Three big up days (Mar 23, Mar 31, Apr 2) account for +$4,612 — the rest collectively lost. Max single-day drawdown: -$605 (Mar 30, -0.63%). Only one day below starting equity (Mar 21). Apr 7 includes open GLD position (+$735 unrealized).
+
+**Regime note:** 2024–2025 are the best years in the aggressive params backtest — we're live testing in the best historical regime for this strategy. The equity curve looks clean partly because we're in a metals bull market.
+
+---
+
 #### Mar 5–16 (11 trading days) — preliminary, pre-clean-window
 Backtest (Jan 1 lead-in, long_only=True) vs live DB:
 
@@ -111,7 +137,7 @@ SLV exact. GLD close. IAU/GDX off by 2–3 trades — likely data resampling dif
 
 - **Residual 0.90x under-prediction — FIXED (Apr 3)** — root cause: live bot was firing `on_bar()` on the session-open 15m bar when only 0–2 min old (partial bar from Alpaca live API). StochRSI K on 1–2 min of data behaved differently than on the complete 15-min bar the backtest uses — marginal OS readings crossed live but not backtest. 7 of 9 market-open live trades in Mar 20–Apr 2 had no backtest match, accounting for the full ~5-trade gap. **Fix deployed Apr 3:** bar-completion guard detects overnight gap >60 min, defers `on_bar()` until bar is ≥14 min old. **For Apr 20 calibration:** expect ratio ~1.0x. If a residual gap persists after this fix, it has a new unexplained cause and needs investigation. Data fetch also corrected (backtest now fetches 15m directly from Alpaca — no impact on trade count but correct for consistency).
 - **K/TS exit ratio — FIXED (Apr 4)** — before fix, backtest showed 8% K-exits / 92% stop exits vs live 50/50. Root cause: backtest was ratcheting the trailing stop using the current bar's close, then immediately checking the current bar's low against the newly elevated stop — causing false stop fires on bullish bars. Fix: capture stop level before ratcheting (`sl_for_check`), use that for the intrabar low/high check. Ratcheted level applies from next bar onwards, matching Alpaca server-side behaviour. After fix: backtest 50/50 K/TS ratio, exactly matching live. Validated on Mar 20–Apr 2 window (36 backtest trades: 18 K / 18 stop). Corrected validated-params figures: GLD Sharpe 2.47 / +39.22%, IAU 1.97 / +32.7%, SLV 2.41 / +97.96%, GDX 2.58 / +129.8%. Fix committed Apr 4: `651c5ce`.
-- **Stop slippage — CHARACTERISED (Apr 4)** — analysed 27 stop exits from Mar 20–Apr 2 live trade log. All slippage is negative (fill always below stop price for long exits — 100% directional consistency). Mean: $0.022/share. Median: $0.010/share. Distribution: 59% under $0.011, one outlier at $0.140 (GLD Mar 24 — correlated simultaneous exits). Backtest models zero stop slippage. **Decision: do not model yet.** $0.010–0.022/share is a known systematic bias that will cause backtest to slightly overstate P&L vs live. Expect it to show up in Layer 4 at Apr 20. Add `stop_slippage` parameter only after Apr 20 Layer 3 confirms the bias holds on a larger sample (50–80 stop exits). The $0.140 outlier complicates the mean; median ($0.010) is the more reliable model input if added.
+- **Stop slippage — CHARACTERISED (updated Apr 8, 33 stop exits)** — all slippage is negative (fill always below stop price for long exits — 100% directional consistency). Mean: ~$0.025/share. Median: $0.010/share. Outliers: $0.140 (GLD Mar 24 — correlated simultaneous exits), $0.297 (GLD Apr 6 — high-volatility day). The mean is skewed upward by outliers; on normal days median $0.010 holds. Slippage spikes on volatile sessions — this is an important calibration caveat. Backtest models zero stop slippage. **Decision: do not model yet.** Known bias — will cause slight P&L overstatement in Layer 4. Add `stop_slippage` parameter only after Apr 20 Layer 3 confirms the bias holds on a larger sample. Median ($0.010) is the more reliable model input if added.
 - **Execution layer calibration across regimes** — the Apr 20 calibration is a snapshot of one unusual regime (post-metals-crash recovery, high intraday volatility). Whether spread and slippage assumptions hold in calmer or more strongly trending conditions is untested. Calibration is valid for this window; treat it as a lower bound on confidence, not a universal constant.
 
 ### Snapshots

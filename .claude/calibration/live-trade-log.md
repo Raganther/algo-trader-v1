@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-02
+Status: current | Epistemic: confirmed | Last verified: 2026-04-08
 
 # Live Trade Log — Calibration Window
 
@@ -19,20 +19,20 @@ Used for Apr 20 calibration comparison: Layer 2 (entry/exit prices vs backtest) 
 
 ## Knowledge
 
-### Analysis — Mar 20–Apr 2 (50 completed trades)
+### Analysis — Mar 20–Apr 7 (62 completed trades, 1 open)
 
-**Dataset:** 50 completed trades, 12 audited days (Mar 20, 23–27, 30–31, Apr 1–2). Mar 21 and Mar 28 confirmed zero-trade days (no K crossings met all conditions).
+**Dataset:** 62 completed trades + 1 open (GLD Apr 7), 14 active days (Mar 20, 23–27, 30–31, Apr 1–2, 6–7). Mar 21 and Mar 28 confirmed zero-trade days (no K crossings met all conditions). Apr 3 market holiday (Good Friday). Apr 6–7 Alpaca MCP verified, DB audit pending.
 
 #### K-exits are profitable, trailing stops are not — dramatically
 
 | Exit type | Trades | Winners | Win rate |
 |-----------|--------|---------|----------|
-| K-signal | 25 | 20 | 80% |
-| Trailing stop (TS) | 25 | 4 | 16% |
+| K-signal | 29 | 22 | 76% |
+| Trailing stop (TS) | 33 | 5 | 15% |
 
-The 4 TS wins: GDX multi-day hold (+3.267), two near-zero exits (+0.040, +0.020), and GLD Apr 2 (+1.995). The GLD Apr 2 TS win is the first same-day profitable TS exit in the dataset — price moved fast enough on a strong momentum day for the trail to ratchet above entry (422.45→427.09→429.64) before reversing. Still the exception: 21 of 25 TS exits are losses. The 0.5 ATR trail after 1 bar fires on normal intrabar noise before the position has moved. Expected for test params — validated params (trail after 10 bars, 2.0 ATR) would look completely different.
+The 5 TS wins: GDX multi-day hold (+3.267), two near-zero exits (+0.040, +0.020), GLD Apr 2 (+1.995), IAU Apr 7 (+0.033 near-zero). Apr 6–7 added 8 new TS exits, all losing or near-zero — reinforcing the pattern. Apr 6–7 added 4 new K-exits: 2 winners (GDX +0.240, SLV +0.235), 2 near-flat losers (GDX -0.020, SLV -0.169). K-exit win rate dipped slightly (80%→76%) as the strategy generated some exits near entry on choppy days.
 
-K/TS split remains exactly 50/50 (25/25) — consistent with the original 43-trade ratio.
+K/TS split shifted to 29/33 (47/53) — slightly more TS exits than K-exits now. Still broadly consistent with 50/50 expectation.
 
 **Calibration signal:** the Apr 20 backtest should show roughly the same 50/50 K vs TS split and similarly poor TS win rate. If backtest shows significantly more K-exits and fewer TS exits, the stop execution model is wrong.
 
@@ -40,12 +40,12 @@ K/TS split remains exactly 50/50 (25/25) — consistent with the original 43-tra
 
 | Symbol | Trades | Winners | Win rate |
 |--------|--------|---------|----------|
-| GLD | 12 | 8 | 67% |
-| IAU | 10 | 5 | 50% |
-| SLV | 14 | 7 | 50% |
-| GDX | 12 | 5 | 42% |
+| GLD | 16 | 9 | 56% |
+| IAU | 14 | 6 | 43% |
+| SLV | 16 | 8 | 50% |
+| GDX | 16 | 8 | 50% |
 
-GDX still lowest win rate. GLD improving (6/10 → 8/12) driven by strong Apr 2 performance (TS win + K win). GDX TS exits: 9 trades, only 3 positive (the multi-day +3.267 carries almost all of it). Backtest predicted GDX as strongest performer (+2.45% Dec–Mar). If live GDX is flat or negative at Apr 20 while backtest predicts positive, worth investigating.
+GDX recovered from 42% to 50% on the back of 3 active trades Apr 6 (2 K-exits including a winner, one TS loss). GLD dipped from 67% to 56% — Apr 6 TS loss + two Apr 7 TS losses. IAU weakest at 43% — Apr 7 was particularly bad (2 quick TS exits near entry). GDX TS exits: 12 trades, 3 positive (same three as before — no new TS wins on GDX).
 
 #### Correlated simultaneous entries — matters for real money
 
@@ -235,6 +235,49 @@ Weekend — market closed.
 | gld-test | 18:31 | 427.800 | 19:16 | 429.080 | K | - | +1.280 | Trail ratcheted 2× (425.38→427.88→428.71), K-signal fired |
 
 *5/6 trades profitable. GLD T1 TS exit in profit — another server-side trail fire confirmed. IAU T1 TS fired below entry (1 ratchet, still short of entry). GDX/SLV clean K-signal exits with good ratchet progression. All bots flat EOD.*
+
+### 2026-04-03
+
+Market closed — Good Friday (US market holiday).
+
+### 2026-04-04 — 2026-04-05
+
+Weekend — market closed.
+
+### 2026-04-06
+
+**Audit status:** PARTIAL — Alpaca MCP verified (orders confirmed), pm2/DB audit pending
+
+*Note: Easter Monday — US markets open (Easter Monday is not a US market holiday). GDX had 3 complete trades in one session — most active single-bot day so far.*
+
+| Bot | Entry time (UTC) | Entry $ | Exit time (UTC) | Exit $ | Exit type | Stop level at exit | P&L/share | Notes |
+|-----|-----------------|---------|-----------------|--------|-----------|-------------------|-----------|-------|
+| gdx-test | 15:01 | 94.480 | 15:41 | 93.760 | TS | 93.80 | -0.720 | Trail ratcheted 93.17→93.40→93.80 (2×). Slippage: -0.040 |
+| gdx-test | 16:01 | 94.310 | 16:46 | 94.290 | K | - | -0.020 | Trail ratcheted 92.90→93.76→93.87→93.93 (3×); K-signal fired |
+| slv-test | 16:16 | 65.829 | 17:01 | 65.660 | K | - | -0.169 | Trail ratcheted 65.07→65.61→65.65 (2×); K-signal fired. Loss despite K-exit — closed near entry |
+| gdx-test | 17:46 | 94.160 | 18:31 | 94.400 | K | - | +0.240 | Trail ratcheted 93.28→93.70→94.03→94.25 (3×); K-signal fired |
+| iau-test | 18:16 | 87.740 | 18:34 | 87.670 | TS | 87.68 | -0.070 | Trail ratcheted 87.39→87.68 (1×); stop fired below entry. Slippage: -0.010 |
+| gld-test | 18:31 | 428.326 | 19:07 | 427.273 | TS | 427.57 | -1.053 | Trail ratcheted 426.71→426.87→427.57 (2×); stop fired below entry. Slippage: -0.297 (largest seen) |
+
+*1/6 trades profitable. GDX dominated: 3 trades, two K-exits (near-flat and small win). SLV K-exit was still a loss — closed near entry before momentum. IAU and GLD both TS exits below entry. GLD slippage -0.297 notable — largest in dataset. Choppy day overall.*
+
+### 2026-04-07
+
+**Audit status:** PARTIAL — Alpaca MCP verified (orders confirmed), pm2/DB audit pending
+
+*Note: GLD T3 still open as of Apr 8 pre-market — not logged here until closed.*
+
+| Bot | Entry time (UTC) | Entry $ | Exit time (UTC) | Exit $ | Exit type | Stop level at exit | P&L/share | Notes |
+|-----|-----------------|---------|-----------------|--------|-----------|-------------------|-----------|-------|
+| iau-test | 13:44 | 87.350 | 14:01 | 87.250 | TS | 87.25 | -0.100 | Trail ratcheted 87.18→87.25 (1×); stop fired below entry. Slippage: 0.000 |
+| gld-test | 13:44 | 426.234 | 14:01 | 425.800 | TS | 425.82 | -0.434 | Trail ratcheted 424.50→425.82 (1×); stop fired below entry. Slippage: -0.020 |
+| gdx-test | 14:32 | 93.540 | 15:03 | 93.103 | TS | 93.15 | -0.437 | Trail ratcheted 92.56→93.04→93.15 (2×). Slippage: -0.047 |
+| iau-test | 14:32 | 87.417 | 14:50 | 87.450 | TS | 87.45 | +0.033 | Trail ratcheted 86.97→87.45 (1×); stop fired just above entry. Slippage: 0.000 |
+| gld-test | 14:47 | 427.149 | 15:05 | 424.790 | TS | 424.82 | -2.359 | Trail ratcheted 424.53→424.82 (1×); stop fired well below entry. Slippage: -0.030. Largest per-share loss in dataset |
+| slv-test | 15:31 | 64.465 | 16:20 | 64.700 | K | - | +0.235 | Trail ratcheted 63.51→64.06→64.40→64.47 (3×); K-signal fired |
+| gld-test | ~15:30+ | ~427.919 | OPEN | — | — | — | — | 3rd GLD entry on Apr 7, still open Apr 8 pre-market. Unrealized +$735 (+3.0%) at $440.93 |
+
+*2/6 closed trades profitable (IAU T2 tiny, SLV K-exit). 5 of 6 closed exits via TS — all TS exits losing or near-flat except IAU T2. GLD T2 largest per-share loss in dataset (-2.359). IAU and GLD both stopped within 17 min of entry on first trades — very fast adverse moves at open. GLD T3 (open overnight) sitting on +$735 unrealized.*
 
 ## Open Questions
 

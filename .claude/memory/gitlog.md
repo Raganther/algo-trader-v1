@@ -3,11 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-08** — chore: log Apr 6-7 trades, aggressive params backtest, equity curve — update research-log, calibration-notes, observations
+
+ .claude/calibration/calibration-notes.md | 30 +++++++++++++-
+ .claude/calibration/live-trade-log.md    | 67 ++++++++++++++++++++++++++------
+ .claude/memory/observations.md           |  4 +-
+ .claude/strategies/research-log.md       | 59 +++++++++++++++++++++++++---
+ 4 files changed, 139 insertions(+), 21 deletions(-)
+
+----
 **2026-04-04** — chore: create research-log.md — back-populate all strategy explorations, cross-cutting learnings, and open research agenda
 
+ .claude/memory/gitlog.md           |  19 +--
  .claude/strategies/research-log.md | 237 +++++++++++++++++++++++++++++++++++++
  CLAUDE.md                          |   1 +
- 2 files changed, 238 insertions(+)
+ 3 files changed, 248 insertions(+), 9 deletions(-)
 
 ----
 **2026-04-04** — chore: update calibration notes — mark 0.90x ratio as fixed, expect 1.0x at Apr 20
@@ -65,11 +75,4 @@
  .claude/strategies/stochrsi-enhanced-slv.md | 22 ++++++-----
  CLAUDE.md                                   |  8 ++--
  6 files changed, 85 insertions(+), 74 deletions(-)
-
-----
-**2026-04-04** — fix: backtest stop-check ordering bug — use pre-ratchet stop level for intrabar low/high check
-
- .claude/memory/gitlog.md                       | 18 +++++++++---------
- backend/strategies/stoch_rsi_mean_reversion.py | 19 ++++++++++++-------
- 2 files changed, 21 insertions(+), 16 deletions(-)
 
