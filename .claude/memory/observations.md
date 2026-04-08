@@ -3,6 +3,30 @@ Staging area for new topics and cross-domain coordination.
 
 ---
 
+## Overall Status (Apr 8 2026)
+
+**Two of three strategy components confirmed live. One regime. Test params.**
+
+What's confirmed:
+- Entry signal + K-exit has real alpha (76–80% K-exit win rate across 62 live trades)
+- Both server-side exit mechanics work (stop loss + trailing stop in profit)
+- Execution infrastructure sound (100% audit integrity, all known bugs fixed)
+- Signal generalises across 4 assets — confirmed in backtest, consistent in live direction
+
+What's not yet confirmed:
+- The trail at validated params (2.0 ATR, after 10 bars) — never fired live. This is the component that captures extended moves and drives the Sharpe 2.47. Test params trail (0.5 ATR, 1 bar) is a noise-driven stop — a different mechanism entirely.
+- Backtest P&L model accuracy — Apr 20 calibration is the gate (Layers 2–4: entry/exit prices, stop slippage, aggregate P&L)
+- Long-only validated Sharpe — headline figures (2.47 etc.) include shorts the bots can't execute. Long-only is estimated at ~1.20–3.10 depending on symbol.
+
+Key red flags to track:
+- **Regime dependency** — live performance is in the best historical regime for this strategy (2024–2025 metals bull). 2020 would have been negative at aggressive params.
+- **Correlated entries** — GLD/IAU/SLV enter simultaneously. 2% risk × 3 = 6% in one correlated move. Pre-real-money requirement: correlation-aware sizing.
+- **Slippage spikes on volatile days** — median $0.010/share but outliers at $0.140 and $0.297. Not modelled in backtest.
+
+Path to real money: Apr 20 calibration → switch to validated params → second clean window (confirm trail) → short trading (requires whole-share sizing).
+
+---
+
 ## Active Work
 
 1. **Calibration comparison — Apr 20** — run backtest with identical params over Mar 20–Apr 20 window, compare trade counts, entry/exit prices, aggregate P&L. See `## Plan` in `.claude/calibration/calibration-notes.md`.

@@ -238,6 +238,8 @@ Validated params extract 4–8× more return with fewer trades and lower or comp
 
 **What remains unconfirmed:** Trail at validated params. The test params trail is not the edge — it's a noise-driven stop. The real trail (2.0 ATR, after 10 bars) is what lets winners run. It has never fired live. Second clean window on validated params (post-Apr-20) is the remaining confirmation.
 
+**Overall position (Apr 8):** Two of three strategy components confirmed live (entry signal + K-exit, both exit mechanics). One component unconfirmed (trail at validated params). One regime tested (metals bull, 2024–2025 best historical years). Test params only — validated params never run live. Apr 20 calibration confirms the backtest engine; validated params forward test confirms the full edge.
+
 ---
 
 ## Cross-Cutting Learnings

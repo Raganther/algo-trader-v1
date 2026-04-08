@@ -3,13 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-08** — chore: add overall status synthesis to observations and research-log — two of three components confirmed, red flags, path to real money
+
+ .claude/memory/observations.md     | 24 ++++++++++++++++++++++++
+ .claude/strategies/research-log.md |  2 ++
+ 2 files changed, 26 insertions(+)
+
+----
 **2026-04-08** — chore: log Apr 6-7 trades, aggressive params backtest, equity curve — update research-log, calibration-notes, observations
 
  .claude/calibration/calibration-notes.md | 30 +++++++++++++-
  .claude/calibration/live-trade-log.md    | 67 ++++++++++++++++++++++++++------
+ .claude/memory/gitlog.md                 | 19 +++++----
  .claude/memory/observations.md           |  4 +-
  .claude/strategies/research-log.md       | 59 +++++++++++++++++++++++++---
- 4 files changed, 139 insertions(+), 21 deletions(-)
+ 5 files changed, 150 insertions(+), 29 deletions(-)
 
 ----
 **2026-04-04** — chore: create research-log.md — back-populate all strategy explorations, cross-cutting learnings, and open research agenda
@@ -64,15 +72,4 @@
  .claude/calibration/live-trade-log.md    |  4 ++--
  .claude/memory/gitlog.md                 | 18 +++++++++---------
  3 files changed, 13 insertions(+), 13 deletions(-)
-
-----
-**2026-04-04** — chore: update strategy domain files and CLAUDE.md with corrected backtest figures post stop-check fix
-
- .claude/memory/gitlog.md                    | 20 ++++++----
- .claude/strategies/stochrsi-enhanced-gdx.md | 22 ++++++-----
- .claude/strategies/stochrsi-enhanced-gld.md | 57 +++++++++++++++--------------
- .claude/strategies/stochrsi-enhanced-iau.md | 30 ++++++++-------
- .claude/strategies/stochrsi-enhanced-slv.md | 22 ++++++-----
- CLAUDE.md                                   |  8 ++--
- 6 files changed, 85 insertions(+), 74 deletions(-)
 
