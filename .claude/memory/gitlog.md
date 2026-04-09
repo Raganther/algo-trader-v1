@@ -3,10 +3,18 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-09** — chore: log Apr 8-9 trades — GLD overnight TS win, SLV SS loss, IAU quick SS loss, 3 overnight carries
+
+ .claude/calibration/live-trade-log.md | 53 +++++++++++++++++++++++++++--------
+ .claude/memory/observations.md        |  2 +-
+ 2 files changed, 43 insertions(+), 12 deletions(-)
+
+----
 **2026-04-09** — chore: rewrite open research agenda — sequenced critical path to real money, expansion items separated
 
+ .claude/memory/gitlog.md           | 27 ++++++++++--------------
  .claude/strategies/research-log.md | 43 +++++++++++++++++++++++++++-----------
- 1 file changed, 31 insertions(+), 12 deletions(-)
+ 2 files changed, 42 insertions(+), 28 deletions(-)
 
 ----
 **2026-04-09** — chore: document portfolio correlation analysis and late-session entry guard — research-log, observations, live-trade-log
@@ -58,14 +66,4 @@
  .claude/strategies/stochrsi-enhanced-gld.md |  2 +-
  CLAUDE.md                                   |  1 +
  4 files changed, 18 insertions(+), 13 deletions(-)
-
-----
-**2026-04-04** — chore: add pre-fix notes to all year-by-year tables across strategy domain files
-
- .claude/memory/gitlog.md                    | 20 +++++++++++---------
- .claude/strategies/stochrsi-enhanced-gdx.md |  2 ++
- .claude/strategies/stochrsi-enhanced-gld.md |  2 ++
- .claude/strategies/stochrsi-enhanced-iau.md |  2 ++
- .claude/strategies/stochrsi-enhanced-slv.md |  2 ++
- 5 files changed, 19 insertions(+), 9 deletions(-)
 
