@@ -267,7 +267,10 @@ GLD/IAU/SLV have the same signal because they track the same underlying. Running
 **7. Asset-specific beta layers change drawdown, not the edge.**
 GDX = gold beta + mining equity beta. XLE = energy beta. Higher volatility assets produce higher DD with the same Sharpe — not a bug, a property of the underlying. Don't retune params to lower DD on volatile assets; accept the DD or size smaller.
 
-**8. Mean-reversion at 15m appears to be a general microstructure pattern.**
+**9. Forward test param design involves a trade-off between trade volume and trail observation.**
+Aggressive params (tight OB/OS, short hold, tight trail) generate high trade volume — useful for verifying execution mechanics quickly. But a trail of 0.5 ATR after 1 bar fires on noise constantly, so you never observe the trail doing what the validated strategy depends on. Three weeks of aggressive params confirmed all infrastructure and exit mechanics, but produced almost no meaningful TS exits — the two exceptions (GDX +3.267, GLD +3.706) only occurred because late-session entries forced overnight holds that accidentally mimicked validated params behaviour. For future strategy forward tests: use aggressive params only for the mechanics verification phase, then switch to validated params as soon as infrastructure is confirmed. Design the two phases explicitly rather than running aggressive params for the entire forward test window.
+
+**10. Mean-reversion at 15m appears to be a general microstructure pattern.**
 Works on precious metals (GLD, IAU, SLV, GDX), energy (XLE), and potentially other liquid ETFs. Fails on broad equity indices (SPY/QQQ/IWM) where momentum dominates at these timeframes. The boundary seems to be: does the asset have natural range-bound behaviour at intraday resolution? Commodities and commodity-linked ETFs: yes. Broad indices: no.
 
 ---

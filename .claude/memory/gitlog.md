@@ -3,11 +3,18 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-09** — chore: add cross-cutting learning — forward test param design trade-off, aggressive vs validated params
+
+ .claude/strategies/research-log.md | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+----
 **2026-04-09** — chore: log Apr 8-9 trades — GLD overnight TS win, SLV SS loss, IAU quick SS loss, 3 overnight carries
 
  .claude/calibration/live-trade-log.md | 53 +++++++++++++++++++++++++++--------
+ .claude/memory/gitlog.md              | 20 ++++++-------
  .claude/memory/observations.md        |  2 +-
- 2 files changed, 43 insertions(+), 12 deletions(-)
+ 3 files changed, 52 insertions(+), 23 deletions(-)
 
 ----
 **2026-04-09** — chore: rewrite open research agenda — sequenced critical path to real money, expansion items separated
@@ -57,13 +64,4 @@
  .claude/calibration/calibration-notes.md |  2 +-
  .claude/memory/gitlog.md                 | 22 +++++++++++-----------
  2 files changed, 12 insertions(+), 12 deletions(-)
-
-----
-**2026-04-04** — chore: sync MEMORY.md, observations, CLAUDE.md and GLD domain file — fix stale exit mechanics and backtest engine status
-
- .claude/memory/gitlog.md                    | 26 ++++++++++++++------------
- .claude/memory/observations.md              |  2 ++
- .claude/strategies/stochrsi-enhanced-gld.md |  2 +-
- CLAUDE.md                                   |  1 +
- 4 files changed, 18 insertions(+), 13 deletions(-)
 
