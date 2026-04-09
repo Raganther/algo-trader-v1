@@ -274,15 +274,34 @@ Works on precious metals (GLD, IAU, SLV, GDX), energy (XLE), and potentially oth
 
 ## Open Research Agenda
 
-Ranked by expected value given current knowledge:
+Sequenced by dependency and priority. Critical path: **1 → 4 → 5**. Items 2 and 3 run in parallel during the validated params forward test window. Items 6–9 are expansion after real money is running.
 
-1. **Validated params forward test (post-Apr-20)** — confirm trail component in live conditions. Required gate before real money.
-2. **Whole-share quantity sizing + short trading** — enables full edge on GLD/IAU/GDX. Significant Sharpe improvement.
-3. **XLE forward test (5th bot)** — confirms generalisation to non-precious-metals asset in live conditions.
-4. **Time-of-day filter** — market open (13:30–14:15 UTC) is consistently most active. Test as explicit param in backtest: does restricting entries to the open window improve Sharpe or reduce it?
-5. **Sector ETF expansion** — apply StochRSI 15m to XLF, XLK, XLV, TLT. Same params, no retuning. Filter: Sharpe ≥ 2.0, WF 4/4, multi-asset.
-6. **Overnight / multi-day hold variant** — the GDX +3.267 multi-day trade outperformed 49 others. Validated params partially capture this. Worth designing an explicit overnight hold strategy variant — possibly tighter entry conditions, wider trail, longer min_hold — that deliberately targets multi-day momentum continuation rather than intraday mean reversion.
-7. **EventSurprise paper test** — CPI-miss signal (86% WR) needs live verification. Low frequency (~3/yr) but clean signal. Run as 5th or 6th bot alongside StochRSI.
-8. **Portfolio correlation analysis** — run all 4 symbols simultaneously on validated params over the full 5-year backtest, align trades on a shared timeline, and tally outcomes of simultaneous positions: all win / all lose / mixed, split by year. This is read-only analysis — no strategy changes, no sizing changes. Purpose: determine empirically how often the theoretical worst case (3× simultaneous full-stop loss) actually occurs, and whether GDX's structural divergence from GLD/IAU/SLV provides natural diversification in practice. Year-by-year split is important — 2022 bear metals regime may show very different correlation behaviour from 2024–2025 bull. This analysis informs whether sizing logic is needed and at what scale. Requires a shared-timeline runner (simpler than full portfolio backtester — read-only, no execution logic). Do this before implementing sizing logic.
+---
 
-9. **Correlation-aware sizing algorithm** — design and implement position sizing logic that reduces per-trade risk when correlated bots are simultaneously in. Exact mechanism (fixed total exposure cap, scaling function, or K-value stagger) to be decided after portfolio correlation analysis confirms the severity. Required before real money. Late-session entry guard (block/halve size when signal fires within ~30 min of close, as DAY stops expire before providing protection) is the simpler companion mechanism — testable with the existing single-symbol engine, no portfolio runner needed.
+### Critical path — required before real money
+
+1. **Switch to validated params (immediate post-Apr-20)** — OB 80/OS 15, hold 10, trail 2.0 ATR after 10 bars, skip Monday. One-line config change per bot. Starts the second clean window needed to confirm the trail component — the only unconfirmed part of the strategy. Nothing downstream moves without this.
+
+2. **Rerun all stale backtests (parallel with forward test)** — long-only Sharpe for all 4 symbols and year-by-year tables, all flagged as pre-Apr-4-fix estimates in strategy domain files. Now that the engine is validated, these become the authoritative numbers. Informs real money sizing and symbol prioritisation.
+
+3. **Portfolio correlation analysis (parallel with forward test)** — run all 4 symbols simultaneously on validated params, 5-year backtest, shared timeline. Tally joint outcomes of simultaneous positions: all win / all lose / mixed, split by year. Read-only — no execution logic, simpler than a full portfolio backtester. Purpose: determine empirically whether the 6% theoretical worst-case exposure (3× simultaneous full-stop loss) is a real risk or a rare edge case, and whether GDX's structural divergence provides natural diversification. Year split matters — 2022 bear metals regime likely shows different correlation behaviour from 2024–2025 bull. Do this before implementing sizing logic.
+
+4. **Correlation-aware sizing + late-session entry guard** — implement once correlation analysis gives the empirical picture. Late-session guard (block/halve size within ~30 min of close — DAY stops expire before providing protection) is the simpler piece, testable with the existing single-symbol engine. Sizing mechanism (fixed total exposure cap vs scaling function) decided after analysis. Both are pre-real-money gates.
+
+5. **First real money deployment** — gate: calibration passed + trail confirmed at validated params + sizing implemented. Start with one symbol, minimal capital. Scale to all four once running cleanly.
+
+---
+
+### Expansion — after real money running
+
+6. **Short trading (whole-share quantity sizing)** — requires implementing whole-share quantity sizing (Alpaca rejects fractional short sells). Unlocks full validated edge on GLD/IAU/GDX — long-only Sharpe is materially weaker on three of four symbols. High value, significant engineering.
+
+7. **XLE as 5th bot** — validated, ready to deploy. Lower priority than getting core 4 bots running at real money. Deploy after sizing logic is confirmed on existing bots.
+
+8. **Time-of-day filter** — market open (13:30–14:15 UTC) is consistently the most active and most profitable window. Test as explicit param: does restricting entries to the open window improve Sharpe or reduce it? Post-calibration backtest experiment.
+
+9. **Overnight / multi-day hold variant** — GDX +3.267 multi-day trade outperformed 49 others combined. Validated params partially capture this. Worth designing an explicit variant with tighter entry conditions, wider trail, longer min_hold — targeting multi-day momentum continuation rather than intraday mean reversion.
+
+10. **EventSurprise paper test** — CPI-miss signal (86% WR, ~3 trades/year) needs live verification. Low frequency but clean signal. Run as a 5th or 6th bot alongside StochRSI after core strategy is confirmed at real money.
+
+11. **Sector ETF expansion** — apply StochRSI 15m to XLF, XLK, XLV, TLT. Same params, no retuning. Filter: Sharpe ≥ 2.0, WF 4/4, multi-asset confirmation.

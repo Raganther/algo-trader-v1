@@ -3,12 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-09** — chore: rewrite open research agenda — sequenced critical path to real money, expansion items separated
+
+ .claude/strategies/research-log.md | 43 +++++++++++++++++++++++++++-----------
+ 1 file changed, 31 insertions(+), 12 deletions(-)
+
+----
 **2026-04-09** — chore: document portfolio correlation analysis and late-session entry guard — research-log, observations, live-trade-log
 
- .claude/calibration/live-trade-log.md | 3 ++-
- .claude/memory/observations.md        | 4 +++-
- .claude/strategies/research-log.md    | 6 ++++--
- 3 files changed, 9 insertions(+), 4 deletions(-)
+ .claude/calibration/live-trade-log.md |  3 ++-
+ .claude/memory/gitlog.md              | 19 ++++++++++---------
+ .claude/memory/observations.md        |  4 +++-
+ .claude/strategies/research-log.md    |  6 ++++--
+ 4 files changed, 19 insertions(+), 13 deletions(-)
 
 ----
 **2026-04-08** — chore: add overall status synthesis to observations and research-log — two of three components confirmed, red flags, path to real money
@@ -61,16 +68,4 @@
  .claude/strategies/stochrsi-enhanced-iau.md |  2 ++
  .claude/strategies/stochrsi-enhanced-slv.md |  2 ++
  5 files changed, 19 insertions(+), 9 deletions(-)
-
-----
-**2026-04-04** — chore: sweep all domain files — fix stale narrative figures post stop-check correction
-
- .claude/memory/gitlog.md                    | 27 +++++++++++++++------------
- .claude/strategies/stochrsi-enhanced-gdx.md |  4 ++--
- .claude/strategies/stochrsi-enhanced-gld.md | 20 ++++++++++----------
- .claude/strategies/stochrsi-enhanced-iau.md |  8 ++++----
- .claude/strategies/stochrsi-enhanced-slv.md |  6 +++---
- .claude/strategies/stochrsi-enhanced-xle.md | 10 +++++-----
- CLAUDE.md                                   |  2 +-
- 7 files changed, 40 insertions(+), 37 deletions(-)
 
