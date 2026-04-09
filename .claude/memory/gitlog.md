@@ -3,11 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-09** — chore: document portfolio correlation analysis and late-session entry guard — research-log, observations, live-trade-log
+
+ .claude/calibration/live-trade-log.md | 3 ++-
+ .claude/memory/observations.md        | 4 +++-
+ .claude/strategies/research-log.md    | 6 ++++--
+ 3 files changed, 9 insertions(+), 4 deletions(-)
+
+----
 **2026-04-08** — chore: add overall status synthesis to observations and research-log — two of three components confirmed, red flags, path to real money
 
+ .claude/memory/gitlog.md           | 21 +++++++++------------
  .claude/memory/observations.md     | 24 ++++++++++++++++++++++++
  .claude/strategies/research-log.md |  2 ++
- 2 files changed, 26 insertions(+)
+ 3 files changed, 35 insertions(+), 12 deletions(-)
 
 ----
 **2026-04-08** — chore: log Apr 6-7 trades, aggressive params backtest, equity curve — update research-log, calibration-notes, observations
@@ -64,12 +73,4 @@
  .claude/strategies/stochrsi-enhanced-xle.md | 10 +++++-----
  CLAUDE.md                                   |  2 +-
  7 files changed, 40 insertions(+), 37 deletions(-)
-
-----
-**2026-04-04** — chore: document stop slippage analysis and K/TS fix in calibration notes
-
- .claude/calibration/calibration-notes.md |  4 ++--
- .claude/calibration/live-trade-log.md    |  4 ++--
- .claude/memory/gitlog.md                 | 18 +++++++++---------
- 3 files changed, 13 insertions(+), 13 deletions(-)
 
