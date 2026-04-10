@@ -3,12 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-10** — chore: add post-Apr-20 regime sizing backtest plan to regime-analysis domain file
+
+ .claude/strategies/regime-analysis.md | 56 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
+
+----
 **2026-04-10** — chore: document regime analysis findings — new domain file, CLAUDE.md updated, observations updated
 
+ .claude/memory/gitlog.md              |  19 +++--
  .claude/memory/observations.md        |   2 +
  .claude/strategies/regime-analysis.md | 154 ++++++++++++++++++++++++++++++++++
  CLAUDE.md                             |   1 +
- 3 files changed, 157 insertions(+)
+ 4 files changed, 167 insertions(+), 9 deletions(-)
 
 ----
 **2026-04-10** — feat: regime classifier — daily bar fetch, RegimeClassifier module, analyse_regimes script
@@ -55,13 +62,4 @@
  .claude/memory/gitlog.md           | 27 ++++++++++--------------
  .claude/strategies/research-log.md | 43 +++++++++++++++++++++++++++-----------
  2 files changed, 42 insertions(+), 28 deletions(-)
-
-----
-**2026-04-09** — chore: document portfolio correlation analysis and late-session entry guard — research-log, observations, live-trade-log
-
- .claude/calibration/live-trade-log.md |  3 ++-
- .claude/memory/gitlog.md              | 19 ++++++++++---------
- .claude/memory/observations.md        |  4 +++-
- .claude/strategies/research-log.md    |  6 ++++--
- 4 files changed, 19 insertions(+), 13 deletions(-)
 
