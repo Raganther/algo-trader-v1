@@ -3,13 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-10** — chore: document regime analysis findings — new domain file, CLAUDE.md updated, observations updated
+
+ .claude/memory/observations.md        |   2 +
+ .claude/strategies/regime-analysis.md | 154 ++++++++++++++++++++++++++++++++++
+ CLAUDE.md                             |   1 +
+ 3 files changed, 157 insertions(+)
+
+----
 **2026-04-10** — feat: regime classifier — daily bar fetch, RegimeClassifier module, analyse_regimes script
 
+ .claude/memory/gitlog.md     |  22 ++++-----
  backend/database.py          |  67 +++++++++++++++++++++++++
  backend/indicators/regime.py | 108 ++++++++++++++++++++++++++++++++++++++++
  scripts/analyse_regimes.py   | 114 +++++++++++++++++++++++++++++++++++++++++++
  scripts/fetch_price_data.py  |  33 ++++++++-----
- 4 files changed, 311 insertions(+), 11 deletions(-)
+ 5 files changed, 322 insertions(+), 22 deletions(-)
 
 ----
 **2026-04-10** — chore: expand regime research agenda — classification engine, downstream enhancements, Stage 3 chart separated
@@ -55,12 +64,4 @@
  .claude/memory/observations.md        |  4 +++-
  .claude/strategies/research-log.md    |  6 ++++--
  4 files changed, 19 insertions(+), 13 deletions(-)
-
-----
-**2026-04-08** — chore: add overall status synthesis to observations and research-log — two of three components confirmed, red flags, path to real money
-
- .claude/memory/gitlog.md           | 21 +++++++++------------
- .claude/memory/observations.md     | 24 ++++++++++++++++++++++++
- .claude/strategies/research-log.md |  2 ++
- 3 files changed, 35 insertions(+), 12 deletions(-)
 
