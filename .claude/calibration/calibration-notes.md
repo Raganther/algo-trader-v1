@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-08
+Status: current | Epistemic: confirmed | Last verified: 2026-04-11
 
 # Calibration Notes — Algo Trader V1
 
@@ -7,8 +7,8 @@ Confirmed methodology for validating the backtest engine against live results.
 ## Plan
 
 ### Active
-- [ ] **Run Apr 20 calibration comparison** — backtest with identical params over Mar 20–Apr 20 window. Compare trade counts (Layer 1), entry/exit prices (Layer 2), stop slippage (Layer 3), aggregate P&L (Layer 4). Commands in Knowledge section. Stop if a layer fails before proceeding to next.
-- [ ] **Apply calibration corrections post-Apr-20** — if spread or slippage models are off, adjust backtest params accordingly before switching to validated params.
+- [ ] **Run calibration Monday/Tuesday (Apr 14–15)** — don't wait until Apr 20. Gate: overnight GLD/SLV/GDX positions from Apr 8 must close first (expected Monday open). Once closed, run backtest over Mar 20–close-of-overnight-positions window. Compare trade counts (Layer 1), entry/exit prices (Layer 2), stop slippage (Layer 3), aggregate P&L (Layer 4). Commands in Knowledge section. Stop if a layer fails before proceeding to next. Sample size (~70–75 completed trades) is sufficient — execution layer checks don't require 100 trades to be conclusive, and the extra week adds marginal statistical confidence that the unusual regime caveat already limits.
+- [ ] **Apply calibration corrections if needed** — if spread or slippage models are off, adjust backtest params accordingly. If all 4 layers pass, no changes needed.
 
 ### Research
 - [ ] **Post-calibration research loop (three phases):** Research (backtest, filter Sharpe > 2 / DD < 3% / WF pass) → Validate (4–8 week forward test, goal is prediction accuracy not profit) → Deploy (real money). Execution layer corrections from Apr 20 apply universally; signal layer needs its own forward test per new strategy.

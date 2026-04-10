@@ -3,13 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-11** — chore: update sequencing — calibration Mon/Tue, whole-share sizing + shorts before validated params, short trading moved to critical path
+
+ .claude/calibration/calibration-notes.md |  6 +++---
+ .claude/memory/observations.md           | 24 +++++++++++++++++-------
+ .claude/strategies/research-log.md       | 18 ++++++++++--------
+ 3 files changed, 30 insertions(+), 18 deletions(-)
+
+----
 **2026-04-10** — chore: domain/memory audit — fix stale stats, duplicate numbering, XLE gate conflict, compress regime items in research-log
 
  .claude/calibration/live-trade-log.md       | 16 ++++++++++++++++
+ .claude/memory/gitlog.md                    | 19 +++++++++++--------
  .claude/memory/observations.md              | 11 ++++++-----
  .claude/strategies/research-log.md          | 25 ++++++++++---------------
  .claude/strategies/stochrsi-enhanced-xle.md |  2 +-
- 4 files changed, 33 insertions(+), 21 deletions(-)
+ 5 files changed, 44 insertions(+), 29 deletions(-)
 
 ----
 **2026-04-10** — chore: add post-Apr-20 regime sizing backtest plan to regime-analysis domain file
@@ -57,12 +66,4 @@
  .claude/memory/gitlog.md           | 18 ++++++++----------
  .claude/strategies/research-log.md |  5 ++++-
  2 files changed, 12 insertions(+), 11 deletions(-)
-
-----
-**2026-04-09** — chore: log Apr 8-9 trades — GLD overnight TS win, SLV SS loss, IAU quick SS loss, 3 overnight carries
-
- .claude/calibration/live-trade-log.md | 53 +++++++++++++++++++++++++++--------
- .claude/memory/gitlog.md              | 20 ++++++-------
- .claude/memory/observations.md        |  2 +-
- 3 files changed, 52 insertions(+), 23 deletions(-)
 

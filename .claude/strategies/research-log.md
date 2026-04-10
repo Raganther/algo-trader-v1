@@ -280,27 +280,29 @@ Works on precious metals (GLD, IAU, SLV, GDX), energy (XLE), and potentially oth
 
 ## Open Research Agenda
 
-Sequenced by dependency and priority. Critical path: **1 → 4 → 5**. Items 2 and 3 run in parallel during the validated params forward test window. Items 6–9 are expansion after real money is running.
+Sequenced by dependency and priority. Critical path: **1 → 2 → 3 → 6**. Items 4 and 5 run in parallel during the validated params forward test window. Items 7–10 are expansion after real money is running.
 
 ---
 
 ### Critical path — required before real money
 
-1. **Switch to validated params (immediate post-Apr-20)** — OB 80/OS 15, hold 10, trail 2.0 ATR after 10 bars, skip Monday. One-line config change per bot. Starts the second clean window needed to confirm the trail component — the only unconfirmed part of the strategy. Nothing downstream moves without this.
+1. **Calibration — run Mon/Tue Apr 14–15** — don't wait until Apr 20. Gate: overnight GLD/SLV/GDX positions close first. Run backtest comparison over clean window (~70–75 trades, sufficient for execution layer validation). See calibration-notes.md for commands and layered framework.
 
-2. **Rerun all stale backtests (parallel with forward test)** — long-only Sharpe for all 4 symbols and year-by-year tables, all flagged as pre-Apr-4-fix estimates in strategy domain files. Now that the engine is validated, these become the authoritative numbers. Informs real money sizing and symbol prioritisation.
+2. **Whole-share sizing + short broker code** — implement immediately after calibration passes. Position sizing: `floor(risk_budget / stop_distance) = whole shares`. Broker code: audit `live_broker.py` for direction-aware stop placement, trail ratcheting, and exit order type on the short side. Short signal code already exists and is blocked — unblock once sizing is in place. No intermediate parameter phase needed to verify short mechanics.
 
-3. **Portfolio correlation analysis (parallel with forward test)** — run all 4 symbols simultaneously on validated params, 5-year backtest, shared timeline. Tally joint outcomes of simultaneous positions: all win / all lose / mixed, split by year. Read-only — no execution logic, simpler than a full portfolio backtester. Purpose: determine empirically whether the 6% theoretical worst-case exposure (3× simultaneous full-stop loss) is a real risk or a rare edge case, and whether GDX's structural divergence provides natural diversification. Year split matters — 2022 bear metals regime likely shows different correlation behaviour from 2024–2025 bull. Do this before implementing sizing logic.
+3. **Switch to validated params with shorts enabled** — OB 80/OS 15, hold 10, trail 2.0 ATR after 10 bars, skip Monday. Deploy immediately after item 2. Starts the second clean window (confirms trail component) and the short verification window simultaneously. Expected ~3–4 short trades/week across 4 symbols — 2 weeks sufficient to confirm short mechanics. Short verification is simpler than long mechanics verification at launch (4 things to verify vs 7+): short fills correctly, stop above entry, trail ratchets downward, exit closes cleanly.
 
-4. **Correlation-aware sizing + late-session entry guard** — implement once correlation analysis gives the empirical picture. Late-session guard (block/halve size within ~30 min of close — DAY stops expire before providing protection) is the simpler piece, testable with the existing single-symbol engine. Sizing mechanism (fixed total exposure cap vs scaling function) decided after analysis. Both are pre-real-money gates.
+4. **Rerun all stale backtests (parallel with forward test)** — long-only and full Sharpe for all 4 symbols, year-by-year tables, flagged as pre-Apr-4-fix estimates in strategy domain files. Run with corrected engine post-calibration. Informs real money sizing and symbol prioritisation.
 
-5. **First real money deployment** — gate: calibration passed + trail confirmed at validated params + sizing implemented. Start with one symbol, minimal capital. Scale to all four once running cleanly.
+5. **Portfolio correlation analysis (parallel with forward test)** — run all 4 symbols simultaneously on validated params, 5-year backtest, shared timeline. Tally joint outcomes: all win / all lose / mixed, split by year. Purpose: determine empirically whether 6% theoretical worst-case exposure is a real risk, and whether GDX's structural divergence provides natural diversification. Do before implementing sizing logic.
+
+6. **Correlation-aware sizing + late-session entry guard** — implement once correlation analysis gives the empirical picture. Late-session guard (block/halve size within ~30 min of close) is the simpler piece. Sizing mechanism decided after analysis. Both are pre-real-money gates.
+
+7. **First real money deployment** — gate: calibration passed + trail confirmed + short mechanics confirmed + sizing implemented. Start with one symbol, minimal capital. Scale to all four once running cleanly.
 
 ---
 
 ### Expansion — after real money running
-
-6. **Short trading (whole-share quantity sizing)** — requires implementing whole-share quantity sizing (Alpaca rejects fractional short sells). Unlocks full validated edge on GLD/IAU/GDX — long-only Sharpe is materially weaker on three of four symbols. High value, significant engineering.
 
 7. **XLE as 5th bot** — validated, ready to deploy. Lower priority than getting core 4 bots running at real money. Deploy after sizing logic is confirmed on existing bots.
 

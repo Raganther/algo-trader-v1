@@ -29,13 +29,23 @@ Path to real money: Apr 20 calibration → switch to validated params → second
 
 ## Active Work
 
-1. **Calibration comparison — Apr 20** — run backtest with identical params over Mar 20–Apr 20 window, compare trade counts, entry/exit prices, aggregate P&L. See `## Plan` in `.claude/calibration/calibration-notes.md`.
-2. **Chart trade overlays (Stage 2)** — fetch entries/exits from `live_trade_log`, plot markers on chart (entry, exit, stop level), toggle live vs backtest. No domain file yet.
-3. **Post-Apr-20: switch to validated params** — OB 80/OS 15, hold 10, trail 10, skip Monday. Affects all 4 bots. See strategy domain files.
-4. **Post-real-money: XLE forward test** — deploy as 5th paper bot after calibration + trail confirmed + sizing implemented. Lower priority than core 4 bots at real money. See `## Plan` in `.claude/strategies/stochrsi-enhanced-xle.md`.
-5. **Post-Apr-20: portfolio correlation analysis** — run all 4 symbols on validated params simultaneously, align on shared timeline, tally joint outcomes of simultaneous positions (all win / all lose / mixed) split by year. Read-only — no execution logic needed, simpler than full portfolio backtester. Informs whether correlation-aware sizing is needed and at what scale. Do this before implementing sizing logic.
-6. **Post-Apr-20: regime-aware sizing** — regime classifier built and working (`backend/indicators/regime.py`, `scripts/analyse_regimes.py`). Daily bars stored in `price_data_daily`. Next step: tag backtest trades with entry regime, compute per-regime P&L to validate sizing rationale empirically. Then implement live regime detection + dynamic sizing in `live_broker.py`. See `.claude/strategies/regime-analysis.md`.
-7. **Short trading deferred** — Alpaca rejects fractional short sells. Long-only until capital supports whole-share sizing.
+### Critical path — sequenced
+
+1. **Calibration — run Mon/Tue Apr 14–15** — gate: overnight GLD/SLV/GDX positions must close first. Once closed, run backtest comparison over the clean window. See `## Plan` in `.claude/calibration/calibration-notes.md`. Sample size (~70–75 trades) is sufficient — don't wait until Apr 20.
+
+2. **Whole-share sizing + short broker code** — implement immediately after calibration passes. Two parts: (1) position sizing: `floor(risk_budget / stop_distance) = whole shares` replacing fractional allocation; (2) audit `live_broker.py` for direction-aware logic — stop placement, trail ratcheting, and exit order type all need to handle short side. Short signal code already exists and is blocked in `live_broker.py` — unblock once sizing is in place. One day's work, needs to be done carefully (a stop placed in the wrong direction on a short is catastrophic).
+
+3. **Switch to validated params with shorts enabled** — OB 80/OS 15, hold 10, trail 2.0 ATR after 10 bars, skip Monday. Do this immediately after sizing + short code is confirmed. No intermediate parameter phase needed — short mechanics verification is simpler than long (only 4 things to verify vs 7+ at launch). Expect ~3–4 short trades/week across 4 symbols on validated params — 2 weeks sufficient to confirm short mechanics. This starts the second clean window needed to confirm the trail component (the only unconfirmed part of the strategy).
+
+4. **Portfolio correlation analysis** — run all 4 symbols on validated params simultaneously, shared timeline, tally joint outcomes split by year. Read-only, no execution logic. Do before implementing correlation-aware sizing. Can run in parallel with the validated params forward test window.
+
+5. **Regime-aware sizing** — regime classifier built (`backend/indicators/regime.py`, `scripts/analyse_regimes.py`). Next: build shared-timeline portfolio runner (same piece needed for correlation analysis), tag trades with entry regime, run comparison matrix. See `.claude/strategies/regime-analysis.md`.
+
+### Parallel / lower priority
+
+6. **Chart trade overlays (Stage 2)** — fetch entries/exits from `live_trade_log`, plot markers on chart. No blockers, can be done anytime.
+
+7. **Post-real-money: XLE forward test** — deploy as 5th paper bot after calibration + trail confirmed + sizing implemented. Lower priority than core 4 bots at real money. See `## Plan` in `.claude/strategies/stochrsi-enhanced-xle.md`.
 
 ## Staging
 
