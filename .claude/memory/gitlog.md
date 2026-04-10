@@ -3,10 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-10** — chore: domain/memory audit — fix stale stats, duplicate numbering, XLE gate conflict, compress regime items in research-log
+
+ .claude/calibration/live-trade-log.md       | 16 ++++++++++++++++
+ .claude/memory/observations.md              | 11 ++++++-----
+ .claude/strategies/research-log.md          | 25 ++++++++++---------------
+ .claude/strategies/stochrsi-enhanced-xle.md |  2 +-
+ 4 files changed, 33 insertions(+), 21 deletions(-)
+
+----
 **2026-04-10** — chore: add post-Apr-20 regime sizing backtest plan to regime-analysis domain file
 
+ .claude/memory/gitlog.md              | 18 +++++------
  .claude/strategies/regime-analysis.md | 56 +++++++++++++++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
+ 2 files changed, 64 insertions(+), 10 deletions(-)
 
 ----
 **2026-04-10** — chore: document regime analysis findings — new domain file, CLAUDE.md updated, observations updated
@@ -55,11 +65,4 @@
  .claude/memory/gitlog.md              | 20 ++++++-------
  .claude/memory/observations.md        |  2 +-
  3 files changed, 52 insertions(+), 23 deletions(-)
-
-----
-**2026-04-09** — chore: rewrite open research agenda — sequenced critical path to real money, expansion items separated
-
- .claude/memory/gitlog.md           | 27 ++++++++++--------------
- .claude/strategies/research-log.md | 43 +++++++++++++++++++++++++++-----------
- 2 files changed, 42 insertions(+), 28 deletions(-)
 

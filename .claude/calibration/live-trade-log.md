@@ -310,6 +310,22 @@ Weekend — market closed.
 
 *1 completed trade (IAU SS loss). GLD/SLV/GDX all in profit overnight — metals strong on the day.*
 
+### 2026-04-10
+
+**Audit status:** PARTIAL — Alpaca MCP verified, pm2/DB audit pending
+
+*Note: GLD/SLV/GDX carried overnight from Apr 9 — stops re-placed at open. IAU had two complete trade cycles in one session. GLD/SLV/GDX all still open at close — carrying into Monday Apr 13.*
+
+| Bot | Entry time (UTC) | Entry $ | Exit time (UTC) | Exit $ | Exit type | Stop level at exit | P&L/share | Notes |
+|-----|-----------------|---------|-----------------|--------|-----------|-------------------|-----------|-------|
+| iau-test | 14:16:33 | 90.010 | 14:42:49 | 90.060 | SS | 90.07 | +0.050 | Stop placed 89.69, ratcheted to 90.07 (1×, 14:31). Server stop fired just below stop level. Slippage: -0.010 |
+| iau-test | 18:32:41 | 89.750 | 19:27:04 | 89.730 | K | - | -0.020 | Stop ratcheted 89.36→89.63→89.64→89.68 (3×) in final 35 min. K-exit near entry — effectively flat. |
+| gld-test | Apr 8 19:46 | 433.892 | OPEN | — | — | — | — | Overnight carry. Unrealized +$2.26/share at close ($436.15). |
+| slv-test | Apr 8 19:46 | 67.370 | OPEN | — | — | — | — | Overnight carry. Unrealized +$1.33/share at close ($68.70). |
+| gdx-test | Apr 8 19:46 | 97.640 | OPEN | — | — | — | — | Overnight carry. Unrealized +$1.39/share at close ($99.03). |
+
+*2 completed IAU trades: T1 tiny SS win (+$0.05), T2 K-exit near-flat (-$0.02). IAU re-entered same session after stop exit — two full cycles in one day. GLD/SLV/GDX all still in profit carrying into weekend.*
+
 ## Open Questions
 
 - **Time-of-day filter** — market open (13:31–14:15 UTC) is consistently the most active and most profitable window. Whether this is a persistent edge or regime-specific (post-crash recovery bouncing at open) is unknown. Worth testing as an explicit parameter in backtest after Apr 20.

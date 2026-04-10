@@ -224,9 +224,9 @@ Validated params extract 4–8× more return with fewer trades and lower or comp
 - Trading hours not applied: backtest processing pre/post-market bars without `trading_hours:[13.5,20]`
 
 **Live signal findings:**
-- **K-exit win rate: 76%** (updated Apr 8, 62 trades) — confirms entry + K-exit has genuine alpha in live conditions. Slight dip from 80% as some K-exits on choppy days closed near entry. Still strongly positive.
-- **TS win rate: 15%** (updated Apr 8, 62 trades) — by design at test params. 0.5 ATR trail fires on noise before position moves. Not informative about the validated strategy.
-- **K/TS split: exactly 50/50** — matches backtest post-fix.
+- **K-exit win rate: 76%** (updated Apr 10, 67 completed trades) — confirms entry + K-exit has genuine alpha in live conditions. Slight dip from 80% as some K-exits on choppy days closed near entry. Still strongly positive.
+- **TS win rate: ~17%** (updated Apr 10, 67 completed trades) — by design at test params. 0.5 ATR trail fires on noise before position moves. Not informative about the validated strategy.
+- **K/TS split: approximately 50/50** — matches backtest post-fix.
 - **GDX consistently weakest** (initially 42%, recovered to 50% after Apr 6 active day — 3 trades including 2 K-exit winners) — partly regime (oil spike, mining cost margin compression during Iran conflict), partly structural (extra beta layer).
 - **Correlated simultaneous entries:** GLD/IAU/SLV enter within seconds multiple times per week. With 2% risk per trade, 3 simultaneous entries = 6% portfolio in one correlated move. Requires correlation-aware position sizing before real money.
 - **Market open is most active window** (13:30–14:15 UTC). Most profitable K-exit days start here. Whether persistent edge or regime-specific bounce pattern is unknown — test as explicit time-of-day filter post-calibration.
@@ -261,10 +261,13 @@ Trading mean-reversion into a trending market is the primary failure mode. ADX 2
 **5. The trailing stop defines the strategy's character.**
 A tight trail (0.5 ATR) = noise-driven stop. A wide trail (2.0 ATR, after 10 bars) = position management tool that captures extended moves. These are completely different strategies wearing the same name. Win rate at 43% is acceptable when winners are 3–5x larger — that's the trail working as designed.
 
-**6. Correlation is a sizing problem, not a signal problem.**
+**6. Current sizing is equal capital allocation, not risk-based.**
+The bot splits account equity equally across symbols (~25% per position) and deploys the full amount. Risk per trade is not fixed — it varies with ATR on the day (stop distance × position size). A more rigorous approach — ATR-based position sizing — would work backwards from a fixed max risk (e.g. 1% of account) and calculate share count from stop distance. This keeps risk per trade constant regardless of volatility. Not currently implemented — it's a post-calibration enhancement. Also relevant: at $99k paper balance, whole-share sizing is essentially as precise as fractional (1 GLD share = 0.44% of account). The case for fractional shares is at real-money starting capital (€100) where whole shares are impractical.
+
+**7. Correlation is a sizing problem, not a signal problem.**
 GLD/IAU/SLV have the same signal because they track the same underlying. Running all three simultaneously isn't three independent bets — it's one bet with 3x size. Correlation-aware position sizing (reduce per-trade risk when 3+ correlated bots in simultaneously) is required before real money. But before implementing sizing logic, run the portfolio correlation analysis (see Open Research Agenda) — the data may show the compounding loss risk is less severe than the theoretical maximum, or that GDX's structural divergence provides natural diversification.
 
-**7. Asset-specific beta layers change drawdown, not the edge.**
+**8. Asset-specific beta layers change drawdown, not the edge.**
 GDX = gold beta + mining equity beta. XLE = energy beta. Higher volatility assets produce higher DD with the same Sharpe — not a bug, a property of the underlying. Don't retune params to lower DD on volatile assets; accept the DD or size smaller.
 
 **9. Forward test param design involves a trade-off between trade volume and trail observation.**
@@ -309,14 +312,6 @@ Sequenced by dependency and priority. Critical path: **1 → 4 → 5**. Items 2 
 
 11. **Sector ETF expansion** — apply StochRSI 15m to XLF, XLK, XLV, TLT. Same params, no retuning. Filter: Sharpe ≥ 2.0, WF 4/4, multi-asset confirmation.
 
-12. **Regime classification engine** — classify every bar in the 5-year dataset into a market regime using existing indicators (ADX, SMA, ATR). Four regimes: trending up (ADX > 25, price above 200 SMA), trending down (ADX > 25, price below 200 SMA), ranging (ADX < 20), high volatility (ATR spike). Then: (1) tag each backtest trade with its entry regime and compute win rate / Sharpe / avg P&L per regime — tells you empirically when the strategy works and when it doesn't; (2) compute regime duration statistics and a transition probability matrix (Markov chain) — average duration per regime, probability of transitioning to each other regime in the next N bars, current regime age vs historical average. Buildable with existing price data and indicators. Primary value is regime-aware decision-making — not hard prediction. Caveat: transition probabilities are historical frequencies, not guarantees. This engine unlocks several downstream capabilities (see item 13).
+12. **Regime classification + enhancements** — **BUILT (Apr 10).** Classifier implemented (`backend/indicators/regime.py`, `scripts/analyse_regimes.py`). Findings, sizing framework, downstream enhancement roadmap, and post-Apr-20 backtest plan all documented in `.claude/strategies/regime-analysis.md`. Next step post-calibration: build the shared-timeline portfolio runner (needed for both correlation analysis and regime backtest), then tag trades with entry regime to validate sizing rationale empirically.
 
-13. **Regime-aware strategy enhancements** — once the regime classifier exists, it unlocks multiple improvements that all share the same foundation:
-    - **Refined entry filter** — only enter when ranging regime has been established for X+ bars, not just started. A freshly-entered ranging period may still be transitioning; an established one is more reliable for mean reversion.
-    - **Dynamic position sizing by regime** — size up in high-probability regimes (historically high win rate), size down in low-probability ones. Works alongside correlation-aware sizing — two independent sizing dimensions.
-    - **Drawdown early warning** — worst backtest periods (2020 COVID, high-volatility sessions) are all identifiable regime types. Auto-reduce size or pause bot when entering a historically bad regime before drawdown accumulates.
-    - **Strategy switching** — StochRSI mean reversion suits ranging regimes; a trend-following or momentum strategy suits strong-trend regimes. Regime classifier is the trigger for switching strategies rather than sitting out. EventSurprise (already built) is regime-agnostic and could run continuously alongside.
-    - **Multi-timeframe regime context** — classify regime at daily or 1h timeframe, use as context filter on 15m signals. Ranging 15m inside daily uptrend is a different setup from ranging 15m inside daily downtrend. Current strategy ignores higher-timeframe context entirely.
-    - **Calibration regime attribution** — when comparing backtest vs live, break performance down by regime rather than aggregate. Distinguishes genuine edge from regime luck.
-
-14. **Regime frontend (Stage 3 chart)** — visualisation layer on top of the regime engine. 5-year price chart with background shading by regime, trade entry/exit markers overlaid (Stage 2), live panel showing current regime + duration + transition probability. Comes after Stage 2 (trade overlays) and after the regime engine is built.
+13. **Regime frontend (Stage 3 chart)** — visualisation layer on top of the regime engine. 5-year price chart with background shading by regime, trade entry/exit markers overlaid (Stage 2), live panel showing current regime + duration + transition probability. Comes after Stage 2 (trade overlays).
