@@ -3,10 +3,17 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-10** — chore: expand regime research agenda — classification engine, downstream enhancements, Stage 3 chart separated
+
+ .claude/strategies/research-log.md | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+----
 **2026-04-09** — chore: add regime analysis and probability engine to research agenda — regime classification, transition matrix, Stage 3 chart
 
- .claude/strategies/research-log.md | 2 ++
- 1 file changed, 2 insertions(+)
+ .claude/memory/gitlog.md           | 18 +++++++++---------
+ .claude/strategies/research-log.md |  2 ++
+ 2 files changed, 11 insertions(+), 9 deletions(-)
 
 ----
 **2026-04-09** — chore: add cross-cutting learning — forward test param design trade-off, aggressive vs validated params
@@ -56,12 +63,4 @@
  .claude/memory/observations.md           |  4 +-
  .claude/strategies/research-log.md       | 59 +++++++++++++++++++++++++---
  5 files changed, 150 insertions(+), 29 deletions(-)
-
-----
-**2026-04-04** — chore: create research-log.md — back-populate all strategy explorations, cross-cutting learnings, and open research agenda
-
- .claude/memory/gitlog.md           |  19 +--
- .claude/strategies/research-log.md | 237 +++++++++++++++++++++++++++++++++++++
- CLAUDE.md                          |   1 +
- 3 files changed, 248 insertions(+), 9 deletions(-)
 
