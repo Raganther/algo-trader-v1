@@ -3,10 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-10** — feat: regime classifier — daily bar fetch, RegimeClassifier module, analyse_regimes script
+
+ backend/database.py          |  67 +++++++++++++++++++++++++
+ backend/indicators/regime.py | 108 ++++++++++++++++++++++++++++++++++++++++
+ scripts/analyse_regimes.py   | 114 +++++++++++++++++++++++++++++++++++++++++++
+ scripts/fetch_price_data.py  |  33 ++++++++-----
+ 4 files changed, 311 insertions(+), 11 deletions(-)
+
+----
 **2026-04-10** — chore: expand regime research agenda — classification engine, downstream enhancements, Stage 3 chart separated
 
+ .claude/memory/gitlog.md           | 19 +++++++++----------
  .claude/strategies/research-log.md | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ 2 files changed, 20 insertions(+), 11 deletions(-)
 
 ----
 **2026-04-09** — chore: add regime analysis and probability engine to research agenda — regime classification, transition matrix, Stage 3 chart
@@ -53,14 +63,4 @@
  .claude/memory/observations.md     | 24 ++++++++++++++++++++++++
  .claude/strategies/research-log.md |  2 ++
  3 files changed, 35 insertions(+), 12 deletions(-)
-
-----
-**2026-04-08** — chore: log Apr 6-7 trades, aggressive params backtest, equity curve — update research-log, calibration-notes, observations
-
- .claude/calibration/calibration-notes.md | 30 +++++++++++++-
- .claude/calibration/live-trade-log.md    | 67 ++++++++++++++++++++++++++------
- .claude/memory/gitlog.md                 | 19 +++++----
- .claude/memory/observations.md           |  4 +-
- .claude/strategies/research-log.md       | 59 +++++++++++++++++++++++++---
- 5 files changed, 150 insertions(+), 29 deletions(-)
 

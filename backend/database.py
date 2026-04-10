@@ -122,6 +122,22 @@ class DatabaseManager:
         ''')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_price_data_symbol_ts ON price_data(symbol, timestamp)')
 
+        # 5b. Daily Price Data Table (for regime classification — separate from 15m to avoid timestamp conflicts)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS price_data_daily (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                symbol TEXT NOT NULL,
+                timestamp INTEGER NOT NULL,
+                open REAL NOT NULL,
+                high REAL NOT NULL,
+                low REAL NOT NULL,
+                close REAL NOT NULL,
+                volume REAL NOT NULL,
+                UNIQUE(symbol, timestamp)
+            )
+        ''')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_price_data_daily_symbol_ts ON price_data_daily(symbol, timestamp)')
+
         # 6. Experiments Table (Strategy Discovery Engine — clean, separate from test_runs)
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS experiments (
@@ -485,6 +501,57 @@ class DatabaseManager:
         cursor = conn.cursor()
         cursor.execute(
             'SELECT MIN(timestamp), MAX(timestamp), COUNT(*) FROM price_data WHERE symbol = ?',
+            (symbol,)
+        )
+        row = cursor.fetchone()
+        conn.close()
+        return row if row else (None, None, 0)
+
+    def save_daily_bars(self, symbol, df):
+        """Upserts daily OHLCV bars. df must have DatetimeIndex and Open/High/Low/Close/Volume columns."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        rows = []
+        for ts, row in df.iterrows():
+            unix_ts = int(pd.Timestamp(ts).timestamp())
+            rows.append((symbol, unix_ts, row['Open'], row['High'], row['Low'], row['Close'], row['Volume']))
+        cursor.executemany('''
+            INSERT OR IGNORE INTO price_data_daily (symbol, timestamp, open, high, low, close, volume)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', rows)
+        conn.commit()
+        conn.close()
+        return len(rows)
+
+    def get_daily_bars(self, symbol, start_ts=None, end_ts=None):
+        """Returns daily OHLCV bars for a symbol as a DataFrame."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        query = 'SELECT timestamp, open, high, low, close, volume FROM price_data_daily WHERE symbol = ?'
+        params = [symbol]
+        if start_ts:
+            query += ' AND timestamp >= ?'
+            params.append(start_ts)
+        if end_ts:
+            query += ' AND timestamp <= ?'
+            params.append(end_ts)
+        query += ' ORDER BY timestamp ASC'
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        conn.close()
+        if not rows:
+            return pd.DataFrame()
+        df = pd.DataFrame(rows, columns=['timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
+        df.index = pd.to_datetime(df['timestamp'], unit='s', utc=True)
+        df.drop(columns=['timestamp'], inplace=True)
+        return df
+
+    def get_daily_bars_range(self, symbol):
+        """Returns (min_ts, max_ts, count) for a symbol in price_data_daily."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            'SELECT MIN(timestamp), MAX(timestamp), COUNT(*) FROM price_data_daily WHERE symbol = ?',
             (symbol,)
         )
         row = cursor.fetchone()
