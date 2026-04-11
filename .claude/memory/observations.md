@@ -3,7 +3,7 @@ Staging area for new topics and cross-domain coordination.
 
 ---
 
-## Overall Status (Apr 10 2026)
+## Overall Status (Apr 11 2026)
 
 **Two of three strategy components confirmed live. One regime. Test params.**
 
@@ -23,7 +23,7 @@ Key red flags to track:
 - **Correlated entries** — GLD/IAU/SLV enter simultaneously. 2% risk × 3 = 6% in one correlated move. Pre-real-money requirement: correlation-aware sizing.
 - **Slippage spikes on volatile days** — median $0.010/share but outliers at $0.140 and $0.297. Not modelled in backtest.
 
-Path to real money: Apr 20 calibration → switch to validated params → second clean window (confirm trail) → short trading (requires whole-share sizing).
+Path to real money: calibration (Mon/Tue Apr 14–15) → whole-share sizing + short broker code → validated params with shorts → second clean window (confirm trail + short mechanics) → real money.
 
 ---
 
@@ -49,7 +49,7 @@ Path to real money: Apr 20 calibration → switch to validated params → second
 
 ## Staging
 
-- **SLV 2026 HIGH_VOL anomaly** — SLV showing 49% HIGH_VOL in 2026 vs 22% for GLD/GDX. Likely the fixed ATR multiplier (1.5×) is too sensitive for SLV's naturally higher volatility. Consider symbol-specific ATR thresholds or normalising ATR as % of price before implementing live regime detection. See regime-analysis.md.
+- **SLV 2026 HIGH_VOL anomaly** — SLV showing 27.7% HIGH_VOL in 2026 vs 17% for GLD — still the highest in the dataset but less extreme than earlier estimate (prior 49% figure was from Alpaca-only 5.5yr window, now corrected with 20yr Yahoo Finance data). Silver's naturally higher volatility still makes the fixed ATR multiplier (1.5×) more sensitive for SLV. Consider symbol-specific ATR thresholds before implementing live regime detection. See regime-analysis.md.
 - **ATR-based position sizing (post-calibration enhancement)** — current sizing deploys equal capital per symbol (~25% of account). Risk per trade is not fixed — it varies with ATR on the day. ATR-based sizing would back-calculate share count from a fixed max risk % (e.g. 1% of account ÷ stop distance = shares to buy). Normalises risk per trade across volatile and calm sessions. Implement post-Apr-20 alongside correlation-aware sizing — both are pre-real-money requirements. Also unlocks GTC stops (whole-share sizing removes Alpaca's fractional short/GTC restriction). See research-log.md cross-cutting learning #6.
 - **Late-session entry guard** — block or halve position size when entry signal fires within ~30 min of market close. DAY stops expire before providing meaningful intraday protection; position carries overnight naked until bot re-places stop at open. Testable with existing single-symbol engine (simple time condition in `on_bar()`). Pre-real-money requirement alongside correlation-aware sizing. Implement after correlation analysis.
 - **"Phantom sell"** — every session, bots log `⚠️ SELL skipped: no open position`. Not a duplicate exit — it's a blocked short entry attempt. K above OB (60) → `in_overbought_zone = True` → K drops below 50 → `sell()` fires → `live_broker.py` blocks it (fractional short unsupported) → misleading warning logged. State stays clean after block. `in_overbought_zone` resets to False. Two issues: (1) warning says "duplicate exit" — should say "blocked short entry"; (2) `current_sl` set to short stop value before block — stale but harmless. Both resolve when whole-share sizing added. No domain file yet.

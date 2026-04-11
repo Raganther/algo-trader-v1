@@ -60,8 +60,10 @@ gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="cd algo-trade
 # Discovery engine
 python -m backend.optimizer.run_overnight [--scan|--quick|--medium] [--max-hours N] [--symbols X,Y]
 
-# Fetch historical price data (run once, then as needed to sync)
+# Fetch historical price data — Alpaca (recent, Jul 2020 onward)
 python3 scripts/fetch_price_data.py --symbols GLD,IAU,SLV,GDX --start 2020-01-01
+# Fetch historical price data — Yahoo Finance (full history back to ETF inception, daily bars only)
+python3 scripts/fetch_price_data_yfinance.py
 ```
 
 ## Architecture
@@ -86,7 +88,7 @@ Price action chart live at `/chart` — Stage 1 complete (candlestick chart, sym
 UI redesigned: Inter font, shared sidebar nav, max-width constraints, consistent page structure.
 Stage 2 next: trade overlays on chart.
 Aggressive test params (OB 60/OS 40, 3-bar hold/trail) to generate more trades for mechanics verification.
-~3 weeks of live testing complete (started late Feb). All bots active: GDX started trading Mar 16 after zero trades previously.
+~7 weeks of live testing complete (started late Feb). All bots active: GDX started trading Mar 16 after zero trades previously.
 Mar 16: full Alpaca order audit — all records match perfectly. 6 complete trades across 4 bots, 2 server stops fired, trailing stops ratcheted.
 Pre-market signal bug found and fixed Mar 16 (market hours gate, runner.py).
 Mar 17: 4 trades across all bots. Full Alpaca audit — all records matched. GDX server stop fired intrabar (19:06 UTC) — confirmed again. Trailing stop firing in profit still unconfirmed. Trail params tightened (trail_atr 2.0→0.5, trail_after_bars 3→1) to provoke trail fire.
