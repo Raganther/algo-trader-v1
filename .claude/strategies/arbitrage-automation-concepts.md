@@ -363,6 +363,150 @@ platforms with a profitable gap.
 - **Prediction markets:** Metaculus superforecasters consistently beat naive prediction markets
   on low-information events. Edge = better prior calibration + faster Bayesian updating.
 
+---
+
+## Polymarket — Statistical Edge Domains
+
+Polymarket is a decentralised global prediction market (Polygon blockchain, USDC currency).
+No geographic restrictions like Kalshi. Public API. Accessible from Ireland.
+Key filter for viable domains: **rich historical data exists that the crowd isn't fully pricing in.**
+
+### What Makes a Domain Viable on Polymarket
+
+1. Rich public historical data — decades of outcomes to backtest against
+2. A quantifiable base rate — probability of X is calculable from history
+3. Crowd mispricing — market prices naive consensus, not calibrated statistical model
+4. Regime conditioning — some external state shifts the base rate in predictable ways
+
+---
+
+### Domain 1 — Economics / Macro (Build This)
+**Data:** FRED database, BLS, BEA — 50+ years of CPI, NFP, GDP, Fed decisions, all free.
+Consensus forecasts published before every release (public aggregators).
+
+**Edge:**
+- Market prices the consensus. Model prices the *surprise delta* — how often actual beats/misses
+  consensus by more than X. Serial correlation in Fed decisions — if held in March, high base rate
+  for June. Inflation mean-reverts over cycles — statistically modelable.
+- Directly mirrors our `event_surprise.py` strategy, applied to Polymarket instead of GLD price.
+
+**Example markets:** Will CPI exceed X% in April? Will Fed cut in June? Will US enter recession?
+
+**Verdict: Strong. Build alongside weather.**
+
+---
+
+### Domain 2 — Weather (Build This)
+See full section above. NOAA, ERA5, ENSO regime conditioning. Best non-trading candidate.
+
+**Verdict: Strong. 2–5 year edge window before market matures.**
+
+---
+
+### Domain 3 — Epidemiology / Public Health
+**Data:** CDC, WHO, ECDC — weekly case counts, hospitalisation rates, 20+ years of flu data.
+Seasonal patterns are highly statistically regular.
+
+**Edge:**
+- Flu season peaks predictable within 3-week window using historical base rates + current trajectory
+- Crowd overreacts to early season spikes, underprices late-season tail risk
+- ENSO affects flu season severity — same regime conditioning as weather
+
+**Example markets:** Will WHO declare a new emergency? Will flu hospitalisations exceed X?
+
+**Verdict: Medium-strong. Low competition. Requires epidemiology domain knowledge.**
+
+---
+
+### Domain 4 — Sports
+**Data:** FBref, Understat, StatsBomb open data — every match result, xG, player stats, injuries.
+
+**Edge:** Better xG model → mispriced match outcomes. Injury information not yet priced.
+Home/away form under specific conditions (weather, altitude, travel fatigue).
+
+**Verdict: Medium but crowded. Sophisticated bettors already use xG. Edge decays fast.**
+
+---
+
+### Domain 5 — Technology Milestones
+**Data:** Papers With Code (AI benchmarks), semiconductor roadmaps, patent filings.
+
+**Edge:**
+- AI capability follows predictable scaling laws (compute × data → capability)
+- Historical roadmap slippage rates for chip manufacturing are well-documented
+- Researchers with domain expertise consistently beat crowd on milestone timing
+
+**Example markets:** Will GPT-5 release before X? Will AI hit benchmark Y by date Z?
+
+**Verdict: Medium. Requires deep domain expertise. Low competition.**
+
+---
+
+### Domain 6 — Geopolitics / Conflict
+**Data:** ACLED (conflict events 1997–present), GDELT (global news, daily), historical ceasefire patterns.
+
+**Edge:** Conflict escalation follows statistical patterns (power laws). Academic models outperform crowd.
+**Caveat:** Single unexpected decision breaks any model. High tail risk.
+
+**Verdict: Weak-medium. Too much noise. Avoid until other domains proven.**
+
+---
+
+### Domain 7 — Elections / Politics
+**Data:** 100+ years of polling, electoral history, economic voting models.
+
+**Edge:** Systematic polling bias corrections. Economic fundamentals models outperform polls 12+ months out.
+**Caveat:** Most competed domain on Polymarket. Billions traded in 2024 US election. Edge very thin.
+
+**Verdict: Avoid. Too crowded.**
+
+---
+
+### Domain 8 — Astronomy / Natural Events (Underexplored)
+**Data:** NASA JPL orbital mechanics (deterministic), USGS earthquake frequency, solar cycle records 400yr.
+
+**Edge:**
+- Astronomical events are deterministic — crowd misprices certainties
+- Earthquake probability in a region is calculable — crowd uses availability bias
+- Almost nobody building models here — least competed domain on the platform
+
+**Example markets:** Will solar flare cause X disruption? Will magnitude 7+ quake hit X region?
+
+**Verdict: Niche, thin liquidity — but potentially least competed edge available.**
+
+---
+
+### Polymarket Domain Rankings
+
+| Domain | Data quality | Edge strength | Competition | Verdict |
+|--------|-------------|---------------|-------------|---------|
+| Economics / macro | Excellent | Strong | Medium | Build this |
+| Weather | Excellent | Strong | Low | Build this |
+| Epidemiology | Good | Medium-strong | Low | Research |
+| Sports | Excellent | Medium | High | Crowded |
+| Technology | Good | Medium | Low-medium | Needs expertise |
+| Geopolitics | Moderate | Weak-medium | Low | Risky |
+| Elections | Excellent | Weak | Very high | Avoid |
+| Astronomy | Excellent | Strong (niche) | Very low | Underexplored |
+
+---
+
+### Polymarket vs Kalshi
+
+| | Polymarket | Kalshi |
+|--|-----------|--------|
+| Regulated | No (decentralised) | Yes (CFTC) |
+| Access | Global (grey area for US persons) | Primarily US |
+| Currency | USDC (crypto) | USD (bank) |
+| Account setup | Crypto wallet (MetaMask) | Traditional KYC |
+| API trading | Yes (wallet-based, more complex) | Yes (traditional REST) |
+| Weather markets | Limited but growing | Better coverage |
+| Liquidity | Higher overall | Lower overall |
+| Edge window | Narrowing (high volume) | Still early |
+
+**For Irish access:** Polymarket is the more accessible platform. Kalshi has geographic
+restrictions. Onboarding requires: MetaMask wallet → USDC via Coinbase/Kraken → connect to Polymarket.
+
 ### Labour / Skills
 - **Geographic salary arbitrage:** Hire senior engineers at $120k in lower cost-of-living cities
   vs $200k in San Francisco. Same output, different price. Edge closing as remote work normalises.
@@ -435,20 +579,37 @@ thresholds is far more powerful than one using a fixed threshold someone guessed
 
 ## Development Candidates (if ever pursued)
 
-Priority-ordered by proximity to existing codebase:
+Research sequentially, not in parallel. Each Stage 2 PoC is ~1–2 weeks.
+Validate one, decide whether to branch to new repo, then move to next.
 
+**Stage gate before branching to own repo:**
+- [ ] Edge confirmed in backtest with real historical data
+- [ ] Execution API tested and working
+- [ ] Platform account access confirmed
+- [ ] Risk/sizing model defined
+- [ ] Ready to run paper/test mode live
+
+### Trading (this repo — closest to existing codebase)
 1. **GLD/IAU pairs trading** — most natural. Data exists. Need: short selling, dual-symbol runner.
 2. **Gold/silver ratio mean-reversion** — daily bars, longer hold. Data exists (yfinance 2004+).
 3. **GLD vs DXY regime conditioning** — enhance regime classifier with USD data. 1 new data fetch.
 4. **Volatility arb on GLD options** — requires options execution layer rebuild. Medium effort.
-5. **Weather prediction alpha** — NOAA/ERA5 data + ENSO regime model, bet on Kalshi. Same
-   architecture as trader. Kalshi has public API. Most interesting non-trading candidate.
-6. **Weather true arbitrage** — opportunistic layer on top of #5. Monitor Kalshi + Polymarket
+
+### Prediction Markets (new repo when ready)
+5. **Weather prediction alpha** — NOAA/ERA5 + ENSO regime model → Polymarket/Kalshi. Same
+   architecture as trader. Most interesting non-trading candidate. Build first.
+6. **Economics / macro prediction alpha** — FRED data + surprise delta model → Polymarket.
+   Directly mirrors event_surprise.py. Build alongside or immediately after weather.
+7. **Weather true arbitrage** — opportunistic layer on top of #5. Monitor Kalshi + Polymarket
    for same outcome priced differently. Only viable when liquidity exists on both sides.
-7. **Energy tariff arbitrage** — Octopus Agile API + battery/immersion hardware. Reuses backtest
-   engine structure for threshold optimisation over historical tariff data.
-8. **Prediction market trading (general)** — Kalshi API. Strategy logic similar to event_surprise.py.
+8. **Epidemiology / public health** — CDC/WHO seasonal data + ENSO conditioning → Polymarket.
+   Low competition, good data. Research after weather and economics proven.
+9. **Astronomy / natural events** — NASA JPL + USGS data. Least competed domain. Niche.
+
+### Hardware / Infrastructure
+10. **Energy tariff arbitrage** — Octopus Agile API + battery/immersion hardware. Reuses backtest
+    engine structure for threshold optimisation over historical tariff data.
 
 ---
 
-*Last updated: Apr 11 2026 (session 3 — weather section expanded: prediction alpha vs true arb distinction, data sources, edge sources, ENSO regime, opportunity hierarchy)*
+*Last updated: Apr 11 2026 (session 4 — Polymarket domains added: 8 domains ranked by data quality/edge/competition, Polymarket vs Kalshi comparison, Irish access notes, dev candidates restructured with stage gate)*

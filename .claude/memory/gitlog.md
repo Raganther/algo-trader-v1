@@ -3,10 +3,17 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-11** — chore: add Polymarket domains section — 8 domains ranked, weather/economics prioritised, Polymarket vs Kalshi, Irish access, dev candidates restructured with stage gate
+
+ .../strategies/arbitrage-automation-concepts.md    | 177 ++++++++++++++++++++-
+ 1 file changed, 169 insertions(+), 8 deletions(-)
+
+----
 **2026-04-11** — chore: expand weather section in arbitrage domain file — prediction alpha vs true arb, data sources, ENSO regime, opportunity hierarchy, dev candidates updated
 
+ .claude/memory/gitlog.md                           |  16 +--
  .../strategies/arbitrage-automation-concepts.md    | 108 +++++++++++++++++++--
- 1 file changed, 98 insertions(+), 10 deletions(-)
+ 2 files changed, 106 insertions(+), 18 deletions(-)
 
 ----
 **2026-04-11** — chore: expand arbitrage-automation domain file — true vs statistical arb distinction, two-platform architecture, domain-by-domain viability table
@@ -54,14 +61,4 @@
  .claude/memory/observations.md           | 24 +++++++++++++++++-------
  .claude/strategies/research-log.md       | 18 ++++++++++--------
  4 files changed, 40 insertions(+), 27 deletions(-)
-
-----
-**2026-04-10** — chore: domain/memory audit — fix stale stats, duplicate numbering, XLE gate conflict, compress regime items in research-log
-
- .claude/calibration/live-trade-log.md       | 16 ++++++++++++++++
- .claude/memory/gitlog.md                    | 19 +++++++++++--------
- .claude/memory/observations.md              | 11 ++++++-----
- .claude/strategies/research-log.md          | 25 ++++++++++---------------
- .claude/strategies/stochrsi-enhanced-xle.md |  2 +-
- 5 files changed, 44 insertions(+), 29 deletions(-)
 
