@@ -107,39 +107,50 @@ Full matrices for all symbols: `python3 scripts/analyse_regimes.py`
 
 ### 1. Regime confirms structural edge
 
-59–63% RANGING for GLD/IAU/SLV (79% for GDX) is the foundation of Sharpe 2.47. The ADX filter already partially gates on this, but the regime classifier quantifies it explicitly and enables more granular control.
+59–63% RANGING for GLD/IAU/SLV (79% for GDX) across 20 years is the foundation of Sharpe 2.47. This is not a recent artefact — it's a persistent market structure property of these ETFs. The ADX filter already partially gates on this, but the regime classifier quantifies it explicitly and enables more granular control.
 
 ### 2. Regime-dependency explains live performance
 
-2023–2026 are the most TRENDING_UP years in the dataset. Long-only mean reversion in a bull uptrend = oversold bounces are cleaner and more frequently profitable. The live K-exit win rate of 76% is consistent with operating in the most favourable regime historically. This is not evidence the edge disappears in other regimes — but it may be weaker.
+2023–2026 are the most TRENDING_UP years in the 20-year dataset. Long-only mean reversion in a bull uptrend = oversold bounces are cleaner and more frequently profitable. The live K-exit win rate of 76% is consistent with operating in the most favourable regime historically. This is not evidence the edge disappears in other regimes — but it will be weaker in a neutral RANGING environment and dangerous in TRENDING_DOWN.
 
-### 3. HIGH_VOL is the regime to protect against
+**The second clean window caveat:** switching to validated params now means the forward test will also run in TRENDING_UP/HIGH_VOL — not in a typical RANGING environment. The confirmed Sharpe 2.47 is built across all regimes. We won't observe the strategy in a pure RANGING environment until the market returns to one. This is not a reason to delay — it's a reason to maintain realistic expectations about what the second window confirms.
+
+### 3. Validated params timing aligns well with the current regime
+
+The validated trail (2.0 ATR, after 10 bars) is far better suited to the current HIGH_VOL/TRENDING_UP environment than test params. A wider trail survives intraday noise that constantly stops out the 0.5 ATR trail. Switching to validated params now means entering the likely post-HIGH_VOL TRENDING_UP resolution with the right tool — long holds in an uptrend are exactly what the validated strategy captures.
+
+### 4. HIGH_VOL is the regime to protect against
 
 - 2026 HIGH_VOL is 17% for GLD — well above the 5.7% historical average
 - The two largest slippage outliers in the live dataset (-$0.297, -$0.140) both occurred on high-volatility days
 - TS exits cluster on high-volatility days — tight trail fires on noise
-- HIGH_VOL resolves to TRENDING_UP 77% of the time for GLD/IAU — so halving size (not skipping entirely) is the right response; the following uptrend is worth participating in
+- HIGH_VOL resolves to TRENDING_UP 77% of the time for GLD/IAU — halve size (don't skip entirely); the following uptrend is worth participating in
+- Average HIGH_VOL duration: 9 days — these periods resolve quickly
 - Action: halve position size during HIGH_VOL regime
 
-### 4. TRENDING_DOWN is rare but dangerous for long-only
+### 5. TRENDING_DOWN is rare but dangerous for long-only
 
 - 7.8% of GLD days historically, nearly absent since 2023
 - In a downtrend, oversold often means momentum continuation, not reversal
-- TRENDING_DOWN resolves back to RANGING 88% of the time (GLD) — not directly to TRENDING_UP
+- TRENDING_DOWN resolves back to RANGING 88% of the time (GLD) — not directly to TRENDING_UP. Mean reversion after the downtrend, not an immediate reversal.
 - Action: skip entries or reduce to 0.5% risk during TRENDING_DOWN
 
-### 5. Regime duration as a real-time risk signal
+### 6. Regime duration as a real-time risk signal
 
-Current ranging period length vs historical average tells you where you are in the cycle:
+Current regime length vs historical average tells you where you are in the cycle:
 - Young ranging (< avg duration): low risk of flip, full size
 - Old ranging (> avg duration): statistically overdue, reduce size
 - Very old ranging (> 2× avg duration): elevated flip risk, further reduce
 
-Average ranging duration is 41–69 bars — a new ranging period has typically 6–10 weeks of runway before flip risk rises meaningfully.
+Average ranging duration: 36 days (GLD), 44 days (IAU), 39 days (SLV), 88 days (GDX). A new ranging period has typically 5–12 weeks of runway before flip risk rises meaningfully.
 
-### 6. Post-HIGH_VOL transition as a supplementary signal
+### 7. Post-HIGH_VOL transition as a supplementary signal
 
-HIGH_VOL → TRENDING_UP 70% of the time for GLD. The first bars of a new uptrend after a volatility spike are often strong. This could be a supplementary entry signal for a trend-following variant alongside the mean-reversion strategy. Speculative — requires backtesting before use.
+HIGH_VOL → TRENDING_UP 77% of the time for GLD. The first bars of a new uptrend after a volatility spike are often strong. This could be a supplementary entry signal for a trend-following variant alongside the mean-reversion strategy. Speculative — requires backtesting before use.
+
+### 8. Regime sizing adds value — but needs empirical validation first
+
+The per-regime sizing framework is theoretically sound but unvalidated. The critical next step post-calibration is tagging historical backtest trades with their entry regime and computing per-regime win rate / Sharpe / avg P&L. If RANGING trades empirically outperform TRENDING_UP trades, the sizing rationale is grounded. If the difference is small, the added complexity may not be worth it. Do not implement live regime sizing until this analysis is complete.
 
 ---
 
