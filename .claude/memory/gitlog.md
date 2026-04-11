@@ -3,10 +3,17 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-11** — chore: expand weather section in arbitrage domain file — prediction alpha vs true arb, data sources, ENSO regime, opportunity hierarchy, dev candidates updated
+
+ .../strategies/arbitrage-automation-concepts.md    | 108 +++++++++++++++++++--
+ 1 file changed, 98 insertions(+), 10 deletions(-)
+
+----
 **2026-04-11** — chore: expand arbitrage-automation domain file — true vs statistical arb distinction, two-platform architecture, domain-by-domain viability table
 
+ .claude/memory/gitlog.md                           |  18 +--
  .../strategies/arbitrage-automation-concepts.md    | 164 ++++++++++++++++++++-
- 1 file changed, 163 insertions(+), 1 deletion(-)
+ 2 files changed, 171 insertions(+), 11 deletions(-)
 
 ----
 **2026-04-11** — chore: add arbitrage-automation-concepts domain file — trading arb types, automation pattern map, dev candidates
@@ -57,11 +64,4 @@
  .claude/strategies/research-log.md          | 25 ++++++++++---------------
  .claude/strategies/stochrsi-enhanced-xle.md |  2 +-
  5 files changed, 44 insertions(+), 29 deletions(-)
-
-----
-**2026-04-10** — chore: add post-Apr-20 regime sizing backtest plan to regime-analysis domain file
-
- .claude/memory/gitlog.md              | 18 +++++------
- .claude/strategies/regime-analysis.md | 56 +++++++++++++++++++++++++++++++++++
- 2 files changed, 64 insertions(+), 10 deletions(-)
 

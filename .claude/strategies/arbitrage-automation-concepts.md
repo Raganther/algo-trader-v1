@@ -264,13 +264,96 @@ shifts with macro regime. Fixed hedge ratios break during regime transitions.
 The same **signal → act → manage → exit → log** pattern applies far beyond markets.
 
 ### Weather / Energy
-- **Smart energy arbitrage:** Watch real-time electricity spot prices (Octopus Agile tariff).
-  Charge battery / heat water when cheap, draw from battery / export when expensive.
-  Same loop: signal (price threshold), action (relay switch), exit (price normalises).
-- **Weather derivatives:** Energy companies trade contracts paying out on temperature deviation
-  from seasonal norms. Better climate model (NOAA satellite + ocean temps) = edge over market.
-- **Precision irrigation:** Soil moisture sensors + weather forecast. Trigger irrigation when
-  moisture below threshold AND no rain forecast in 48h. Testable with historical weather data.
+
+**Critical distinction — two separate opportunities in weather:**
+
+#### A. Weather Prediction Alpha (one platform, directional bet)
+Build a better weather model than the market consensus. Bet on Kalshi/prediction market
+outcomes where your model disagrees with the implied probability.
+
+```
+Your model:   70% chance of rain in Dublin on Apr 20
+Kalshi market: 45% chance of rain  →  implied odds = 2.22
+→ Bet YES on rain — positive expected value
+→ You could be wrong — this is a statistical edge, not guaranteed profit
+```
+
+This is **the same structure as our algo trader** — one platform, better signal, directional
+bet with real risk. Not true arbitrage. But viable and buildable now.
+
+**Data sources (all free):**
+| Source | What it gives you |
+|--------|------------------|
+| NOAA | US historical weather, 100+ years, free API |
+| Met Éireann | Irish historical data, free |
+| ERA5 (Copernicus) | Global atmospheric reanalysis, 1940–present |
+| GFS model output | US government forecast, free, updates 4x/day |
+| ECMWF ensemble | European model, gold standard for medium-range |
+
+**Where the statistical edge comes from:**
+- **Ensemble spread** — GFS/ECMWF run 50+ parallel forecast variants. The spread of those
+  runs quantifies forecast uncertainty. Markets price binary outcomes without using this.
+- **ENSO regime conditioning** — El Niño years have statistically different temperature and
+  rainfall patterns than La Niña years. Same as our regime classifier — condition on the
+  current state to get a better base rate than the unconditional market consensus.
+- **Mean reversion** — temperatures revert to seasonal norms. Markets overweight recent
+  anomalies. A cold snap doesn't predict another cold snap — base rates do.
+
+**Tradeable markets on Kalshi today:**
+- Will temperature in [city] exceed X°F on [date]?
+- Will it rain more than X inches this month?
+- Will this hurricane make landfall in [region]?
+- Will [city] have a white Christmas?
+- Will this month be above/below average temperature?
+
+**Viability:** Genuinely viable. Weather is more predictable than financial markets
+(physics-based, not adversarial). Kalshi markets are relatively new — crowd pricing
+hasn't been fully optimised yet. Edge window probably 2–5 years before it compresses.
+
+---
+
+#### B. Weather True Arbitrage (two platforms, simultaneous execution)
+Same weather outcome priced differently across two prediction markets simultaneously.
+
+```
+Kalshi:     45% chance of rain  →  YES pays 2.22x
+Polymarket: 38% chance of rain  →  NO pays 1.61x
+→ Bet YES on Kalshi + NO on Polymarket simultaneously
+→  Profit regardless of outcome (if gap > fees)
+```
+
+This IS true arbitrage — two platforms, locked profit, no directional risk.
+
+**Why it's harder than prediction alpha:**
+- Kalshi and Polymarket rarely price the *same granular* weather outcome
+- Thin liquidity on both sides simultaneously
+- Window closes fast as cross-market scrapers catch up
+
+**Practical approach:** Build prediction alpha first (single platform). Add cross-platform
+monitoring as an opportunistic second layer — alert when same outcome appears on both
+platforms with a profitable gap.
+
+---
+
+#### C. Energy Tariff Arbitrage (hardware required)
+- **System A:** Grid electricity at low price (Octopus Agile publishes 30-min ahead prices)
+- **System B:** Battery / hot water storage as the second "platform"
+- Charge when cheap, discharge or divert when expensive
+- Real-time grid data: National Grid ESO public API
+- **Viability:** Yes at small scale with hardware. Large scale needs grid assets.
+
+---
+
+**Weather opportunity hierarchy:**
+```
+1. Build better weather model (NOAA + ERA5 + ENSO regime conditioning)
+       ↓
+2. Bet on single platform where model disagrees with market (prediction alpha)
+       ↓  works standalone
+3. Monitor second platform for same outcomes
+       ↓
+4. When cross-platform gap appears → true arb on top (opportunistic)
+```
 
 ### Sports / Prediction Markets
 - **Bookmaker odds arb (sure bets):** Three bookmakers price same event differently. Bet all
@@ -358,9 +441,14 @@ Priority-ordered by proximity to existing codebase:
 2. **Gold/silver ratio mean-reversion** — daily bars, longer hold. Data exists (yfinance 2004+).
 3. **GLD vs DXY regime conditioning** — enhance regime classifier with USD data. 1 new data fetch.
 4. **Volatility arb on GLD options** — requires options execution layer rebuild. Medium effort.
-5. **Energy price arbitrage** — completely different domain. Would reuse backtest engine structure.
-6. **Prediction market trading** — different broker API. Strategy logic similar to event_surprise.py.
+5. **Weather prediction alpha** — NOAA/ERA5 data + ENSO regime model, bet on Kalshi. Same
+   architecture as trader. Kalshi has public API. Most interesting non-trading candidate.
+6. **Weather true arbitrage** — opportunistic layer on top of #5. Monitor Kalshi + Polymarket
+   for same outcome priced differently. Only viable when liquidity exists on both sides.
+7. **Energy tariff arbitrage** — Octopus Agile API + battery/immersion hardware. Reuses backtest
+   engine structure for threshold optimisation over historical tariff data.
+8. **Prediction market trading (general)** — Kalshi API. Strategy logic similar to event_surprise.py.
 
 ---
 
-*Last updated: Apr 11 2026 (session 2 — true arbitrage expanded, two-platform architecture added)*
+*Last updated: Apr 11 2026 (session 3 — weather section expanded: prediction alpha vs true arb distinction, data sources, edge sources, ENSO regime, opportunity hierarchy)*
