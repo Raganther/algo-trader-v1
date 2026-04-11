@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-10
+Status: current | Epistemic: confirmed | Last verified: 2026-04-11
 
 # Regime Analysis — Algo Trader V1
 
@@ -25,66 +25,81 @@ HIGH_VOL takes priority over TRENDING — a volatile trending session is classif
 ## Implementation
 
 - **Module:** `backend/indicators/regime.py` — `classify_regime(df)` takes OHLC DataFrame, returns Series of regime labels. `regime_stats(regimes)` computes duration statistics.
-- **Data:** Daily bars stored in `price_data_daily` table in `research.db`. Fetch with: `python scripts/fetch_price_data.py --timeframe 1d --symbols GLD,IAU,SLV,GDX --start 2020-01-01`
+- **Data:** Daily bars stored in `price_data_daily` table in `research.db`. Two sources merged: Yahoo Finance (GLD from Nov 2004, IAU from Jan 2005, SLV/GDX from Apr–May 2006) and Alpaca IEX (Jul 2020 onward). Alpaca is authoritative for the overlap period — Yahoo rows deleted where Alpaca rows exist for the same date. To extend/refresh: `python3 scripts/fetch_price_data_yfinance.py` (Yahoo, full history) or `python scripts/fetch_price_data.py --timeframe 1d --symbols GLD,IAU,SLV,GDX --start 2020-01-01` (Alpaca, recent only).
 - **Analysis script:** `python scripts/analyse_regimes.py` — runs classifier, prints overall distribution, year-by-year breakdown, and transition matrix.
 - **Parameters:** ADX period 14, SMA period 200, ATR period 14, ADX threshold 25, ATR vol lookback 50 bars, ATR vol multiplier 1.5×.
 
 ---
 
-## Findings — GLD/IAU/SLV/GDX Daily (Jul 2020 – Apr 2026)
+## Findings — GLD/IAU/SLV/GDX Daily (2004–2026)
 
-*Note: Alpaca data starts 2020-07-27. 2020 shows 100% RANGING because fewer than 200 bars existed for SMA(200) to initialise — treat 2020 as incomplete.*
+*Extended dataset: Yahoo Finance back to ETF inception (GLD Nov 2004, IAU Jan 2005, SLV/GDX Apr–May 2006) merged with Alpaca from Jul 2020. 2091 daily bars per symbol. SMA(200) requires 200 bars to initialise — early years (2004–2005 for GLD, earlier for others) show inflated RANGING% as a result; treat pre-2007 as partially unreliable for regime distribution but valid for transition statistics once SMA is initialised.*
 
-### Overall regime distribution (5.5 years)
+### Overall regime distribution (~20 years)
 
-| Symbol | RANGING% | TRENDING_UP% | HIGH_VOL% | TRENDING_DOWN% |
-|--------|----------|-------------|-----------|----------------|
-| GLD | 68.0% | 21.4% | 6.6% | 4.0% |
-| IAU | 66.1% | 23.2% | 7.6% | 3.1% |
-| SLV | 71.9% | 15.8% | 4.9% | 7.5% |
-| GDX | 71.8% | 18.8% | 3.0% | 6.4% |
+| Symbol | Bars | RANGING% | TRENDING_UP% | TRENDING_DOWN% | HIGH_VOL% |
+|--------|------|----------|-------------|----------------|-----------|
+| GLD | 2091 | 58.9% | 27.6% | 7.8% | 5.7% |
+| IAU | 2091 | 60.4% | 28.8% | 3.1% | 7.7% |
+| SLV | 2091 | 62.8% | 21.5% | 11.2% | 4.5% |
+| GDX | 2091 | 79.6% | 11.2% | 3.4% | 5.8% |
 
-**The dominant regime is RANGING — 66–72% of all trading days.** The strategy is a mean-reversion strategy designed for ranging markets. This is the structural reason the backtest Sharpe is 2.47 — not luck, alignment.
+**RANGING remains dominant at 59–80%.** GDX is structurally more ranging than the others (79.6%) — its trend regimes are shorter and less frequent. SLV has the highest TRENDING_DOWN exposure (11.2%) reflecting silver's higher volatility and sharper bear cycles.
 
 ### Average regime duration (trading days)
 
 | Symbol | RANGING avg | RANGING max | TRENDING_UP avg | HIGH_VOL avg |
 |--------|------------|------------|----------------|-------------|
-| GLD | 44.3 | 205 | 11.8 | 9.4 |
-| IAU | 41.2 | 207 | 11.9 | 8.4 |
-| SLV | 68.7 | 206 | 18.8 | 14.0 |
-| GDX | 41.2 | 199 | 11.7 | 10.8 |
+| GLD | 36.2 | 244 | 17.0 | 9.2 |
+| IAU | 43.6 | 199 | 18.8 | 10.0 |
+| SLV | 38.6 | 199 | 15.0 | 11.8 |
+| GDX | 87.6 | 230 | 13.0 | 17.3 |
 
-Ranging periods last a long time — average 41–69 days, max over 200 days. Trending and volatile regimes are shorter — averaging 9–19 days before resolving. This means: once a regime flip occurs, it typically resolves back to ranging within 2–3 weeks.
+GDX ranging periods average 87 days — more than double the others. This reflects its structurally different character as a mining equity: it spends long stretches consolidating and has shorter, sharper trend episodes. HIGH_VOL periods are short across all symbols (9–17 days avg) — they resolve quickly.
 
 ### Year-by-year regime distribution — GLD
 
 | Year | RANGING% | UP% | DOWN% | HIGH_VOL% |
 |------|----------|-----|-------|-----------|
-| 2021 | 86.5% | 7.5% | 6.0% | 0.0% |
-| 2022 | 72.9% | 5.2% | 15.1% | 6.8% |
-| 2023 | 58.8% | 36.0% | 2.0% | 3.2% |
-| 2024 | 58.3% | 36.5% | 0.0% | 5.2% |
-| 2025 | 58.4% | 25.2% | 0.0% | 16.4% |
-| 2026 | 32.8% | 44.8% | 0.0% | 22.4% |
+| 2020 | 95.6% | 0.7% | 3.7% | 0.0% |
+| 2021 | 60.4% | 11.2% | 28.4% | 0.0% |
+| 2022 | 66.2% | 14.2% | 13.4% | 6.2% |
+| 2023 | 35.8% | 57.6% | 1.2% | 5.4% |
+| 2024 | 60.2% | 34.2% | 0.0% | 5.6% |
+| 2025 | 49.0% | 38.2% | 0.0% | 12.8% |
+| 2026 | 30.4% | 46.4% | 6.2% | 17.0% |
 
-**Key pattern:** TRENDING_UP barely existed before 2023, then became the dominant non-ranging regime. 2026 is already 44.8% TRENDING_UP and 22.4% HIGH_VOL — the most extreme year in the dataset. The live forward test is running in the strongest bull + highest volatility environment of the entire 6-year window.
+*2020 shows 95.6% RANGING because SMA(200) was still initialising on the Alpaca dataset (data starts Jul 2020, only ~130 bars by year end). Treat 2020 as unreliable for regime distribution.*
 
-### Transition matrix — GLD (% probability on regime exit)
+**Key pattern:** TRENDING_DOWN dominated 2021 (gold gave back COVID gains). TRENDING_UP emerged strongly from 2023 onward as the metals bull began. 2026 is the most extreme year — 46.4% TRENDING_UP and 17.0% HIGH_VOL simultaneously, driven by the Iran conflict macro event.
+
+### Transition matrices (% probability on regime exit)
+
+**GLD:**
 
 | From → | TRENDING_UP | TRENDING_DOWN | HIGH_VOL | RANGING |
 |--------|------------|--------------|---------|---------|
-| RANGING | 71.4% | 23.8% | 4.8% | — |
-| TRENDING_UP | — | 15.4% | 34.6% | 50.0% |
-| TRENDING_DOWN | 44.4% | — | 0.0% | 55.6% |
-| HIGH_VOL | 70.0% | 0.0% | — | 30.0% |
+| RANGING | 64.7% | 32.4% | 2.9% | — |
+| TRENDING_UP | — | 15.2% | 36.4% | 48.5% |
+| TRENDING_DOWN | 12.5% | — | 0.0% | 87.5% |
+| HIGH_VOL | 76.9% | 0.0% | — | 23.1% |
 
-IAU/SLV/GDX transition matrices are similar — available via `python scripts/analyse_regimes.py`.
+**GDX:**
+
+| From → | TRENDING_UP | TRENDING_DOWN | HIGH_VOL | RANGING |
+|--------|------------|--------------|---------|---------|
+| RANGING | 57.9% | 21.1% | 21.1% | — |
+| TRENDING_UP | — | 23.5% | 17.6% | 58.8% |
+| TRENDING_DOWN | 62.5% | — | 0.0% | 37.5% |
+| HIGH_VOL | 28.6% | 0.0% | — | 71.4% |
+
+Full matrices for all symbols: `python3 scripts/analyse_regimes.py`
 
 **Key transitions:**
-- RANGING ends → TRENDING_UP 57–71% of the time across all symbols. When ranging breaks, it's more likely to break upward than downward.
-- HIGH_VOL ends → TRENDING_UP 40–70% of the time. Volatility spikes tend to precede sustained upward moves in precious metals.
-- TRENDING_UP ends → back to RANGING ~50% of the time. Uptrends resolve more often than they reverse directly.
+- **HIGH_VOL → TRENDING_UP: 77% (GLD), 75% (IAU), 50% (SLV), 29% (GDX).** Volatility spikes strongly precede uptrends in GLD/IAU. GDX is weaker — HIGH_VOL more often resolves back to RANGING (71%) for mining equities.
+- **RANGING → TRENDING_UP: 55–68% across all symbols.** When ranging breaks, it breaks upward more often than downward.
+- **TRENDING_DOWN → RANGING: 88% (GLD).** Downtrends almost always resolve back to ranging, not to uptrend directly. Mean reversion after a downtrend, not immediate reversal.
+- **Current regime implication:** We are in HIGH_VOL. Based on GLD history, 77% probability the next regime is TRENDING_UP. Average HIGH_VOL duration is 9 days — if we're already several days in, resolution is likely soon.
 
 ---
 
@@ -92,23 +107,25 @@ IAU/SLV/GDX transition matrices are similar — available via `python scripts/an
 
 ### 1. Regime confirms structural edge
 
-68–72% RANGING is the foundation of Sharpe 2.47. The ADX filter already partially gates on this, but the regime classifier quantifies it explicitly and enables more granular control.
+59–63% RANGING for GLD/IAU/SLV (79% for GDX) is the foundation of Sharpe 2.47. The ADX filter already partially gates on this, but the regime classifier quantifies it explicitly and enables more granular control.
 
 ### 2. Regime-dependency explains live performance
 
-2024–2025 are the most TRENDING_UP years in the dataset. Long-only mean reversion in a bull uptrend = oversold bounces are cleaner and more frequently profitable. The live +K-exit win rate of 76% is consistent with operating in the most favourable regime historically. This is not evidence the edge disappears in other regimes — but it may be weaker.
+2023–2026 are the most TRENDING_UP years in the dataset. Long-only mean reversion in a bull uptrend = oversold bounces are cleaner and more frequently profitable. The live K-exit win rate of 76% is consistent with operating in the most favourable regime historically. This is not evidence the edge disappears in other regimes — but it may be weaker.
 
 ### 3. HIGH_VOL is the regime to protect against
 
-- 2026 HIGH_VOL is 22% for GLD/GDX — well above the historical 3–7% average
+- 2026 HIGH_VOL is 17% for GLD — well above the 5.7% historical average
 - The two largest slippage outliers in the live dataset (-$0.297, -$0.140) both occurred on high-volatility days
 - TS exits cluster on high-volatility days — tight trail fires on noise
-- Action: halve position size or skip entries during HIGH_VOL regime
+- HIGH_VOL resolves to TRENDING_UP 77% of the time for GLD/IAU — so halving size (not skipping entirely) is the right response; the following uptrend is worth participating in
+- Action: halve position size during HIGH_VOL regime
 
 ### 4. TRENDING_DOWN is rare but dangerous for long-only
 
-- Only 3–7% of days historically, and nearly absent since 2023
+- 7.8% of GLD days historically, nearly absent since 2023
 - In a downtrend, oversold often means momentum continuation, not reversal
+- TRENDING_DOWN resolves back to RANGING 88% of the time (GLD) — not directly to TRENDING_UP
 - Action: skip entries or reduce to 0.5% risk during TRENDING_DOWN
 
 ### 5. Regime duration as a real-time risk signal

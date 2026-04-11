@@ -3,12 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-11** — feat: extend regime history to ETF inception — Yahoo Finance daily bars back to 2004, dedup Alpaca overlap, rerun analysis, update domain file
+
+ .claude/strategies/regime-analysis.md | 93 +++++++++++++++++++++--------------
+ scripts/fetch_price_data_yfinance.py  | 82 ++++++++++++++++++++++++++++++
+ 2 files changed, 137 insertions(+), 38 deletions(-)
+
+----
 **2026-04-11** — chore: update sequencing — calibration Mon/Tue, whole-share sizing + shorts before validated params, short trading moved to critical path
 
  .claude/calibration/calibration-notes.md |  6 +++---
+ .claude/memory/gitlog.md                 | 19 ++++++++++---------
  .claude/memory/observations.md           | 24 +++++++++++++++++-------
  .claude/strategies/research-log.md       | 18 ++++++++++--------
- 3 files changed, 30 insertions(+), 18 deletions(-)
+ 4 files changed, 40 insertions(+), 27 deletions(-)
 
 ----
 **2026-04-10** — chore: domain/memory audit — fix stale stats, duplicate numbering, XLE gate conflict, compress regime items in research-log
@@ -59,11 +67,4 @@
  .claude/memory/gitlog.md           | 18 +++++++++---------
  .claude/strategies/research-log.md |  2 ++
  2 files changed, 11 insertions(+), 9 deletions(-)
-
-----
-**2026-04-09** — chore: add cross-cutting learning — forward test param design trade-off, aggressive vs validated params
-
- .claude/memory/gitlog.md           | 18 ++++++++----------
- .claude/strategies/research-log.md |  5 ++++-
- 2 files changed, 12 insertions(+), 11 deletions(-)
 
