@@ -7,6 +7,7 @@
 
 ## What Arbitrage Actually Is
 
+### Loose definition (statistical edge)
 Exploit a mispricing (information asymmetry or statistical divergence) before it closes.
 
 ```
@@ -19,6 +20,167 @@ Market price ≠ True value
 
 The edge always decays as data becomes commoditised. Durable edges live where **data is hard
 to get, hard to process, or hard to act on** — not just hard to find.
+
+### True arbitrage (strict definition)
+Two independent systems pricing the same thing differently. You buy on A and sell on B
+simultaneously — the profit is locked in regardless of where price moves next.
+
+```
+System A  →  price of X = P1
+System B  →  price of X = P2  (P2 > P1)
+→  Buy on A, sell on B simultaneously
+→  Profit = P2 - P1 - transaction costs
+→  No directional risk if both legs fill
+```
+
+**Three hard requirements for true arbitrage:**
+1. Two independent systems with conflicting prices for the same thing
+2. Simultaneous execution on both legs (one leg alone = directional risk)
+3. Edge must exceed total transaction costs (fees, spread, transfer, latency)
+
+**Key distinction from our current trading system:**
+- Our trader uses **one platform (Alpaca)** and predicts *directional price movement*
+- That is a statistical edge, not true arbitrage
+- True arbitrage requires the second platform — the discrepancy lives *between* systems
+
+---
+
+## True Arbitrage — Domain by Domain
+
+### Sports Betting — Most Accessible
+- **System A:** Betfair exchange (peer-to-peer odds)
+- **System B:** Traditional bookmaker (Paddy Power, Bet365)
+- **The gap:** Same match, different implied probabilities across bookmakers
+- **How to find it:** Scrape 50+ bookmakers in real time. When sum of implied probabilities
+  across all outcomes < 100%, a guaranteed profit window exists. Calculate stakes accordingly.
+- **Execution:** Place both bets simultaneously before odds shift
+- **Edge killer:** Bookmakers ban winning accounts. Arb bettors get limited to €2 stakes within weeks.
+- **Big data angle:** Real-time odds scraping, instant alert when window opens, auto-stake calculator
+- **Viability:** Yes — works until account gets flagged. Multiple accounts extend runway.
+
+---
+
+### Cryptocurrency — Most Alive True Arb Today
+- **System A:** Coinbase (BTC price = $50,000)
+- **System B:** Binance, Kraken, OKX (BTC price = $50,150)
+- **The gap:** 0.1–0.5% price differences persist because capital transfer between exchanges
+  takes time (withdrawal limits, blockchain confirmation delays)
+- **Execution:** Pre-fund both exchanges. Detect gap via WebSocket feeds. Execute both legs
+  within milliseconds.
+- **Edge killer:** Withdrawal fees, transfer delays, exchange downtime
+- **Big data angle:** Simultaneous WebSocket feeds from 10+ exchanges, sub-second gap detection
+- **Viability:** Genuinely buildable at retail scale — unlike stock markets, crypto arb hasn't
+  been fully competed away. Most viable true arb opportunity available today.
+
+---
+
+### Retail / E-commerce — Geographic Price Arbitrage
+- **System A:** US Amazon or clearance retailer (product at $40)
+- **System B:** EU/UK Amazon or eBay (same product at €60)
+- **The gap:** Regional pricing differences due to distribution, tax, availability, information lag
+- **Execution:** Buy on A, list on B — not instant but low risk if product is non-perishable
+- **Edge killer:** Amazon marketplace rules, account bans, import duties, return costs, shipping time
+- **Big data angle:** Scrape prices across regions, calculate margin after all costs, flag profitable SKUs
+- **Viability:** Yes — semi-automated, slow arbitrage. Margins thin but scalable with data.
+
+---
+
+### Energy — Transmission Arbitrage
+- **System A:** Electricity price in Region A (e.g. windy Scotland, oversupply, near-zero or
+  negative prices)
+- **System B:** Electricity price in Region B (e.g. London, high demand, higher price)
+- **The gap:** Grid transmission constraints prevent instant price equalisation between regions
+- **Execution:** Own assets on both sides — generation/storage in A, load/export in B
+- **Retail version:** Battery storage + real-time tariff switching (Octopus Agile publishes
+  30-min ahead prices). Charge when cheap, discharge/export when expensive.
+- **Big data angle:** Real-time grid data (National Grid ESO public API), weather forecasting,
+  demand modelling, half-hourly price feeds
+- **Viability:** Yes at small scale with hardware (battery, immersion diverter). Large scale
+  requires grid assets.
+
+---
+
+### Currency — Triangular Arbitrage
+- **System A/B/C:** Three currency pairs that form a loop
+- **Example:** EUR → USD → GBP → EUR — if exchange rates misaligned, end up with more EUR
+- **The gap:** Three exchanges pricing pairs slightly differently simultaneously
+- **Edge killer:** Closes in milliseconds in liquid FX — institutional HFT owns this completely
+- **More viable:** Emerging market currencies, smaller crypto exchanges, illiquid pairs
+- **Viability:** No at retail in liquid FX. Possible in crypto cross-pairs.
+
+---
+
+### Insurance / Risk Pricing
+- **System A:** Insurance company pricing a risk at premium X (using inferior model)
+- **System B:** Reinsurance market pricing the same risk at Y
+- **The gap:** Your model of underlying risk is better than both — you intermediate
+- **Real world:** Catastrophe bond market, Lloyd's syndicates do this at scale
+- **Big data angle:** Weather models, actuarial tables, satellite imagery for property risk scoring
+- **Viability:** No without regulatory licence and significant capital. Research interest only.
+
+---
+
+### Labour / Staffing — Slow Arbitrage
+- **System A:** Employer paying market rate in City A (Dublin €80k)
+- **System B:** Talent available in City B at same skill, lower cost (Eastern Europe €30k)
+- **The gap:** Geographic information asymmetry — employer doesn't know talent exists at that price
+- **Your role:** Staffing agency, outsourcing firm, or remote-first company capturing the spread
+- **Edge killer:** Closes as remote work normalises global salary visibility
+- **Viability:** Business model, not a trade — but structurally identical to two-platform arb
+
+---
+
+### Real Estate — Information Arbitrage
+- **System A:** Local market pricing property at X (information-poor buyers, slow data)
+- **System B:** Sophisticated investor's model valuing same property at Y using better data
+- **The gap:** Planning applications, infrastructure investment, school ratings, demographic shifts
+  not yet priced into local market
+- **Execution:** Slow — months not seconds. Capital locked during reversion.
+- **Big data angle:** Planning portal scraping, transport investment maps, rental yield databases
+- **Viability:** Yes but slow. Edge is in data advantage, not speed.
+
+---
+
+## Viability Summary
+
+| Domain | True arb? | Retail viable? | Speed required | Edge killer |
+|--------|-----------|---------------|----------------|-------------|
+| Crypto exchange | Yes | Yes | Milliseconds | Transfer delays, fees |
+| Sports betting | Yes | Yes (short) | Seconds | Account bans |
+| Retail/ecommerce | Slow | Yes | Hours/days | Rules, duties |
+| Energy tariff | Yes | Yes (hardware) | Minutes | Hardware cost |
+| FX triangular | Yes | No | Microseconds | HFT dominance |
+| Insurance/risk | Yes | No | N/A | Regulation, capital |
+| Labour/staffing | Slow | As business | Weeks/months | Market normalisation |
+| Real estate | Slow | Yes | Months | Capital lock-up |
+
+---
+
+## The Universal Architecture (Two-Platform Version)
+
+```
+┌─────────────────────────────────────┐
+│  DATA LAYER                         │
+│  - Live feed from System A          │
+│  - Live feed from System B          │
+│  - Gap detection (A ≠ B)            │
+│  - Historical data for backtesting  │
+└──────────────┬──────────────────────┘
+               │ gap detected + costs checked
+┌──────────────▼──────────────────────┐
+│  EXECUTION LAYER                    │
+│  - Act on System A  ─┐ simultaneously│
+│  - Act on System B  ─┘              │
+│  - Log both fills                   │
+│  - Alert if one leg fails           │
+└─────────────────────────────────────┘
+```
+
+**The algo trader is one half of this** — it has the data layer and execution layer for
+one platform. Adding true arbitrage means:
+1. Second data feed (second exchange/platform API)
+2. Simultaneous dual execution
+3. Leg-failure handling (if one side fills and other doesn't → immediate unwind)
 
 ---
 
@@ -201,4 +363,4 @@ Priority-ordered by proximity to existing codebase:
 
 ---
 
-*Last updated: Apr 11 2026*
+*Last updated: Apr 11 2026 (session 2 — true arbitrage expanded, two-platform architecture added)*

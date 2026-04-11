@@ -3,11 +3,18 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-11** — chore: expand arbitrage-automation domain file — true vs statistical arb distinction, two-platform architecture, domain-by-domain viability table
+
+ .../strategies/arbitrage-automation-concepts.md    | 164 ++++++++++++++++++++-
+ 1 file changed, 163 insertions(+), 1 deletion(-)
+
+----
 **2026-04-11** — chore: add arbitrage-automation-concepts domain file — trading arb types, automation pattern map, dev candidates
 
+ .claude/memory/gitlog.md                           |  20 +-
  .../strategies/arbitrage-automation-concepts.md    | 204 +++++++++++++++++++++
  CLAUDE.md                                          |   1 +
- 2 files changed, 205 insertions(+)
+ 3 files changed, 214 insertions(+), 11 deletions(-)
 
 ----
 **2026-04-11** — chore: update regime-analysis implications — validated params timing, second window caveat, HIGH_VOL sizing rationale, empirical validation gate
@@ -57,13 +64,4 @@
  .claude/memory/gitlog.md              | 18 +++++------
  .claude/strategies/regime-analysis.md | 56 +++++++++++++++++++++++++++++++++++
  2 files changed, 64 insertions(+), 10 deletions(-)
-
-----
-**2026-04-10** — chore: document regime analysis findings — new domain file, CLAUDE.md updated, observations updated
-
- .claude/memory/gitlog.md              |  19 +++--
- .claude/memory/observations.md        |   2 +
- .claude/strategies/regime-analysis.md | 154 ++++++++++++++++++++++++++++++++++
- CLAUDE.md                             |   1 +
- 4 files changed, 167 insertions(+), 9 deletions(-)
 
