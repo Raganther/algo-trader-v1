@@ -3,10 +3,18 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-13** — chore: log Apr 13 trades — weekend carries resolved at open, 8 trades total, late-session entry guard first data point
+
+ .claude/calibration/live-trade-log.md | 19 +++++++++++++++++++
+ .claude/memory/observations.md        |  3 ++-
+ 2 files changed, 21 insertions(+), 1 deletion(-)
+
+----
 **2026-04-11** — chore: add Polymarket domains section — 8 domains ranked, weather/economics prioritised, Polymarket vs Kalshi, Irish access, dev candidates restructured with stage gate
 
+ .claude/memory/gitlog.md                           |  19 +--
  .../strategies/arbitrage-automation-concepts.md    | 177 ++++++++++++++++++++-
- 1 file changed, 169 insertions(+), 8 deletions(-)
+ 2 files changed, 177 insertions(+), 19 deletions(-)
 
 ----
 **2026-04-11** — chore: expand weather section in arbitrage domain file — prediction alpha vs true arb, data sources, ENSO regime, opportunity hierarchy, dev candidates updated
@@ -52,13 +60,4 @@
  .claude/strategies/regime-analysis.md | 93 +++++++++++++++++++++--------------
  scripts/fetch_price_data_yfinance.py  | 82 ++++++++++++++++++++++++++++++
  3 files changed, 146 insertions(+), 46 deletions(-)
-
-----
-**2026-04-11** — chore: update sequencing — calibration Mon/Tue, whole-share sizing + shorts before validated params, short trading moved to critical path
-
- .claude/calibration/calibration-notes.md |  6 +++---
- .claude/memory/gitlog.md                 | 19 ++++++++++---------
- .claude/memory/observations.md           | 24 +++++++++++++++++-------
- .claude/strategies/research-log.md       | 18 ++++++++++--------
- 4 files changed, 40 insertions(+), 27 deletions(-)
 

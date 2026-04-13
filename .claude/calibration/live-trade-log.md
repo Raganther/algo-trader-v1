@@ -326,6 +326,25 @@ Weekend — market closed.
 
 *2 completed IAU trades: T1 tiny SS win (+$0.05), T2 K-exit near-flat (-$0.02). IAU re-entered same session after stop exit — two full cycles in one day. GLD/SLV/GDX all still in profit carrying into weekend.*
 
+### 2026-04-13
+
+**Audit status:** PARTIAL — Alpaca MCP verified, pm2/DB audit pending
+
+*Note: GLD/SLV/GDX weekend carries (Apr 8 19:46 UTC entries) all resolved at open — stops re-placed at 13:30 UTC, fired within 20 min. Gap-down on open took SLV and GLD below entry; GDX closed in profit. 5 additional intraday round-trips, all flat EOD.*
+
+| Bot | Entry time (UTC) | Entry $ | Exit time (UTC) | Exit $ | Exit type | Stop level at exit | P&L/share | Notes |
+|-----|-----------------|---------|-----------------|--------|-----------|-------------------|-----------|-------|
+| slv-test | Apr 8 19:46 | 67.370 | 13:40:12 | 67.040 | TS | 67.05 | -0.330 | Weekend carry, 3 trading days. Stop re-placed at open, fired ~10 min later. Slippage: -0.010 |
+| gdx-test | Apr 8 19:46 | 97.640 | 13:47:03 | 98.080 | TS | 98.12 | +0.440 | Weekend carry, 3 trading days. Stop ratcheted above entry during hold. TS fire in profit. Slippage: -0.040 |
+| gld-test | Apr 8 19:46 | 433.892 | 13:48:01 | 433.691 | TS | 433.70 | -0.201 | Weekend carry, 3 trading days. Stop fired just below entry at open. Slippage: -0.009 |
+| gdx-test | 14:46:35 | 98.683 | 15:01:51 | 97.871 | K | - | -0.812 | Stop 97.65 canceled, market K-exit. No ratchet. |
+| slv-test | 15:31:35 | 66.880 | 16:02:47 | 67.030 | TS | 67.03 | +0.150 | Stop ratcheted 66.10→66.94→67.03 (2×). TS fire in profit. Slippage: 0.000 |
+| gld-test | 15:46:40 | 432.796 | 16:31:19 | 434.380 | K | - | +1.584 | Stop ratcheted 430.15→432.29→432.96→433.93 (3×), canceled, market K-exit. Best trade of the day. |
+| gdx-test | 16:16:20 | 98.080 | 17:01:48 | 99.020 | K | - | +0.940 | Stop ratcheted 96.74→98.22→98.52→98.77 (3×), canceled, market K-exit. |
+| iau-test | 16:17:01 | 88.860 | 17:06:37 | 89.040 | K | - | +0.180 | Stop ratcheted 88.39→88.89 (1×), canceled, market K-exit. |
+
+*8 completed trades. Weekend carries: 1 TS win (GDX +0.440), 2 TS losses (SLV -0.330, GLD -0.201). Intraday: 1 TS win (SLV +0.150), 3 K-wins (GLD +1.584, GDX +0.940, IAU +0.180), 1 K-loss (GDX -0.812). Per-share net: +1.951. All bots flat EOD.*
+
 ## Open Questions
 
 - **Time-of-day filter** — market open (13:31–14:15 UTC) is consistently the most active and most profitable window. Whether this is a persistent edge or regime-specific (post-crash recovery bouncing at open) is unknown. Worth testing as an explicit parameter in backtest after Apr 20.
