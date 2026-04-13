@@ -2,6 +2,7 @@ from backend.engine.strategy import Strategy
 from backend.indicators.stoch_rsi import StochRSI
 from backend.indicators.adx import adx
 from backend.indicators.atr import atr
+import math
 import pandas as pd
 from datetime import timedelta
 
@@ -238,7 +239,10 @@ class StochRSIMeanReversionStrategy(Strategy):
                     # Cap to 25% of equity per position (leaves room for multiple positions + fees)
                     max_size = (equity * 0.25) / row['Close']
                     size = min(size, max_size)
-                    size = round(size, 4)
+                    size = math.floor(size)
+
+                    if size < 1:
+                        return
 
                     self.current_sl = row['Close'] - stop_dist
                     result = self.buy(price=row['Close'], size=size, timestamp=i, stop_loss=self.current_sl)
@@ -279,7 +283,10 @@ class StochRSIMeanReversionStrategy(Strategy):
                     # Cap to 25% of equity per position (leaves room for multiple positions + fees)
                     max_size = (equity * 0.25) / row['Close']
                     size = min(size, max_size)
-                    size = round(size, 4)
+                    size = math.floor(size)
+
+                    if size < 1:
+                        return
 
                     self.current_sl = row['Close'] + stop_dist
                     result = self.sell(price=row['Close'], size=size, timestamp=i, stop_loss=self.current_sl)

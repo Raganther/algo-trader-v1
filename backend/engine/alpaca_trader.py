@@ -96,7 +96,7 @@ class AlpacaTrader:
 
         is_crypto = '/' in symbol
         if not is_crypto:
-            qty = round(qty, 4)
+            qty = int(qty)
             alpaca_tif = TimeInForce.DAY
         else:
             alpaca_tif = TimeInForce.GTC
@@ -121,7 +121,7 @@ class AlpacaTrader:
         clean_symbol = symbol.replace('/', '')
         alpaca_side = OrderSide.BUY if side.lower() == 'buy' else OrderSide.SELL
         is_crypto = '/' in symbol
-        qty = round(qty, 4) if not is_crypto else qty
+        qty = int(qty) if not is_crypto else qty
         # Fractional shares require DAY TIF on Alpaca (GTC rejected)
         # Stop re-placed on next bar after market open if held overnight
         if not is_crypto:

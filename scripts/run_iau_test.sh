@@ -1,10 +1,9 @@
 #!/bin/bash
-# TEMPORARY — aggressive params to test trailing stop / min hold / skip Monday piping on IAU
-# Delete this bot once mechanics are verified
+# Validated params — whole-share sizing + shorts enabled (Apr 13 2026)
 cd /home/alistairelliman/algo-trader-v1
 python3 -m backend.runner trade \
   --strategy StochRSIMeanReversion \
   --symbol IAU \
   --timeframe 15m \
   --paper \
-  --parameters '{"rsi_period":7,"stoch_period":14,"overbought":60,"oversold":40,"adx_threshold":50,"skip_adx_filter":false,"sl_atr":2.0,"dynamic_adx":false,"trailing_stop":true,"trail_after_bars":1,"trail_atr":0.5,"min_hold_bars":3,"skip_days":[]}'
+  --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"dynamic_adx":false,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0],"trading_hours":[13.5,20]}'
