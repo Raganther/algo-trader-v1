@@ -3,11 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-13** — chore: Apr 13 calibration complete — Layers 1/2/4 PASS, Layer 2 overnight hypothesis refuted, Layer 4 live 2.8x backtest explained by shared-capital stacking, execution layer validated
+
+ .claude/calibration/calibration-notes.md | 75 ++++++++++++++++++++++++++------
+ .claude/memory/observations.md           |  4 +-
+ 2 files changed, 63 insertions(+), 16 deletions(-)
+
+----
 **2026-04-13** — chore: Apr 13 calibration run — Layer 1 PASS (75v75 1.00x), Layer 2 PARTIAL — backtest over-predicts overnight holds 2–3x, overnight stop model gap identified as next critical task
 
  .claude/calibration/calibration-notes.md | 39 +++++++++++++++++++++++++++++---
+ .claude/memory/gitlog.md                 | 18 +++++++--------
  .claude/memory/observations.md           |  6 ++---
- 2 files changed, 39 insertions(+), 6 deletions(-)
+ 3 files changed, 48 insertions(+), 15 deletions(-)
 
 ----
 **2026-04-13** — chore: log Apr 13 trades — weekend carries resolved at open, 8 trades total, late-session entry guard first data point
@@ -52,12 +60,4 @@
  .claude/memory/gitlog.md              | 20 ++++++++++----------
  .claude/strategies/regime-analysis.md | 33 ++++++++++++++++++++++-----------
  2 files changed, 32 insertions(+), 21 deletions(-)
-
-----
-**2026-04-11** — chore: sync memory and CLAUDE.md — updated sequencing, yfinance script, live test duration, SLV HIGH_VOL figure corrected
-
- .claude/memory/gitlog.md       | 17 +++++++++--------
- .claude/memory/observations.md |  6 +++---
- CLAUDE.md                      |  6 ++++--
- 3 files changed, 16 insertions(+), 13 deletions(-)
 
