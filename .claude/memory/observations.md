@@ -3,9 +3,9 @@ Staging area for new topics and cross-domain coordination.
 
 ---
 
-## Overall Status (Apr 11 2026)
+## Overall Status (Apr 13 2026)
 
-**Two of three strategy components confirmed live. One regime. Test params.**
+**Calibration partial pass. New finding: backtest over-predicts overnight hold P&L.**
 
 What's confirmed:
 - Entry signal + K-exit has real alpha (76–80% K-exit win rate across 67 completed trades)
@@ -31,7 +31,7 @@ Path to real money: calibration (Mon/Tue Apr 14–15) → whole-share sizing + s
 
 ### Critical path — sequenced
 
-1. **Calibration — run Mon/Tue Apr 14–15** — gate: overnight GLD/SLV/GDX positions must close first. Once closed, run backtest comparison over the clean window. See `## Plan` in `.claude/calibration/calibration-notes.md`. Sample size (~70–75 trades) is sufficient — don't wait until Apr 20.
+1. **Calibration run Apr 13 — Layer 1 PASS, Layer 2 PARTIAL.** Full snapshot in `.claude/calibration/calibration-notes.md`. Trade counts match exactly (75 vs 75, 1.00x ratio). Entry prices match on intraday trades. **Multi-day holds diverge: backtest captures 2–3× more of extended moves than live.** Root cause hypothesis: backtest keeps trailing stop continuously across overnight gaps; live re-places DAY stop at next open and resets the ratchet chain. **Next critical-path task: investigate and fix the overnight stop model before trusting validated-params Sharpe 2.47 projection.** Layer 3 (slippage) and Layer 4 (aggregate P&L) deferred until this is resolved.
 
 2. **Whole-share sizing + short broker code** — implement immediately after calibration passes. Two parts: (1) position sizing: `floor(risk_budget / stop_distance) = whole shares` replacing fractional allocation; (2) audit `live_broker.py` for direction-aware logic — stop placement, trail ratcheting, and exit order type all need to handle short side. Short signal code already exists and is blocked in `live_broker.py` — unblock once sizing is in place. One day's work, needs to be done carefully (a stop placed in the wrong direction on a short is catastrophic).
 

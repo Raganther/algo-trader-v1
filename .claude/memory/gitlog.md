@@ -3,11 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-13** — chore: Apr 13 calibration run — Layer 1 PASS (75v75 1.00x), Layer 2 PARTIAL — backtest over-predicts overnight holds 2–3x, overnight stop model gap identified as next critical task
+
+ .claude/calibration/calibration-notes.md | 39 +++++++++++++++++++++++++++++---
+ .claude/memory/observations.md           |  6 ++---
+ 2 files changed, 39 insertions(+), 6 deletions(-)
+
+----
 **2026-04-13** — chore: log Apr 13 trades — weekend carries resolved at open, 8 trades total, late-session entry guard first data point
 
  .claude/calibration/live-trade-log.md | 19 +++++++++++++++++++
+ .claude/memory/gitlog.md              | 19 +++++++++----------
  .claude/memory/observations.md        |  3 ++-
- 2 files changed, 21 insertions(+), 1 deletion(-)
+ 3 files changed, 30 insertions(+), 11 deletions(-)
 
 ----
 **2026-04-11** — chore: add Polymarket domains section — 8 domains ranked, weather/economics prioritised, Polymarket vs Kalshi, Irish access, dev candidates restructured with stage gate
@@ -52,12 +60,4 @@
  .claude/memory/observations.md |  6 +++---
  CLAUDE.md                      |  6 ++++--
  3 files changed, 16 insertions(+), 13 deletions(-)
-
-----
-**2026-04-11** — feat: extend regime history to ETF inception — Yahoo Finance daily bars back to 2004, dedup Alpaca overlap, rerun analysis, update domain file
-
- .claude/memory/gitlog.md              | 17 ++++---
- .claude/strategies/regime-analysis.md | 93 +++++++++++++++++++++--------------
- scripts/fetch_price_data_yfinance.py  | 82 ++++++++++++++++++++++++++++++
- 3 files changed, 146 insertions(+), 46 deletions(-)
 
