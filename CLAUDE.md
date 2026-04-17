@@ -100,27 +100,18 @@ Apr 2: overnight stop gap fixed — DAY stop expiry left position unprotected at
 Apr 3: bar-completion guard added — live bot was firing on_bar() on the session-open 15m bar when only 1-2 min old (partial bar from Alpaca live API). Caused ~5 extra trades/month that backtest couldn't reproduce (0.90x ratio explained). Fix: detect overnight gap >60 min, defer on_bar until bar ≥14 min old. Backtest data fetch also corrected (15m direct, not 1m resample). Deployed Apr 3.
 Apr 4: backtest stop-check ordering bug fixed — backtest was ratcheting trailing stop using current bar's close, then checking low against newly elevated stop, causing 92% stop exits vs live's 50/50 K/TS split. Fix: capture pre-ratchet stop level (`sl_for_check`), use that for intrabar low/high check. After fix: backtest 50/50 K/TS ratio matches live exactly. Corrected validated-params Sharpe: GLD 2.47 / IAU 1.97 / SLV 2.41 / GDX 2.58. All domain files updated. Backtest-only fix — no deploy to cloud needed.
 **Calibration target: Apr 20.** Running current aggressive params until then, then backtest same window with identical params to validate the backtest engine. Aggressive params kept deliberately — they generate ~2x more trades than validated params, making the calibration comparison statistically meaningful. Clean data window: Mar 20 – Apr 20 (Mar 20 = first fully confirmed clean day with current params and all fixes deployed).
-Remaining before real money: (1) ~~confirm trailing stop firing in profit~~ ✅ confirmed Mar 23, (2) calibration comparison on Apr 20. Short trading is deferred — Alpaca blocks fractional short selling, and at starting capital (€100) fractional shares are required. Long-only until capital allows whole-share sizing.
+Remaining before real money: (1) ~~confirm trailing stop firing in profit~~ ✅ Mar 23 (test params), (2) ~~calibration~~ ✅ Apr 13 (Layers 1/2/4 pass), (3) ~~whole-share sizing + shorts~~ ✅ Apr 15-16, (4) confirm validated 2.0 ATR trail fires in profit (in progress — 3 multi-day positions live), (5) short stop-loss execution confirmed, (6) correlation-aware sizing.
 
-**Test bots:**
+**Live bots (validated params, deployed Apr 15-16):**
 
 | Bot | Symbol | OB/OS | ADX thresh | Hold | Trail | Trades/yr |
 |-----|--------|-------|------------|------|-------|-----------|
-| gld-test | GLD | 60/40 | 50 | 3 bars | after 1 bar (0.5 ATR) | ~237 |
-| iau-test | IAU | 60/40 | 50 | 3 bars | after 1 bar (0.5 ATR) | ~237 |
-| slv-test | SLV | 60/40 | 50 | 3 bars | after 1 bar (0.5 ATR) | ~237 |
-| gdx-test | GDX | 60/40 | 50 | 3 bars | after 1 bar (0.5 ATR) | ~237 |
+| gld-test | GLD | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~107 |
+| iau-test | IAU | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~107 |
+| slv-test | SLV | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~107 |
+| gdx-test | GDX | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~107 |
 
-**Validated params (switch after mechanics verified):**
-
-| Param | Value |
-|-------|-------|
-| OB/OS | 80/15 |
-| Min hold | 10 bars |
-| Trail after | 10 bars |
-| ADX threshold | 20 |
-| Skip days | Monday |
-| Trades/yr | ~107 per symbol |
+Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid for US equities). Shorts enabled. Skip Monday (`skip_days:[0]`).
 
 **Confirmed working:** bot-initiated exits, trailing stop updates (ratchets up), order cancellation before exit, position sync on restart, heartbeat logging, DAY TIF stops, DB reconciliation on startup, server-side stop FIRING (confirmed Mar 10 — SLV stop at $80.49 auto-filled at $80.43). GDX started trading Mar 16 — resolves zero-trade open question.
 
@@ -140,7 +131,8 @@ Remaining before real money: (1) ~~confirm trailing stop firing in profit~~ ✅ 
 | IAU | -0.50% | 0.99% | 54 | 37% |
 
 **Known issues (not yet fixed):**
-- Fractional short selling not supported — Alpaca rejects short (sell-to-open) orders for fractional shares. Short trading disabled until whole-share quantity sizing is implemented.
+- Validated 2.0 ATR trail has never fired in profit live — test params trail (0.5 ATR) confirmed Mar 23, but validated trail is a different mechanism. Currently in motion on 3 positions (SLV/GLD/IAU from Apr 15-16).
+- Short stop-loss execution not yet confirmed — first short (GLD Apr 16) was K-signal exit. Need a short trade to run against us and have the server-side stop trigger.
 
 ## Validated Edges
 
@@ -181,6 +173,6 @@ Remaining before real money: (1) ~~confirm trailing stop firing in profit~~ ✅ 
 - Live fetch window must stay ≥7 days in runner.py (weekends need 150+ bars)
 - Server RAM tight — avoid heavy SSH commands while bots are processing bars
 - Deploy to cloud only when bot code changes — docs/memory changes don't need deploy
-- Fractional short selling rejected by Alpaca — bots are long-only until whole-share qty sizing added
+- Shorts enabled — whole-share sizing deployed Apr 15-16. First short confirmed working Apr 16 (GLD)
 - Alpaca timestamps are UTC, not ET — confirmed Mar 14
 - `dynamic_adx` defaults to True in strategy — always pass `"dynamic_adx": false` in backtest params, otherwise `adx_threshold` is ignored and a tighter dynamic threshold (20-30) is used instead

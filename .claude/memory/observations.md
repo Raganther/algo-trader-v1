@@ -3,27 +3,30 @@ Staging area for new topics and cross-domain coordination.
 
 ---
 
-## Overall Status (Apr 13 2026)
+## Overall Status (Apr 17 2026)
 
-**Calibration complete — Layers 1, 2, 4 all pass. Execution layer validated for test params / intraday regime.**
+**Validated params deployed. Shorts working. GTC stop fix in. First multi-day trail positions live.**
 
 What's confirmed:
 - Entry signal + K-exit has real alpha (76–80% K-exit win rate across 67 completed trades)
-- Both server-side exit mechanics work (stop loss + trailing stop in profit)
+- Both server-side exit mechanics work (stop loss + trailing stop in profit — test params confirmed Mar 23)
 - Execution infrastructure sound (100% audit integrity, all known bugs fixed)
 - Signal generalises across 4 assets — confirmed in backtest, consistent in live direction
+- Calibration Layers 1, 2, 4 pass (Apr 13) — backtest engine accurate for test params / intraday regime
+- Whole-share sizing working — 340+ shares per position, confirmed Apr 15 (SLV first trade)
+- **Short mechanics confirmed working** — GLD shorted Apr 16 (sell_to_open 55 @ $440.43, K-exit cover @ $439.73, +$38.50). Entry, stop placement, trail ratchet, and K-exit all fired correctly. Stop-loss execution on short side not yet confirmed (never triggered live).
+- **GTC stop fix deployed Apr 17** — stop orders switched from DAY to GTC (`alpaca_trader.py`). Eliminates the overnight expiry gap permanently. Root cause of the bug: bots running continuously never cleared `pending_stop_order_id` when DAY stop expired — re-placement guard at runner.py:923 never triggered. GTC removes the problem entirely.
 
 What's not yet confirmed:
-- The trail at validated params (2.0 ATR, after 10 bars) — never fired live. This is the component that captures extended moves and drives the Sharpe 2.47. Test params trail (0.5 ATR, 1 bar) is a noise-driven stop — a different mechanism entirely.
-- Backtest P&L model accuracy — Apr 20 calibration is the gate (Layers 2–4: entry/exit prices, stop slippage, aggregate P&L)
-- Long-only validated Sharpe — headline figures (2.47 etc.) include shorts the bots can't execute. Long-only is estimated at ~1.20–3.10 depending on symbol.
+- **Validated 2.0 ATR trail firing in profit** — never fired live. Test params trail (0.5 ATR, 1 bar) confirmed Mar 23, but that's a different mechanism. The 2.0 ATR trail is what drives Sharpe 2.47. Currently tracking: SLV (entry Apr 15), GLD (entry Apr 16), IAU (entry Apr 16) — all running multi-day. Trail active on all three (past bar 10). Stop-loss execution on short side not yet confirmed.
+- Long-only validated Sharpe — headline figures (2.47 etc.) include shorts. Long-only needs explicit rerun.
 
 Key red flags to track:
-- **Regime dependency** — live performance is in the best historical regime for this strategy (2024–2025 metals bull). 2020 would have been negative at aggressive params.
-- **Correlated entries** — GLD/IAU/SLV enter simultaneously. 2% risk × 3 = 6% in one correlated move. Pre-real-money requirement: correlation-aware sizing.
+- **Regime dependency** — live performance is in the best historical regime for this strategy (2024–2025 metals bull).
+- **Correlated entries** — GLD/IAU/SLV entered simultaneously Apr 16. ~$73k of $94k account carrying overnight long across 3 correlated positions. Pre-real-money requirement: correlation-aware sizing.
 - **Slippage spikes on volatile days** — median $0.010/share but outliers at $0.140 and $0.297. Not modelled in backtest.
 
-Path to real money: calibration (Mon/Tue Apr 14–15) → whole-share sizing + short broker code → validated params with shorts → second clean window (confirm trail + short mechanics) → real money.
+Path to real money: ~~calibration~~ ✅ Apr 13 → ~~whole-share sizing + short broker code~~ ✅ Apr 15-16 → **validated params with shorts (NOW)** → second clean window (confirm validated trail fires + short stop-loss) → real money.
 
 ---
 
@@ -31,11 +34,11 @@ Path to real money: calibration (Mon/Tue Apr 14–15) → whole-share sizing + s
 
 ### Critical path — sequenced
 
-1. **Calibration complete Apr 13 — Layers 1, 2, 4 all pass.** Full summary in `.claude/calibration/calibration-notes.md`. Layer 1: trade counts 75/75 (1.00x). Layer 2: intraday aligned trades match, multi-day divergence is cumulative drift not structural. Layer 4: live +$4,543 (+4.82%) vs backtest +1.71% — 2.8× ratio explained by shared-capital multi-bot stacking (not a model bug). Layer 3 (slippage aggregation) pending. Execution layer validated for test params / intraday regime. Sharpe 2.47 validated-params projection is now grounded. **Calibration unblocks whole-share sizing + short broker code (critical path step 2).**
+1. ~~**Calibration complete Apr 13 — Layers 1, 2, 4 all pass.**~~ ✅ Done. Full summary in `.claude/calibration/calibration-notes.md`. Layer 3 (slippage aggregation) still pending — low priority.
 
-2. **Whole-share sizing + short broker code** — implement immediately after calibration passes. Two parts: (1) position sizing: `floor(risk_budget / stop_distance) = whole shares` replacing fractional allocation; (2) audit `live_broker.py` for direction-aware logic — stop placement, trail ratcheting, and exit order type all need to handle short side. Short signal code already exists and is blocked in `live_broker.py` — unblock once sizing is in place. One day's work, needs to be done carefully (a stop placed in the wrong direction on a short is catastrophic).
+2. ~~**Whole-share sizing + short broker code**~~ ✅ Done. Deployed Apr 15-16 (commit cd507aa). Whole shares confirmed working (340+ shares per position). First short trade confirmed Apr 16 (GLD, K-exit, +$38.50).
 
-3. **Switch to validated params with shorts enabled** — OB 80/OS 15, hold 10, trail 2.0 ATR after 10 bars, skip Monday. Do this immediately after sizing + short code is confirmed. No intermediate parameter phase needed — short mechanics verification is simpler than long (only 4 things to verify vs 7+ at launch). Expect ~3–4 short trades/week across 4 symbols on validated params — 2 weeks sufficient to confirm short mechanics. This starts the second clean window needed to confirm the trail component (the only unconfirmed part of the strategy).
+3. **Validated params with shorts — NOW RUNNING.** OB 80/OS 15, hold 10 bars, trail 2.0 ATR after 10 bars, skip Monday. First trades: SLV long Apr 15, GLD short+long Apr 16, IAU long Apr 16. All three carrying overnight into weekend (Apr 17 close): SLV +$872, GLD +$326, IAU +$321. Second clean window started — need to confirm: (1) validated 2.0 ATR trail fires in profit, (2) short stop-loss executes correctly.
 
 4. **Portfolio correlation analysis** — run all 4 symbols on validated params simultaneously, shared timeline, tally joint outcomes split by year. Read-only, no execution logic. Do before implementing correlation-aware sizing. Can run in parallel with the validated params forward test window.
 
