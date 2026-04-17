@@ -117,17 +117,14 @@ class AlpacaTrader:
         }
 
     def place_stop_order(self, symbol, qty, side, stop_price):
-        """Place a standalone stop order (for server-side stop losses with fractional shares)."""
+        """Place a standalone stop order (for server-side stop losses)."""
         clean_symbol = symbol.replace('/', '')
         alpaca_side = OrderSide.BUY if side.lower() == 'buy' else OrderSide.SELL
         is_crypto = '/' in symbol
         qty = int(qty) if not is_crypto else qty
-        # Fractional shares require DAY TIF on Alpaca (GTC rejected)
-        # Stop re-placed on next bar after market open if held overnight
-        if not is_crypto:
-            alpaca_tif = TimeInForce.DAY
-        else:
-            alpaca_tif = TimeInForce.GTC
+        # Whole-share sizing (deployed Apr 17) allows GTC TIF for US equities.
+        # GTC stops persist across sessions — no daily re-placement needed.
+        alpaca_tif = TimeInForce.GTC
 
         req = StopOrderRequest(
             symbol=clean_symbol,
