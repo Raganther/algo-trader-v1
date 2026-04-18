@@ -40,10 +40,10 @@ When asked to "check bots", run these Alpaca MCP calls in order:
 Use SSH only when MCP can't answer the question: bot process status, application logs, errors/warnings.
 ```bash
 # Bot process health (running/stopped/errored)
-gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="pm2 status"
+gcloud compute ssh algotrader-us --zone=us-east1-b --command="pm2 status"
 
 # Bot logs — errors, warnings, heartbeats (not trade data — use MCP for that)
-gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="for bot in gld-test iau-test slv-test gdx-test; do echo \"=== \$bot ===\"; logs=\$(ls -t /home/alistairelliman/.pm2/logs/\${bot}-out*.log | head -2); today=\$(echo \"\$logs\" | head -1); yesterday=\$(echo \"\$logs\" | tail -1); echo \"-- today --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$today\" 2>/dev/null; echo \"-- yesterday --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$yesterday\" 2>/dev/null; done"
+gcloud compute ssh algotrader-us --zone=us-east1-b --command="for bot in gld-test iau-test slv-test gdx-test; do echo \"=== \$bot ===\"; logs=\$(ls -t /home/alistairelliman/.pm2/logs/\${bot}-out*.log | head -2); today=\$(echo \"\$logs\" | head -1); yesterday=\$(echo \"\$logs\" | tail -1); echo \"-- today --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$today\" 2>/dev/null; echo \"-- yesterday --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$yesterday\" 2>/dev/null; done"
 ```
 
 ### Other commands
@@ -53,7 +53,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 # Deploy code changes to cloud
 git push origin main
-gcloud compute ssh algotrader2026 --zone=europe-west2-a --command="cd algo-trader-v1 && git pull && pm2 restart all"
+gcloud compute ssh algotrader-us --zone=us-east1-b --command="cd algo-trader-v1 && git pull && pm2 restart all"
 
 # Git save
 ./scripts/git-save.sh "message"

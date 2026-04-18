@@ -3,11 +3,18 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-19** — chore: migrate to algotrader-us (us-east1-b) — update server refs, trail ratcheting confirmed
+
+ CLAUDE.md | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+----
 **2026-04-17** — chore: Apr 17 update — validated params live, first short confirmed, GTC stop fix deployed
 
- .claude/memory/observations.md | 27 +++++++++++++++------------
- CLAUDE.md                      | 30 +++++++++++-------------------
- 2 files changed, 26 insertions(+), 31 deletions(-)
+ .claude/memory/gitlog.md       | 64 +++++++++++++++++++++++++++---------------
+ .claude/memory/observations.md | 27 ++++++++++--------
+ CLAUDE.md                      | 30 ++++++++------------
+ 3 files changed, 67 insertions(+), 54 deletions(-)
 
 ----
 **2026-04-17** — fix: switch stop orders to GTC TIF — eliminates overnight expiry gap
@@ -71,11 +78,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  .claude/memory/gitlog.md                           |  19 +--
  .../strategies/arbitrage-automation-concepts.md    | 177 ++++++++++++++++++++-
  2 files changed, 177 insertions(+), 19 deletions(-)
-
-----
-**2026-04-11** — chore: expand weather section in arbitrage domain file — prediction alpha vs true arb, data sources, ENSO regime, opportunity hierarchy, dev candidates updated
-
- .claude/memory/gitlog.md                           |  16 +--
- .../strategies/arbitrage-automation-concepts.md    | 108 +++++++++++++++++++--
- 2 files changed, 106 insertions(+), 18 deletions(-)
 
