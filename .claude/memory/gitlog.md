@@ -3,10 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-19** — chore: Apr 19 — trail ratcheting confirmed, server migration complete, all files updated
+
+ .claude/hooks/load-context.sh  |  4 ++--
+ .claude/memory/observations.md | 24 ++++++++++++++++--------
+ CLAUDE.md                      |  4 ++--
+ 3 files changed, 20 insertions(+), 12 deletions(-)
+
+----
 **2026-04-19** — chore: migrate to algotrader-us (us-east1-b) — update server refs, trail ratcheting confirmed
 
- CLAUDE.md | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ .claude/memory/gitlog.md | 20 ++++++++++----------
+ CLAUDE.md                |  6 +++---
+ 2 files changed, 13 insertions(+), 13 deletions(-)
 
 ----
 **2026-04-17** — chore: Apr 17 update — validated params live, first short confirmed, GTC stop fix deployed
@@ -71,11 +80,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  .claude/memory/gitlog.md              | 19 +++++++++----------
  .claude/memory/observations.md        |  3 ++-
  3 files changed, 30 insertions(+), 11 deletions(-)
-
-----
-**2026-04-11** — chore: add Polymarket domains section — 8 domains ranked, weather/economics prioritised, Polymarket vs Kalshi, Irish access, dev candidates restructured with stage gate
-
- .claude/memory/gitlog.md                           |  19 +--
- .../strategies/arbitrage-automation-concepts.md    | 177 ++++++++++++++++++++-
- 2 files changed, 177 insertions(+), 19 deletions(-)
 

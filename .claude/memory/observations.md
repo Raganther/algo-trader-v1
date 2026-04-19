@@ -3,9 +3,9 @@ Staging area for new topics and cross-domain coordination.
 
 ---
 
-## Overall Status (Apr 17 2026)
+## Overall Status (Apr 19 2026)
 
-**Validated params deployed. Shorts working. GTC stop fix in. First multi-day trail positions live.**
+**Validated 2.0 ATR trail confirmed ratcheting. Server migrated to US. Three positions carrying into Mon with locked profits.**
 
 What's confirmed:
 - Entry signal + K-exit has real alpha (76–80% K-exit win rate across 67 completed trades)
@@ -13,20 +13,28 @@ What's confirmed:
 - Execution infrastructure sound (100% audit integrity, all known bugs fixed)
 - Signal generalises across 4 assets — confirmed in backtest, consistent in live direction
 - Calibration Layers 1, 2, 4 pass (Apr 13) — backtest engine accurate for test params / intraday regime
-- Whole-share sizing working — 340+ shares per position, confirmed Apr 15 (SLV first trade)
-- **Short mechanics confirmed working** — GLD shorted Apr 16 (sell_to_open 55 @ $440.43, K-exit cover @ $439.73, +$38.50). Entry, stop placement, trail ratchet, and K-exit all fired correctly. Stop-loss execution on short side not yet confirmed (never triggered live).
-- **GTC stop fix deployed Apr 17** — stop orders switched from DAY to GTC (`alpaca_trader.py`). Eliminates the overnight expiry gap permanently. Root cause of the bug: bots running continuously never cleared `pending_stop_order_id` when DAY stop expired — re-placement guard at runner.py:923 never triggered. GTC removes the problem entirely.
+- Whole-share sizing working — 340+ shares per position, confirmed Apr 15
+- Short mechanics confirmed working — GLD shorted Apr 16, K-exit +$38.50. Entry, stop, trail ratchet, K-exit all correct.
+- GTC stop fix deployed Apr 17 — eliminates overnight expiry gap permanently
+- **Validated 2.0 ATR trail confirmed ratcheting (Apr 17-18)** — stops climbed significantly during Friday's session: GLD $439→$445.44, IAU $90.03→$91.26, SLV $70.96→$73.41. All three now locking in profit above entry. This is the mechanism that drives Sharpe 2.47. Trail ratcheting confirmed live.
 
 What's not yet confirmed:
-- **Validated 2.0 ATR trail firing in profit** — never fired live. Test params trail (0.5 ATR, 1 bar) confirmed Mar 23, but that's a different mechanism. The 2.0 ATR trail is what drives Sharpe 2.47. Currently tracking: SLV (entry Apr 15), GLD (entry Apr 16), IAU (entry Apr 16) — all running multi-day. Trail active on all three (past bar 10). Stop-loss execution on short side not yet confirmed.
+- **Validated trail FIRING in profit** — trail is ratcheting correctly but hasn't fired yet (positions still open). Need a stop to actually trigger and close a position in profit.
+- Short stop-loss execution — first short was K-exit. Need a short to run against us and server-side stop trigger.
 - Long-only validated Sharpe — headline figures (2.47 etc.) include shorts. Long-only needs explicit rerun.
+
+Locked profits going into Monday (positions still open, stops will be re-placed at open):
+- GLD: stop $445.44 vs entry $440.16 → +$290 locked
+- IAU: stop $91.26 vs entry $90.20 → +$286 locked
+- SLV: stop $73.41 vs entry $71.29 → +$725 locked
+- Total locked: ~$1,301 minimum regardless of what happens next
 
 Key red flags to track:
 - **Regime dependency** — live performance is in the best historical regime for this strategy (2024–2025 metals bull).
-- **Correlated entries** — GLD/IAU/SLV entered simultaneously Apr 16. ~$73k of $94k account carrying overnight long across 3 correlated positions. Pre-real-money requirement: correlation-aware sizing.
+- **Correlated entries** — GLD/IAU/SLV all long simultaneously. Pre-real-money requirement: correlation-aware sizing.
 - **Slippage spikes on volatile days** — median $0.010/share but outliers at $0.140 and $0.297. Not modelled in backtest.
 
-Path to real money: ~~calibration~~ ✅ Apr 13 → ~~whole-share sizing + short broker code~~ ✅ Apr 15-16 → **validated params with shorts (NOW)** → second clean window (confirm validated trail fires + short stop-loss) → real money.
+Path to real money: ~~calibration~~ ✅ Apr 13 → ~~whole-share sizing + short broker code~~ ✅ Apr 15-16 → **validated params with shorts (NOW — trail ratcheting confirmed)** → confirm trail FIRES in profit + short stop-loss → real money.
 
 ---
 

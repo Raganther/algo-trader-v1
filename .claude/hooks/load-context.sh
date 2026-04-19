@@ -25,8 +25,8 @@ echo ""
 
 # Check if we can reach cloud (quick timeout)
 echo "☁️  Cloud status:"
-echo "  Server: algotrader2026 (europe-west2-a)"
-echo "  Check bots: gcloud compute ssh algotrader2026 --zone=europe-west2-a --command=\"pm2 status\""
+echo "  Server: algotrader-us (us-east1-b)"
+echo "  Check bots: gcloud compute ssh algotrader-us --zone=us-east1-b --command=\"pm2 status\""
 echo ""
 
 echo "==================================="

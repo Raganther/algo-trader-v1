@@ -131,8 +131,8 @@ Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid 
 | IAU | -0.50% | 0.99% | 54 | 37% |
 
 **Known issues (not yet fixed):**
-- Validated 2.0 ATR trail has never fired in profit live — test params trail (0.5 ATR) confirmed Mar 23, but validated trail is a different mechanism. Currently in motion on 3 positions (SLV/GLD/IAU from Apr 15-16).
-- Short stop-loss execution not yet confirmed — first short (GLD Apr 16) was K-signal exit. Need a short trade to run against us and have the server-side stop trigger.
+- Validated 2.0 ATR trail FIRING in profit not yet confirmed — trail ratcheting confirmed live (Apr 17-18, stops climbed $5-6 above entry on GLD/IAU/SLV). But the stop hasn't actually triggered and closed a position in profit yet. That's the final confirmation.
+- Short stop-loss execution not yet confirmed — first short (GLD Apr 16) was K-signal exit. Need a short to run against us and server-side stop trigger.
 
 ## Validated Edges
 
