@@ -8,12 +8,13 @@ Phase: Forward testing — verifying live execution mechanics on 4 paper bots be
 ## Session Start
 Read in order on every cold start:
 1. `.claude/memory/gitlog.md` — recent git saves
-2. `.claude/memory/observations.md` — active work + staging
+2. `.claude/strategies/research-roadmap.md` — in-flight work + open questions
 
 **Before starting any update, new feature, or bug fix — scan the list below and read any relevant domain files first.**
 
 Read on demand only:
 - `.claude/procedures/_index.md` — scan at plan creation for relevant how-to patterns
+- `.claude/harness-v4.md` — read when working on the memory harness, hooks, or knowledge conventions
 - `.claude/strategies/stochrsi-enhanced-gld.md` — read when working on GLD, reviewing long-only vs full strategy, or checking the audit baseline
 - `.claude/strategies/stochrsi-enhanced-iau.md` — read when working on IAU or reviewing 15m strategy params
 - `.claude/strategies/stochrsi-enhanced-slv.md` — read when working on SLV or reviewing 15m strategy params
@@ -75,7 +76,9 @@ python3 scripts/fetch_price_data_yfinance.py
 - **Indicators:** `backend/indicators/` — StochRSI, RSI, MACD, ADX, Bollinger, ATR, SMA, CHOP
 - **DB:** `backend/research.db` — experiments, live trades
 - **Frontend:** `frontend/` — Next.js dashboard, DB-driven
-- **Strategy notes:** `.claude/strategies/` — 6 domain files, individually listed in Session Start above
+- **Harness spec:** `.claude/harness-v4.md` — knowledge conventions, layer model, hook descriptions
+- **Roadmap:** `.claude/strategies/research-roadmap.md` — all in-flight work and open questions
+- **Strategy notes:** `.claude/strategies/` — domain files, individually listed in Session Start above
 - **Calibration notes:** `.claude/calibration/calibration-notes.md` — methodology, Apr 20 commands, snapshots
 - **Live trade log:** `.claude/calibration/live-trade-log.md` — per-trade records for Mar 20–Apr 20 calibration window
 - **OpenBrain category:** `.claude/openbrain-category` — `algo-trader`
@@ -84,23 +87,14 @@ python3 scripts/fetch_price_data_yfinance.py
 - **Hooks:** SessionStart (load-context.sh), PreToolUse guard (git-save-guard.sh), PreToolUse naming guard (domain-naming-guard.sh), PostToolUse OpenBrain audit (openbrain-audit-reminder.sh)
 
 ## Current Status
-Phase: Forward testing + charting. 4 paper bots running on cloud (gld-test, iau-test, slv-test, gdx-test).
-Price action chart live at `/chart` — Stage 1 complete (candlestick chart, symbol/range selector).
-UI redesigned: Inter font, shared sidebar nav, max-width constraints, consistent page structure.
-Stage 2 next: trade overlays on chart.
-Aggressive test params (OB 60/OS 40, 3-bar hold/trail) to generate more trades for mechanics verification.
-~7 weeks of live testing complete (started late Feb). All bots active: GDX started trading Mar 16 after zero trades previously.
-Mar 16: full Alpaca order audit — all records match perfectly. 6 complete trades across 4 bots, 2 server stops fired, trailing stops ratcheted.
-Pre-market signal bug found and fixed Mar 16 (market hours gate, runner.py).
-Mar 17: 4 trades across all bots. Full Alpaca audit — all records matched. GDX server stop fired intrabar (19:06 UTC) — confirmed again. Trailing stop firing in profit still unconfirmed. Trail params tightened (trail_atr 2.0→0.5, trail_after_bars 3→1) to provoke trail fire.
-Mar 18: 4 trades across all 4 bots, all flat EOD. SLV server stop fired (stop loss). IAU trail ratcheted but exited via K-signal. Per-trade diagnostic run: with OLD params (2.0 ATR), backtest predicts ZERO profitable trail fires in Jan-Mar 2026 — matches live exactly, no bug. With new params (0.5 ATR), backtest predicts ~5 per symbol. 2 days on new params so far — still waiting.
-Mar 19: 4 trades, all flat ~18:46 UTC. Full Alpaca audit — all 12 orders matched. GDX trail update failed (race condition in update_stop_order — cancel async, new stop placed before shares freed). Fixed with 1s sleep after cancel. Bug existed since Mar 4 fallback was added, exposed by tighter trail_after_bars=1. Deployed fix.
-Infrastructure assessment: core is sound. 14 bugs found and fixed. Data integrity 100% from Mar 5 onwards.
-Apr 2: overnight stop gap fixed — DAY stop expiry left position unprotected at market open (13:30–13:45 UTC). Loop now re-places stop before on_bar if pending_stop_order_id is None. Gap existed since Mar 4 (cedc865 noted the intention but never built it). Discovered via rejected Alpaca order in UI (Mar 31 21:10 UTC). Deployed Apr 2.
-Apr 3: bar-completion guard added — live bot was firing on_bar() on the session-open 15m bar when only 1-2 min old (partial bar from Alpaca live API). Caused ~5 extra trades/month that backtest couldn't reproduce (0.90x ratio explained). Fix: detect overnight gap >60 min, defer on_bar until bar ≥14 min old. Backtest data fetch also corrected (15m direct, not 1m resample). Deployed Apr 3.
-Apr 4: backtest stop-check ordering bug fixed — backtest was ratcheting trailing stop using current bar's close, then checking low against newly elevated stop, causing 92% stop exits vs live's 50/50 K/TS split. Fix: capture pre-ratchet stop level (`sl_for_check`), use that for intrabar low/high check. After fix: backtest 50/50 K/TS ratio matches live exactly. Corrected validated-params Sharpe: GLD 2.47 / IAU 1.97 / SLV 2.41 / GDX 2.58. All domain files updated. Backtest-only fix — no deploy to cloud needed.
-**Calibration target: Apr 20.** Running current aggressive params until then, then backtest same window with identical params to validate the backtest engine. Aggressive params kept deliberately — they generate ~2x more trades than validated params, making the calibration comparison statistically meaningful. Clean data window: Mar 20 – Apr 20 (Mar 20 = first fully confirmed clean day with current params and all fixes deployed).
-Remaining before real money: (1) ~~confirm trailing stop firing in profit~~ ✅ Mar 23 (test params), (2) ~~calibration~~ ✅ Apr 13 (Layers 1/2/4 pass), (3) ~~whole-share sizing + shorts~~ ✅ Apr 15-16, (4) confirm validated 2.0 ATR trail fires in profit (in progress — 3 multi-day positions live), (5) short stop-loss execution confirmed, (6) correlation-aware sizing.
+Phase: Forward testing — validated params live, path to real money. 4 paper bots running on cloud (gld-test, iau-test, slv-test, gdx-test).
+Price action chart live at `/chart` — Stage 1 complete (candlestick chart, symbol/range selector). Stage 2 next: trade overlays on chart.
+
+**Confirmed working:** entry signal + K-exit (76–80% win rate across 67+ trades), server-side stop loss, trailing stop in profit (SLV +$283.86 Apr 20), trail ratcheting, whole-share sizing (340+ shares/position), short entry + K-exit (GLD Apr 16 +$38.50), GTC stops (no overnight expiry gap), pm2 startup registered as systemd service.
+
+**Execution layer validated (Apr 13 calibration):** Layers 1/2/4 pass. Backtest engine accurate for test params / intraday regime. See calibration-notes.md for full results.
+
+**Remaining before real money:** see `research-roadmap.md` → Critical Path section.
 
 **Live bots (validated params, deployed Apr 15-16):**
 
@@ -129,10 +123,6 @@ Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid 
 | SLV | +14.25% | 1.15% | 44 | 57% |
 | GDX | +2.45% | 0.94% | 69 | 59% |
 | IAU | -0.50% | 0.99% | 54 | 37% |
-
-**Known issues (not yet fixed):**
-- Validated 2.0 ATR trail FIRING in profit not yet confirmed — trail ratcheting confirmed live (Apr 17-18, stops climbed $5-6 above entry on GLD/IAU/SLV). But the stop hasn't actually triggered and closed a position in profit yet. That's the final confirmation.
-- Short stop-loss execution not yet confirmed — first short (GLD Apr 16) was K-signal exit. Need a short to run against us and server-side stop trigger.
 
 ## Validated Edges
 

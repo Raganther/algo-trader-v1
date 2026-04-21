@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-03-26
+Status: current | Epistemic: confirmed | Last verified: 2026-04-21
 
 # EventSurprise — Economic Data Surprise Trading
 
@@ -6,16 +6,6 @@ Status: current | Epistemic: confirmed | Last verified: 2026-03-26
 > **Bot script:** `scripts/run_event_surprise_test.sh`
 > **Diagnostic scripts:** `backend/scripts/event_surprise_analysis.py`, `backend/scripts/event_surprise_gaps.py`
 > **Note:** Built and backtested — not yet paper tested or deployed.
-
-## Plan
-
-### Research
-- [ ] Paper test on cloud — CPI-only config first (strongest signal, 86% WR)
-- [ ] Test wider hold windows (hold_bars=8/16)
-- [ ] Test on SLV/IAU (same precious metals drivers)
-- [ ] Explore FOMC rate decisions as additional event type
-- [ ] Consider combining with StochRSI as entry filter
-- [ ] Explore surprise magnitude for position sizing
 
 ## Knowledge
 

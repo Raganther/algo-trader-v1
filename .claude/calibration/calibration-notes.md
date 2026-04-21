@@ -1,19 +1,8 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-13
+Status: current | Epistemic: confirmed | Last verified: 2026-04-21
 
 # Calibration Notes — Algo Trader V1
 
 Confirmed methodology for validating the backtest engine against live results.
-
-## Plan
-
-### Active
-- [x] **Calibration run Apr 13 — Layers 1, 2, 4 all pass.** Full summary below. Execution layer validated for test params / intraday regime.
-- [x] **Overnight stop model hypothesis investigated** — refuted by code review. Live `runner.py:934` re-places DAY stops at next open using the same in-memory `strategy.current_sl` value, preserving the ratchet chain. Backtester also persists `current_sl` across the gap. Overnight behaviour is symmetric. No fix needed.
-- [ ] **Layer 3 (stop slippage aggregation)** — pending. Refresh median/mean with Apr 9–13 stop exits added (33 → ~40 samples).
-- [ ] **Shared-capital multi-symbol backtest runner** — roadmap item (step 4 of critical path, "portfolio correlation analysis"). Needed for rigorous aggregate P&L validation since 4 live bots share $94k equity pool while backtest runs symbols independently on isolated $10k each. Directional check passes; magnitude check requires this infrastructure.
-
-### Research
-- [ ] **Post-calibration research loop (three phases):** Research (backtest, filter Sharpe > 2 / DD < 3% / WF pass) → Validate (4–8 week forward test, goal is prediction accuracy not profit) → Deploy (real money). Execution layer corrections from Apr 20 apply universally; signal layer needs its own forward test per new strategy.
 
 ## Knowledge
 
@@ -212,13 +201,6 @@ Backtest (Jan 1 lead-in, long_only=True) vs live DB:
 | GDX    | 6              | 8           | -0.66%          |
 
 SLV exact. GLD close. IAU/GDX off by 2–3 trades — likely data resampling differences plus a couple of bug-affected trades. Too early for conclusions. Repeat at Apr 20.
-
-## Open Questions
-
-- **Residual 0.90x under-prediction — FIXED (Apr 3)** — root cause: live bot was firing `on_bar()` on the session-open 15m bar when only 0–2 min old (partial bar from Alpaca live API). StochRSI K on 1–2 min of data behaved differently than on the complete 15-min bar the backtest uses — marginal OS readings crossed live but not backtest. 7 of 9 market-open live trades in Mar 20–Apr 2 had no backtest match, accounting for the full ~5-trade gap. **Fix deployed Apr 3:** bar-completion guard detects overnight gap >60 min, defers `on_bar()` until bar is ≥14 min old. **For Apr 20 calibration:** expect ratio ~1.0x. If a residual gap persists after this fix, it has a new unexplained cause and needs investigation. Data fetch also corrected (backtest now fetches 15m directly from Alpaca — no impact on trade count but correct for consistency).
-- **K/TS exit ratio — FIXED (Apr 4)** — before fix, backtest showed 8% K-exits / 92% stop exits vs live 50/50. Root cause: backtest was ratcheting the trailing stop using the current bar's close, then immediately checking the current bar's low against the newly elevated stop — causing false stop fires on bullish bars. Fix: capture stop level before ratcheting (`sl_for_check`), use that for the intrabar low/high check. Ratcheted level applies from next bar onwards, matching Alpaca server-side behaviour. After fix: backtest 50/50 K/TS ratio, exactly matching live. Validated on Mar 20–Apr 2 window (36 backtest trades: 18 K / 18 stop). Corrected validated-params figures: GLD Sharpe 2.47 / +39.22%, IAU 1.97 / +32.7%, SLV 2.41 / +97.96%, GDX 2.58 / +129.8%. Fix committed Apr 4: `651c5ce`.
-- **Stop slippage — CHARACTERISED (updated Apr 8, 33 stop exits)** — all slippage is negative (fill always below stop price for long exits — 100% directional consistency). Mean: ~$0.025/share. Median: $0.010/share. Outliers: $0.140 (GLD Mar 24 — correlated simultaneous exits), $0.297 (GLD Apr 6 — high-volatility day). The mean is skewed upward by outliers; on normal days median $0.010 holds. Slippage spikes on volatile sessions — this is an important calibration caveat. Backtest models zero stop slippage. **Decision: do not model yet.** Known bias — will cause slight P&L overstatement in Layer 4. Add `stop_slippage` parameter only after Apr 20 Layer 3 confirms the bias holds on a larger sample. Median ($0.010) is the more reliable model input if added.
-- **Execution layer calibration across regimes** — the Apr 20 calibration is a snapshot of one unusual regime (post-metals-crash recovery, high intraday volatility). Whether spread and slippage assumptions hold in calmer or more strongly trending conditions is untested. Calibration is valid for this window; treat it as a lower bound on confidence, not a universal constant.
 
 ### Snapshots
 

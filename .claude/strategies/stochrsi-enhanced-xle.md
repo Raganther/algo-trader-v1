@@ -1,13 +1,8 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-03-28
+Status: current | Epistemic: confirmed | Last verified: 2026-04-21
 
 # StochRSI Enhanced — XLE 15m
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
-
-## Plan
-
-### Active
-- [ ] Deploy as 5th paper bot (Rolling Validation Test #1) after: (1) Apr 20 calibration passes, (2) validated params switch and trail confirmed, (3) sizing logic implemented. Lower priority than getting core 4 bots live at real money. 4–8 week forward test, compare live results to backtest prediction to validate engine on new asset.
 
 ## Knowledge
 

@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-01 | Implementation: partially integrated
+Status: current | Epistemic: confirmed | Last verified: 2026-04-21
 
 # Alpaca MCP — Tool Reference
 
@@ -128,11 +128,3 @@ get_corporate_action_announcements(ca_types="Dividend,Split", symbol="GLD", sinc
 # Spot-check 15m bars for a specific day
 get_stock_bars(symbols="GLD", timeframe="15Min", start="2026-03-23T13:30:00Z", end="2026-03-23T20:00:00Z", feed="iex")
 ```
-
-## Open Questions
-
-- `get_portfolio_history` — not yet validated. Planned for Apr 20 calibration to pull daily equity curve. Confirm timeframe param and date range behaviour before Apr 20.
-- `get_stock_bars` — not yet validated. Use for spot-checking price action on specific trade days. Confirm `feed="iex"` required for paper account.
-- `get_calendar` — not yet validated. Use to confirm exact trading days in Mar 20–Apr 20 window.
-- `get_corporate_action_announcements` — not yet validated. Use to check for dividends/splits affecting GLD/IAU/SLV/GDX during calibration window.
-- `get_account_activities(FILL)` — not yet validated as alternative to `get_orders`. May provide fill-level detail unavailable in order records.

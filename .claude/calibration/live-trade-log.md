@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-08
+Status: current | Epistemic: confirmed | Last verified: 2026-04-21
 
 # Live Trade Log — Calibration Window
 
@@ -6,16 +6,6 @@ Detailed per-trade records for the Mar 20 – Apr 20 calibration window.
 Used for Apr 20 calibration comparison: Layer 2 (entry/exit prices vs backtest) and Layer 3 (stop fill slippage).
 
 **Exit types:** `K` = bot K-signal at candle close | `SS` = server-side stop (stop loss) | `TS` = trailing stop fired intrabar
-
-## Plan
-
-### Active
-- [ ] Log each trading day through Apr 20 — check bots daily, add trade rows, update analysis totals
-- [ ] Run Apr 20 calibration comparison — see `.claude/calibration/calibration-notes.md` for commands and framework
-
-### Research
-- [ ] After Apr 20: does the backtest reproduce the 50/50 K/TS split? If not, stop execution model needs investigation
-- [ ] After Apr 20: does backtest show GDX underperforming the other three, or does it predict GDX strong? Determines whether GDX divergence is regime or model issue
 
 ## Knowledge
 
@@ -345,10 +335,3 @@ Weekend — market closed.
 
 *8 completed trades. Weekend carries: 1 TS win (GDX +0.440), 2 TS losses (SLV -0.330, GLD -0.201). Intraday: 1 TS win (SLV +0.150), 3 K-wins (GLD +1.584, GDX +0.940, IAU +0.180), 1 K-loss (GDX -0.812). Per-share net: +1.951. All bots flat EOD.*
 
-## Open Questions
-
-- **Time-of-day filter** — market open (13:31–14:15 UTC) is consistently the most active and most profitable window. Whether this is a persistent edge or regime-specific (post-crash recovery bouncing at open) is unknown. Worth testing as an explicit parameter in backtest after Apr 20.
-- **GDX separate params** — GDX behaves structurally differently from GLD/IAU/SLV (mining equity beta layered on physical metal beta). Whether it warrants different OB/OS thresholds or ADX settings, or whether it simply doesn't suit this strategy at all, won't be clear until Apr 20 calibration shows whether the backtest also predicts GDX underperforming. Don't adjust params before then.
-- **Overnight hold strategy** — the GDX +3.267 multi-day hold outperformed 49 other trades. Validated params partially capture this pattern (trail after 10 bars). Whether an explicit multi-day hold strategy variant is worth designing is a post-calibration, post-validated-params question.
-- **Correlation-aware position sizing** — GLD/IAU/SLV enter simultaneously multiple times per week. At 2% risk per trade, three simultaneous entries = 6% portfolio in one correlated move. Before implementing sizing logic: run portfolio correlation analysis on validated params (all 4 symbols, shared timeline, 5 years) to tally how often simultaneous positions all lose vs all win vs mixed, split by year. If 6% simultaneous loss is rare or GDX divergence provides natural diversification, the sizing constraint may be looser than assumed. Implementation approach (fixed total exposure cap vs scaling function) decided after analysis. Pre-real-money requirement.
-- **Late-session entry risk** — Apr 8 shows SLV + GLD + GDX all entering at 19:46 UTC (14 min before close). DAY stops expire at 20:00 before providing protection. Positions carry overnight unprotected until bot re-places stop next morning. A late-session entry guard (block or halve size within ~30 min of close) is a simpler companion mechanism to correlation-aware sizing, testable with the existing single-symbol engine.

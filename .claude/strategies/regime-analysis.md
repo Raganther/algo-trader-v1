@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-11
+Status: current | Epistemic: confirmed | Last verified: 2026-04-21
 
 # Regime Analysis — Algo Trader V1
 
@@ -166,73 +166,3 @@ The per-regime sizing framework is theoretically sound but unvalidated. The crit
 
 This works alongside correlation-aware sizing — the two are independent dimensions. Correlation sizing controls how much risk is taken across simultaneous positions; regime sizing controls how much risk is taken in any given market environment.
 
-**Implementation path:**
-1. Regime classifier already built (`backend/indicators/regime.py`)
-2. Live regime detection: run classifier on most recent N daily bars at session start, read current regime and duration
-3. Pass regime context into position sizing function in `live_broker.py`
-4. Backtest integration: tag each trade with entry regime, compute per-regime P&L — validates the sizing rationale before deploying live
-
----
-
-## Post-Apr-20 Test Plan — Regime-Aware Sizing Backtest
-
-### What we're testing
-Fixed 2% risk on every trade vs dynamic sizing based on regime at entry. If regime-sized Sharpe > baseline with similar or lower drawdown, regime information is adding real value.
-
-### Three pieces to build
-
-**1. Regime state lookup**
-The classifier already produces daily regime labels. For each 15m bar in the backtest, look up the corresponding daily bar's regime label and duration (how many consecutive days in the current regime). This is a join: 15m bar timestamp → daily bar date → regime label + age.
-
-**2. Sizing function**
-Takes `(regime, regime_age, avg_duration)` → returns a risk multiplier. Starting point:
-
-| Regime | Age condition | Risk multiplier |
-|--------|--------------|----------------|
-| RANGING | age < avg_duration | 1.0× (full) |
-| RANGING | age > avg_duration | 0.75× |
-| TRENDING_UP | any | 0.75× |
-| TRENDING_DOWN | any | 0.25× or skip |
-| HIGH_VOL | any | 0.25× or skip |
-
-Exact thresholds are parameters — the backtest tests different values to find what adds most value.
-
-**3. Portfolio-level backtest runner**
-Run all 4 symbols simultaneously on a shared timeline, apply the sizing function at each entry, aggregate P&L across all symbols. This is the same shared-timeline runner needed for the correlation analysis — one build unlocks both. This is the critical dependency.
-
-### Comparison matrix
-Run all variants over the same 5-year window with validated params:
-
-| Config | Expected outcome |
-|--------|-----------------|
-| Fixed 2% all regimes | Baseline |
-| Regime-sized (proposed multipliers) | Higher Sharpe if regime info adds value |
-| Regime-sized + skip HIGH_VOL | Lower trade count, potentially better risk-adjusted return |
-| Regime-sized + skip TRENDING_DOWN | Minimal impact — TRENDING_DOWN is rare (3–7% of days) |
-| Regime age only (no skip) | Tests whether duration signal alone adds value |
-
-### Sequencing
-1. Apr 20 calibration — confirms backtest engine is accurate (gate for all of the above)
-2. Build shared-timeline portfolio runner — needed for correlation analysis and regime backtest (same piece of work)
-3. Add regime lookup to runner — join 15m bars to daily regime labels at each entry bar
-4. Run comparison matrix — fixed vs regime-sized across all 4 symbols
-
-Steps 2 and 3 are approximately one day each. Step 4 is just running the script.
-
-### What success looks like
-- Regime-sized Sharpe meaningfully higher than baseline on the same 5-year window
-- Drawdown reduced in HIGH_VOL and TRENDING_DOWN years (2022, 2026)
-- Trade count reduction in skip-regime variants is acceptable (not too many missed trades)
-- Results consistent across all 4 symbols — not just GLD
-
-### The honest limit
-The classifier is a rear-view mirror — it confirms a regime after it starts, not before. The edge is rapid adaptation: as soon as the classifier detects a regime change, sizing adjusts immediately. The backtest will show whether that adaptation is fast enough to matter or whether the regime lag (daily bars updating once per day) blunts the signal.
-
----
-
-## Open Questions
-
-- **Per-regime strategy performance** — need to run the validated params backtest, tag each trade with the daily regime at entry, and compute win rate / Sharpe / avg P&L per regime. This validates the sizing framework empirically rather than theoretically.
-- **15m micro-regime vs daily macro-regime** — current classifier operates on daily bars. A 15m regime layer (intraday ranging vs trending) may add further signal. Whether the two layers are independent or redundant is unknown — test post-calibration.
-- **Regime-aware backtesting** — the full value of regime sizing requires a backtest that applies dynamic sizing rules based on real-time regime state. This is the portfolio backtester with regime overlay — a significant but high-value build.
-- **SLV 2026 anomaly** — SLV shows 49% HIGH_VOL in 2026 vs 22% for GLD. Silver is more volatile than gold in absolute terms; the fixed ATR multiplier (1.5×) may be classifying normal SLV volatility as HIGH_VOL. Consider symbol-specific ATR thresholds or normalising ATR as % of price.
