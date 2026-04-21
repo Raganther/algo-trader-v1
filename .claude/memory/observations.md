@@ -3,9 +3,9 @@ Staging area for new topics and cross-domain coordination.
 
 ---
 
-## Overall Status (Apr 19 2026)
+## Overall Status (Apr 21 2026)
 
-**Validated 2.0 ATR trail confirmed ratcheting. Server migrated to US. Three positions carrying into Mon with locked profits.**
+**Validated 2.0 ATR trail FIRED in profit (Apr 20). All 4 bots flat, watching for new signals.**
 
 What's confirmed:
 - Entry signal + K-exit has real alpha (76–80% K-exit win rate across 67 completed trades)
@@ -16,25 +16,26 @@ What's confirmed:
 - Whole-share sizing working — 340+ shares per position, confirmed Apr 15
 - Short mechanics confirmed working — GLD shorted Apr 16, K-exit +$38.50. Entry, stop, trail ratchet, K-exit all correct.
 - GTC stop fix deployed Apr 17 — eliminates overnight expiry gap permanently
-- **Validated 2.0 ATR trail confirmed ratcheting (Apr 17-18)** — stops climbed significantly during Friday's session: GLD $439→$445.44, IAU $90.03→$91.26, SLV $70.96→$73.41. All three now locking in profit above entry. This is the mechanism that drives Sharpe 2.47. Trail ratcheting confirmed live.
+- Validated 2.0 ATR trail confirmed ratcheting (Apr 17-18) — stops climbed significantly during Friday's session.
+- **Validated 2.0 ATR trail FIRED in profit (Apr 20)** — SLV trail ratcheted from $70.72 → $72.14 over the session, price pulled back, server stop executed at $72.12 (entry $71.29 → +$283.86). This is the mechanism that drives Sharpe 2.47. Fully confirmed live.
+- pm2 startup registered as systemd service (Apr 20) — survives server reboots permanently.
 
 What's not yet confirmed:
-- **Validated trail FIRING in profit** — trail is ratcheting correctly but hasn't fired yet (positions still open). Need a stop to actually trigger and close a position in profit.
 - Short stop-loss execution — first short was K-exit. Need a short to run against us and server-side stop trigger.
 - Long-only validated Sharpe — headline figures (2.47 etc.) include shorts. Long-only needs explicit rerun.
 
-Locked profits going into Monday (positions still open, stops will be re-placed at open):
-- GLD: stop $445.44 vs entry $440.16 → +$290 locked
-- IAU: stop $91.26 vs entry $90.20 → +$286 locked
-- SLV: stop $73.41 vs entry $71.29 → +$725 locked
-- Total locked: ~$1,301 minimum regardless of what happens next
+Apr 20 session P&L (pm2 outage cost locked profits on GLD/IAU):
+- GLD: -$6.05 (stopped near breakeven — stop reconstructed low after outage)
+- IAU: -$4.22 (stopped near breakeven — same reason)
+- SLV: +$283.86 (trail fired in profit)
+- Net: +$273.59
 
 Key red flags to track:
 - **Regime dependency** — live performance is in the best historical regime for this strategy (2024–2025 metals bull).
 - **Correlated entries** — GLD/IAU/SLV all long simultaneously. Pre-real-money requirement: correlation-aware sizing.
 - **Slippage spikes on volatile days** — median $0.010/share but outliers at $0.140 and $0.297. Not modelled in backtest.
 
-Path to real money: ~~calibration~~ ✅ Apr 13 → ~~whole-share sizing + short broker code~~ ✅ Apr 15-16 → **validated params with shorts (NOW — trail ratcheting confirmed)** → confirm trail FIRES in profit + short stop-loss → real money.
+Path to real money: ~~calibration~~ ✅ Apr 13 → ~~whole-share sizing + short broker code~~ ✅ Apr 15-16 → ~~validated 2.0 ATR trail fires in profit~~ ✅ Apr 20 → **confirm short stop-loss + correlation-aware sizing → real money.**
 
 ---
 

@@ -3,12 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-21** — chore: Apr 21 — validated trail fired in profit (SLV +$283.86), pm2 startup registered, path to real money updated
+
+ .claude/memory/observations.md | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
+
+----
 **2026-04-19** — chore: Apr 19 — trail ratcheting confirmed, server migration complete, all files updated
 
  .claude/hooks/load-context.sh  |  4 ++--
+ .claude/memory/gitlog.md       | 20 +++++++++++---------
  .claude/memory/observations.md | 24 ++++++++++++++++--------
  CLAUDE.md                      |  4 ++--
- 3 files changed, 20 insertions(+), 12 deletions(-)
+ 4 files changed, 31 insertions(+), 21 deletions(-)
 
 ----
 **2026-04-19** — chore: migrate to algotrader-us (us-east1-b) — update server refs, trail ratcheting confirmed
@@ -72,12 +79,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  .claude/memory/gitlog.md                 | 18 +++++++--------
  .claude/memory/observations.md           |  6 ++---
  3 files changed, 48 insertions(+), 15 deletions(-)
-
-----
-**2026-04-13** — chore: log Apr 13 trades — weekend carries resolved at open, 8 trades total, late-session entry guard first data point
-
- .claude/calibration/live-trade-log.md | 19 +++++++++++++++++++
- .claude/memory/gitlog.md              | 19 +++++++++----------
- .claude/memory/observations.md        |  3 ++-
- 3 files changed, 30 insertions(+), 11 deletions(-)
 
