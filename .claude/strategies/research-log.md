@@ -56,6 +56,8 @@ Status: current | Epistemic: confirmed | Last verified: 2026-04-23
 
 **Implication:** For current metals bots, regime is a candidate high-conviction sizing/filter input, especially favouring RANGING and treating HIGH_VOL long exposure cautiously. It does not justify broad live regime-aware sizing by itself. Phase 2 is now well-defined: rerun previously rejected strategies/assets by regime to test whether aggregate failure hid regime-specific edges.
 
+**Follow-up portfolio replay:** `python3 -m backend.analysis.regime_sizing_portfolio` tested simple regime multipliers on the four-metals closed-trade portfolio. Baseline stayed best on daily Sharpe (4.27). Conservative sizing reduced max DD by ~$90 but gave up ~$4,041 P&L; aggressive and high-vol-only were also worse on Sharpe. Result: do **not** build broad regime-aware live sizing from this evidence. Regime remains useful as context or a narrow filter candidate, not a portfolio sizing layer.
+
 ---
 
 ## StochRSI Enhanced 15m (GLD) — Feb 26 2026

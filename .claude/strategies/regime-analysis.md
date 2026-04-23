@@ -154,7 +154,9 @@ HIGH_VOL → TRENDING_UP 77% of the time for GLD. The first bars of a new uptren
 
 The Apr 23 diagnostic tagged validated-params StochRSI trades with previous-completed daily regime at entry. Result: partial gradient. RANGING is strongest on aggregate Sharpe, HIGH_VOL long exposure is uneven, and TRENDING_DOWN is not a clean skip signal. See `.claude/strategies/regime-stochrsi-diagnostic.md`; regenerate with `python3 -m backend.analysis.stochrsi_regime_performance`.
 
-Implication: regime can be a high-conviction sizing/filter input candidate, but the evidence is not strong enough to deploy a broad live regime-sizing system. Validate any sizing rules in the shared-timeline portfolio runner first.
+Portfolio replay of simple regime multipliers did **not** justify broad live regime sizing. Baseline daily Sharpe 4.27 beat conservative 4.15, aggressive 4.00, and high-vol-only 4.19; conservative reduced max DD by only ~$90 while giving up ~$4,041 P&L. See `.claude/strategies/regime-sizing-portfolio-diagnostic.md`; regenerate with `python3 -m backend.analysis.regime_sizing_portfolio`.
+
+Implication: keep regime as dashboard/context and a possible narrow high-conviction filter. Do not implement broad live regime sizing unless a future full shared-timeline portfolio runner shows materially better drawdown-adjusted performance.
 
 ---
 

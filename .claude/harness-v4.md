@@ -131,6 +131,7 @@ These hooks are Claude Code automation. In Codex sessions, treat them as a requi
 | `.claude/strategies/event-surprise.md` | Researching economic event strategies or revisiting CPI/NFP trading |
 | `.claude/strategies/regime-analysis.md` | Working on regime classification, regime-aware sizing, or interpreting live performance by regime |
 | `.claude/strategies/regime-stochrsi-diagnostic.md` | Interpreting Apr 23 per-regime StochRSI results or deciding whether regime-aware sizing is justified |
+| `.claude/strategies/regime-sizing-portfolio-diagnostic.md` | Evaluating whether regime multipliers improve portfolio-level return/drawdown before live sizing |
 | `.claude/strategies/arbitrage-automation-concepts.md` | Exploring new strategy families, evaluating adjacent business ideas |
 | `.claude/calibration/calibration-notes.md` | Running calibration, checking Apr 20 methodology, comparing backtest vs live |
 | `.claude/calibration/live-trade-log.md` | Auditing trades, filling in daily trade data, reviewing calibration data |

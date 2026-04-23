@@ -30,6 +30,7 @@ Read on demand only:
 - `.claude/integrations/alpaca-mcp.md` — read when using Alpaca MCP tools, running trade audits via MCP, or checking what data is available without SSH
 - `.claude/strategies/regime-analysis.md` — read when working on regime classification, regime-aware sizing, interpreting live performance by market environment, or building the regime frontend
 - `.claude/strategies/regime-stochrsi-diagnostic.md` — read when interpreting Apr 23 per-regime StochRSI results, deciding whether regime-aware sizing is justified, or comparing metals vs other assets
+- `.claude/strategies/regime-sizing-portfolio-diagnostic.md` — read when evaluating whether regime multipliers improve portfolio-level return/drawdown before live sizing
 - `.claude/strategies/arbitrage-automation-concepts.md` — read when exploring new strategy families (pairs trading, cross-asset, event-driven), evaluating adjacent business ideas, or planning beyond the current 4-symbol setup
 
 ## Run Commands

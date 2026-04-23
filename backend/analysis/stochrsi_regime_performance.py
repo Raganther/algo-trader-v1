@@ -155,11 +155,21 @@ def build_trade_frame(
         regimes = load_daily_regimes(conn, symbol, end)
         for trade in run_backtest(symbol, data):
             entry_time = pd.Timestamp(trade.get("entry_time"), tz="UTC")
+            exit_bar = trade.get("timestamp")
+            exit_time = pd.NaT
+            if exit_bar is not None:
+                try:
+                    exit_idx = int(exit_bar)
+                    if 0 <= exit_idx < len(data.index):
+                        exit_time = data.index[exit_idx]
+                except (TypeError, ValueError):
+                    exit_time = pd.NaT
             direction = trade.get("direction") or ("short" if trade.get("side") == "buy" else "long")
             rows.append(
                 {
                     "symbol": symbol,
                     "entry_time": entry_time,
+                    "exit_time": exit_time,
                     "regime": previous_completed_regime(entry_time, regimes),
                     "direction": direction,
                     "pnl": float(trade.get("pnl", 0.0)),

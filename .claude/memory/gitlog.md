@@ -3,13 +3,27 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-23** — chore: Apr 23 regime sizing replay rejects broad multipliers
+
+ .claude/harness-v4.md                              |   1 +
+ .claude/strategies/regime-analysis.md              |   4 +-
+ .../regime-sizing-portfolio-diagnostic.md          |  49 +++++
+ .claude/strategies/research-log.md                 |   2 +
+ .claude/strategies/research-roadmap.md             |   2 +-
+ CLAUDE.md                                          |   1 +
+ backend/analysis/regime_sizing_portfolio.py        | 244 +++++++++++++++++++++
+ backend/analysis/stochrsi_regime_performance.py    |  10 +
+ 8 files changed, 311 insertions(+), 2 deletions(-)
+
+----
 **2026-04-23** — chore: align regime diagnostic with harness v4.2
 
- .claude/harness-v4.md                            | 6 +++++-
- .claude/strategies/regime-stochrsi-diagnostic.md | 4 +++-
- CLAUDE.md                                        | 1 +
- backend/analysis/stochrsi_regime_performance.py  | 4 +++-
- 4 files changed, 12 insertions(+), 3 deletions(-)
+ .claude/harness-v4.md                            |  6 +++++-
+ .claude/memory/gitlog.md                         | 19 +++++++++++--------
+ .claude/strategies/regime-stochrsi-diagnostic.md |  4 +++-
+ CLAUDE.md                                        |  1 +
+ backend/analysis/stochrsi_regime_performance.py  |  4 +++-
+ 5 files changed, 23 insertions(+), 11 deletions(-)
 
 ----
 **2026-04-23** — chore: Apr 23 regime diagnostic shows partial gradient
@@ -155,11 +169,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  .claude/memory/gitlog.md                           |  19 +--
  .../strategies/arbitrage-automation-concepts.md    | 177 ++++++++++++++++++++-
  2 files changed, 177 insertions(+), 19 deletions(-)
-
-----
-**2026-04-11** — chore: expand weather section in arbitrage domain file — prediction alpha vs true arb, data sources, ENSO regime, opportunity hierarchy, dev candidates updated
-
- .claude/memory/gitlog.md                           |  16 +--
- .../strategies/arbitrage-automation-concepts.md    | 108 +++++++++++++++++++--
- 2 files changed, 106 insertions(+), 18 deletions(-)
 
