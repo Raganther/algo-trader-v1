@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-22
+Status: current | Epistemic: confirmed | Last verified: 2026-04-23
 
 # Research Log — Algo Trader V1
 
@@ -34,6 +34,27 @@ Status: current | Epistemic: confirmed | Last verified: 2026-04-22
 **Why:** US equity indices are driven by macro flow and institutional momentum at these timeframes — mean reversion is quickly overwhelmed by trend continuation. The StochRSI OS/OB signal that works on gold (range-bound commodity with genuine mean-reverting behaviour) doesn't translate to equity indices where momentum dominates.
 
 **Implication:** Asset selection matters. Mean reversion at this timeframe requires assets with natural range-bound behaviour. Broad equity indices are not that. Commodities and commodity-linked ETFs are a better hunting ground.
+
+---
+
+## Regime-Segmented Diagnostic — Apr 23 2026
+
+**Tried:** Tagged validated StochRSI Enhanced 15m trades with the previous completed daily regime at entry. Scope was deliberately narrow: current forward-test assets only (`GLD`, `IAU`, `SLV`, `GDX`), current validated strategy only (`StochRSIMeanReversion`), 2020–2025 window, long/short split. Full artifact: `.claude/strategies/regime-stochrsi-diagnostic.md`. Regenerate with `python3 -m backend.analysis.stochrsi_regime_performance`.
+
+**Result:** Partial gradient, not a clean regime switch.
+
+| Aggregate bucket | Long Sharpe | Short Sharpe | Read |
+|------------------|-------------|--------------|------|
+| RANGING | 6.55 | 6.67 | Strongest and most consistent |
+| TRENDING_UP | 3.27 | 3.36 | Still profitable, weaker than ranging |
+| TRENDING_DOWN | 3.39 | 1.90 | Not a clean skip signal |
+| HIGH_VOL | 2.01 | 3.35 | Mixed; long side uneven by symbol |
+
+**Why:** The core edge remains an intraday mean-reversion / trailing-stop payoff shape, not a pure regime bet. Daily regime still matters: RANGING gives the cleanest oscillator behaviour, while HIGH_VOL creates noisy long-side outcomes in SLV/GDX. But TRENDING_UP and even TRENDING_DOWN are not uniformly bad, because the strategy can still capture sharp reversions within those macro states.
+
+**What this does *not* prove:** This was not run on SPY, QQQ, IWM, S&P futures, XLE, EventSurprise, or other previously tested strategy families. The early SPY/QQQ/IWM rejection still stands until those exact assets/strategies are rerun regime-segmented. Regime analysis has not resurrected them yet.
+
+**Implication:** For current metals bots, regime is a candidate high-conviction sizing/filter input, especially favouring RANGING and treating HIGH_VOL long exposure cautiously. It does not justify broad live regime-aware sizing by itself. Phase 2 is now well-defined: rerun previously rejected strategies/assets by regime to test whether aggregate failure hid regime-specific edges.
 
 ---
 

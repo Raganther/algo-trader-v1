@@ -3,11 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-23** — chore: Apr 23 regime diagnostic shows partial gradient
+
+ .claude/strategies/regime-analysis.md            |   7 +-
+ .claude/strategies/regime-stochrsi-diagnostic.md | 100 +++++++
+ .claude/strategies/research-log.md               |  23 +-
+ .claude/strategies/research-roadmap.md           |   6 +-
+ backend/analysis/stochrsi_regime_performance.py  | 365 +++++++++++++++++++++++
+ 5 files changed, 494 insertions(+), 7 deletions(-)
+
+----
 **2026-04-23** — chore: Apr 23 — overnight gap analysis closes single-symbol gap policy, correlation-aware sizing flagged as sole remaining tail risk
 
  .claude/calibration/calibration-notes.md       |   2 +
  .claude/calibration/gap-distribution.md        |  73 ++++++
  .claude/calibration/live-trade-log.md          |  37 ++-
+ .claude/memory/gitlog.md                       |  30 ++-
  .claude/procedures/_index.md                   |   1 -
  .claude/procedures/memory-harness-migration.md |  41 ----
  .claude/strategies/event-surprise.md           |   2 +-
@@ -20,7 +31,7 @@
  .claude/strategies/stochrsi-enhanced-slv.md    |   6 +-
  CLAUDE.md                                      |   4 +-
  backend/analysis/gap_distribution.py           | 302 +++++++++++++++++++++++++
- 15 files changed, 470 insertions(+), 69 deletions(-)
+ 16 files changed, 492 insertions(+), 77 deletions(-)
 
 ----
 **2026-04-21** — chore: migrate to harness v4.2 — single roadmap, retire observations.md, enforce domain purity
@@ -148,12 +159,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  .claude/memory/gitlog.md                           |  18 +--
  .../strategies/arbitrage-automation-concepts.md    | 164 ++++++++++++++++++++-
  2 files changed, 171 insertions(+), 11 deletions(-)
-
-----
-**2026-04-11** — chore: add arbitrage-automation-concepts domain file — trading arb types, automation pattern map, dev candidates
-
- .claude/memory/gitlog.md                           |  20 +-
- .../strategies/arbitrage-automation-concepts.md    | 204 +++++++++++++++++++++
- CLAUDE.md                                          |   1 +
- 3 files changed, 214 insertions(+), 11 deletions(-)
 

@@ -1,4 +1,4 @@
-Status: current | Epistemic: mixed | Last verified: 2026-04-21
+Status: current | Epistemic: mixed | Last verified: 2026-04-23
 
 # Research Roadmap — Algo Trader V1
 
@@ -41,7 +41,7 @@ Status labels: `idea` | `in progress` | `validated` | `rejected` | `monitoring`
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Per-regime strategy performance analysis | in progress | Tag validated-params backtest trades with daily regime at entry. Compute per-regime win rate / Sharpe / avg P&L. Validates regime sizing empirically rather than theoretically. Gate: portfolio runner. |
+| Per-regime strategy performance analysis / Phase 1 diagnostic | monitoring | Apr 23 diagnostic complete: `python3 -m backend.analysis.stochrsi_regime_performance` writes `.claude/strategies/regime-stochrsi-diagnostic.md`. Primary grain is symbol × regime × direction; cells with N < 10 flagged directional-only; metals aggregate footer included. Result: **partial gradient** — RANGING strongest on aggregate Sharpe, HIGH_VOL long exposure uneven, TRENDING_DOWN not a clean skip signal. Use regime as high-conviction sizing/filter input only until portfolio-runner validation. |
 | Regime-aware sizing backtest | idea | Run fixed 2% vs dynamic regime-sized (proposed multipliers from regime-analysis.md: RANGING 1.0×, TRENDING_UP 0.75×, HIGH_VOL/DOWN 0.25×) across all 4 symbols. Compare Sharpe and drawdown. Gate: portfolio runner + per-regime analysis. |
 | SLV 2026 HIGH_VOL anomaly | monitoring | SLV showing 27.7% HIGH_VOL in 2026 vs 17% for GLD (corrected from earlier 49% figure which used Alpaca-only 5.5yr window). Silver's naturally higher volatility makes the fixed ATR multiplier (1.5×) more sensitive for SLV. Consider symbol-specific ATR thresholds before implementing live regime detection. |
 | 15m micro-regime vs daily macro-regime | idea | Current classifier operates on daily bars. A 15m intraday ranging/trending layer may add signal — whether the two layers are independent or redundant is unknown. Test post-portfolio-runner. |
@@ -55,7 +55,7 @@ Paradigm shift: treat profitability as a regime × strategy interaction rather t
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Phase 1 — per-regime trade tagging (diagnostic) | idea | Tag every validated-params backtest trade with its entry regime. Compute per-regime: win rate, Sharpe, avg P&L, max DD, trade count across GLD/IAU/SLV/GDX. Output: `strategy × asset × regime → performance` table. Answers "does a regime-performance relationship actually exist in our own data?" before building anything further. Cheap — no new infrastructure. Can run before portfolio runner. Overlaps with existing "Per-regime strategy performance analysis" item in Regime-Aware Sizing — merge. |
+| Phase 1 — per-regime trade tagging (diagnostic) | merged | Merged into Regime-Aware Sizing → "Per-regime strategy performance analysis / Phase 1 diagnostic". Apr 23 result is partial gradient, not a broad green light for live regime-aware sizing. |
 | Phase 2 — resurrect dead strategies regime-segmented | idea | Re-run old failures (SPY/QQQ/IWM StochRSI 5m-15m, EventSurprise variants, 1h StochRSI on XLE) with validated params, segmented by regime. Hypothesis: aggregate-Sharpe-near-zero is consistent with "works in RANGING, cancels out elsewhere." Gate: Phase 1 confirms regime-performance relationship. |
 | Cross-asset regime generalisation test | idea | Does a strategy tuned for GLD-RANGING work on SLV-RANGING, XLE-RANGING, SPY-RANGING? Two hypotheses: (1) regime is universal physics — one strategy per regime across all assets; (2) regime + asset family is the right grain — metals-RANGING generalises but ≠ equity-RANGING. Existing evidence hints at #2 (GDX vs GLD transition asymmetry) but validated params work on all 4 metals without retuning. Gate: Phase 1. |
 | Regime-predictive entry signal | idea | Use transition-matrix probabilities + current regime duration as supplementary entry gate. Example: HIGH_VOL → TRENDING_UP 77% for GLD, so late-HIGH_VOL entries get a confidence boost. Supersedes "Post-HIGH_VOL transition as supplementary entry signal" in Regime-Aware Sizing. Speculative — requires backtesting. |

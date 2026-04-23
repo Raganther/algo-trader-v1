@@ -150,9 +150,11 @@ Average ranging duration: 36 days (GLD), 44 days (IAU), 39 days (SLV), 88 days (
 
 HIGH_VOL → TRENDING_UP 77% of the time for GLD. The first bars of a new uptrend after a volatility spike are often strong. This could be a supplementary entry signal for a trend-following variant alongside the mean-reversion strategy. Speculative — requires backtesting before use.
 
-### 8. Regime sizing adds value — but needs empirical validation first
+### 8. Regime sizing adds value — but needs portfolio validation before live use
 
-The per-regime sizing framework is theoretically sound but unvalidated. The critical next step post-calibration is tagging historical backtest trades with their entry regime and computing per-regime win rate / Sharpe / avg P&L. If RANGING trades empirically outperform TRENDING_UP trades, the sizing rationale is grounded. If the difference is small, the added complexity may not be worth it. Do not implement live regime sizing until this analysis is complete.
+The Apr 23 diagnostic tagged validated-params StochRSI trades with previous-completed daily regime at entry. Result: partial gradient. RANGING is strongest on aggregate Sharpe, HIGH_VOL long exposure is uneven, and TRENDING_DOWN is not a clean skip signal. See `.claude/strategies/regime-stochrsi-diagnostic.md`; regenerate with `python3 -m backend.analysis.stochrsi_regime_performance`.
+
+Implication: regime can be a high-conviction sizing/filter input candidate, but the evidence is not strong enough to deploy a broad live regime-sizing system. Validate any sizing rules in the shared-timeline portfolio runner first.
 
 ---
 
@@ -167,4 +169,3 @@ The per-regime sizing framework is theoretically sound but unvalidated. The crit
 | HIGH_VOL | Any | 0.5% or skip |
 
 This works alongside correlation-aware sizing — the two are independent dimensions. Correlation sizing controls how much risk is taken across simultaneous positions; regime sizing controls how much risk is taken in any given market environment.
-
