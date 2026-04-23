@@ -43,7 +43,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
 
 ### Year-by-Year
 
-> *Pre-fix data — directionally valid but trade counts and exact returns will differ slightly after the Apr 4 stop-check correction. Needs rerunning post-Apr-20.*
+> *Pre-fix data — directionally valid but trade counts and exact returns will differ slightly after the Apr 4 stop-check correction. Rerun deferred — tracked in `research-roadmap.md` → Deferred / Rerun.*
 
 | Year | Return | DD | Trades |
 |---|---|---|---|
@@ -71,7 +71,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
 
 **Most consistent year-by-year** of all precious metals assets — no year below +2.97%, very tight return distribution. *(Year-by-year table pre-fix — trade counts will differ slightly)*
 
-**Highest drawdown in the gold ETFs:** 0.89% vs GLD 0.73%. Still excellent, but IAU's DD increased slightly with the fix (was 0.72% pre-fix).
+**Highest drawdown in the gold ETFs:** 0.89% vs GLD 0.73% (both post-fix). Still excellent. (Pre-fix DD was 0.72%; the fix surfaced a marginally wider drawdown as intrabar checks were corrected.)
 
 ### Precious Metals Thesis — Now 4 Assets Validated
 

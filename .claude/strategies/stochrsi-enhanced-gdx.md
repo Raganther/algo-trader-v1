@@ -43,7 +43,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GDX
 
 ### Year-by-Year (Walk-Forward Windows)
 
-> *Pre-fix data — directionally valid but exact figures will differ after the Apr 4 stop-check correction. Needs rerunning post-Apr-20.*
+> *Pre-fix data — directionally valid but exact figures will differ after the Apr 4 stop-check correction. Rerun deferred — tracked in `research-roadmap.md` → Deferred / Rerun.*
 
 | Test Period | Return | Sharpe | Trades |
 |---|---|---|---|

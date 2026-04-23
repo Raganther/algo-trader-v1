@@ -5,7 +5,7 @@ Status: current | Epistemic: confirmed | Last verified: 2026-04-21
 > **Strategy file:** `backend/strategies/event_surprise.py`
 > **Bot script:** `scripts/run_event_surprise_test.sh`
 > **Diagnostic scripts:** `backend/scripts/event_surprise_analysis.py`, `backend/scripts/event_surprise_gaps.py`
-> **Note:** Built and backtested — not yet paper tested or deployed.
+> **Note:** Built and backtested, not prioritised — see `research-roadmap.md` → Strategy Validation for current status.
 
 ## Knowledge
 

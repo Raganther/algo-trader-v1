@@ -46,6 +46,8 @@ HIGH_VOL takes priority over TRENDING — a volatile trending session is classif
 
 **RANGING remains dominant at 59–80%.** GDX is structurally more ranging than the others (79.6%) — its trend regimes are shorter and less frequent. SLV has the highest TRENDING_DOWN exposure (11.2%) reflecting silver's higher volatility and sharper bear cycles.
 
+> **2026 SLV HIGH_VOL note:** SLV is showing 27.7% HIGH_VOL in 2026 vs GLD's 17.0% (both per the extended-history classifier). Silver's naturally higher volatility makes the fixed 1.5× ATR HIGH_VOL threshold more sensitive for SLV. Consider symbol-specific ATR thresholds before deploying live regime-aware sizing — tracked in `research-roadmap.md` → Regime-Aware Sizing.
+
 ### Average regime duration (trading days)
 
 | Symbol | RANGING avg | RANGING max | TRENDING_UP avg | HIGH_VOL avg |
@@ -99,7 +101,7 @@ Full matrices for all symbols: `python3 scripts/analyse_regimes.py`
 - **HIGH_VOL → TRENDING_UP: 77% (GLD), 75% (IAU), 50% (SLV), 29% (GDX).** Volatility spikes strongly precede uptrends in GLD/IAU. GDX is weaker — HIGH_VOL more often resolves back to RANGING (71%) for mining equities.
 - **RANGING → TRENDING_UP: 55–68% across all symbols.** When ranging breaks, it breaks upward more often than downward.
 - **TRENDING_DOWN → RANGING: 88% (GLD).** Downtrends almost always resolve back to ranging, not to uptrend directly. Mean reversion after a downtrend, not immediate reversal.
-- **Current regime implication:** We are in HIGH_VOL. Based on GLD history, 77% probability the next regime is TRENDING_UP. Average HIGH_VOL duration is 9 days — if we're already several days in, resolution is likely soon.
+- **Current regime implication (as of 2026-04-22):** We are in HIGH_VOL. Based on GLD history, 77% probability the next regime is TRENDING_UP. Average HIGH_VOL duration is 9 days — if we're already several days in, resolution is likely soon. *(Point-in-time snapshot — rerun `analyse_regimes.py` for current classification.)*
 
 ---
 

@@ -47,7 +47,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 ### Year-by-Year Breakdown
 
-> *Pre-fix data — return figures are directionally valid but trade counts and exact returns will differ slightly after the Apr 4 stop-check correction. Needs rerunning post-Apr-20.*
+> *Pre-fix data — return figures are directionally valid but trade counts and exact returns will differ slightly after the Apr 4 stop-check correction. Rerun deferred — tracked in `research-roadmap.md` → Deferred / Rerun.*
 
 | Year | Return | Max DD | Trades |
 |---|---|---|---|
@@ -240,4 +240,4 @@ gld-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/tr
 
 Backtest prediction for test params (Dec 2025 – Mar 2026): +0.16%, 58 trades, 48% WR.
 
-Potential future work: investigate trail_atr=1.5 (pre-fix audit found +47.5% vs +43.0% — needs rerunning); increase position sizing given low DD headroom (0.73%).
+Potential future work: investigate trail_atr=1.5 (pre-fix audit found +47.5% vs +43.0% — rerun deferred, see roadmap); increase position sizing given low DD headroom (0.73%).

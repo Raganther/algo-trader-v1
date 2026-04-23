@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-08
+Status: current | Epistemic: confirmed | Last verified: 2026-04-22
 
 # Research Log — Algo Trader V1
 
@@ -86,7 +86,7 @@ All four validated. Every year profitable on all four assets.
 
 **Tried:** Ran backtests with `long_only:true` on all 4 assets to establish baseline for live bots (which are long-only due to Alpaca fractional short selling restriction).
 
-**Result (estimated — pre-Apr-4 fix, needs rerunning post-Apr-20):**
+**Result (estimated — pre-Apr-4 fix; rerun deferred, see `research-roadmap.md` → Deferred / Rerun):**
 
 | Asset | Full Sharpe | Long-Only Sharpe | Verdict |
 |-------|------------|------------------|---------|
@@ -97,7 +97,7 @@ All four validated. Every year profitable on all four assets.
 
 **Why:** SLV (silver) has stronger long-side asymmetry than the others — silver mean-reverts more sharply from oversold conditions. GLD, IAU, GDX benefit from both sides. Long-only removes all short trades, which contribute meaningfully to the full edge on three of four assets.
 
-**Implication:** Short trading is required for the full validated edge on GLD/IAU/GDX. SLV is viable long-only. Short trading is deferred until whole-share quantity sizing is implemented (Alpaca rejects fractional short sells). Long-only figures need rerunning post-Apr-20 with corrected engine.
+**Implication:** Short trading is required for the full validated edge on GLD/IAU/GDX. SLV is viable long-only. Short trading is deferred until whole-share quantity sizing is implemented (Alpaca rejects fractional short sells). Long-only figures rerun deferred — tracked in `research-roadmap.md` → Deferred / Rerun.
 
 ---
 
@@ -156,7 +156,7 @@ All four validated. Every year profitable on all four assets.
 
 **Implication:** The hunting ground for new StochRSI 15m candidates is any liquid ETF with natural intraday mean-reversion behaviour. The params don't need retuning per asset — test as-is first, only tune if WF fails. Obvious next candidates: sector ETFs (XLF, XLK, XLV), commodity ETFs (USO, GDX variants), bond ETFs (TLT, HYG).
 
-**Status:** Validated, deployed as 5th bot candidate post-Apr-20 calibration.
+**Status:** Validated, queued as 5th bot candidate — gated on correlation-aware sizing per roadmap.
 
 ---
 
@@ -203,7 +203,7 @@ Validated params extract 4–8× more return with fewer trades and lower or comp
 
 **Key finding:** The live +3.85% in 13 days (Mar 20–Apr 7) is consistent with 2024–2025 run rates for aggressive params, not an outlier — but it is regime-dependent. 2020 shows negative returns with the same params. The live performance confirms the strategy has edge in the current regime, not across all regimes.
 
-**Validated params backtests include shorts:** The headline Sharpe figures (GLD 2.47, IAU 1.97, SLV 2.41, GDX 2.58) are full long+short. Long-only validated Sharpe figures are estimates (GLD ~1.80, IAU ~1.20, SLV ~3.10, GDX ~1.65). Rerun with corrected engine post-Apr-20 to confirm.
+**Validated params backtests include shorts:** The headline Sharpe figures (GLD 2.47, IAU 1.97, SLV 2.41, GDX 2.58) are full long+short. Long-only validated Sharpe figures are estimates (GLD ~1.80, IAU ~1.20, SLV ~3.10, GDX ~1.65). Rerun with corrected engine deferred — tracked in `research-roadmap.md` → Deferred / Rerun.
 
 ---
 
@@ -232,11 +232,11 @@ Validated params extract 4–8× more return with fewer trades and lower or comp
 - **Market open is most active window** (13:30–14:15 UTC). Most profitable K-exit days start here. Whether persistent edge or regime-specific bounce pattern is unknown — test as explicit time-of-day filter post-calibration.
 - **Single multi-day hold (GDX +3.267) outperformed 49 other trades combined.** Validated params (trail after 10 bars) are designed to capture this pattern more often. The validated strategy has a fundamentally different character from the test params.
 
-**Stop slippage characterised (updated Apr 8, 33 stop exits):** Mean ~$0.025/share, median $0.010/share, 100% negative direction. New outlier Apr 6: GLD -$0.297 — largest in dataset, on a high-volatility day. Mean is skewed by outliers; median ($0.010) is more reliable. Slippage can spike significantly on volatile sessions. Backtest assumes $0. Known bias — will cause slight P&L overstatement in Layer 4. Add `stop_slippage` param post-Apr-20 if confirmed on larger sample.
+**Stop slippage characterised (updated Apr 8, 33 stop exits):** Mean ~$0.025/share, median $0.010/share, 100% negative direction. New outlier Apr 6: GLD -$0.297 — largest in dataset, on a high-volatility day. Mean is skewed by outliers; median ($0.010) is more reliable. Slippage can spike significantly on volatile sessions. Backtest assumes $0. Known bias — will cause slight P&L overstatement in Layer 4. Add `stop_slippage` param after Layer 3 confirms bias on larger sample — tracked in roadmap → Calibration.
 
 **What this phase confirmed:** Both server-side exit mechanics work (stop loss + trailing stop). Execution audit integrity 100% across all 12 days checked. The infrastructure is sound.
 
-**What remains unconfirmed:** Trail at validated params. The test params trail is not the edge — it's a noise-driven stop. The real trail (2.0 ATR, after 10 bars) is what lets winners run. It has never fired live. Second clean window on validated params (post-Apr-20) is the remaining confirmation.
+**What remains unconfirmed (as of Apr 8):** Trail at validated params. The test params trail is not the edge — it's a noise-driven stop. The real trail (2.0 ATR, after 10 bars) is what lets winners run. It has never fired live. *(Resolved Apr 20: validated trail fired in profit on SLV, GLD, IAU — see roadmap Resolved section.)*
 
 **Overall position (Apr 8):** Two of three strategy components confirmed live (entry signal + K-exit, both exit mechanics). One component unconfirmed (trail at validated params). One regime tested (metals bull, 2024–2025 best historical years). Test params only — validated params never run live. Apr 20 calibration confirms the backtest engine; validated params forward test confirms the full edge.
 
@@ -314,6 +314,6 @@ Sequenced by dependency and priority. Critical path: **1 → 2 → 3 → 6**. It
 
 11. **Sector ETF expansion** — apply StochRSI 15m to XLF, XLK, XLV, TLT. Same params, no retuning. Filter: Sharpe ≥ 2.0, WF 4/4, multi-asset confirmation.
 
-12. **Regime classification + enhancements** — **BUILT (Apr 10).** Classifier implemented (`backend/indicators/regime.py`, `scripts/analyse_regimes.py`). Findings, sizing framework, downstream enhancement roadmap, and post-Apr-20 backtest plan all documented in `.claude/strategies/regime-analysis.md`. Next step post-calibration: build the shared-timeline portfolio runner (needed for both correlation analysis and regime backtest), then tag trades with entry regime to validate sizing rationale empirically.
+12. **Regime classification + enhancements** — **BUILT (Apr 10).** Classifier implemented (`backend/indicators/regime.py`, `scripts/analyse_regimes.py`). Findings, sizing framework, downstream enhancement roadmap, and regime backtest plan all documented in `.claude/strategies/regime-analysis.md`. Next step post-calibration: build the shared-timeline portfolio runner (needed for both correlation analysis and regime backtest), then tag trades with entry regime to validate sizing rationale empirically.
 
 13. **Regime frontend (Stage 3 chart)** — visualisation layer on top of the regime engine. 5-year price chart with background shading by regime, trade entry/exit markers overlaid (Stage 2), live panel showing current regime + duration + transition probability. Comes after Stage 2 (trade overlays).

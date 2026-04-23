@@ -14,6 +14,7 @@ Read in order on every cold start:
 
 Read on demand only:
 - `.claude/procedures/_index.md` — scan at plan creation for relevant how-to patterns
+- `.claude/procedures/daily-trade-audit.md` — read when running a daily MCP/pm2/DB audit on live bot trades, or backfilling calibration-window data
 - `.claude/harness-v4.md` — read when working on the memory harness, hooks, or knowledge conventions
 - `.claude/strategies/stochrsi-enhanced-gld.md` — read when working on GLD, reviewing long-only vs full strategy, or checking the audit baseline
 - `.claude/strategies/stochrsi-enhanced-iau.md` — read when working on IAU or reviewing 15m strategy params
@@ -25,6 +26,7 @@ Read on demand only:
 - `.claude/strategies/event-surprise.md` — read when researching economic event strategies or revisiting CPI/NFP trading
 - `.claude/calibration/calibration-notes.md` — read when running calibration, checking Apr 20 methodology, or comparing backtest vs live
 - `.claude/calibration/live-trade-log.md` — read when auditing trades, filling in daily trade data, or running the Apr 20 calibration comparison
+- `.claude/calibration/gap-distribution.md` — read when sizing overnight-capable positions, evaluating gap-risk policy, or interpreting an overnight gap loss in live trades
 - `.claude/integrations/alpaca-mcp.md` — read when using Alpaca MCP tools, running trade audits via MCP, or checking what data is available without SSH
 - `.claude/strategies/regime-analysis.md` — read when working on regime classification, regime-aware sizing, interpreting live performance by market environment, or building the regime frontend
 - `.claude/strategies/arbitrage-automation-concepts.md` — read when exploring new strategy families (pairs trading, cross-asset, event-driven), evaluating adjacent business ideas, or planning beyond the current 4-symbol setup
@@ -90,7 +92,7 @@ python3 scripts/fetch_price_data_yfinance.py
 Phase: Forward testing — validated params live, path to real money. 4 paper bots running on cloud (gld-test, iau-test, slv-test, gdx-test).
 Price action chart live at `/chart` — Stage 1 complete (candlestick chart, symbol/range selector). Stage 2 next: trade overlays on chart.
 
-**Confirmed working:** entry signal + K-exit (76–80% win rate across 67+ trades), server-side stop loss, trailing stop in profit (SLV +$283.86 Apr 20), trail ratcheting, whole-share sizing (340+ shares/position), short entry + K-exit (GLD Apr 16 +$38.50), GTC stops (no overnight expiry gap), pm2 startup registered as systemd service.
+**Confirmed working:** entry signal + K-exit (76–80% win rate across 67+ trades), server-side stop loss, trailing stop in profit (SLV +$283.86 Apr 20), trail ratcheting, whole-share sizing (340+ shares/position), short entry + K-exit (GLD Apr 16 +$38.50), GTC stops (no overnight expiry gap), pm2 startup registered as systemd service, single-symbol overnight gap risk bounded by 25% notional cap (Apr 23 SLV gap-through = -0.64% equity, within p95 of historical distribution).
 
 **Execution layer validated (Apr 13 calibration):** Layers 1/2/4 pass. Backtest engine accurate for test params / intraday regime. See calibration-notes.md for full results.
 

@@ -7,6 +7,8 @@ Used for Apr 20 calibration comparison: Layer 2 (entry/exit prices vs backtest) 
 
 **Exit types:** `K` = bot K-signal at candle close | `SS` = server-side stop (stop loss) | `TS` = trailing stop fired intrabar
 
+> **Audit note (2026-04-22):** Apr 6–13 entries are marked `DEFERRED` rather than `PASS`. Calibration closed Apr 13 (`dbeea79`), Alpaca MCP is the canonical source, and those dates predate DB reconciliation (Mar 10), DAY/GTC TIF fix (Apr 17), and whole-share sizing (Apr 15–16) — a full pm2/DB cross-check would be archaeology on a superseded bot version. Backfill is a low-priority open item in `research-roadmap.md` → Deferred / Rerun.
+
 ## Knowledge
 
 ### Analysis — Mar 20–Apr 9 (65 completed trades, 3 open)
@@ -236,7 +238,7 @@ Weekend — market closed.
 
 ### 2026-04-06
 
-**Audit status:** PARTIAL — Alpaca MCP verified (orders confirmed), pm2/DB audit pending
+**Audit status:** DEFERRED — Alpaca MCP verified; pm2/DB cross-check not required (see audit note at top)
 
 *Note: Easter Monday — US markets open (Easter Monday is not a US market holiday). GDX had 3 complete trades in one session — most active single-bot day so far.*
 
@@ -253,7 +255,7 @@ Weekend — market closed.
 
 ### 2026-04-07
 
-**Audit status:** PARTIAL — Alpaca MCP verified (orders confirmed), pm2/DB audit pending
+**Audit status:** DEFERRED — Alpaca MCP verified; pm2/DB cross-check not required (see audit note at top)
 
 *Note: GLD T3 still open as of Apr 8 pre-market — not logged here until closed.*
 
@@ -271,7 +273,7 @@ Weekend — market closed.
 
 ### 2026-04-08
 
-**Audit status:** PARTIAL — Alpaca MCP verified, pm2/DB audit pending
+**Audit status:** DEFERRED — Alpaca MCP verified; pm2/DB cross-check not required (see audit note at top)
 
 *Note: GLD T1 closes the Apr 7 overnight position (logged in Apr 7 table above). SLV/GLD/GDX T2 entries at 19:46 UTC (14 min before close) — first documented instance of 3 simultaneous late-session entries, all carrying overnight. DAY stops expired at 20:00 UTC unfired.*
 
@@ -287,7 +289,7 @@ Weekend — market closed.
 
 ### 2026-04-09
 
-**Audit status:** PARTIAL — Alpaca MCP verified, pm2/DB audit pending
+**Audit status:** DEFERRED — Alpaca MCP verified; pm2/DB cross-check not required (see audit note at top)
 
 *Note: GLD/SLV/GDX positions carried overnight from Apr 8 — stops re-placed at market open. Still open at close Apr 9.*
 
@@ -302,7 +304,7 @@ Weekend — market closed.
 
 ### 2026-04-10
 
-**Audit status:** PARTIAL — Alpaca MCP verified, pm2/DB audit pending
+**Audit status:** DEFERRED — Alpaca MCP verified; pm2/DB cross-check not required (see audit note at top)
 
 *Note: GLD/SLV/GDX carried overnight from Apr 9 — stops re-placed at open. IAU had two complete trade cycles in one session. GLD/SLV/GDX all still open at close — carrying into Monday Apr 13.*
 
@@ -318,7 +320,7 @@ Weekend — market closed.
 
 ### 2026-04-13
 
-**Audit status:** PARTIAL — Alpaca MCP verified, pm2/DB audit pending
+**Audit status:** DEFERRED — Alpaca MCP verified; pm2/DB cross-check not required (see audit note at top)
 
 *Note: GLD/SLV/GDX weekend carries (Apr 8 19:46 UTC entries) all resolved at open — stops re-placed at 13:30 UTC, fired within 20 min. Gap-down on open took SLV and GLD below entry; GDX closed in profit. 5 additional intraday round-trips, all flat EOD.*
 
@@ -334,4 +336,27 @@ Weekend — market closed.
 | iau-test | 16:17:01 | 88.860 | 17:06:37 | 89.040 | K | - | +0.180 | Stop ratcheted 88.39→88.89 (1×), canceled, market K-exit. |
 
 *8 completed trades. Weekend carries: 1 TS win (GDX +0.440), 2 TS losses (SLV -0.330, GLD -0.201). Intraday: 1 TS win (SLV +0.150), 3 K-wins (GLD +1.584, GDX +0.940, IAU +0.180), 1 K-loss (GDX -0.812). Per-share net: +1.951. All bots flat EOD.*
+
+---
+
+## Post-Calibration Notable Events
+
+*Captured for roadmap context — not part of the Mar 20–Apr 20 calibration dataset. No pm2/DB cross-check performed; sourced from pm2 grep + Alpaca bar data.*
+
+### 2026-04-23 — SLV overnight gap-through
+
+| Bot | Entry time (UTC) | Entry $ | Exit time (UTC) | Exit $ | Exit type | Stop level at exit | P&L/share | Notes |
+|-----|-----------------|---------|-----------------|--------|-----------|-------------------|-----------|-------|
+| slv-test | Apr 22 ~mid-session | 70.480 | Apr 23 ~13:30 | 68.736 | SS | 70.150 | **-1.744** | Overnight carry. SLV closed Apr 22 at $70.365; gapped down overnight, pre-market print $68.670 (12:00 UTC), regular open $68.750 (13:30 UTC, low $68.590). GTC stop at $70.15 triggered at open and filled at $68.736 — a **clean fill vs open print, not a slippage event**. The $1.41 delta between stop level and fill is pure gap risk. On 347 shares ≈ **−$605**. |
+
+*Implication: this is a gap-risk data point, not a Layer 3 slippage-model failure. The slippage model is specified for intraday stop fires. Overnight gap-throughs are a distinct risk class and are not covered by any current policy — see `research-roadmap.md` → Critical Path "Overnight hold / gap policy".*
+
+**Resolution (Apr 23 2026):** Built overnight gap distribution analysis (`backend/analysis/gap_distribution.py` + `.claude/calibration/gap-distribution.md`) across 20y of daily data for GLD/IAU/SLV/GDX. Findings:
+
+- SLV full-history p95 abs = 3.08%, p99 = 5.25%, max = 13.87%. SLV 5y p95 = 3.39%, p99 = 5.63%.
+- The Apr 23 -2.41% event falls between p1 and p5 (1–5% down-gap tail).
+- Realised loss (-0.64% equity) ≈ 25% × 2.41% = matches the "max notional × gap" bound.
+- **At 1% gap budget + current 25% notional cap, gap-aware sizing is a no-op for all 4 symbols** — the notional cap binds first. The existing notional cap already bounds single-symbol p99 gap loss to 1.31% equity and max-historical to 3.47%.
+
+Decision: **close the single-symbol gap-policy item without a code change.** The analysis itself is the deliverable. Residual tail risk is a correlated 4-symbol overnight gap (~5% single-day equity DD at p99), which is the existing Correlation-aware sizing item on the critical path, not a separate fix. Data artifacts observed: IAU daily bars have a split-adjustment inconsistency at the Alpaca/Yahoo data-source boundary; SLV has 1 similar artifact; gap script filters |gap| > 15% as a known-artifact heuristic. Fixing the underlying data is queued as a separate data-quality task.
 

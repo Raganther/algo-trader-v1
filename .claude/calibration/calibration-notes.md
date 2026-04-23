@@ -146,6 +146,8 @@ Expected effective capital deployment in live is ~2–3× backtest depending on 
 
 ### Calibration Summary — All Layers (Apr 13 run)
 
+> **Status: CLOSED 2026-04-13.** Layers 1 / 2 / 4 PASS (commit `dbeea79`: Layer 1 75/75 trades 1.00x, Layer 2 intraday aligned, Layer 4 directional correct — 2.8× live vs backtest explained by shared-capital stacking). The original Apr 20 target was superseded once 75 trades confirmed execution integrity; no further Layer 4 aggregate rerun was performed. Bots are now on validated params. Future calibration, if needed for a new regime or param set, is a new initiative tracked in `research-roadmap.md`.
+
 | Layer | Verdict | Notes |
 |---|---|---|
 | 1 — Signal / trade count | **PASS** | 75/75, 1.00x ratio, all symbols ±5% |

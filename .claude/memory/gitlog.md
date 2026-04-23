@@ -3,6 +3,26 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-23** — chore: Apr 23 — overnight gap analysis closes single-symbol gap policy, correlation-aware sizing flagged as sole remaining tail risk
+
+ .claude/calibration/calibration-notes.md       |   2 +
+ .claude/calibration/gap-distribution.md        |  73 ++++++
+ .claude/calibration/live-trade-log.md          |  37 ++-
+ .claude/procedures/_index.md                   |   1 -
+ .claude/procedures/memory-harness-migration.md |  41 ----
+ .claude/strategies/event-surprise.md           |   2 +-
+ .claude/strategies/regime-analysis.md          |   4 +-
+ .claude/strategies/research-log.md             |  16 +-
+ .claude/strategies/research-roadmap.md         |  41 +++-
+ .claude/strategies/stochrsi-enhanced-gdx.md    |   2 +-
+ .claude/strategies/stochrsi-enhanced-gld.md    |   4 +-
+ .claude/strategies/stochrsi-enhanced-iau.md    |   4 +-
+ .claude/strategies/stochrsi-enhanced-slv.md    |   6 +-
+ CLAUDE.md                                      |   4 +-
+ backend/analysis/gap_distribution.py           | 302 +++++++++++++++++++++++++
+ 15 files changed, 470 insertions(+), 69 deletions(-)
+
+----
 **2026-04-21** — chore: migrate to harness v4.2 — single roadmap, retire observations.md, enforce domain purity
 
  .claude/calibration/calibration-notes.md    |  20 +--
@@ -11,6 +31,7 @@
  .claude/hooks/git-save-guard.sh             | 237 +++++++++++++++++-----------
  .claude/hooks/load-context.sh               |  35 ++--
  .claude/integrations/alpaca-mcp.md          |  10 +-
+ .claude/memory/gitlog.md                    |  65 +++++++-
  .claude/memory/observations.md              |  72 ---------
  .claude/strategies/event-surprise.md        |  12 +-
  .claude/strategies/regime-analysis.md       |  72 +--------
@@ -18,7 +39,7 @@
  .claude/strategies/stochrsi-enhanced-xle.md |   7 +-
  CLAUDE.md                                   |  36 ++---
  scripts/git-save.sh                         |  96 +++++++++--
- 13 files changed, 512 insertions(+), 348 deletions(-)
+ 14 files changed, 576 insertions(+), 349 deletions(-)
 
 ----
 **2026-04-21** — chore: Apr 21 — validated trail fired in profit (SLV +$283.86), pm2 startup registered, path to real money updated
@@ -135,11 +156,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  .../strategies/arbitrage-automation-concepts.md    | 204 +++++++++++++++++++++
  CLAUDE.md                                          |   1 +
  3 files changed, 214 insertions(+), 11 deletions(-)
-
-----
-**2026-04-11** — chore: update regime-analysis implications — validated params timing, second window caveat, HIGH_VOL sizing rationale, empirical validation gate
-
- .claude/memory/gitlog.md              | 20 ++++++++++----------
- .claude/strategies/regime-analysis.md | 33 ++++++++++++++++++++++-----------
- 2 files changed, 32 insertions(+), 21 deletions(-)
 

@@ -43,7 +43,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol SLV
 
 ### Year-by-Year (Walk-Forward Windows)
 
-> *Pre-fix data — directionally valid but exact figures will differ after the Apr 4 stop-check correction. Needs rerunning post-Apr-20.*
+> *Pre-fix data — directionally valid but exact figures will differ after the Apr 4 stop-check correction. Rerun deferred — tracked in `research-roadmap.md` → Deferred / Rerun.*
 
 | Test Period | Return | Sharpe | Trades |
 |---|---|---|---|
@@ -88,3 +88,7 @@ Most consistent year-by-year profile of the four assets. All years strongly posi
 slv-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — see `CLAUDE.md` and `.claude/calibration/calibration-notes.md`.
 
 Backtest prediction for test params (Dec 2025 – Mar 2026): +14.25%, 44 trades, 57% WR — strongest of the 4 symbols under test params.
+
+### Overnight Gap Risk (Apr 23 2026)
+
+SLV is the most gap-prone of the 4 symbols (full-history p95 abs gap 3.08%, p99 5.25%, max 13.87% — silver's intraday and overnight volatility runs ~2× gold). First materially-painful live overnight gap: Apr 23 — entry $70.48 Apr 22, GTC stop $70.15 triggered at open Apr 23 and filled at $68.74 (−$1.74/share = −$605 on 347 sh = −0.64% equity). Clean fill vs open print, not slippage; pure gap risk. The −2.41% event falls between p5 and p1 of the historical down-gap distribution. Current 25% notional cap already bounds worst-case p99 loss to ~1.3% equity per symbol — no SLV-specific sizing change needed. See `.claude/calibration/gap-distribution.md` for full distribution tables.
