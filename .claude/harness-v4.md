@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-21
+Status: current | Epistemic: confirmed | Last verified: 2026-04-23
 
 # Harness v4.2 — Memory & Knowledge Convention
 
@@ -100,6 +100,8 @@ Always use `git-save.sh` — not raw `git commit`.
 
 ## Hooks
 
+These hooks are Claude Code automation. In Codex sessions, treat them as a required manual checklist unless the local app explicitly runs Claude hooks. `./scripts/git-save.sh` still works and regenerates `gitlog.md`, but the Claude `PreToolUse` / `PostToolUse` guards may not fire automatically.
+
 | Hook | Trigger | Script | Purpose |
 |------|---------|--------|---------|
 | `SessionStart` | Every session open | `load-context.sh` | Prints branch/commit + UTC/IST time anchor, reminds to read gitlog + roadmap |
@@ -128,9 +130,11 @@ Always use `git-save.sh` — not raw `git commit`.
 | `.claude/strategies/composable-results.md` | Combining strategies or planning composable bot deployment |
 | `.claude/strategies/event-surprise.md` | Researching economic event strategies or revisiting CPI/NFP trading |
 | `.claude/strategies/regime-analysis.md` | Working on regime classification, regime-aware sizing, or interpreting live performance by regime |
+| `.claude/strategies/regime-stochrsi-diagnostic.md` | Interpreting Apr 23 per-regime StochRSI results or deciding whether regime-aware sizing is justified |
 | `.claude/strategies/arbitrage-automation-concepts.md` | Exploring new strategy families, evaluating adjacent business ideas |
 | `.claude/calibration/calibration-notes.md` | Running calibration, checking Apr 20 methodology, comparing backtest vs live |
 | `.claude/calibration/live-trade-log.md` | Auditing trades, filling in daily trade data, reviewing calibration data |
+| `.claude/calibration/gap-distribution.md` | Sizing overnight-capable positions, evaluating gap-risk policy, interpreting overnight gap losses |
 | `.claude/integrations/alpaca-mcp.md` | Using Alpaca MCP tools, running trade audits, checking what data is available |
 
 ## Maintaining this file

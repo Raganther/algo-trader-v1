@@ -266,9 +266,11 @@ def write_markdown(
 ) -> None:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     lines = [
-        f"Status: current | Epistemic: diagnostic | Last verified: {now}",
+        f"Status: current | Epistemic: confirmed | Last verified: {now}",
         "",
         "# StochRSI Enhanced Performance by Daily Regime",
+        "",
+        "## Knowledge",
         "",
         f"Window requested: `{start}` to `{end}`. Source: `backend/research.db` "
         "intraday `price_data` plus daily `price_data_daily` regimes.",

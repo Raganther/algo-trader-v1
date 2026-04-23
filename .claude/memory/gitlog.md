@@ -3,14 +3,24 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-23** — chore: align regime diagnostic with harness v4.2
+
+ .claude/harness-v4.md                            | 6 +++++-
+ .claude/strategies/regime-stochrsi-diagnostic.md | 4 +++-
+ CLAUDE.md                                        | 1 +
+ backend/analysis/stochrsi_regime_performance.py  | 4 +++-
+ 4 files changed, 12 insertions(+), 3 deletions(-)
+
+----
 **2026-04-23** — chore: Apr 23 regime diagnostic shows partial gradient
 
+ .claude/memory/gitlog.md                         |  21 +-
  .claude/strategies/regime-analysis.md            |   7 +-
  .claude/strategies/regime-stochrsi-diagnostic.md | 100 +++++++
  .claude/strategies/research-log.md               |  23 +-
  .claude/strategies/research-roadmap.md           |   6 +-
  backend/analysis/stochrsi_regime_performance.py  | 365 +++++++++++++++++++++++
- 5 files changed, 494 insertions(+), 7 deletions(-)
+ 6 files changed, 506 insertions(+), 16 deletions(-)
 
 ----
 **2026-04-23** — chore: Apr 23 — overnight gap analysis closes single-symbol gap policy, correlation-aware sizing flagged as sole remaining tail risk
@@ -152,11 +162,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  .claude/memory/gitlog.md                           |  16 +--
  .../strategies/arbitrage-automation-concepts.md    | 108 +++++++++++++++++++--
  2 files changed, 106 insertions(+), 18 deletions(-)
-
-----
-**2026-04-11** — chore: expand arbitrage-automation domain file — true vs statistical arb distinction, two-platform architecture, domain-by-domain viability table
-
- .claude/memory/gitlog.md                           |  18 +--
- .../strategies/arbitrage-automation-concepts.md    | 164 ++++++++++++++++++++-
- 2 files changed, 171 insertions(+), 11 deletions(-)
 

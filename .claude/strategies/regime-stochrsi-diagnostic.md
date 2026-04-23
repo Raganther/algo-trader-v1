@@ -1,6 +1,8 @@
-Status: current | Epistemic: diagnostic | Last verified: 2026-04-23
+Status: current | Epistemic: confirmed | Last verified: 2026-04-23
 
 # StochRSI Enhanced Performance by Daily Regime
+
+## Knowledge
 
 Window requested: `2020-01-01` to `2025-12-31`. Source: `backend/research.db` intraday `price_data` plus daily `price_data_daily` regimes.
 
