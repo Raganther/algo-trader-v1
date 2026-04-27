@@ -7,32 +7,29 @@ Phase: Forward testing — verifying live execution mechanics on 4 paper bots be
 
 ## Session Start
 Read in order on every cold start:
-1. `.claude/memory/gitlog.md` — recent git saves
-2. `.claude/strategies/research-roadmap.md` — in-flight work + open questions
+1. `.Codex/memory/gitlog.md` — recent git saves
+2. `.Codex/strategies/research-roadmap.md` — in-flight work + open questions
 
 **Before starting any update, new feature, or bug fix — scan the list below and read any relevant domain files first.**
 
 Read on demand only:
-- `.claude/procedures/_index.md` — scan at plan creation for relevant how-to patterns
-- `.claude/procedures/daily-trade-audit.md` — read when running a daily MCP/pm2/DB audit on live bot trades, or backfilling calibration-window data
-- `.claude/harness-v4.md` — read when working on the memory harness, hooks, or knowledge conventions
-- `.claude/strategies/stochrsi-enhanced-gld.md` — read when working on GLD, reviewing long-only vs full strategy, or checking the audit baseline
-- `.claude/strategies/stochrsi-enhanced-iau.md` — read when working on IAU or reviewing 15m strategy params
-- `.claude/strategies/stochrsi-enhanced-slv.md` — read when working on SLV or reviewing 15m strategy params
-- `.claude/strategies/stochrsi-enhanced-gdx.md` — read when working on GDX or reviewing 15m strategy params
-- `.claude/strategies/research-log.md` — read when deciding what to experiment on next, reviewing cross-strategy learnings, or planning new forward tests
-- `.claude/strategies/composable-results.md` — read when combining strategies or planning composable bot deployment
-- `.claude/strategies/stochrsi-enhanced-xle.md` — read when working on XLE or planning Rolling Validation Test #1
-- `.claude/strategies/event-surprise.md` — read when researching economic event strategies or revisiting CPI/NFP trading
-- `.claude/calibration/calibration-notes.md` — read when running calibration, checking Apr 20 methodology, or comparing backtest vs live
-- `.claude/calibration/live-trade-log.md` — read when auditing trades, filling in daily trade data, or running the Apr 20 calibration comparison
-- `.claude/calibration/forward-test-log.md` — read when auditing validated-params trades (Apr 15+), tracking forward-test win-rate convergence, or expanding the Layer 3 stop-slippage sample
-- `.claude/calibration/gap-distribution.md` — read when sizing overnight-capable positions, evaluating gap-risk policy, or interpreting an overnight gap loss in live trades
-- `.claude/integrations/alpaca-mcp.md` — read when using Alpaca MCP tools, running trade audits via MCP, or checking what data is available without SSH
-- `.claude/strategies/regime-analysis.md` — read when working on regime classification, regime-aware sizing, interpreting live performance by market environment, or building the regime frontend
-- `.claude/strategies/regime-stochrsi-diagnostic.md` — read when interpreting Apr 23 per-regime StochRSI results, deciding whether regime-aware sizing is justified, or comparing metals vs other assets
-- `.claude/strategies/regime-sizing-portfolio-diagnostic.md` — read when evaluating whether regime multipliers improve portfolio-level return/drawdown before live sizing
-- `.claude/strategies/arbitrage-automation-concepts.md` — read when exploring new strategy families (pairs trading, cross-asset, event-driven), evaluating adjacent business ideas, or planning beyond the current 4-symbol setup
+- `.Codex/procedures/_index.md` — scan at plan creation for relevant how-to patterns
+- `.Codex/procedures/daily-trade-audit.md` — read when running a daily MCP/pm2/DB audit on live bot trades, or backfilling calibration-window data
+- `.Codex/harness-v4.md` — read when working on the memory harness, hooks, or knowledge conventions
+- `.Codex/strategies/stochrsi-enhanced-gld.md` — read when working on GLD, reviewing long-only vs full strategy, or checking the audit baseline
+- `.Codex/strategies/stochrsi-enhanced-iau.md` — read when working on IAU or reviewing 15m strategy params
+- `.Codex/strategies/stochrsi-enhanced-slv.md` — read when working on SLV or reviewing 15m strategy params
+- `.Codex/strategies/stochrsi-enhanced-gdx.md` — read when working on GDX or reviewing 15m strategy params
+- `.Codex/strategies/research-log.md` — read when deciding what to experiment on next, reviewing cross-strategy learnings, or planning new forward tests
+- `.Codex/strategies/composable-results.md` — read when combining strategies or planning composable bot deployment
+- `.Codex/strategies/stochrsi-enhanced-xle.md` — read when working on XLE or planning Rolling Validation Test #1
+- `.Codex/strategies/event-surprise.md` — read when researching economic event strategies or revisiting CPI/NFP trading
+- `.Codex/calibration/calibration-notes.md` — read when running calibration, checking Apr 20 methodology, or comparing backtest vs live
+- `.Codex/calibration/live-trade-log.md` — read when auditing trades, filling in daily trade data, or running the Apr 20 calibration comparison
+- `.Codex/calibration/gap-distribution.md` — read when sizing overnight-capable positions, evaluating gap-risk policy, or interpreting an overnight gap loss in live trades
+- `.Codex/integrations/alpaca-mcp.md` — read when using Alpaca MCP tools, running trade audits via MCP, or checking what data is available without SSH
+- `.Codex/strategies/regime-analysis.md` — read when working on regime classification, regime-aware sizing, interpreting live performance by market environment, or building the regime frontend
+- `.Codex/strategies/arbitrage-automation-concepts.md` — read when exploring new strategy families (pairs trading, cross-asset, event-driven), evaluating adjacent business ideas, or planning beyond the current 4-symbol setup
 
 ## Run Commands
 
@@ -81,14 +78,14 @@ python3 scripts/fetch_price_data_yfinance.py
 - **Indicators:** `backend/indicators/` — StochRSI, RSI, MACD, ADX, Bollinger, ATR, SMA, CHOP
 - **DB:** `backend/research.db` — experiments, live trades
 - **Frontend:** `frontend/` — Next.js dashboard, DB-driven
-- **Harness spec:** `.claude/harness-v4.md` — knowledge conventions, layer model, hook descriptions
-- **Roadmap:** `.claude/strategies/research-roadmap.md` — all in-flight work and open questions
-- **Strategy notes:** `.claude/strategies/` — domain files, individually listed in Session Start above
-- **Calibration notes:** `.claude/calibration/calibration-notes.md` — methodology, Apr 20 commands, snapshots
-- **Live trade log:** `.claude/calibration/live-trade-log.md` — per-trade records for Mar 20–Apr 20 calibration window
-- **OpenBrain category:** `.claude/openbrain-category` — `algo-trader`
-- **Alpaca MCP:** configured in `~/.claude/settings.json` — 57 tools for market data, orders, positions, portfolio history. No news endpoint. Requires Claude Code restart to activate. Uses existing Alpaca paper trading keys. `uvx` installed at `~/.local/bin/uvx`.
-- **Integrations:** `.claude/integrations/alpaca-mcp.md` — full tool reference, high-value tools ranked, usage notes
+- **Harness spec:** `.Codex/harness-v4.md` — knowledge conventions, layer model, hook descriptions
+- **Roadmap:** `.Codex/strategies/research-roadmap.md` — all in-flight work and open questions
+- **Strategy notes:** `.Codex/strategies/` — domain files, individually listed in Session Start above
+- **Calibration notes:** `.Codex/calibration/calibration-notes.md` — methodology, Apr 20 commands, snapshots
+- **Live trade log:** `.Codex/calibration/live-trade-log.md` — per-trade records for Mar 20–Apr 20 calibration window
+- **OpenBrain category:** `.Codex/openbrain-category` — `algo-trader`
+- **Alpaca MCP:** configured in `~/.Codex/settings.json` — 57 tools for market data, orders, positions, portfolio history. No news endpoint. Requires Codex restart to activate. Uses existing Alpaca paper trading keys. `uvx` installed at `~/.local/bin/uvx`.
+- **Integrations:** `.Codex/integrations/alpaca-mcp.md` — full tool reference, high-value tools ranked, usage notes
 - **Hooks:** SessionStart (load-context.sh), PreToolUse guard (git-save-guard.sh), PreToolUse naming guard (domain-naming-guard.sh), PostToolUse OpenBrain audit (openbrain-audit-reminder.sh)
 
 ## Current Status

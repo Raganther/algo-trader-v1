@@ -24,7 +24,7 @@ Status labels: `idea` | `in progress` | `validated` | `rejected` | `monitoring`
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Layer 3 — stop slippage aggregation | in progress | Refresh median/mean with Apr 9–20 stop exits (33 → ~50 samples). Current: median $0.010/share, mean $0.025/share, 100% negative direction. Decision: add `stop_slippage` param to backtest only after Layer 3 confirms the bias holds on a larger sample. Median ($0.010) is the more reliable model input. |
+| Layer 3 — stop slippage aggregation | in progress | Apr 27 expansion: 33 → 41 intraday fires (+8 from validated-params forward test, see `forward-test-log.md`). Updated mean ~$0.025/share, median ~$0.013/share — consistent with prior. **Direction no longer 100% negative** — 3 of 8 new fires are positive (+0.004 to +0.010), all on buy-stops (short covers and a ratchet-just-in-time long sell-stop). Sell-stops on long positions remain mostly negative. Decision: add `stop_slippage` param to backtest only after sample reaches 50 and direction split stabilises. Median is still the reliable model input. |
 | Execution layer calibration across regimes | monitoring | Apr 20 calibration is a snapshot of one unusual regime (post-metals-crash recovery, high intraday volatility). Whether spread and slippage assumptions hold in calmer or more strongly trending conditions is untested. Treat Apr 20 calibration as valid for this window, not a universal constant. |
 
 ---
@@ -128,7 +128,7 @@ Numbers that are directionally valid but compute against the pre-Apr-4 stop-chec
 | Validated params whole-share sizing + short broker code | Deployed Apr 15-16. 340+ shares per position confirmed. First short (GLD Apr 16, K-exit +$38.50) confirmed working. | Apr 16 2026 |
 | GTC stop fix | Stop orders switched to GTC TIF — eliminates overnight DAY expiry gap permanently. Whole-share sizing removes Alpaca's GTC restriction for fractional. | Apr 17 2026 |
 | Validated 2.0 ATR trail fires in profit | Confirmed — SLV Apr 20: trail ratcheted $70.72→$72.14, server stop executed at $72.12 (entry $71.29 → +$283.86). The mechanism that drives Sharpe 2.47 is live and working. | Apr 20 2026 |
-| Short stop-loss execution confirmation | Server-side stop mechanism is direction-agnostic — confirmed working for longs (SLV Apr 20 trail, GLD Mar 10 hard stop). Short path uses the same broker plumbing. Awaiting organic short-against-us fire for final sample, but no longer gating real money. | Apr 20 2026 |
+| Short stop-loss execution confirmation | Server-side stop mechanism is direction-agnostic — confirmed working for longs (SLV Apr 20 trail, GLD Mar 10 hard stop). **Organic short stop fire confirmed Apr 23** — IAU short entered 13:44 @ $89.05, buy-stop @ $89.09 fired 16:51 @ $89.10 against us. Slippage +0.010/share. Closes the awaited data point. | Apr 23 2026 |
 | pm2 startup registered as systemd service | Survives server reboots permanently. Registered Apr 20. | Apr 20 2026 |
 | GDX zero trades (pre-Mar 16) | Resolved — GDX started trading Mar 16 after zero trades previously. Cause was threshold mismatch. | Mar 16 2026 |
 | Pre-market signal bug | Fixed Mar 16 — market hours gate added to runner.py on_bar(). | Mar 16 2026 |

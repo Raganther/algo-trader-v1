@@ -3,9 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-27** — Apr 27 forward-test log — Apr 15-24 validated-params trades, organic short stop fire confirmed, Layer 3 sample 33→41
+
+ .claude/calibration/forward-test-log.md | 177 ++++++++++++++++++++++++++++++++
+ .claude/strategies/research-roadmap.md  |   4 +-
+ AGENTS.md                               | 170 ++++++++++++++++++++++++++++++
+ CLAUDE.md                               |   1 +
+ 4 files changed, 350 insertions(+), 2 deletions(-)
+
+----
 **2026-04-23** — chore: Apr 23 regime sizing replay rejects broad multipliers
 
  .claude/harness-v4.md                              |   1 +
+ .claude/memory/gitlog.md                           |  31 ++-
  .claude/strategies/regime-analysis.md              |   4 +-
  .../regime-sizing-portfolio-diagnostic.md          |  49 +++++
  .claude/strategies/research-log.md                 |   2 +
@@ -13,7 +23,7 @@
  CLAUDE.md                                          |   1 +
  backend/analysis/regime_sizing_portfolio.py        | 244 +++++++++++++++++++++
  backend/analysis/stochrsi_regime_performance.py    |  10 +
- 8 files changed, 311 insertions(+), 2 deletions(-)
+ 9 files changed, 330 insertions(+), 14 deletions(-)
 
 ----
 **2026-04-23** — chore: align regime diagnostic with harness v4.2
@@ -162,11 +172,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  .claude/memory/gitlog.md              | 19 +++++++++----------
  .claude/memory/observations.md        |  3 ++-
  3 files changed, 30 insertions(+), 11 deletions(-)
-
-----
-**2026-04-11** — chore: add Polymarket domains section — 8 domains ranked, weather/economics prioritised, Polymarket vs Kalshi, Irish access, dev candidates restructured with stage gate
-
- .claude/memory/gitlog.md                           |  19 +--
- .../strategies/arbitrage-automation-concepts.md    | 177 ++++++++++++++++++++-
- 2 files changed, 177 insertions(+), 19 deletions(-)
 
