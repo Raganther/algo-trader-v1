@@ -1,8 +1,16 @@
-Status: validated | Epistemic: confirmed (WF 4/4 passed; Sharpe + correlation still pending) | Last verified: 2026-04-28
+Status: validated | Epistemic: WF 4/4 confirmed; Sharpe at the bar; edge attribution under review | Last verified: 2026-04-28
 
-# StochRSI Enhanced — XOP 15m (Validated)
+# StochRSI Enhanced — XOP 15m (Validated — at-the-bar)
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
+
+> **Apr 28 2026 status update — framework attribution finding.**
+>
+> Verified Sharpe (Apr 28): **1.98** full-strategy — *fractionally under the 2.0 quality bar* (within Sharpe noise on a 6-year window). Headline returns/DD on this card remain accurate.
+>
+> Random-entry control was **not run directly on XOP** (tested on GLD/SLV/GDX/SPY/QQQ/IWM — see `research-log.md` → "Random-Entry Control — Apr 28 2026"). On the assets tested directly, random entries with the same framework produce Sharpes within 0.02–0.65 of validated. The cross-asset pattern strongly suggests the StochRSI entry signal contributes a small per-asset tilt and the framework is doing most of the work — but per-asset attribution on XOP is unverified.
+>
+> What this means: XOP at Sharpe 1.98 is the weakest of the energy three (XLE 2.30, OIH 2.33, XOP 1.98). Combined with the fact that XLE/OIH/XOP are highly correlated, XOP is the most expendable energy bot if a deployment trim is needed. The interpretation "StochRSI mean-reversion is the edge on XOP" is under review pending direct random-entry test or framework ablations.
 > **Status:** Discovered Apr 28 2026 during forgotten-asset audit. **Walk-forward 4/4 windows positive (Apr 28).** Highly correlated with XLE/OIH — pick the strongest before deployment.
 
 ## Knowledge

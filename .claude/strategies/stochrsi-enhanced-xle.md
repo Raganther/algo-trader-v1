@@ -1,8 +1,16 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-27
+Status: current | Epistemic: headline confirmed; edge attribution under review | Last verified: 2026-04-28
 
 # StochRSI Enhanced — XLE 15m
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
+
+> **Apr 28 2026 status update — framework attribution finding.**
+>
+> Verified Sharpe (Apr 28): **2.30** full-strategy. Headline returns/DD on this card remain accurate.
+>
+> Random-entry control was **not run directly on XLE** (tested on GLD/SLV/GDX/SPY/QQQ/IWM — see `research-log.md` → "Random-Entry Control — Apr 28 2026"). On the assets tested directly, random entries with the same framework produce Sharpes within 0.02–0.65 of validated; on QQQ random *beats* validated. The cross-asset pattern strongly suggests the StochRSI entry signal contributes a small per-asset tilt and the framework (2.0 ATR stop, trailing stop after 10 bars, ADX ranging filter, 2% fixed-risk sizing, 25% notional cap, K-cross exit, 10-bar min-hold) is doing most of the work — but per-asset attribution on XLE is unverified.
+>
+> What this means: the metrics below are correct as a record of *what the validated recipe produces on XLE*. The interpretation "StochRSI mean-reversion is the edge on XLE" is under review pending direct random-entry test or framework ablations.
 
 ## Knowledge
 

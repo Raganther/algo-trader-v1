@@ -27,6 +27,8 @@ Random-entry control (`research-log.md` → "Random-Entry Control") shows the St
 
 ## Critical Path — To Real Money
 
+> **Apr 28 2026 caveat:** The technical items below (correlation-aware sizing, ATR sizing, late-session guard) are still required pre-real-money regardless of edge attribution. **What's changed is the meta-question — "is the edge real?"** Apr 28 random-entry control shows the StochRSI signal isn't doing the bulk of the work; the framework is. Combined with the fact that all backtests + forward tests are within a 2020–2026 bull market, we cannot currently distinguish "framework captures real risk-adjusted alpha" from "framework is a well-engineered way to hold a rising market with low DD." Recommendation: complete the Framework Attribution ablations + buy-and-hold comparison **before** committing real money, even after the Critical Path items below ship. The bots are safe to keep paper-trading regardless.
+
 | Item | Status | Notes |
 |------|--------|-------|
 | Correlation-aware sizing | in progress | GLD/IAU/SLV enter simultaneously multiple times per week. At 2% risk per trade, 3 simultaneous entries = 6% portfolio in one correlated move. Need shared-timeline portfolio runner first. Then: tally joint outcomes by year → decide fixed exposure cap vs scaling function. Pre-real-money requirement. **Apr 23: identified as the single remaining tail-risk concern after gap-distribution analysis closed the single-symbol gap-policy item. A correlated 4-symbol overnight gap at p99 = ~5% single-day equity DD — the largest unbounded tail in the system today.** |

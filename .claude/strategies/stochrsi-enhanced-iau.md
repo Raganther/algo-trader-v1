@@ -1,8 +1,16 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-27
+Status: current | Epistemic: headline confirmed; edge attribution under review | Last verified: 2026-04-28
 
 # StochRSI Enhanced — IAU 15m
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
+
+> **Apr 28 2026 status update — framework attribution finding.**
+>
+> Verified Sharpe (Apr 28): **1.95** full-strategy (just under the 2.0 quality bar) / **1.86** long-only. IAU is the weakest of the metals on a DD-adjusted basis. Headline returns/DD on this card remain accurate.
+>
+> Random-entry control was **not run directly on IAU** (tested on GLD/SLV/GDX/SPY/QQQ/IWM — see `research-log.md` → "Random-Entry Control — Apr 28 2026"). On the metals tested directly, random entries with the same framework produce Sharpe within 0.02–0.42 of validated. The cross-asset pattern strongly suggests the StochRSI entry signal is a small contributor here too and the framework is doing most of the work — but per-asset attribution is unverified.
+>
+> What this means: the metrics below are correct as a record of *what the validated recipe produces on IAU*. The interpretation "StochRSI mean-reversion is the edge on IAU" is under review pending direct random-entry test or framework ablations.
 
 ## Knowledge
 

@@ -1,8 +1,16 @@
-Status: validated | Epistemic: confirmed (WF 4/4 + ≥150 trades passed; Sharpe + correlation still pending) | Last verified: 2026-04-28
+Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; edge attribution under review | Last verified: 2026-04-28
 
 # StochRSI Enhanced — OIH 15m (Validated — Top-Tier)
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
+
+> **Apr 28 2026 status update — framework attribution finding.**
+>
+> Verified Sharpe (Apr 28): **2.33** full-strategy ✓ (clears 2.0 quality bar). Headline returns/DD on this card remain accurate.
+>
+> Random-entry control was **not run directly on OIH** (tested on GLD/SLV/GDX/SPY/QQQ/IWM — see `research-log.md` → "Random-Entry Control — Apr 28 2026"). On the assets tested directly, random entries with the same framework produce Sharpes within 0.02–0.65 of validated; on QQQ random *beats* validated. The cross-asset pattern strongly suggests the StochRSI entry signal contributes a small per-asset tilt and the framework (2.0 ATR stop, trailing stop after 10 bars, ADX ranging filter, 2% fixed-risk sizing, 25% notional cap, K-cross exit, 10-bar min-hold) is doing most of the work — but per-asset attribution on OIH is unverified.
+>
+> What this means: OIH's high return (+146%) is impressive but most of the Sharpe-adjusted edge is likely framework-driven, not signal-driven. The high return reflects OIH's high underlying volatility (the framework captures larger absolute moves on volatile assets). The interpretation "StochRSI mean-reversion is the edge on OIH" is under review pending direct random-entry test or framework ablations.
 > **Status:** Discovered Apr 28 2026 during forgotten-asset audit. **Walk-forward 4/4 windows positive (Apr 28).** Sharpe computation and cross-correlation vs XLE/XOP still pending before deployment as a bot.
 
 ## Knowledge

@@ -1,6 +1,8 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-23
+Status: current | Epistemic: confirmed | Last verified: 2026-04-23 (results unaffected by Apr 28 edge-attribution finding)
 
 # Regime Sizing Portfolio Diagnostic
+
+> **Apr 28 2026 note:** This diagnostic asks whether broad regime multipliers improve drawdown-adjusted portfolio performance. The answer (no — baseline 4.27 daily Sharpe beats all regime variants) is a portfolio-level replay of validated trades; it does not depend on whether the StochRSI entry signal or the framework is the source of edge. Conclusion stands.
 
 ## Knowledge
 

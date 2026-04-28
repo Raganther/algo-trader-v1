@@ -1,9 +1,11 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-21
+Status: current | Epistemic: classification confirmed; edge-attribution interpretation under review | Last verified: 2026-04-28
 
 # Regime Analysis — Algo Trader V1
 
 > **Purpose:** Market regime classification, statistics, and implications for strategy sizing and risk management.
 > Read when: designing regime-aware sizing, interpreting live performance, planning regime-gated enhancements.
+
+> **Apr 28 2026 caveat — framework attribution finding.** Regime classification, statistics, and transition probabilities below are objective price-action measurements and remain valid. However, sections that interpret regime through the lens of "StochRSI mean-reversion" should be re-read with the Apr 28 finding in mind: the StochRSI entry signal contributes only a small fraction of total Sharpe (`research-log.md` → "Random-Entry Control — Apr 28 2026"). Interpretations like "oversold bounces are cleaner in TRENDING_UP" are likely *framework × volatility* effects rather than *signal × regime* effects. The methodology is sound; some causal claims need re-grounding.
 
 ---
 

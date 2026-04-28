@@ -51,11 +51,11 @@ Most profitable K-exit days start with a delayed fill at 13:31–14:00 UTC. Mar 
 
 GDX Mar 20→23: +3.267/share. Validated params produce more multi-day holds (trail after 10 bars). This single trade illustrates what the validated strategy is designed to capture — test params deliberately sacrifice P&L for trade volume.
 
-#### Signal confirmed — full edge not yet confirmed
+#### Signal confirmed — full edge not yet confirmed (interpretation revised Apr 28)
 
-The K-exit win rate (80%) confirms that the **entry signal + K-exit signal** have real alpha in live conditions. It does not confirm the full validated edge. The trail is not just protection — at validated params (2.0 ATR, after 10 bars) it's the component that holds profitable positions through noise and captures extended moves. The three components work together: entry finds the setup, trail lets it run, K-exit closes it cleanly. We've confirmed two of three in live conditions. The trail at validated params has never run live.
+The K-exit win rate (80%) confirms that the **entry placement + K-exit signal** produce winning trades in live conditions. It does **not** confirm the StochRSI entry signal carries edge — Apr 28 random-entry control (`research-log.md` → "Random-Entry Control — Apr 28 2026") shows random entries produce nearly identical Sharpe to validated entries on GLD, and beat them on QQQ. What's confirmed live is that the framework (trail, ATR stop, ADX filter, K-cross exit, sizing) executes cleanly and produces positive returns. Whether the entry *signal* contributes anything beyond the framework is now the open question.
 
-**Full edge confirmation requires a second clean window on validated params after Apr 20.**
+**Full edge confirmation now means:** (1) framework ablations identifying which framework component is load-bearing; (2) buy-and-hold comparison showing the framework adds DD-adjusted value over passive holding; (3) ideally, out-of-sample data from a non-bull regime. None of these are "second clean window on validated params" — that test would just confirm the framework keeps working, which we already know.
 
 The Apr 20 calibration is also the precondition for trusting the validated params projection. If the backtest faithfully models what we've observed here, the Sharpe 2.54 and return predictions for validated params are grounded. If it doesn't match, the projection is ungrounded regardless of backtest numbers.
 

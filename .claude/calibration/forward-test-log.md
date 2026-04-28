@@ -1,9 +1,11 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-27
+Status: current | Epistemic: trades confirmed; edge interpretation revised Apr 28 | Last verified: 2026-04-28
 
 # Forward Test Log — Validated Params
 
 Per-trade records for the validated-params forward test (Apr 15 2026 onward).
 Distinct from `live-trade-log.md` (Mar 20–Apr 20 calibration window, test params).
+
+> **Apr 28 2026 caveat — framework attribution finding.** Trade records below are observational fact and unaffected. However, any interpretation that reads forward-test win rates as confirming "the StochRSI mean-reversion edge" is now under review. Apr 28 random-entry control shows random entries with the same framework produce comparable Sharpes; live forward-test results may largely reflect framework performance, not signal performance. See `research-log.md` → "Random-Entry Control — Apr 28 2026".
 
 **Bot config (all 4):** OB 80 / OS 15, ADX threshold 20, 10-bar min hold, 2.0 ATR trail after 10 bars, GTC stops, whole-share sizing, shorts enabled, `skip_days:[0]` (skip Monday). Deployed Apr 15–16.
 

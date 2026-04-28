@@ -1,6 +1,8 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-23
+Status: current | Epistemic: results valid; interpretation under review | Last verified: 2026-04-28
 
 # StochRSI Enhanced Performance by Daily Regime
+
+> **Apr 28 2026 caveat — framework attribution finding.** This diagnostic measures how the *full validated recipe* performs across regimes. Apr 28 random-entry control (`research-log.md` → "Random-Entry Control — Apr 28 2026") shows the StochRSI entry signal contributes only a small fraction of total Sharpe; the position-management framework is doing most of the work. **What this diagnostic actually measures is therefore "how does the framework + StochRSI tilt perform across regimes," not "how does StochRSI mean-reversion perform across regimes."** The numbers below are real, but the causal interpretation should be re-examined: if RANGING is strongest, that may be because the ADX-ranging filter is gating the framework's edge, not because StochRSI signals are stronger in ranging markets. The Phase 1 recommendation ("regime as high-conviction sizing/filter input only") is unaffected — that conclusion was based on aggregate Sharpe spread, which is regime-real regardless of edge attribution.
 
 ## Knowledge
 

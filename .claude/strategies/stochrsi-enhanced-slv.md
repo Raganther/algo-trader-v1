@@ -1,8 +1,16 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-27
+Status: current | Epistemic: headline confirmed; edge attribution under review | Last verified: 2026-04-28
 
 # StochRSI Enhanced — SLV 15m
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
+
+> **Apr 28 2026 status update — framework attribution finding.**
+>
+> Verified Sharpe (Apr 28): **2.46** full-strategy / **2.47** long-only — *long-only Sharpe ≈ full-strategy on SLV; shorts add return but cost roughly equivalent DD-adjusted noise.* Headline returns/DD on this card remain accurate.
+>
+> Random-entry control (tested directly on SLV): replacing the StochRSI entry trigger with random Bernoulli draws (p=0.15, seed=42), keeping all other logic identical, produces Sharpe **2.04** vs validated **2.46**. The StochRSI entry contributes ~0.42 Sharpe — real but a minority of the total edge. The bulk of the Sharpe comes from the position-management framework (2.0 ATR stop, trailing stop after 10 bars, ADX ranging filter, 2% fixed-risk sizing, 25% notional cap, K-cross exit, 10-bar min-hold).
+>
+> What this means: the metrics below are correct as a record of *what the validated recipe produces on SLV*. The interpretation "StochRSI mean-reversion is the edge on SLV" is **partially correct** — the entry signal contributes meaningfully but is not the primary effect. See `research-log.md` → "Random-Entry Control — Apr 28 2026" for full data.
 
 ## Knowledge
 

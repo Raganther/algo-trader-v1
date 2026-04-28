@@ -1,8 +1,16 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-27
+Status: current | Epistemic: headline confirmed; edge attribution under review | Last verified: 2026-04-28
 
 # StochRSI Enhanced — GDX 15m
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
+
+> **Apr 28 2026 status update — framework attribution finding.**
+>
+> Verified Sharpe (Apr 28): **2.46** full-strategy / **1.89** long-only — *full-strategy Sharpe exceeds long-only on GDX; shorts contribute meaningfully here, unlike on GLD/SLV.* Headline returns/DD on this card remain accurate.
+>
+> Random-entry control (tested directly on GDX): replacing the StochRSI entry trigger with random Bernoulli draws (p=0.15, seed=42), keeping all other logic identical, produces Sharpe **2.05** vs validated **2.46**. The StochRSI entry contributes ~0.41 Sharpe — real but a minority of the total edge. The bulk of the Sharpe comes from the position-management framework (2.0 ATR stop, trailing stop after 10 bars, ADX ranging filter, 2% fixed-risk sizing, 25% notional cap, K-cross exit, 10-bar min-hold).
+>
+> What this means: the metrics below are correct as a record of *what the validated recipe produces on GDX*. The interpretation "StochRSI mean-reversion is the edge on GDX" is **partially correct** — the entry signal contributes meaningfully but the framework is the primary driver. See `research-log.md` → "Random-Entry Control — Apr 28 2026" for full data.
 
 ## Knowledge
 

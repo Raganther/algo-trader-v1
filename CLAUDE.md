@@ -98,7 +98,7 @@ python3 scripts/fetch_price_data_yfinance.py
 Phase: Forward testing — validated params live, path to real money. 4 paper bots running on cloud (gld-test, iau-test, slv-test, gdx-test).
 Price action chart live at `/chart` — Stage 1 complete (candlestick chart, symbol/range selector). Stage 2 next: trade overlays on chart.
 
-**Confirmed working:** entry signal + K-exit (76–80% win rate across 67+ trades), server-side stop loss, trailing stop in profit (SLV +$283.86 Apr 20), trail ratcheting, whole-share sizing (340+ shares/position), short entry + K-exit (GLD Apr 16 +$38.50), GTC stops (no overnight expiry gap), pm2 startup registered as systemd service, single-symbol overnight gap risk bounded by 25% notional cap (Apr 23 SLV gap-through = -0.64% equity, within p95 of historical distribution).
+**Confirmed working (execution mechanics — separate from edge attribution):** entry placement + K-exit (76–80% win rate across 67+ trades), server-side stop loss, trailing stop in profit (SLV +$283.86 Apr 20), trail ratcheting, whole-share sizing (340+ shares/position), short entry + K-exit (GLD Apr 16 +$38.50), GTC stops (no overnight expiry gap), pm2 startup registered as systemd service, single-symbol overnight gap risk bounded by 25% notional cap (Apr 23 SLV gap-through = -0.64% equity, within p95 of historical distribution). *Note:* the 76–80% win rate reflects what the framework + StochRSI tilt produces in live conditions; per Apr 28 random-entry control, the bulk of the risk-adjusted edge comes from the framework, not from the StochRSI entry signal.
 
 **Execution layer validated (Apr 13 calibration):** Layers 1/2/4 pass. Backtest engine accurate for test params / intraday regime. See calibration-notes.md for full results.
 
@@ -122,7 +122,7 @@ Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid 
 
 **Trailing stop FIRING in profit — confirmed Mar 23.** GDX: entry $80.05 (Mar 20), trail ratcheted to $83.35 over 3-day hold, server stop fired intrabar @ $83.317 (+$958 paper). Both server-side exit mechanics now fully confirmed.
 
-**Long-only baseline established (Mar 14):** Bots currently run long-only. Full vs long-only Sharpe (corrected Apr 4): GLD 2.47→~1.80, IAU 1.97→~1.20, SLV 2.41→~3.10 (better!), GDX 2.58→~1.65. SLV viable long-only; GLD/IAU/GDX meaningfully weaker. See strategy cards for full breakdown.
+**Long-only baseline (verified Apr 28):** Full → long-only Sharpe: GLD 2.48→**2.57** (long-only better!), IAU 1.95→1.86, SLV 2.46→**2.47** (≈), GDX 2.46→1.89. **GLD and SLV long-only beat full-strategy on Sharpe — shorts hurt DD-adjusted return on these two.** GDX and IAU lose Sharpe when shorts are removed. The Mar 14 / Apr 4 estimates (1.80 / 1.20 / 3.10 / 1.65) were not transcribed correctly; verified figures here supersede.
 
 **Two exit mechanics (not three):** (1) bot K-signal exit at candle close, (2) Alpaca server-side stop auto-execution intrabar — covers both stop loss and trailing stop exits.
 
@@ -136,6 +136,12 @@ Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid 
 | IAU | -0.50% | 0.99% | 54 | 37% |
 
 ## Validated Edges (verified Apr 27–28 2026 on extended window 2020 → Apr 27 2026)
+
+> **Apr 28 2026 framework attribution finding — read before interpreting the table below.**
+>
+> Random-entry control test (`research-log.md` → "Random-Entry Control — Apr 28 2026") shows the StochRSI mean-reversion entry signal is **not the primary source of edge**. Replacing the entry trigger with random Bernoulli draws — keeping the same trail, ATR stop, ADX filter, sizing, K-cross exit, and min-hold — produces nearly identical Sharpe on GLD (2.46 vs 2.48), within ~0.4 on SLV/GDX, and on QQQ random entries actively *beat* the validated entry (1.99 vs 1.45).
+>
+> The Sharpe column below is real and verified. But the *causal interpretation* — "StochRSI mean-reversion is the edge" — is wrong. The edge is the position-management framework: ATR stop, trailing stop after 10 bars, ADX-ranging filter, 2% fixed-risk sizing, 25% notional cap, K-cross exit, 10-bar min-hold. The StochRSI signal is at most a small per-asset tilt (and on QQQ, a negative one). Implication: future "does the strategy work on X?" tests are uninformative until framework ablations identify which component is load-bearing. See `research-roadmap.md` → "Framework Attribution" for the ablation queue.
 
 **Two passes on the extended window.** Apr 27 runs (Return/DD/Trades columns) used `dynamic_adx:true` (strategy default — `dynamic_adx:false` was not passed explicitly) → tighter dynamic threshold → ~10–15% more trades. Apr 28 Sharpe runs explicitly pass `dynamic_adx:false` per recipe spec → trade counts ~10–15% lower. Sharpe column is from the Apr 28 (recipe-correct) runs. Apr 27 Return/DD figures are kept here because the WF validations were done at those settings.
 

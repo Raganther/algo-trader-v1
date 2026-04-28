@@ -3,12 +3,33 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-28** — Apr 28 — full domain-file audit: propagate framework-attribution finding to all 8 StochRSI cards, regime cards, calibration logs, CLAUDE.md, and roadmap. Verified Sharpe values now in cards. Headline returns/DD unchanged; interpretation flagged as 'headline confirmed; edge attribution under review' across the board. Critical Path now requires framework ablations + buy-and-hold comparison before real money.
+
+ .claude/calibration/forward-test-log.md                  |  4 +++-
+ .claude/calibration/live-trade-log.md                    |  6 +++---
+ .claude/strategies/regime-analysis.md                    |  4 +++-
+ .claude/strategies/regime-sizing-portfolio-diagnostic.md |  4 +++-
+ .claude/strategies/regime-stochrsi-diagnostic.md         |  4 +++-
+ .claude/strategies/research-roadmap.md                   |  2 ++
+ .claude/strategies/stochrsi-enhanced-gdx.md              | 10 +++++++++-
+ .claude/strategies/stochrsi-enhanced-gld.md              | 14 +++++++++++---
+ .claude/strategies/stochrsi-enhanced-iau.md              | 10 +++++++++-
+ .claude/strategies/stochrsi-enhanced-oih.md              | 10 +++++++++-
+ .claude/strategies/stochrsi-enhanced-slv.md              | 10 +++++++++-
+ .claude/strategies/stochrsi-enhanced-xbi.md              | 10 +++++++++-
+ .claude/strategies/stochrsi-enhanced-xle.md              | 10 +++++++++-
+ .claude/strategies/stochrsi-enhanced-xop.md              | 12 ++++++++++--
+ CLAUDE.md                                                | 10 ++++++++--
+ 15 files changed, 100 insertions(+), 20 deletions(-)
+
+----
 **2026-04-28** — Apr 28 — random-entry control: StochRSI signal is NOT the primary edge. Random entries match validated Sharpe on GLD (2.46 vs 2.48), beat it on QQQ (1.99 vs 1.45). Framework (trail/ADX/sizing/exit) is doing most of the work. Reframes learning #10, opens framework-ablation queue.
 
+ .claude/memory/gitlog.md                       | 18 +++++----
  .claude/strategies/research-log.md             | 51 ++++++++++++++++++++++++++
  .claude/strategies/research-roadmap.md         | 16 ++++++++
  backend/strategies/stoch_rsi_mean_reversion.py | 43 ++++++++++++++++++++++
- 3 files changed, 110 insertions(+)
+ 4 files changed, 120 insertions(+), 8 deletions(-)
 
 ----
 **2026-04-28** — Apr 28 — Sharpe instrumentation added to backtester, 16 runs verified: 6 of 8 validated lineup clear ≥2.0 cleanly (GLD/SLV/GDX/OIH/XLE/XBI), IWM is only broad index that passes, GLD/SLV long-only beat full-strategy
@@ -167,13 +188,4 @@
  .claude/memory/gitlog.md       | 17 ++++++++---------
  .claude/memory/observations.md | 21 +++++++++++----------
  2 files changed, 19 insertions(+), 19 deletions(-)
-
-----
-**2026-04-19** — chore: Apr 19 — trail ratcheting confirmed, server migration complete, all files updated
-
- .claude/hooks/load-context.sh  |  4 ++--
- .claude/memory/gitlog.md       | 20 +++++++++++---------
- .claude/memory/observations.md | 24 ++++++++++++++++--------
- CLAUDE.md                      |  4 ++--
- 4 files changed, 31 insertions(+), 21 deletions(-)
 
