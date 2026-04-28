@@ -43,7 +43,7 @@ Read on demand only:
 When asked to "check bots", run these Alpaca MCP calls in order:
 1. `get_clock` — market open/closed, establishes time context
 2. `get_all_positions` — any open positions (overnight holds)
-3. `get_orders(status="closed", symbols="GLD,IAU,SLV,GDX", after="<today>T00:00:00Z", direction="asc")` — today's completed trades
+3. `get_orders(status="closed", symbols="GLD,IAU,SLV,GDX,OIH,XBI,XOP", after="<today>T00:00:00Z", direction="asc")` — today's completed trades
 
 ### Check bots (SSH — process health only)
 Use SSH only when MCP can't answer the question: bot process status, application logs, errors/warnings.
@@ -52,7 +52,7 @@ Use SSH only when MCP can't answer the question: bot process status, application
 gcloud compute ssh algotrader-us --zone=us-east1-b --command="pm2 status"
 
 # Bot logs — errors, warnings, heartbeats (not trade data — use MCP for that)
-gcloud compute ssh algotrader-us --zone=us-east1-b --command="for bot in gld-test iau-test slv-test gdx-test; do echo \"=== \$bot ===\"; logs=\$(ls -t /home/alistairelliman/.pm2/logs/\${bot}-out*.log | head -2); today=\$(echo \"\$logs\" | head -1); yesterday=\$(echo \"\$logs\" | tail -1); echo \"-- today --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$today\" 2>/dev/null; echo \"-- yesterday --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$yesterday\" 2>/dev/null; done"
+gcloud compute ssh algotrader-us --zone=us-east1-b --command="for bot in gld-test iau-test slv-test gdx-test oih-test xbi-test xop-test; do echo \"=== \$bot ===\"; logs=\$(ls -t /home/alistairelliman/.pm2/logs/\${bot}-out*.log | head -2); today=\$(echo \"\$logs\" | head -1); yesterday=\$(echo \"\$logs\" | tail -1); echo \"-- today --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$today\" 2>/dev/null; echo \"-- yesterday --\"; grep -E 'LIVE BUY|LIVE SELL|FILLED|TRAILING STOP|SERVER STOP|Starting Live|⚠️|❌|⏳' \"\$yesterday\" 2>/dev/null; done"
 ```
 
 ### Other commands
@@ -104,14 +104,17 @@ Price action chart live at `/chart` — Stage 1 complete (candlestick chart, sym
 
 **Remaining before real money:** see `research-roadmap.md` → Critical Path section.
 
-**Live bots (validated params, deployed Apr 15-16):**
+**Live bots (validated params):**
 
-| Bot | Symbol | OB/OS | ADX thresh | Hold | Trail | Trades/yr |
-|-----|--------|-------|------------|------|-------|-----------|
-| gld-test | GLD | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~107 |
-| iau-test | IAU | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~107 |
-| slv-test | SLV | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~107 |
-| gdx-test | GDX | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~107 |
+| Bot | Symbol | Deployed | OB/OS | ADX thresh | Hold | Trail | Trades/yr |
+|-----|--------|----------|-------|------------|------|-------|-----------|
+| gld-test | GLD | Apr 15-16 | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~115 |
+| iau-test | IAU | Apr 15-16 | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~115 |
+| slv-test | SLV | Apr 15-16 | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~95 |
+| gdx-test | GDX | Apr 15-16 | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~95 |
+| oih-test | OIH | Apr 28 | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~95 |
+| xbi-test | XBI | Apr 28 | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~100 |
+| xop-test | XOP | Apr 28 | 80/15 | 20 | 10 bars | after 10 bars (2.0 ATR) | ~100 |
 
 Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid for US equities). Shorts enabled. Skip Monday (`skip_days:[0]`).
 
@@ -183,7 +186,7 @@ Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid 
 - Never run two bots on the same symbol — Alpaca position conflicts
 - Stop orders must use DAY TIF for fractional shares (GTC rejected by Alpaca)
 - Live fetch window must stay ≥7 days in runner.py (weekends need 150+ bars)
-- Server RAM tight — avoid heavy SSH commands while bots are processing bars
+- Server is `e2-small` (2 GB RAM) — upgraded from e2-micro Apr 28 2026 to support 5–7 bots. ~110 MB per bot, ~1.2 GB headroom available. Heavy SSH commands during market hours are now safe but still discouraged unless needed.
 - Deploy to cloud only when bot code changes — docs/memory changes don't need deploy
 - Shorts enabled — whole-share sizing deployed Apr 15-16. First short confirmed working Apr 16 (GLD)
 - Alpaca timestamps are UTC, not ET — confirmed Mar 14

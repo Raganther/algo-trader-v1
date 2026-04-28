@@ -3,15 +3,25 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-28** — Apr 28 — deploy OIH/XBI/XOP paper bots, e2-small upgrade complete
+
+ CLAUDE.md               | 23 +++++++++++++----------
+ scripts/run_oih_test.sh |  9 +++++++++
+ scripts/run_xbi_test.sh |  9 +++++++++
+ scripts/run_xop_test.sh |  9 +++++++++
+ 4 files changed, 40 insertions(+), 10 deletions(-)
+
+----
 **2026-04-28** — Apr 28 — walk-forward 4/4 passed for OIH/XBI/XOP; promoted from candidate to validated, lineup now 8 assets
 
+ .claude/memory/gitlog.md                    | 22 +++++++++++++---------
  .claude/strategies/research-log.md          |  2 ++
  .claude/strategies/research-roadmap.md      |  4 +++-
  .claude/strategies/stochrsi-enhanced-oih.md | 23 +++++++++++++++++------
  .claude/strategies/stochrsi-enhanced-xbi.md | 25 ++++++++++++++++++-------
  .claude/strategies/stochrsi-enhanced-xop.md | 21 ++++++++++++++++-----
  CLAUDE.md                                   | 12 ++++++------
- 6 files changed, 62 insertions(+), 25 deletions(-)
+ 7 files changed, 75 insertions(+), 34 deletions(-)
 
 ----
 **2026-04-28** — Apr 28 — verified all metals/XLE/long-only baselines, discovered OIH/XBI/XOP candidates from forgotten-asset audit, rejected TLT, fixed Apr 4 transcription error
@@ -177,12 +187,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  scripts/run_iau_test.sh                        |  5 ++---
  scripts/run_slv_test.sh                        |  5 ++---
  7 files changed, 47 insertions(+), 19 deletions(-)
-
-----
-**2026-04-13** — chore: Apr 13 calibration complete — Layers 1/2/4 PASS, Layer 2 overnight hypothesis refuted, Layer 4 live 2.8x backtest explained by shared-capital stacking, execution layer validated
-
- .claude/calibration/calibration-notes.md | 75 ++++++++++++++++++++++++++------
- .claude/memory/gitlog.md                 | 18 ++++----
- .claude/memory/observations.md           |  4 +-
- 3 files changed, 72 insertions(+), 25 deletions(-)
 
