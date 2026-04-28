@@ -359,6 +359,44 @@ Validated params extract 4–8× more return with fewer trades and lower or comp
 
 ---
 
+## Boundary Verification — Apr 28 2026
+
+**Tried:** Re-ran SPY/QQQ/IWM/DIA on the validated recipe (15m, OB80/OS15, 2.0 ATR trail after 10 bars, skip Mon, ADX 20, dynamic_adx false), 2020-07-27 → 2026-04-27 (Alpaca's 15m horizon for these symbols). TLT was already covered by the Apr 28 forgotten-asset audit (rejected, +20.87% / 1.16% DD / 866 trades / 40% WR — bonds dominated by rates dynamics, not microstructure mean-reversion).
+
+**Result: all 4 broad equity indices pass the positive-return gate.**
+
+| Asset | Return | Max DD | Trades | Win Rate | Ann. Return |
+|-------|--------|--------|--------|----------|-------------|
+| IWM | **+57.42%** | 1.43% | 655 | 46% | ~9.4%/yr |
+| DIA | +27.32% | 2.56% | 639 | 40% | ~4.4%/yr |
+| QQQ | +27.17% | 2.19% | 733 | 40% | ~4.4%/yr |
+| SPY | +21.94% | 2.02% | 655 | 40% | ~3.6%/yr |
+
+Year-by-year (per yearly DB rows): SPY/QQQ/DIA all show every full year positive except QQQ 2021 (-0.65%) and DIA 2023 (-1.35%) — both shallow (<3% DD). IWM positive every year except 2026 partial (-0.49% on 45 trades). 2022 was the strongest year for all four (bear-market regime favoured the mean-reversion edge).
+
+**Interpretation: the boundary thesis is illusory.** Cross-cutting learning #10's claim that the strategy "fails on broad equity indices (SPY/QQQ/IWM)" was driven by old params on the broken stop-check engine, never re-tested with the validated recipe. With current params + healthy engine, all four broad indices are profitable on the same window where the metals/energy assets produced 40–146%. IWM (1.43% DD, 46% WR) is the cleanest of the four — DD-adjusted profile is competitive with the validated lineup.
+
+**But — returns are lower than the validated names.** SPY at +22% / 5.7yr (~3.6%/yr) is the weakest result we've seen on a passing asset; IWM at +57% / ~9.4%/yr is mid-pack but well below SLV/GDX/OIH territory. Possible readings:
+1. **Microstructure edge is universal but stronger on volatile sector/commodity ETFs.** Broad indices have lower intraday volatility → smaller mean-reversion amplitude → lower per-trade edge → lower aggregate return. Same edge, scaled down.
+2. **Beta-amplification reading.** The metals/energy returns aren't pure StochRSI alpha — they're StochRSI signal × asset volatility. Apply the same recipe to a calmer asset (SPY) and you get a smaller number, not because the edge is weaker but because the underlying daily range is smaller.
+
+These two readings are nearly the same statement and consistent with cross-cutting learning #8 ("asset-specific beta layers change drawdown, not the edge"). The strategy isn't asset-class-specific — it's a 15m mean-reversion edge that scales with asset volatility, modulo the bond exception (TLT — rates dynamics overwhelm microstructure).
+
+**What this resolves:**
+- Cross-cutting learning #10 updated: boundary is on **driver class** (rates-driven assets fail), not **asset class** (equities vs commodities). Bonds out, everything else liquid+volatile-enough is in.
+- The held-out 12/12 result is no longer ambiguous between "real edge" and "test-design failure" — combined with broad indices also passing, the through-line is consistent: the strategy works on liquid ETFs whose 15m bar moves contain mean-reversion structure. The artefact risks (long-bias, survivorship, recipe over-robustness from research-log Apr 28 entry) remain valid concerns and aren't dismissed by this result, but the simpler explanation — broad microstructure edge — now fits the data.
+
+**What this does NOT resolve:**
+- Whether SPY/QQQ/IWM/DIA returns are high enough to clear a quality bar for deployment. ~3.6–9.4%/yr is below the metals/energy lineup. Needs Sharpe to compare on a DD-adjusted basis (Sharpe computation is the open code task).
+- Long-bias / regime artefact (the 2020–2026 bull-market window concern from the held-out entry) is still untested. Need older intraday data or a synthetic stress test.
+- Walk-forward for SPY/QQQ/IWM/DIA. Single-run pass is necessary not sufficient — same gate as OIH/XBI/XOP had to clear. Lower priority than getting the validated 8 to real money, but worth queueing.
+
+**Next implications for the project:**
+- The strategy library's universe just expanded again, but with diminishing edge per added asset. Adding SPY to the lineup at +22%/5.7yr isn't competitive vs already-validated +144% SLV, except for diversification arguments. The right question is no longer "does it work on X?" but "where does it work *best*, and how do we size correlated bets?"
+- Critical path is unchanged: correlation-aware sizing for the existing 7-bot lineup is still the gate to real money. Adding more assets without correlation sizing makes the tail risk worse, not better.
+
+---
+
 ## Cross-Cutting Learnings
 
 ---
@@ -394,8 +432,8 @@ GDX = gold beta + mining equity beta. XLE = energy beta. Higher volatility asset
 **9. Forward test param design involves a trade-off between trade volume and trail observation.**
 Aggressive params (tight OB/OS, short hold, tight trail) generate high trade volume — useful for verifying execution mechanics quickly. But a trail of 0.5 ATR after 1 bar fires on noise constantly, so you never observe the trail doing what the validated strategy depends on. Three weeks of aggressive params confirmed all infrastructure and exit mechanics, but produced almost no meaningful TS exits — the two exceptions (GDX +3.267, GLD +3.706) only occurred because late-session entries forced overnight holds that accidentally mimicked validated params behaviour. For future strategy forward tests: use aggressive params only for the mechanics verification phase, then switch to validated params as soon as infrastructure is confirmed. Design the two phases explicitly rather than running aggressive params for the entire forward test window.
 
-**10. Mean-reversion at 15m appears to be a general microstructure pattern. ⚠️ Boundary in question (Apr 28).**
-Works on precious metals (GLD, IAU, SLV, GDX), energy (XLE/OIH/XOP), biotech (XBI), and — per Apr 28 held-out test — also tech (XLK), banks (KRE), industrials, healthcare, financials, defense, dollar, Brazil EM, bitcoin, growth (ARKK), volatility (VXX), and 3× leveraged Nasdaq (TQQQ). Previously claimed to fail on broad equity indices (SPY/QQQ/IWM), but **that finding was on old params + broken engine and was never re-tested with the validated recipe.** Until SPY/QQQ/IWM/DIA are re-tested on validated 15m recipe, the boundary thesis is not confirmed. If they too pass, the "boundary" is illusory and the strategy is much more general than we documented. The original claim's "Commodities and commodity-linked ETFs: yes. Broad indices: no" framing should not be relied on.
+**10. Mean-reversion at 15m is a general microstructure pattern; boundary is on driver class, not asset class.**
+Works on precious metals (GLD/IAU/SLV/GDX), energy (XLE/OIH/XOP), biotech (XBI), tech (XLK/QQQ), banks (KRE/XLF), industrials (XLI/DIA), healthcare (XLV), defense (ITA), dollar (UUP), Brazil EM (EWZ), bitcoin (GBTC), growth (ARKK), volatility (VXX), 3× leveraged Nasdaq (TQQQ), and broad indices (SPY/QQQ/IWM/DIA — verified Apr 28 with validated recipe; previous "fails on broad indices" finding was old params + broken engine). The earlier "Commodities yes, Broad indices no" framing was wrong — it was an asset-class boundary that turned out to be illusory. **The real boundary is on driver class:** assets where intraday price action is dominated by rates/curve dynamics rather than microstructure (TLT, bonds generally) fail. Returns scale with underlying volatility — calmer assets like SPY produce smaller returns at similar DD-adjusted profiles, consistent with learning #8 (beta scales DD, not edge). For deployment decisions the question shifts from "does it work on X?" to "where is the edge highest per unit of correlation already in the portfolio?"
 
 ---
 

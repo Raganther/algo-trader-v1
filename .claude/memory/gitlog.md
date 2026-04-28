@@ -3,11 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-28** — Apr 28 — boundary verification: SPY/QQQ/IWM/DIA all pass validated recipe, broad-index boundary thesis refuted; real boundary is on driver class (rates), not asset class
+
+ .claude/strategies/research-log.md     | 42 ++++++++++++++++++++++++++++++++--
+ .claude/strategies/research-roadmap.md |  8 +++----
+ 2 files changed, 44 insertions(+), 6 deletions(-)
+
+----
 **2026-04-28** — Apr 28 — held-out generalisation test on 12 novel assets all passed; boundary thesis in question pending SPY/QQQ retest
 
+ .claude/memory/gitlog.md               | 34 ++++++++++----------------
  .claude/strategies/research-log.md     | 44 ++++++++++++++++++++++++++++++++--
  .claude/strategies/research-roadmap.md | 12 +++++++++-
- 2 files changed, 53 insertions(+), 3 deletions(-)
+ 3 files changed, 66 insertions(+), 24 deletions(-)
 
 ----
 **2026-04-28** — Apr 28 — deploy OIH/XBI/XOP paper bots, e2-small upgrade complete
@@ -163,20 +171,4 @@
  .claude/memory/observations.md | 27 ++++++++++--------
  CLAUDE.md                      | 30 ++++++++------------
  3 files changed, 67 insertions(+), 54 deletions(-)
-
-----
-**2026-04-17** — fix: switch stop orders to GTC TIF — eliminates overnight expiry gap
-DAY stops expire at 20:00 UTC each session. With fractional shares this
-was unavoidable (Alpaca rejects GTC for fractional). Whole-share sizing
-(deployed Apr 17) removes that constraint — GTC stops now persist across
-sessions without daily re-placement.
-
-Root cause of current bug: bots running continuously (3D uptime) never
-cleared pending_stop_order_id when DAY stop expired, so the re-placement
-guard never triggered. GTC removes the expiry problem entirely.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-
- backend/engine/alpaca_trader.py | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
 
