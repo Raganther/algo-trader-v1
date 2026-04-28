@@ -9,25 +9,28 @@ Status labels: `idea` | `in progress` | `validated` | `rejected` | `monitoring`
 
 ---
 
-## Framework Attribution — Apr 28 2026 (NEW, blocking interpretation of all signal work)
+## Framework Attribution — Apr 28 2026 (RESOLVED)
 
-Random-entry control (`research-log.md` → "Random-Entry Control") shows the StochRSI entry contributes only a small fraction of total Sharpe; the framework (trail + ADX filter + sizing + K-cross exit + min-hold) is doing most of the work. Future "does the strategy work on X?" tests are uninformative until ablations identify which framework component is load-bearing. **All "test on more assets" items are deprioritised below this section.**
+Three discriminating tests run Apr 28 evening. Results recorded in `research-log.md` → "Edge Question — Test 1/2/3" and "Edge Question — Synthesis (Apr 28 2026)".
+
+**Resolved finding:** What we built is a position-management framework (ATR stop / trailing stop after 10 bars / ADX-ranging filter / 2% fixed-risk sizing / 25% notional cap / skip-Mon / 10-bar min-hold). The framework alone produces Sharpe ≥ 2.0 with zero signal information (Test 2). It beats B&H on every tested asset (Test 1). On directional/metals assets the framework's edge is regime-dependent — GLD inverted Sharpe collapses 2.48 → 0.85 (Test 3). On broad indices the framework is direction-agnostic (SPY 1.36 → 1.53). The StochRSI entry + K-cross exit signals are at best neutral, slightly net-negative on average across the assets tested.
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Ablation 1 — fully random (random entries + random exits + stop only) | next | Establishes baseline Sharpe for the trail+stop+sizing framework with no signal. Run on GLD/SLV/QQQ. If Sharpe stays ≥1.5, framework alone is the edge. |
-| Ablation 2 — no trailing stop (fixed stop only) | next | If Sharpe collapses, the trail is the load-bearing component. |
-| Ablation 3 — no ADX filter | next | If Sharpe collapses, the ranging-regime constraint is the load-bearing component. |
-| Ablation 4 — no K-cross exit (stop/trail only) | next | Tests whether the K signal carries exit information. |
-| Ablation 5 — no min-hold | next | If Sharpe survives, min-hold isn't load-bearing. |
-| Long-bias / regime artefact control (synthetic price inversion) | next | Run validated recipe on inverted price series for SPY/GLD. If Sharpe survives, the strategy is direction-agnostic (volatility capture). If it collapses, real directional edge exists. Cheap proxy for "what would this look like outside a bull market." |
-| Buy-and-hold comparison | next | For GLD/SLV/SPY: how does the strategy's return + Sharpe compare to simple buy-and-hold over the same window? If buy-and-hold matches or exceeds, we're capturing pure beta + position-sizing risk-adjustment. |
+| Buy-and-hold comparison | **resolved — Apr 28** | Strategy beats B&H on all 12 assets by Δ Sharpe +0.46 to +1.94 (median ~+1.4), DD protection 8.5×–26.2×. `backend/analysis/buy_and_hold_comparison.py`. |
+| Fully-random ablation (random entries + random exits + stop only) | **resolved — Apr 28** | Framework alone clears Sharpe ≥ 2.0 on every asset tested (GLD 2.32, SLV **2.64**, GDX **2.57**, QQQ **2.28**). On 3 of 4 assets, fully-random matches or beats validated. Signal contribution is at best neutral. `random_entry_prob` + `random_exit_prob` params in `stoch_rsi_mean_reversion.py`. |
+| Synthetic price inversion | **resolved — Apr 28** | GLD inverted Sharpe collapses 2.48 → 0.85 — real directional edge, regime-dependent. SPY 1.36 → 1.53 — direction-agnostic. Metals deployment is implicitly a long-volatility-on-precious-metals bet. `--invert-prices` flag in `runner.py`. |
+| Granular framework ablations (no-trail / no-ADX / no-min-hold individually) | deferred — diagnostic only | Now diagnostic, not gating. The framework attribution itself is settled. Useful for understanding which component is most load-bearing but doesn't change deployment decisions. Run when convenient. |
+| OIH/XBI/XOP/XLE/IAU inversion + random tests | idea | Confirm whether each behaves like GLD (regime-dependent) or SPY (regime-agnostic). Most likely GLD-like since they're all directional sector ETFs. Useful before any sizing decision specific to one of these bots. |
+| Real-time regime detector + regime-aware sizing | idea — promoted | Apr 28 result makes this more concrete: if metals framework Sharpe varies 2× to 3× by regime, a regime detector + dynamic size could meaningfully improve live risk-adjusted return. Existing regime work is descriptive; this would be predictive. Lower priority than Critical Path technical items. |
+| Alternative framework parameters / variants | idea | The current framework parameters (2.0 ATR stop / 2.0 trail / 10 bar after / ADX 20 / 10 bar hold) were tuned on metals. Worth a sensitivity sweep on the framework parameters specifically (no signal logic in scope). Tightest answer: optimise the framework, not the signal. |
+| Composable signal search (now well-posed) | idea | The StochRSI doesn't add value over the framework. Other signals (e.g. order-flow imbalance, opening-range break, volume profile) might. Worth an exploratory composable search using the framework as the position-management chassis. Lower priority than understanding regime dependence. |
 
 ---
 
 ## Critical Path — To Real Money
 
-> **Apr 28 2026 caveat:** The technical items below (correlation-aware sizing, ATR sizing, late-session guard) are still required pre-real-money regardless of edge attribution. **What's changed is the meta-question — "is the edge real?"** Apr 28 random-entry control shows the StochRSI signal isn't doing the bulk of the work; the framework is. Combined with the fact that all backtests + forward tests are within a 2020–2026 bull market, we cannot currently distinguish "framework captures real risk-adjusted alpha" from "framework is a well-engineered way to hold a rising market with low DD." Recommendation: complete the Framework Attribution ablations + buy-and-hold comparison **before** committing real money, even after the Critical Path items below ship. The bots are safe to keep paper-trading regardless.
+> **Apr 28 2026 status (post-resolution):** Three discriminating tests resolved the edge question (see Framework Attribution section above + `research-log.md` → "Edge Question — Synthesis"). The framework is the edge; it beats B&H on all assets; on metals it's regime-dependent. The technical items below (correlation-aware sizing, ATR sizing, late-session guard) are still required pre-real-money. **Sizing recommendation:** size for expected Sharpe 1.0–1.5 on metals (not the 2.46 backtest figure) to budget for regime variation. IWM is a more attractive deployment candidate than its raw Sharpe suggests due to direction-agnostic profile.
 
 | Item | Status | Notes |
 |------|--------|-------|

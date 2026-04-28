@@ -1,4 +1,4 @@
-Status: validated | Epistemic: WF 4/4 confirmed; Sharpe at the bar; edge attribution under review | Last verified: 2026-04-28
+Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; framework IS the edge (signal decorative); regime-dependence presumed (untested per-asset) | Last verified: 2026-04-28
 
 # StochRSI Enhanced — XOP 15m (Validated — at-the-bar)
 

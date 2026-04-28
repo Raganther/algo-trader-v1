@@ -3,11 +3,27 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-28** — Apr 28 — edge resolution documentation pass: CLAUDE.md callout updated with Tests 1/2/3 results + resolved model, roadmap Framework Attribution section moved to resolved (with new diagnostic + research items), 8 strategy card status lines updated to 'framework IS the edge (signal decorative); regime-dependence' framing. Three-test edge resolution complete.
+
+ .claude/strategies/research-roadmap.md      | 23 +++++++++++++----------
+ .claude/strategies/stochrsi-enhanced-gdx.md |  2 +-
+ .claude/strategies/stochrsi-enhanced-gld.md |  2 +-
+ .claude/strategies/stochrsi-enhanced-iau.md |  2 +-
+ .claude/strategies/stochrsi-enhanced-oih.md |  2 +-
+ .claude/strategies/stochrsi-enhanced-slv.md |  2 +-
+ .claude/strategies/stochrsi-enhanced-xbi.md |  2 +-
+ .claude/strategies/stochrsi-enhanced-xle.md |  2 +-
+ .claude/strategies/stochrsi-enhanced-xop.md |  2 +-
+ CLAUDE.md                                   | 19 ++++++++++++++++---
+ 10 files changed, 37 insertions(+), 21 deletions(-)
+
+----
 **2026-04-28** — Apr 28 — Edge Test 3 + synthesis: GLD inverted Sharpe collapses 2.48→0.85 (real directional edge, regime-dependent), SPY direction-agnostic 1.36→1.53. Three-test resolution: framework IS the edge (Test 2), beats B&H universally (Test 1), but metals edge depends on bull-regime (Test 3). Honest model: position-management framework, not StochRSI mean-reversion. Live bots should size for Sharpe 1.0-1.5 not 2.46.
 
+ .claude/memory/gitlog.md           | 31 ++++----------
  .claude/strategies/research-log.md | 86 ++++++++++++++++++++++++++++++++++++++
  backend/runner.py                  | 19 +++++++++
- 2 files changed, 105 insertions(+)
+ 3 files changed, 114 insertions(+), 22 deletions(-)
 
 ----
 **2026-04-28** — Apr 28 — Edge Test 2: fully-random ablation matches/beats validated on 3 of 4 assets (GLD 2.32 vs 2.48, SLV 2.64 vs 2.46, GDX 2.57 vs 2.46, QQQ 2.28 vs 1.45). Framework alone clears Sharpe ≥2.0 with zero signal information. The StochRSI entry + K-cross exit signals are at best neutral, slightly net-negative on average. Framework IS the edge.
@@ -154,15 +170,4 @@
  CLAUDE.md                                        |  1 +
  backend/analysis/stochrsi_regime_performance.py  |  4 +++-
  5 files changed, 23 insertions(+), 11 deletions(-)
-
-----
-**2026-04-23** — chore: Apr 23 regime diagnostic shows partial gradient
-
- .claude/memory/gitlog.md                         |  21 +-
- .claude/strategies/regime-analysis.md            |   7 +-
- .claude/strategies/regime-stochrsi-diagnostic.md | 100 +++++++
- .claude/strategies/research-log.md               |  23 +-
- .claude/strategies/research-roadmap.md           |   6 +-
- backend/analysis/stochrsi_regime_performance.py  | 365 +++++++++++++++++++++++
- 6 files changed, 506 insertions(+), 16 deletions(-)
 

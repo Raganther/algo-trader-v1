@@ -137,11 +137,24 @@ Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid 
 
 ## Validated Edges (verified Apr 27–28 2026 on extended window 2020 → Apr 27 2026)
 
-> **Apr 28 2026 framework attribution finding — read before interpreting the table below.**
+> **Apr 28 2026 edge resolution — three discriminating tests run, results below. Read before interpreting the Sharpe column.**
 >
-> Random-entry control test (`research-log.md` → "Random-Entry Control — Apr 28 2026") shows the StochRSI mean-reversion entry signal is **not the primary source of edge**. Replacing the entry trigger with random Bernoulli draws — keeping the same trail, ATR stop, ADX filter, sizing, K-cross exit, and min-hold — produces nearly identical Sharpe on GLD (2.46 vs 2.48), within ~0.4 on SLV/GDX, and on QQQ random entries actively *beat* the validated entry (1.99 vs 1.45).
+> Three tests run Apr 28 evening to resolve the question "is the edge real, and if so, what is it?" Full details in `research-log.md` → "Edge Question — Test 1/2/3" + "Edge Question — Synthesis (Apr 28 2026)".
 >
-> The Sharpe column below is real and verified. But the *causal interpretation* — "StochRSI mean-reversion is the edge" — is wrong. The edge is the position-management framework: ATR stop, trailing stop after 10 bars, ADX-ranging filter, 2% fixed-risk sizing, 25% notional cap, K-cross exit, 10-bar min-hold. The StochRSI signal is at most a small per-asset tilt (and on QQQ, a negative one). Implication: future "does the strategy work on X?" tests are uninformative until framework ablations identify which component is load-bearing. See `research-roadmap.md` → "Framework Attribution" for the ablation queue.
+> **Test 1 — Buy-and-Hold.** Strategy beats B&H on Sharpe across all 12 tested assets (Δ +0.46 to +1.94, median ~+1.4), DD protection 8.5×–26.2×. Every B&H Sharpe is below 2.0; passive holding doesn't clear the bar.
+>
+> **Test 2 — Fully-Random Ablation.** Random entries + random exits with the same framework match or beat validated Sharpe on 3 of 4 assets (GLD 2.32 vs 2.48, SLV **2.64** vs 2.46, GDX **2.57** vs 2.46, QQQ **2.28** vs 1.45). **The framework alone produces Sharpe ≥ 2.0 with zero signal information.** The StochRSI signal is at best neutral, slightly net-negative on average.
+>
+> **Test 3 — Synthetic Inversion.** GLD inverted Sharpe collapses 2.48 → **0.85** (real directional edge, depends on bull-regime). SPY inverted Sharpe 1.36 → 1.53 (direction-agnostic).
+>
+> **Resolved model:** What we built is a **position-management framework** — ATR stop, trailing stop after 10 bars, ADX-ranging filter, 2% fixed-risk sizing, 25% notional cap, skip-Mon, 10-bar min-hold. This framework converts asset volatility into risk-adjusted return better than passive holding (Test 1). It does this without needing any signal (Test 2). On directional/metals assets the framework's edge is regime-dependent (Test 3); on broad indices it's regime-agnostic. The StochRSI entry/exit logic that the project was named around is decorative.
+>
+> **Implications for the table below:**
+> - Sharpes are real and verified. The numbers are accurate.
+> - The *interpretation* of those numbers is "framework Sharpe with StochRSI tilt on this asset," not "StochRSI mean-reversion edge on this asset."
+> - **Metals Sharpes overstate live expectation.** Inverted-GLD test + Feb 27 daily-bar bear test both suggest live metals Sharpe in a non-bull regime is ~½ to ⅓ of backtest. Size for Sharpe 1.0–1.5 expectation, not 2.46.
+> - **IWM is now relatively more attractive.** Sharpe 2.30 with regime-agnostic profile is more robust than metals Sharpe 2.46 with regime-dependence.
+> - "StochRSI Enhanced" should be read as "Framework v1 applied to <asset>" — the strategy library is one framework, not 8 strategies.
 
 **Two passes on the extended window.** Apr 27 runs (Return/DD/Trades columns) used `dynamic_adx:true` (strategy default — `dynamic_adx:false` was not passed explicitly) → tighter dynamic threshold → ~10–15% more trades. Apr 28 Sharpe runs explicitly pass `dynamic_adx:false` per recipe spec → trade counts ~10–15% lower. Sharpe column is from the Apr 28 (recipe-correct) runs. Apr 27 Return/DD figures are kept here because the WF validations were done at those settings.
 

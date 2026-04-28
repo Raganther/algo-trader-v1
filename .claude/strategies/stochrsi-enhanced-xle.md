@@ -1,4 +1,4 @@
-Status: current | Epistemic: headline confirmed; edge attribution under review | Last verified: 2026-04-28
+Status: current | Epistemic: headline confirmed; framework IS the edge (signal decorative); metals direction-dependent (regime risk) | Last verified: 2026-04-28
 
 # StochRSI Enhanced — XLE 15m
 
