@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-21
+Status: current | Epistemic: confirmed | Last verified: 2026-04-27
 
 # StochRSI Enhanced — XLE 15m
 
@@ -26,29 +26,28 @@ Same params as GLD/IAU/SLV/GDX — no retuning. Cross-asset generalisation thesi
 | min_hold_bars | 10 |
 | skip_days | [0] (Monday) |
 
-### Performance Summary (2020–2025)
+### Performance Summary (verified Apr 27 2026)
 
-- **Total return:** +85.2%
-- **Max drawdown:** 3.35%
-- **Trades:** 539
-- **Win rate:** 46%
-- **Sharpe:** ~2.06
+- **Full-period return (2020 → Apr 27 2026):** +80.42%, **Max drawdown:** 3.27%, **Trades:** 570, **Win rate:** 45%
+- **Comparable 2020–2025 sub-window:** ~+81% (compounded from yearly), 545 trades
+- **Sharpe:** *needs recompute* — previous +2.06 figure is unverified
 - **Walk-forward:** 4/4 windows positive
 
-Every year profitable (2020–2025). Strong consistency across all periods.
+XLE figures are **close to the previous card claim** (+85.2% / 539 trades / 3.35% DD). The Apr 21 update appears to have been roughly accurate, unlike the Apr 4 transcription on the metals cards. Small downward revision (+85.2% → +80.42%) likely reflects: (1) the Apr 22 metals/energy correlation (XLE 2026 YTD is -0.46%, see year-by-year), (2) extended window adding the Apr selloff. Engine itself healthy.
 
-### Year-by-Year
+### Year-by-Year (verified Apr 27 2026)
 
 | Year | Return | Max DD | Trades |
 |---|---|---|---|
-| 2020 | +11.61% | 2.41% | 41 *(partial — starts Jul)* |
-| 2021 | +11.54% | 2.05% | 88 |
-| 2022 | +17.17% | 3.23% | 111 *(energy boom — oil price rally)* |
-| 2023 | +6.85% | 3.59% | 88 |
-| 2024 | +7.31% | 1.50% | 112 |
-| 2025 | +10.22% | 1.90% | 99 |
+| 2020 | +11.53% | 2.39% | 41 *(partial — starts Jul)* |
+| 2021 | +11.40% | 2.03% | 88 |
+| 2022 | +17.54% | 3.19% | 111 *(energy boom — oil price rally)* |
+| 2023 | +6.06% | 3.56% | 91 |
+| 2024 | +5.30% | 1.49% | 115 |
+| 2025 | +10.41% | 1.86% | 99 |
+| 2026 (YTD to Apr 27) | -0.46% | 2.23% | 25 |
 
-2022 was the standout year (+17.2%) — energy sector rallied hard post-Ukraine. 2023 was the weakest full year (+6.85%) but still solidly positive.
+2022 was the standout year (+17.54%) — energy sector rallied hard post-Ukraine. 2023–2024 weaker (+6.06% / +5.30%). 2026 YTD is **negative** (-0.46%) — first negative year-fragment in the dataset, reflecting the Apr 22 selloff impact on energy.
 
 ### Walk-Forward Validation (Mar 28 2026)
 

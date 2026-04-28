@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-04
+Status: current | Epistemic: confirmed | Last verified: 2026-04-27
 
 # StochRSI Enhanced — SLV 15m
 
@@ -32,25 +32,28 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol SLV
   --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 ```
 
-### Performance Summary (corrected Apr 4 2026)
+### Performance Summary (verified Apr 27 2026)
 
-- **Full-period return (2020–2025):** +97.96%, **Max drawdown:** 2.00%, **Trades:** 485
-- **Sharpe:** 2.41
+- **Full-period return (2020 → Apr 27 2026):** **+144.26%**, **Max drawdown:** 2.00%, **Trades:** 581, **Win rate:** 47%
+- **Comparable 2020–2025 sub-window:** ~+108% (compounded from yearly), 544 trades
+- **Sharpe:** *needs recompute* — previous +2.41 figure is suspect from same Apr 4 transcription pattern as GLD
 - **Holdout test (2024–2025):** +29.9%, Sharpe 2.30 — pre-fix, directionally valid
-- **Walk-forward:** 4/4 windows positive (100%)
 
-> **Note (Apr 4 2026):** Corrected after fixing backtest stop-check ordering bug. Old figures: Return +105.3%, DD 2.00%, Sharpe 2.54, Trades 544.
+> **Apr 27 2026 correction:** Today's verified rerun shows **dramatically higher return** than the Apr 4 transcription claimed — ~+108% on the 2020–2025 sub-window vs the card's claimed +97.96%. The trade count is closer (544 vs claimed 485) but still ~12% higher than transcribed. **SLV is the asset most affected by the transcription errors.** The pre-Apr-4 SLV figure was +105.3% / 544 trades, which exactly matches today's 2020–2025 sub-window — meaning the Apr 4 stop-check fix produced effectively no change for SLV either, and the "post-fix" 485 / +97.96% was a clear transcription error. Engine itself healthy (see GLD card for full investigation). **Pre-Apr-4:** +105.3% / 2.00% DD / 544 trades. **Apr 4 transcription (suspect):** +97.96% / 2.00% DD / 485 trades. **Apr 27 verified:** ~+108% / 2.00% DD / 544 trades on 2020–2025; +144.26% / 2.00% DD / 581 trades on extended window.
 
-### Year-by-Year (Walk-Forward Windows)
+### Year-by-Year (verified Apr 27 2026)
 
-> *Pre-fix data — directionally valid but exact figures will differ after the Apr 4 stop-check correction. Rerun deferred — tracked in `research-roadmap.md` → Deferred / Rerun.*
-
-| Test Period | Return | Sharpe | Trades |
+| Year | Return | DD | Trades |
 |---|---|---|---|
-| 2022 | +23.3% | 4.65 | 82 |
-| 2023 | +10.1% | 2.16 | 108 |
-| 2024 | +16.6% | 2.28 | 103 |
-| 2025 | +11.3% | 2.50 | 101 |
+| 2020 | +2.84% | 2.84% | 44 *(partial — starts Jul)* |
+| 2021 | +12.27% | 2.03% | 101 |
+| 2022 | +23.94% | 1.27% | 83 |
+| 2023 | +10.30% | 1.72% | 110 |
+| 2024 | +17.84% | 3.62% | 104 |
+| 2025 | +11.84% | 1.94% | 102 |
+| 2026 (YTD to Apr 27) | +16.98% | 6.77% | 37 |
+
+2022 was strongest (+23.94%) — silver rally year. 2026 YTD already +16.98% on 37 trades but with the highest single-year DD (6.77%) — reflects the Apr 22 metals selloff.
 
 ### Key Findings
 
@@ -64,24 +67,35 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol SLV
 
 This result confirms the **precious metals thesis**: the StochRSI Enhanced edge is not GLD-specific. It is a structural property of precious metals mean-reverting at 15m within a longer-term trend.
 
-### Long-Only Baseline (live constraint — Mar 14 2026)
+### Long-Only Baseline (verified Apr 28 2026)
 
-Live bots run long-only — Alpaca rejects fractional short orders.
+Live bots run both long and short since Apr 13. This long-only figure is the **practical floor**.
 
 | Metric | Full Strategy | Long-Only |
 |--------|--------------|-----------|
-| Return (2020–2025) | +97.96% | ~+65% *(pre-fix long-only, needs rerunning)* |
-| Max Drawdown | 2.00% | ~1.15% |
-| Trades | 485 | ~310 |
-| Win Rate | 46% | ~47% |
-| Sharpe (approx) | 2.41 | ~3.10 *(estimate — pre-fix was ~3.29; long-only SLV still likely best Sharpe of the four)* |
+| Return (2020 → Apr 27 2026) | +144.26% | **+94.53%** |
+| Max Drawdown | 2.00% | **1.14%** (notably smoother) |
+| Trades | 581 | **359** (~38% fewer) |
+| Win Rate | 47% | **49%** (slightly higher) |
+| Sharpe | *recompute* | *recompute* (prior estimate ~3.10 — likely highest of the four, unverified) |
 
-**Return drop:** ~-34%. **But Sharpe likely still IMPROVES:** 2.41 → ~3.10 (estimate). SLV is the outlier — the short trades were adding return but also adding disproportionate risk. Long-only SLV has a better risk-adjusted profile than the full strategy. This is notable: for SLV specifically, running long-only is not a degradation.
+**Return drop:** −34%. **DD improvement:** −0.86% (much lower). SLV long-only is **strongly profitable on its own** — +94.53% over ~6 years on just the long side. Drawdown half of full-strategy.
 
-**Year-by-year (long-only):** 2020: +5.32% | 2021: +8.43% | 2022: +7.78% | 2023: +7.77% | 2024: +12.74% | 2025: +11.44%
-Most consistent year-by-year profile of the four assets. All years strongly positive.
+**Year-by-year long-only (verified Apr 28 2026):**
 
-**Implication:** SLV long-only is viable as-is. No urgency to fix short selling for SLV specifically.
+| Year | Return | DD | Trades |
+|---|---|---|---|
+| 2020 | +5.56% | 2.10% | 28 *(partial)* |
+| 2021 | +8.50% | 2.02% | 62 |
+| 2022 | +8.42% | 2.37% | 49 |
+| 2023 | +8.16% | 2.20% | 72 |
+| 2024 | +12.75% | 2.06% | 63 |
+| 2025 | +11.70% | 1.36% | 62 |
+| 2026 (YTD to Apr 27) | +13.88% | 2.27% | 23 |
+
+Most consistent year-by-year of all four metals — every year between +5.56% and +13.88%. 2026 YTD strongest start (+13.88% in <4 months). Old estimate (~+65%) was too pessimistic by ~30 percentage points — the **biggest underestimate of the four assets**, matching the same SLV-pessimism pattern seen in the full-strategy correction.
+
+**Implication:** SLV long-only is viable as a standalone strategy. If shorts ever stopped working, SLV would still produce ~+15%/year compounded. Combined with full-strategy's +144%, SLV is the strongest asset in the bot lineup by a wide margin.
 
 ### Forward Testing
 

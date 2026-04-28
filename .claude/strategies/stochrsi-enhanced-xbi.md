@@ -1,0 +1,89 @@
+Status: candidate | Epistemic: single-run verified, not walk-forward validated | Last verified: 2026-04-28
+
+# StochRSI Enhanced — XBI 15m (Candidate — Diversifier)
+
+> **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
+> **Status:** Discovered Apr 28 2026 during forgotten-asset audit. Single-run figures only — not walk-forward validated. Do not deploy until WF 4/4 + Sharpe ≥ 2.0 confirmed.
+
+## Knowledge
+
+### Validated Parameters
+
+Same recipe as all other StochRSI Enhanced bots — no retuning.
+
+| Param | Value |
+|---|---|
+| rsi_period | 7 |
+| stoch_period | 14 |
+| overbought | 80 |
+| oversold | 15 |
+| adx_threshold | 20 |
+| skip_adx_filter | false |
+| sl_atr | 2.0 |
+| trailing_stop | true |
+| trail_atr | 2.0 |
+| trail_after_bars | 10 |
+| min_hold_bars | 10 |
+| skip_days | [0] (Monday) |
+
+#### Backtest command:
+```bash
+python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol XBI --timeframe 15m \
+  --start 2020-01-01 --end 2026-04-28 --source alpaca --spread 0.0003 --delay 0 \
+  --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
+```
+
+### Performance Summary (verified Apr 28 2026)
+
+- **Full-period return (2020 → Apr 27 2026):** **+84.75%**, **Max drawdown:** 2.44%, **Trades:** 602, **Win rate:** 43%
+- **Sharpe:** *needs computing*
+
+XBI was previously a "Sweep positive" 1h candidate (Sharpe 0.90–1.18, +23.5% / 1,072 trades). Moving to 15m + validated recipe **3.6× the total return**. Same pattern as the metals — the 1h baseline was the floor, not the ceiling.
+
+### Year-by-Year (verified Apr 28 2026)
+
+| Year | Return | Max DD | Trades |
+|---|---|---|---|
+| 2020 | +3.88% | 2.17% | 42 *(partial — starts Jul)* |
+| 2021 | +12.16% | 2.43% | 126 |
+| 2022 | +26.19% | 2.84% | 96 *(biotech volatility year)* |
+| 2023 | +10.26% | 2.56% | 108 |
+| 2024 | +7.87% | 2.81% | 106 |
+| 2025 | +4.63% | 2.55% | 100 |
+| 2026 (YTD to Apr 27) | +0.58% | 1.28% | 24 |
+
+**2022 standout** (+26.19%) — biotech had its highest-volatility year of the window. **2025–2026 weakening** (+4.63% / +0.58%) — biotech sector entered a quieter regime. This is the **softest tail** of any candidate — worth watching whether the edge has degraded or just paused.
+
+### Context
+
+- **Asset:** XBI = SPDR S&P Biotech ETF — equal-weighted basket of biotech firms. Different from IBB (cap-weighted) — XBI gives smaller biotechs more exposure, hence higher volatility.
+- **Driver class:** Biotech is news-driven (FDA decisions, clinical trial results, M&A). High intraday volatility, high range-bound behaviour at 15m.
+- **Why it likely works:** Biotech's high event-driven volatility produces frequent oversold/overbought oscillations. Same mean-reversion mechanism as the metals, applied to a completely different sector.
+- **Diversification value:** Biotech is largely uncorrelated with metals or energy. Adding XBI to the portfolio could reduce overall correlation risk — directly addressing the "Critical Path: correlated 4-symbol overnight gap" concern in the roadmap.
+
+### Cross-Asset Comparison
+
+XBI sits in the middle tier:
+
+| Asset | Return | Max DD | Trades |
+|---|---|---|---|
+| OIH | +146.53% | 2.95% | 589 |
+| SLV | +144.26% | 2.00% | 581 |
+| GDX | +132.91% | 2.01% | 581 |
+| XOP | +90.34% | 3.29% | 629 |
+| **XBI** | **+84.75%** | **2.44%** | **602** |
+| XLE | +80.42% | 3.27% | 570 |
+| GLD | +49.83% | 1.18% | 728 |
+| IAU | +40.05% | 1.31% | 705 |
+
+### Required Validation Before Deployment
+
+- [ ] Walk-forward 4-window test
+- [ ] Sharpe computation
+- [ ] Regime-segmented analysis — particularly important given the 2025–2026 softness
+- [ ] Correlation analysis vs metals (the diversification claim above is plausible but unverified)
+- [ ] Investigate the 2025–2026 weakening: temporary regime, structural change, or warning sign?
+
+### Significance
+
+XBI is the **diversifier candidate**. It's not the highest-return option but it's likely the one with lowest correlation to the existing bot lineup. If it walks forward cleanly, it's a strong addition specifically for **portfolio-level risk reduction** — the most pressing remaining gate before real money.

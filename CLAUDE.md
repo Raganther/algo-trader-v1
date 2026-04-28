@@ -23,6 +23,9 @@ Read on demand only:
 - `.claude/strategies/research-log.md` — read when deciding what to experiment on next, reviewing cross-strategy learnings, or planning new forward tests
 - `.claude/strategies/composable-results.md` — read when combining strategies or planning composable bot deployment
 - `.claude/strategies/stochrsi-enhanced-xle.md` — read when working on XLE or planning Rolling Validation Test #1
+- `.claude/strategies/stochrsi-enhanced-oih.md` — read when working on OIH (top-tier candidate from Apr 28 audit, +146% verified, needs WF)
+- `.claude/strategies/stochrsi-enhanced-xbi.md` — read when working on XBI (biotech diversifier candidate from Apr 28 audit, +85% verified, needs WF)
+- `.claude/strategies/stochrsi-enhanced-xop.md` — read when working on XOP (energy E&P candidate from Apr 28 audit, +90% verified, needs WF)
 - `.claude/strategies/event-surprise.md` — read when researching economic event strategies or revisiting CPI/NFP trading
 - `.claude/calibration/calibration-notes.md` — read when running calibration, checking Apr 20 methodology, or comparing backtest vs live
 - `.claude/calibration/live-trade-log.md` — read when auditing trades, filling in daily trade data, or running the Apr 20 calibration comparison
@@ -129,16 +132,30 @@ Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid 
 | GDX | +2.45% | 0.94% | 69 | 59% |
 | IAU | -0.50% | 0.99% | 54 | 37% |
 
-## Validated Edges
+## Validated Edges (verified Apr 27–28 2026 on extended window 2020 → Apr 27 2026)
 
-| Strategy | Asset | TF | Sharpe | Return | Max DD | WF |
-|---|---|---|---|---|---|---|
-| StochRSI Enhanced | GLD | 15m | 2.47 | +39.22% | 0.73% | Audited |
-| StochRSI Enhanced | SLV | 15m | 2.41 | +97.96% | 2.00% | 4/4 |
-| StochRSI Enhanced | GDX | 15m | 2.58 | +129.8% | 2.02% | 4/4 |
-| StochRSI Enhanced | IAU | 15m | 1.97 | +32.7% | 0.89% | 4/4 |
+| Strategy | Asset | TF | Return | Max DD | Trades | Win Rate | WF |
+|---|---|---|---|---|---|---|---|
+| StochRSI Enhanced | GLD | 15m | +49.83% | 1.18% | 728 | 43% | 4/4 |
+| StochRSI Enhanced | IAU | 15m | +40.05% | 1.31% | 705 | 41% | 4/4 |
+| StochRSI Enhanced | SLV | 15m | +144.26% | 2.00% | 581 | 47% | 4/4 |
+| StochRSI Enhanced | GDX | 15m | +132.91% | 2.01% | 581 | 46% | 4/4 |
+| StochRSI Enhanced | XLE | 15m | +80.42% | 3.27% | 570 | 45% | 4/4 |
 
-**Thesis:** Precious metals mean-revert at 15m within trend. Same params work across all 4 without retuning.
+### Candidates (Apr 28 2026 — single-run only, not WF validated)
+
+| Strategy | Asset | TF | Return | Max DD | Trades | Win Rate | WF |
+|---|---|---|---|---|---|---|---|
+| StochRSI Enhanced | **OIH** | 15m | **+146.53%** ⭐ | 2.95% | 589 | 42% | needs WF |
+| StochRSI Enhanced | XOP | 15m | +90.34% | 3.29% | 629 | 42% | needs WF |
+| StochRSI Enhanced | XBI | 15m | +84.75% | 2.44% | 602 | 43% | needs WF |
+| StochRSI Enhanced | TLT | 15m | +20.87% | 1.16% | 866 | 40% | **rejected** (below quality bar) |
+
+> **Sharpe figures pending** — CLI doesn't print Sharpe directly. Previous card claims (GLD 2.47 / IAU 1.97 / SLV 2.41 / GDX 2.58 / XLE 2.06) are from the Apr 4 transcription pattern and unverified. Will be recomputed from equity curves separately.
+>
+> **Apr 27 2026 verification:** Returns are higher than the cards previously claimed for 4 of 5 assets (SLV most dramatically — +144% vs claimed +98%). Trade counts are higher across the board. Drawdowns are slightly higher (1–2% rather than <1% for the metals). Engine itself is healthy — the Apr 4 stop-check fix is in place. Card discrepancies traced to Apr 4 transcription errors. See individual strategy cards for full per-asset correction notes.
+
+**Thesis:** Precious metals + energy mean-revert at 15m within trend. Same params work across all 5 without retuning.
 
 **Other strategies tested:**
 

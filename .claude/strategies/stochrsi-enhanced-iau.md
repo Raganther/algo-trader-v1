@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-04
+Status: current | Epistemic: confirmed | Last verified: 2026-04-27
 
 # StochRSI Enhanced — IAU 15m
 
@@ -32,27 +32,26 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
   --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 ```
 
-### Performance Summary (corrected Apr 4 2026)
+### Performance Summary (verified Apr 27 2026)
 
-- **Full-period return (2020–2025):** +32.7%, **Max drawdown:** 0.89%, **Trades:** 467
-- **Sharpe:** 1.97
+- **Full-period return (2020 → Apr 27 2026):** +40.05%, **Max drawdown:** 1.31%, **Trades:** 705, **Win rate:** 41%
+- **Comparable 2020–2025 sub-window:** ~+32.2% (compounded from yearly), 679 trades
+- **Sharpe:** *needs recompute* (CLI doesn't print Sharpe — previous +1.97 figure is suspect from same Apr 4 transcription as GLD)
 - **Holdout test (2024–2025):** +12.55%, DD 0.66% — pre-fix, directionally valid
-- **Walk-forward:** 4/4 windows positive (100%)
 
-> **Note (Apr 4 2026):** Corrected after fixing backtest stop-check ordering bug. Old figures: Return +32.58%, DD 0.72%, Sharpe ~2.0, Trades 679.
+> **Apr 27 2026 correction:** Today's verified rerun produces 679 trades / ~+32.2% on the 2020–2025 window. The card previously claimed 467 trades / +32.7% from the Apr 4 transcription. **The return figure was approximately right; the trade count was wrong by ~45%.** Same pattern as GLD — the Apr 4 "post-fix" trade count appears to have been a transcription error. Engine itself is healthy (Apr 4 stop-check fix in place, see GLD card for full investigation). The pre-Apr-4 IAU trade count was 679 — today's number matches it exactly, meaning the fix produces effectively no change in trade count for IAU (it suppresses false same-bar stop fires, which IAU sees few of). **Pre-Apr-4:** +32.58% / 0.72% DD / 679 trades. **Apr 4 transcription (suspect):** +32.7% / 0.89% DD / 467 trades. **Apr 27 verified:** ~+32.2% / 1.31% DD / 679 trades on 2020–2025.
 
-### Year-by-Year
-
-> *Pre-fix data — directionally valid but trade counts and exact returns will differ slightly after the Apr 4 stop-check correction. Rerun deferred — tracked in `research-roadmap.md` → Deferred / Rerun.*
+### Year-by-Year (verified Apr 27 2026)
 
 | Year | Return | DD | Trades |
 |---|---|---|---|
-| 2020 | +2.97% | 0.81% | 63 |
-| 2021 | +4.47% | 0.80% | 139 |
-| 2022 | +4.25% | 1.27% | 116 |
-| 2023 | +4.09% | 0.71% | 128 |
-| 2024 | +5.19% | 1.46% | 121 |
-| 2025 | +7.19% | 2.27% | 112 |
+| 2020 | +3.11% | 0.81% | 63 *(partial — starts Jul)* |
+| 2021 | +4.66% | 0.80% | 139 |
+| 2022 | +4.23% | 1.26% | 116 |
+| 2023 | +4.06% | 0.71% | 128 |
+| 2024 | +5.21% | 1.44% | 121 |
+| 2025 | +7.34% | 2.24% | 112 |
+| 2026 (YTD to Apr 27) | +5.19% | 3.01% | 26 |
 
 ### Walk-Forward Windows
 
@@ -82,22 +81,33 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol IAU
 | GDX 15m | 2.58 | +129.8% | 2.02% | 4/4 |
 | **IAU 15m** | **1.97** | **+32.7%** | **0.89%** | **4/4** |
 
-### Long-Only Baseline (live constraint — Mar 14 2026)
+### Long-Only Baseline (verified Apr 28 2026)
 
-Live bots run long-only — Alpaca rejects fractional short orders.
+Live bots run both long and short since Apr 13. This long-only figure is the **practical floor**.
 
 | Metric | Full Strategy | Long-Only |
 |--------|--------------|-----------|
-| Return (2020–2025) | +32.7% | ~+20% *(pre-fix long-only, needs rerunning)* |
-| Max Drawdown | 0.89% | ~0.76% |
-| Trades | 467 | ~330 |
-| Win Rate | 40% | ~39% |
-| Sharpe (approx) | 1.97 | ~1.20 *(estimate — pre-fix was ~1.33)* |
+| Return (2020 → Apr 27 2026) | +40.05% | **+26.09%** |
+| Max Drawdown | 1.31% | **0.68%** (much smoother) |
+| Trades | 705 | **467** (~34% fewer) |
+| Win Rate | 41% | **40%** |
+| Sharpe | *recompute* | *recompute* (prior estimate ~1.20 was unverified) |
 
-**Return drop:** ~-39%. **Sharpe drop:** 1.97 → ~1.20. IAU is the most impacted asset — short trades add significant alpha here. Long-only IAU is the weakest of the four assets on a risk-adjusted basis.
+**Return drop:** −35%. **DD improvement:** −0.63% (much lower). IAU is the **asset most reliant on shorts** — removing them loses the most relative return.
 
-**Year-by-year (long-only):** 2020: +0.23% | 2021: +0.98% | 2022: +3.27% | 2023: +2.95% | 2024: +5.37% | 2025: +6.49%
-All years profitable but 2020–2021 are very slim. The short side is especially important for IAU's early-period performance.
+**Year-by-year long-only (verified Apr 28 2026):**
+
+| Year | Return | DD | Trades |
+|---|---|---|---|
+| 2020 | +0.38% | 1.23% | 44 *(partial)* |
+| 2021 | +1.03% | 0.72% | 89 |
+| 2022 | +3.28% | 1.30% | 80 |
+| 2023 | +2.93% | 0.74% | 86 |
+| 2024 | +5.35% | 1.10% | 76 |
+| 2025 | +7.41% | 2.18% | 74 |
+| 2026 (YTD to Apr 27) | +2.56% | 1.51% | 18 |
+
+All years profitable but 2020–2021 are very slim (+0.38% / +1.03%). Shorts are structurally important for IAU's early-period performance — explains why the live bots have run IAU short multiple times in the recent tape. Old estimate (~+20%) was too pessimistic by ~6 percentage points.
 
 ### Forward Testing
 

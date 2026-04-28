@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-04
+Status: current | Epistemic: confirmed | Last verified: 2026-04-27
 
 # StochRSI Enhanced — GLD 15m (Best Edge)
 
@@ -33,34 +33,33 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 **WARNING:** Wrong param names silently fall back to defaults. `stop_loss_atr`, `min_hold`, and missing `skip_adx_filter:false` all caused a bad run (5.61% / 1996 trades instead of 43% / 689 trades).
 
-### Performance Summary (corrected Apr 4 2026)
+### Performance Summary (verified Apr 27 2026)
 
-- **Full-period return (2020–2025):** +39.22%, **Max drawdown:** 0.73%, **Trades:** 465
-- **Sharpe:** 2.47 (computed from equity curve, annualised ×√252)
+- **Full-period return (2020 → Apr 27 2026):** +49.83%, **Max drawdown:** 1.18%, **Trades:** 728
+- **Comparable 2020–2025 sub-window:** +42.25%, **Max drawdown:** 0.67%, **Trades:** 689
+- **Sharpe:** *needs recompute* (CLI doesn't print Sharpe directly; previous +2.47 figure is from Apr 4 transcription and is suspect — see correction note below)
 - **Win rate:** 43% — majority of trades lose, but winners are significantly larger (trailing stop effect)
 - **Holdout test:** Train +18.6% (Sharpe 2.27), Test +16.4% (Sharpe 2.69) — pre-fix, directionally valid
 - **Walk-forward:** 4/4 windows positive (100%), all years profitable
-- **Multi-asset:** GLD/SLV/IAU/GDX all validated — generalises strongly
+- **Multi-asset:** GLD/SLV/IAU/GDX all validated — generalises strongly (those cards' headlines also need re-verification — see Apr 27 correction below)
 - **Previous baseline:** Sharpe 1.57, 664 trades, 1.2% DD — enhancements nearly doubled Sharpe
 
-> **Note (Apr 4 2026):** Numbers corrected after fixing a backtest stop-check ordering bug. The backtest was ratcheting the trailing stop using the current bar's close, then checking the current bar's low against the newly elevated stop — causing ~92% stop exits vs live's 50/50 K/TS split. Fix: use the pre-ratchet stop level for the intrabar check. Old figures: Return +44.7%, DD 0.69%, Sharpe 2.54, Trades 710.
+> **Apr 27 2026 correction:** Today's verified rerun on the same 2020–2025 window with current code produces 689 trades / +42.25%, not the 465 trades / +39.22% claimed in the prior version of this card. The Apr 4 stop-check fix IS in place and active (`stoch_rsi_mean_reversion.py:141, 199-221` — `sl_for_check` captured before ratchet, intrabar check uses pre-ratchet level). No commits since Apr 4 modify trade-count behaviour on this code path. The 465-figure was a transcription error (most likely a mis-pasted run output or a config that silently dropped a parameter). No DB record of any 465-trade GLD 15m run exists. The fix produces a small improvement (710 → 689 trades, ~3% reduction) by suppressing same-bar false stop fires, not the 35% reduction implied by 710 → 465. **Pre-Apr-4 baseline:** +44.7%, 0.69% DD, Sharpe 2.54, 710 trades. **Apr 4 transcription (suspect):** +39.22%, 0.73% DD, Sharpe 2.47, 465 trades. **Apr 27 verified:** +42.25%, 0.67% DD, 689 trades on same 2020–2025 window.
 
-### Year-by-Year Breakdown
-
-> *Pre-fix data — return figures are directionally valid but trade counts and exact returns will differ slightly after the Apr 4 stop-check correction. Rerun deferred — tracked in `research-roadmap.md` → Deferred / Rerun.*
+### Year-by-Year Breakdown (verified Apr 27 2026)
 
 | Year | Return | Max DD | Trades |
 |---|---|---|---|
-| 2020 | +3.27% | 0.73% | 54 *(partial — starts Jul)* |
-| 2021 | +7.39% | 1.46% | 130 |
-| 2022 | +6.55% | 1.25% | 132 |
-| 2023 | +4.44% | 1.18% | 146 |
-| 2024 | +7.90% | 1.47% | 119 |
-| 2025 | +7.08% | 2.26% | 108 |
-| 2026 (YTD) | +1.16% | — | 21 |
+| 2020 | +3.20% | 0.68% | 54 *(partial — starts Jul)* |
+| 2021 | +7.23% | 1.45% | 130 |
+| 2022 | +6.37% | 1.20% | 132 |
+| 2023 | +4.62% | 1.14% | 146 |
+| 2024 | +7.80% | 1.38% | 119 |
+| 2025 | +6.82% | 2.12% | 108 |
+| 2026 (YTD to Apr 27) | +5.33% | 1.91% | 39 |
 
-- Every year profitable. 2024 best (+7.90%), 2023 weakest full year (+4.44%). *(Year-by-year table pre-fix — trade counts will differ slightly)*
-- ~78 trades/year = ~6-7/month with validated params *(corrected Apr 4 — was ~115/yr pre-fix)*.
+- Every year profitable. 2024 best full year (+7.80%), 2023 weakest (+4.62%). 2026 YTD already +5.33% on 39 trades — strongest start year-to-date.
+- ~115 trades/year. Higher than the Apr 4 transcription claimed (~78/yr) because that figure was tied to the suspect 465-trade headline.
 
 ### Feb 27 Comprehensive Audit
 
@@ -215,24 +214,35 @@ Tested whether avoiding entries near high-impact events (FOMC/NFP/CPI) improves 
 | XBI | 1h | +9.0% ann | 0.90 | Sweep positive |
 | TLT | 1h | +8.5% ann | 0.85 | Sweep positive |
 
-### Long-Only Baseline (live constraint — Mar 14 2026)
+### Long-Only Baseline (verified Apr 28 2026)
 
-Live bots run long-only — Alpaca rejects fractional short orders. This is the actual performance baseline for what the bots can execute today.
+Live bots run **both** long and short since the Apr 13 whole-share sizing deployment, so the full strategy is the operative baseline. This long-only figure is the **practical floor** — what the bots would achieve if shorts stopped working.
 
 | Metric | Full Strategy | Long-Only |
 |--------|--------------|-----------|
-| Return (2020–2025) | +39.22% | ~+28% *(pre-fix long-only, needs rerunning)* |
-| Max Drawdown | 0.73% | ~0.93% |
-| Trades | 465 | ~350 |
-| Win Rate | 43% | ~45% |
-| Sharpe (approx) | 2.47 | ~1.80 *(estimate — pre-fix was ~1.91)* |
+| Return (2020 → Apr 27 2026) | +49.83% | **+37.46%** |
+| Max Drawdown | 1.18% | **0.89%** (smoother) |
+| Trades | 728 | **494** (~32% fewer) |
+| Win Rate | 43% | **45%** (slightly higher) |
+| Sharpe | *recompute* | *recompute* (prior estimate ~1.80 was unverified) |
 
-**Return drop:** ~-29%. **Sharpe drop:** 2.47 → ~1.80. Short trades contribute meaningfully — GLD is one of the assets where shorts add real alpha. Long-only is still a good strategy but materially weaker.
+**Return drop:** −25%. **DD improvement:** −0.29% (lower). Removing shorts trades total return for a smoother ride. GLD long-only is still a good strategy in isolation.
 
-**Year-by-year (long-only):** 2020: +2.37% | 2021: +2.34% | 2022: +3.50% | 2023: +4.21% | 2024: +6.42% | 2025: +8.23% *(pre-fix — directionally valid)*
-All years profitable. Consistent upward trend.
+**Year-by-year long-only (verified Apr 28 2026):**
 
-**Implication:** Solving fractional short selling (whole-share sizing) is worth the effort for GLD. Live bots should not be considered equivalent to the validated 2.47 Sharpe strategy until shorts are enabled.
+| Year | Return | DD | Trades |
+|---|---|---|---|
+| 2020 | +2.27% | 0.68% | 32 *(partial)* |
+| 2021 | +2.29% | 0.55% | 84 |
+| 2022 | +3.44% | 1.05% | 91 |
+| 2023 | +4.21% | 1.16% | 106 |
+| 2024 | +6.28% | 0.79% | 82 |
+| 2025 | +7.93% | 1.25% | 72 |
+| 2026 (YTD to Apr 27) | +5.39% | 1.05% | 27 |
+
+Every year profitable, monotone-increasing return profile (2.3% → 7.9% as the strategy entered the metals bull regime). 2026 YTD already +5.39%.
+
+**Implication:** Shorts add ~+12 percentage points of return on GLD over the test period. Worth keeping enabled — but loss of shorts is not catastrophic. Old estimate (~+28%) was too pessimistic by ~9 percentage points.
 
 ### Forward Testing
 

@@ -3,13 +3,30 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-28** — Apr 28 — verified all metals/XLE/long-only baselines, discovered OIH/XBI/XOP candidates from forgotten-asset audit, rejected TLT, fixed Apr 4 transcription error
+
+ .claude/strategies/research-log.md          | 56 ++++++++++++++++++
+ .claude/strategies/research-roadmap.md      | 29 +++++++--
+ .claude/strategies/stochrsi-enhanced-gdx.md | 64 ++++++++++++--------
+ .claude/strategies/stochrsi-enhanced-gld.md | 68 ++++++++++++---------
+ .claude/strategies/stochrsi-enhanced-iau.md | 60 +++++++++++--------
+ .claude/strategies/stochrsi-enhanced-oih.md | 91 +++++++++++++++++++++++++++++
+ .claude/strategies/stochrsi-enhanced-slv.md | 64 ++++++++++++--------
+ .claude/strategies/stochrsi-enhanced-xbi.md | 89 ++++++++++++++++++++++++++++
+ .claude/strategies/stochrsi-enhanced-xle.md | 33 +++++------
+ .claude/strategies/stochrsi-enhanced-xop.md | 73 +++++++++++++++++++++++
+ CLAUDE.md                                   | 33 ++++++++---
+ 11 files changed, 526 insertions(+), 134 deletions(-)
+
+----
 **2026-04-27** — Apr 27 forward-test log — Apr 15-24 validated-params trades, organic short stop fire confirmed, Layer 3 sample 33→41
 
  .claude/calibration/forward-test-log.md | 177 ++++++++++++++++++++++++++++++++
+ .claude/memory/gitlog.md                |  19 ++--
  .claude/strategies/research-roadmap.md  |   4 +-
  AGENTS.md                               | 170 ++++++++++++++++++++++++++++++
  CLAUDE.md                               |   1 +
- 4 files changed, 350 insertions(+), 2 deletions(-)
+ 5 files changed, 361 insertions(+), 10 deletions(-)
 
 ----
 **2026-04-23** — chore: Apr 23 regime sizing replay rejects broad multipliers
@@ -164,12 +181,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  .claude/memory/gitlog.md                 | 18 +++++++--------
  .claude/memory/observations.md           |  6 ++---
  3 files changed, 48 insertions(+), 15 deletions(-)
-
-----
-**2026-04-13** — chore: log Apr 13 trades — weekend carries resolved at open, 8 trades total, late-session entry guard first data point
-
- .claude/calibration/live-trade-log.md | 19 +++++++++++++++++++
- .claude/memory/gitlog.md              | 19 +++++++++----------
- .claude/memory/observations.md        |  3 ++-
- 3 files changed, 30 insertions(+), 11 deletions(-)
 

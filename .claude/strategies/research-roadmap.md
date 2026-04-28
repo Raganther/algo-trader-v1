@@ -56,7 +56,7 @@ Paradigm shift: treat profitability as a regime × strategy interaction rather t
 | Item | Status | Notes |
 |------|--------|-------|
 | Phase 1 — per-regime trade tagging (diagnostic) | merged | Merged into Regime-Aware Sizing → "Per-regime strategy performance analysis / Phase 1 diagnostic". Apr 23 result is partial gradient, not a broad green light for live regime-aware sizing. |
-| Phase 2 — resurrect dead strategies regime-segmented | idea | Re-run old failures (SPY/QQQ/IWM StochRSI 5m-15m, EventSurprise variants, 1h StochRSI on XLE) with validated params, segmented by regime. Hypothesis: aggregate-Sharpe-near-zero is consistent with "works in RANGING, cancels out elsewhere." Gate: Phase 1 confirms regime-performance relationship. |
+| Phase 2 — resurrect dead strategies regime-segmented | idea | Re-run old failures with validated params + extended window through Apr 2026, segmented by regime. **Concrete candidates from Apr 27 DB audit:** (1) SPY/QQQ/IWM/DIA StochRSI 15m (old aggregate Sharpe 0.20–0.63); (2) 1h StochRSI on XLE/OIH/XOP at 15m; (3) MACDBollinger on GLD/IWM at validated TFs. Hypothesis: aggregate-Sharpe-near-zero is consistent with "works in RANGING, cancels out elsewhere." Phase 1 confirmed partial gradient — RANGING strongest at Sharpe 6.55 long / 6.67 short for metals — making this rerun warranted. Gate: regime-segmented Sharpe ≥ 2.0 with N ≥ 50 trades in that regime. |
 | Cross-asset regime generalisation test | idea | Does a strategy tuned for GLD-RANGING work on SLV-RANGING, XLE-RANGING, SPY-RANGING? Two hypotheses: (1) regime is universal physics — one strategy per regime across all assets; (2) regime + asset family is the right grain — metals-RANGING generalises but ≠ equity-RANGING. Existing evidence hints at #2 (GDX vs GLD transition asymmetry) but validated params work on all 4 metals without retuning. Gate: Phase 1. |
 | Regime-predictive entry signal | idea | Use transition-matrix probabilities + current regime duration as supplementary entry gate. Example: HIGH_VOL → TRENDING_UP 77% for GLD, so late-HIGH_VOL entries get a confidence boost. Supersedes "Post-HIGH_VOL transition as supplementary entry signal" in Regime-Aware Sizing. Speculative — requires backtesting. |
 | Per-regime parameter optimisation | idea | Maybe the right OB/OS in RANGING isn't the right OB/OS in TRENDING_UP. Walk-forward honestly: train on regime segments in years 1-N, test on same regime in year N+1. High overfitting risk — keep parameter grids small. Gate: Phase 2. |
@@ -75,11 +75,29 @@ Paradigm shift: treat profitability as a regime × strategy interaction rather t
 |------|--------|-------|
 | XLE: deploy as 5th paper bot | idea | Lower priority than getting core 4 to real money. Gate: calibration ✅ + trail confirmed ✅ + sizing implemented. 4–8 week forward test as Rolling Validation Test #1. See stochrsi-enhanced-xle.md for validated params and performance. |
 | EventSurprise: paper test CPI-only config | idea | CPI-only is strongest signal (86% WR, 14 trades over 5 years). Paper test on cloud first. See event-surprise.md for strategy params and backtest commands. |
+| EventSurprise: rerun with extended data through Apr 2026 | idea | Adds ~3 CPI prints since Feb 17 backtest. Sample is so small (14 trades) that 2–3 more is materially significant for win-rate confidence. Cheap rerun. |
 | EventSurprise: test wider hold windows (8/16 bars) | idea | Current default is hold_bars=4 (1h on 15m TF). Test whether longer holds capture more of the post-event move. |
 | EventSurprise: test on SLV/IAU | idea | Same precious metals drivers as GLD. May generalise — backtests would confirm. |
 | EventSurprise: explore FOMC rate decisions | idea | Similar economic surprise structure to CPI. Research phase only — need to add FOMC to event data loader. |
 | EventSurprise: combine with StochRSI as entry filter | idea | Use StochRSI oversold as an additional gate for event entries. May reduce false positives on all-events config. |
 | EventSurprise: explore surprise magnitude for position sizing | idea | Larger surprise → stronger expected move → larger position. Needs per-event-type magnitude distribution analysis. |
+
+### Forgotten-asset retests (Apr 27 2026 audit) — first-pass results in
+
+DB inventory found 5,380 experiments from Feb 11–12 2026 — pre-Apr-4-fix, pre-validated-recipe, on shorter data window. Several borderline candidates (Sharpe 1.0–1.5) sat close enough to the 2.0 quality bar that a current-best-practices rerun could promote them. See `research-log.md` → "Forgotten Testing Surface Audit" for inventory and rationale.
+
+**Apr 28 2026 first-pass result: 3 of 4 forgotten StochRSI candidates passed the single-run gate.** Walk-forward validation is the next required step before any deployment.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| XBI 15m StochRSI Enhanced rerun | **passed first gate** | +84.75% / 2.44% DD / 602 trades / 43% WR. Domain file `stochrsi-enhanced-xbi.md`. Likely diversifier (biotech largely uncorrelated with metals/energy). 2025–2026 weakening worth investigating. **Walk-forward 4-window required before deployment.** |
+| OIH 15m StochRSI Enhanced rerun | **passed first gate** ⭐ | **+146.53% / 2.95% DD / 589 trades / 42% WR — highest single-asset return ever tested.** Domain file `stochrsi-enhanced-oih.md`. Every full year +12% to +22%. **Walk-forward 4-window required before deployment.** |
+| TLT 15m StochRSI Enhanced rerun | **rejected** | +20.87% / 1.16% DD / 866 trades / 40% WR over ~6 years. Below quality bar. Confirms bonds don't have intraday mean-reversion edge — rates dynamics dominate. Useful negative finding: the StochRSI 15m edge isn't truly universal. No domain file. |
+| XOP 15m StochRSI Enhanced rerun | **passed first gate** | +90.34% / 3.29% DD / 629 trades / 42% WR. Domain file `stochrsi-enhanced-xop.md`. Highly correlated with XLE/OIH — pick strongest of the three rather than running all. **Walk-forward 4-window required before deployment.** |
+| Walk-forward validation for OIH/XBI/XOP | **next** | 4 train/test windows per asset = 12 backtests. Same recipe, same data, sliced into chronological halves and quarters. Gate: 4/4 windows positive with consistent return profile. Without this, the +146% / +85% / +90% are single-period artifacts that may not generalise. |
+| Sharpe computation for all verified runs | **outstanding** | CLI doesn't print Sharpe directly. Need to compute from equity curve for: 5 metals + XLE + 3 candidates = 9 assets, each in full + long-only variants. Either extend the runner or post-process equity curves. Until done, the Sharpe ≥ 2.0 quality bar is unmeasurable. |
+| DonchianBreakoutStrategy on metals (validated mindset) | idea | Old GLD 15m result Sharpe 1.50 with 3,226 trades — high trade count suggests over-trading, but Sharpe is real and undocumented. Donchian is trend-breakout, the *opposite* shape from StochRSI mean-reversion — could be a regime-complement (works in TRENDING_UP where StochRSI Sharpe drops to ~3.3 on metals). Apply skip Monday + ADX filter, run on GLD/IAU/SLV/GDX 15m. Gate: regime-segmented Sharpe ≥ 2.0 in TRENDING_UP with N ≥ 50. |
+| MACDBollingerStrategy: confirm dead | idea | Old best Sharpe 0.46 (IWM 4h). Cheap single rerun on GLD 15m with validated mindset. If it stays below 1.0, mark dead in research-log and stop revisiting. |
 
 ---
 
@@ -105,13 +123,14 @@ Paradigm shift: treat profitability as a regime × strategy interaction rather t
 
 ## Deferred / Rerun When Real-Money Window Matures
 
-Numbers that are directionally valid but compute against the pre-Apr-4 stop-check logic (or are otherwise estimates). Not blocking — rerun once a real-money sample is large enough for direct comparison.
+> **Apr 27 2026 escalation:** The Apr 4 "post-fix" headlines on the GLD card (and likely the other metals cards) are **transcription errors**, not stale-but-correct figures. Today's verified rerun on GLD shows 689 trades / +42.25% on the 2020–2025 window, vs the card's claimed 465 trades / +39.22%. The Apr 4 stop-check fix IS in place and active — engine is healthy. The fix produces a small (~3%) trade-count reduction, not the 35% claimed. See `stochrsi-enhanced-gld.md` → Apr 27 correction for the full investigation. **This makes the rerun queue more urgent: the strategy cards are wrong, not just stale.** Until rerun, treat headline figures on IAU/SLV/GDX cards (and all derived numbers in CLAUDE.md and elsewhere) as suspect.
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Rerun post-fix backtests across GLD/IAU/SLV/GDX/XLE | deferred | Headline Sharpe / return / max DD figures in the asset strategy cards were computed pre-Apr-4 stop-check fix. Rerun with corrected engine once real-money P&L sample justifies direct comparison. |
-| Long-only Sharpe baseline rerun | deferred | Current long-only Sharpe figures (e.g. GLD ~1.80, SLV ~3.10) are estimates. Rerun with `long_only:true` to get clean baselines. Low priority — bots trade both directions. |
-| Year-by-year + parameter sensitivity tables | deferred | All 4 strategy cards have year-by-year tables and trail_atr sensitivity tables on pre-fix engine. Rerun alongside item above. |
+| Rerun post-fix backtests across IAU/SLV/GDX/XLE | **resolved** | All 5 verified Apr 27. Returns higher than cards claimed for 4 of 5 (GLD +49.83%, IAU +40.05%, SLV **+144.26%**, GDX +132.91%, XLE +80.42% on 2020 → Apr 27 window). SLV most dramatically wrong on the prior card (+144% verified vs +98% transcribed). Trade counts higher across the board. DDs slightly higher (1–2% rather than <1% for metals). Cards updated with verified figures and per-asset correction notes. |
+| Recompute Sharpe for verified runs | **urgent** | The CLI doesn't print Sharpe directly — only return / DD / trade count. Need to compute from the equity curve manually or extend the runner to emit Sharpe. Until then, all Sharpe figures in the cards (2.47 / 1.97 / 2.41 / 2.58) are unverified. |
+| Long-only Sharpe baseline rerun | **resolved** | Verified Apr 28 (extended window). GLD +37.46% / 0.89% DD / 494 trades; IAU +26.09% / 0.68% / 467; **SLV +94.53% / 1.14% / 359**; GDX +79.87% / 1.21% / 375. Same pattern as full-strategy reruns — old estimates were too pessimistic, especially SLV (~+65% estimate vs +94.53% verified). All 4 still profitable long-only with smaller DDs than full strategy (long-only is the smoother / slower variant). Sharpe still pending for both full and long-only. Cards updated. |
+| Year-by-year + parameter sensitivity tables | deferred | GLD year-by-year now verified (Apr 27). IAU/SLV/GDX/XLE year-by-year still pre-fix. Param sensitivity (trail_atr=1.5/2.5, trail_after_bars 5/15, OB/OS variants, min_hold_bars 5/15) all pre-fix on all cards. Special interest: Feb 27 audit flagged trail_atr=1.5 at +47.5% vs +43% — if that holds post-fix, it's a parameter improvement worth deploying live. |
 | pm2 + DB cross-check of Apr 8–13 live trades | deferred | live-trade-log.md Apr 8–13 rows are MCP-verified but pm2/DB cross-check was never completed. Calibration closed Apr 13, MCP is canonical. Backfill only if a future audit needs full three-source reconciliation. Low priority. |
 
 ---

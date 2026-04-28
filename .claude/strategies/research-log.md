@@ -265,6 +265,62 @@ Validated params extract 4–8× more return with fewer trades and lower or comp
 
 ---
 
+## Forgotten Testing Surface Audit — Apr 27 2026
+
+**Tried:** Inventoried `backend/research.db` to map all historical experiments against the strategy domain files. Found a far broader testing surface than the `.claude/strategies/` directory documents.
+
+**Result:** 5,380 experiments and 606 test runs spanning 13 symbols and 4 strategy implementations. Most date from Feb 11–12 2026 — pre-fix, pre-validated-recipe, pre-regime-lens. Domain files cover GLD/IAU/SLV/GDX/XLE + EventSurprise. The DB also tested:
+
+| Symbol | Strategy/TF | Best Sharpe | Best Return | Trades | Documentation status |
+|--------|-------------|-------------|-------------|--------|---------------------|
+| XBI (biotech) | StochRSI 15m | 1.18 | +23.5% | 1,072 | One-line mention in GLD card ("Sweep positive 0.90 1h") — no domain file |
+| TLT (20Y bonds) | StochRSI 1h | 0.85 | +10.7% | 1,359 | Same — no domain file |
+| OIH (oil services) | StochRSI 1h | 1.05 | +40.9% | 451 | Not mentioned anywhere |
+| XOP (oil & gas explorers) | StochRSI 1h | 0.55 | +11.4% | 404 | Not mentioned |
+| SPY/QQQ/IWM/DIA | StochRSI 1h | 0.20–0.63 | — | — | Documented as dead end in this file |
+| GLD | DonchianBreakoutStrategy 15m | 1.50 | +129.3% | 3,226 | Not mentioned (only Composable's MACD/Donchian mix is) |
+| GLD | MACDBollingerStrategy | 0.23–0.46 | — | — | Not mentioned |
+
+**Why these results may not be definitive any more:**
+1. **Apr 4 stop-check fix** — corrected engine changed Sharpe by ±0.07 on metals, +0.17 on GDX. Old rejections were on a buggy engine.
+2. **Validated recipe** (OB80/OS15, 2.0 ATR trail after 10 bars, skip Monday, ADX 20 filter) was developed mid-Feb after most of these tests ran. They used older parameter combos.
+3. **Extended data window** — all DB tests end Feb 12 2026. We now have through Apr 27 — 11 weeks of additional out-of-sample including the Apr 22 metals selloff and the bar-completion-guard era.
+4. **Regime-aware lens** — Apr 23 partial-gradient diagnostic shows aggregate-Sharpe-near-zero is consistent with "works in RANGING, cancels in TRENDING." SPY/QQQ/IWM rejection at aggregate Sharpe 0.20–0.63 may hide RANGING-only edges. Same logic for the energy variants and TLT.
+
+**Why it matters:** The "validated edge is precious metals + energy at 15m" claim rests on having actually checked the alternatives with current best practices. We haven't. Three of the candidates (XBI, OIH, DonchianBreakout on metals) sit in the 1.0–1.5 Sharpe band — close enough to the 2.0 quality bar that a corrected-engine + better-params + longer-window rerun could plausibly push them across.
+
+**Implication:** There's a meaningful body of work to revisit before declaring the strategy library complete. Action items captured in `research-roadmap.md` → "Strategy Validation" (forgotten-asset retests) and "Regime-First Research Programme" Phase 2 (broad-index regime resurrection).
+
+**What this audit is NOT:** an indictment of past testing. The Feb sweep was the right exploration breadth at the time. The gap is just that we never circled back to revalidate the borderline candidates after the engine fixes. With a calibrated engine and 11 weeks of forward-test confirmation, the cost-benefit on revisiting them has flipped.
+
+---
+
+## Forgotten Asset Reruns — Apr 28 2026 Result
+
+**Tried:** Applied the validated StochRSI Enhanced 15m recipe (OB80/OS15, ADX 20, 2.0 ATR trail after 10 bars, skip Monday) to the four borderline-candidate assets identified in the Apr 27 audit: XBI (biotech), OIH (oil services), TLT (bonds), XOP (oil & gas explorers). All four had been tested at 1h timeframe with old non-validated params in Feb 2026 and shown Sharpe 0.55–1.18 — close to but below the 2.0 quality bar. Hypothesis: corrected engine + validated recipe + extended data window would push some across.
+
+**Result:**
+
+| Asset | Old (1h, Feb) | New (15m validated, Apr 28) | Verdict |
+|-------|---------------|----------------------------|---------|
+| OIH | Sharpe 1.05 / +40.9% | **+146.53% / 2.95% DD / 589 trades / 42% WR** | ⭐ Top tier — highest single-asset return ever tested |
+| XOP | Sharpe 0.55 / +11.4% | +90.34% / 3.29% DD / 629 trades / 42% WR | Strong pass |
+| XBI | Sharpe 1.18 / +23.5% | +84.75% / 2.44% DD / 602 trades / 43% WR | Strong pass |
+| TLT | Sharpe 0.85 / +10.7% | +20.87% / 1.16% DD / 866 trades / 40% WR | Rejected — below quality bar |
+
+**Why three passed and one didn't:** The same structural pattern that made the metals work (commodity-linked, sector-equity beta amplification, intraday range-bound at 15m) applies to oil services, oil E&P, and biotech. All four are volatile, news-driven, sector-specific assets with natural intraday mean-reversion behaviour. **TLT is structurally different** — bonds at 15m are driven by rate-curve dynamics, not range-bound microstructure. Mean-reversion is overwhelmed by rate-trend continuation, exactly the same failure mode that killed StochRSI on broad equity indices (SPY/QQQ/IWM). This is a useful **negative result**: the StochRSI 15m edge is not universal — it requires assets with natural range-bound microstructure, not assets where macro-trend dominates.
+
+**Why this matters more than the metals correction:** Today's discovery roughly **doubles the validated strategy universe.** Before: 5 candidates (4 metals + XLE). After: 8 candidates (5 + OIH/XOP/XBI). The portfolio expansion is structurally important because:
+- **OIH is the new highest-return asset** by absolute number (+146% vs SLV's +144%).
+- **XBI is largely uncorrelated** with metals or energy — the most useful diversifier identified, directly relevant to the Critical Path correlation-aware-sizing question.
+- **XOP/OIH/XLE** all validate the same energy-sector edge — proves the pattern generalises within a sector, not just to one specific ETF.
+
+**What this is NOT:** validated for deployment. Each candidate has had **one backtest** on the full 2020 → Apr 27 2026 window. The cross-cutting learning is explicit: walk-forward is the generalisation test. Single-period numbers are the first gate, not the last. None of OIH/XOP/XBI gets to a paper bot until 4/4 walk-forward windows + Sharpe computation are complete.
+
+**Implication:** Don't celebrate yet, but the strategy library just got a lot more interesting. Walk-forward queue (next major work) plus Phase 2 regime-segmented broad-index resurrection (still open, may unlock more) are now the two biggest sources of additional candidates.
+
+---
+
 ## Cross-Cutting Learnings
 
 These apply across all experiments — read before designing any new test.

@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-04
+Status: current | Epistemic: confirmed | Last verified: 2026-04-27
 
 # StochRSI Enhanced — GDX 15m
 
@@ -32,25 +32,28 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GDX
   --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 ```
 
-### Performance Summary (corrected Apr 4 2026)
+### Performance Summary (verified Apr 27 2026)
 
-- **Full-period return (2020–2025):** +129.8%, **Max drawdown:** 2.02%, **Trades:** 540
-- **Sharpe:** 2.58
+- **Full-period return (2020 → Apr 27 2026):** +132.91%, **Max drawdown:** 2.01%, **Trades:** 581, **Win rate:** 46%
+- **Comparable 2020–2025 sub-window:** ~+127% (compounded from yearly), 541 trades
+- **Sharpe:** *needs recompute* — previous +2.58 figure is from same Apr 4 transcription pattern as GLD
 - **Holdout test (2024–2025):** +31.7%, Sharpe 2.27 — pre-fix, directionally valid
-- **Walk-forward:** 4/4 windows positive (100%)
 
-> **Note (Apr 4 2026):** Corrected after fixing backtest stop-check ordering bug. GDX actually *improved* with the fix — the old stop logic was prematurely exiting profitable GDX moves. Old figures: Return +114.1%, DD 2.02%, Sharpe 2.41, Trades 539.
+> **Apr 27 2026 correction:** GDX is the asset **least affected** by the transcription errors — today's verified figures (~+127% / 541 trades on 2020–2025) are within 3% of the card's claimed +129.8% / 540 trades. The 2020–2025 trade count matches almost exactly. Engine itself healthy. The 2026 YTD figure (+1.54% / 40 trades / 2.60% DD) is notably weaker than GDX's strong historical years — consistent with live observations that GDX has been the laggard during the post-Apr-22 selloff. **Pre-Apr-4:** +114.1% / 2.02% DD / 539 trades. **Apr 4 (close to verified):** +129.8% / 2.02% DD / 540 trades. **Apr 27 verified:** ~+127% / 2.96% DD (worst year 2025) / 541 trades on 2020–2025; +132.91% / 2.01% DD / 581 trades on extended window.
 
-### Year-by-Year (Walk-Forward Windows)
+### Year-by-Year (verified Apr 27 2026)
 
-> *Pre-fix data — directionally valid but exact figures will differ after the Apr 4 stop-check correction. Rerun deferred — tracked in `research-roadmap.md` → Deferred / Rerun.*
-
-| Test Period | Return | Sharpe | Trades |
+| Year | Return | DD | Trades |
 |---|---|---|---|
-| 2022 | +18.2% | 2.90 | 93 |
-| 2023 | +10.7% | 1.73 | 91 |
-| 2024 | +6.5% | 1.06 | 83 |
-| 2025 | +23.6% | 3.52 | 117 |
+| 2020 | +5.21% | 1.66% | 54 *(partial — starts Jul)* |
+| 2021 | +15.80% | 1.59% | 96 |
+| 2022 | +22.67% | 2.08% | 94 |
+| 2023 | +11.57% | 2.96% | 92 |
+| 2024 | +8.59% | 3.59% | 85 |
+| 2025 | +25.39% | 3.13% | 120 |
+| 2026 (YTD to Apr 27) | +1.54% | 2.60% | 40 |
+
+2025 was strongest (+25.39%), 2024 weakest (+8.59%) — flipped from earlier card claim. 2026 YTD is weak (+1.54%) consistent with live observation that GDX has been the laggard since the Apr 22 selloff.
 
 ### Key Findings
 
@@ -66,24 +69,35 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GDX
 
 GDX passing 4/4 walk-forward windows confirms the precious metals thesis extends to leveraged gold exposure. The mean-reversion structure is robust enough to survive the added noise from mining company fundamentals.
 
-### Long-Only Baseline (live constraint — Mar 14 2026)
+### Long-Only Baseline (verified Apr 28 2026)
 
-Live bots run long-only — Alpaca rejects fractional short orders.
+Live bots run both long and short since Apr 13. This long-only figure is the **practical floor**.
 
 | Metric | Full Strategy | Long-Only |
 |--------|--------------|-----------|
-| Return (2020–2025) | +129.8% | ~+75% *(pre-fix long-only, needs rerunning)* |
-| Max Drawdown | 2.02% | ~1.22% |
-| Trades | 540 | ~360 |
-| Win Rate | 47% | ~47% |
-| Sharpe (approx) | 2.58 | ~1.65 *(estimate — pre-fix was ~1.54; GDX improved with fix so long-only estimate adjusted up)* |
+| Return (2020 → Apr 27 2026) | +132.91% | **+79.87%** |
+| Max Drawdown | 2.01% | **1.21%** (smoother) |
+| Trades | 581 | **375** (~35% fewer) |
+| Win Rate | 46% | **47%** |
+| Sharpe | *recompute* | *recompute* (prior estimate ~1.65 was unverified) |
 
-**Return drop:** ~-42%. **Sharpe drop:** 2.58 → ~1.65. GDX is the most impacted asset — the largest absolute return loss and largest Sharpe decline. Short trades on GDX were highly productive. GDX's leveraged nature (miners move 2-3× gold) means short trades capture larger moves in both directions.
+**Return drop:** −40%. **DD improvement:** −0.80%. Largest absolute return loss of the four but still strongly profitable long-only.
 
-**Year-by-year (long-only):** 2020: +3.28% | 2021: +4.74% | 2022: +11.14% | 2023: +7.80% | 2024: +6.49% | 2025: +18.83%
-All years profitable but 2020–2021 are slim compared to the full strategy. 2025 is exceptionally strong even long-only.
+**Year-by-year long-only (verified Apr 28 2026):**
 
-**Implication:** Short selling matters most for GDX. Solving fractional short selling is highest priority for GDX specifically.
+| Year | Return | DD | Trades |
+|---|---|---|---|
+| 2020 | +3.28% | 1.50% | 35 *(partial)* |
+| 2021 | +4.69% | 1.90% | 62 |
+| 2022 | +11.58% | 2.29% | 60 |
+| 2023 | +7.83% | 2.90% | 60 |
+| 2024 | +7.65% | 2.22% | 58 |
+| 2025 | +18.98% | 2.30% | 75 |
+| 2026 (YTD to Apr 27) | +6.30% | 4.76% | 25 |
+
+2025 was strongest (+18.98%), 2020 weakest. 2026 YTD has the highest single-period DD (4.76%) — reflects GDX's particular sensitivity to the Apr 22 selloff. Old estimate (~+75%) was close — only ~5 percentage points pessimistic.
+
+**Implication:** Shorts add ~+53 percentage points on GDX over the test period — the largest absolute short-side contribution of any asset. The leveraged miner structure means GDX moves more in both directions, so shorts capture proportionally more.
 
 ### Forward Testing
 
