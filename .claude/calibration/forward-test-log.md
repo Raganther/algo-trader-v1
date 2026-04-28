@@ -7,7 +7,21 @@ Distinct from `live-trade-log.md` (Mar 20–Apr 20 calibration window, test para
 
 > **Apr 28 2026 caveat — framework attribution finding.** Trade records below are observational fact and unaffected. However, any interpretation that reads forward-test win rates as confirming "the StochRSI mean-reversion edge" is now under review. Apr 28 random-entry control shows random entries with the same framework produce comparable Sharpes; live forward-test results may largely reflect framework performance, not signal performance. See `research-log.md` → "Random-Entry Control — Apr 28 2026".
 
-**Bot config (all 4):** OB 80 / OS 15, ADX threshold 20, 10-bar min hold, 2.0 ATR trail after 10 bars, GTC stops, whole-share sizing, shorts enabled, `skip_days:[0]` (skip Monday). Deployed Apr 15–16.
+**Bot config (all 7):** OB 80 / OS 15, ADX threshold 20, 10-bar min hold, 2.0 ATR trail after 10 bars, GTC stops, whole-share sizing, shorts enabled, `skip_days:[0]` (skip Monday). GLD/IAU/SLV/GDX deployed Apr 15–16; OIH/XBI/XOP added Apr 28.
+
+### Live Observation Framework (Apr 28 evening)
+
+While the 7 bots run, four measurements convert time-passing into real-money confidence. Build these as recurring (weekly/quarterly) reports, not one-offs.
+
+1. **Live Sharpe vs backtest Sharpe — per cluster.** Once ~3 months of trades accumulated (target: late Jul 2026), compute live daily-resampled Sharpe per cluster (gold = GLD/IAU/SLV/GDX combined; energy = OIH/XOP combined; biotech = XBI). Compare to backtest expectations: gold cluster ~2.46 (size for 1.5 due to regime risk), energy cluster ~2.30, biotech 2.18. **Decision rule:** live within 30% of backtest = framework + execution sound; live <1.0 = something material in slippage/spread/timing is mis-modelled.
+
+2. **Slippage tracking.** This log captures intended vs actual fill prices. Aggregate quarterly into a stop-slippage distribution. Backtest assumes ~$0.013/share median; live should be in that range. If consistently higher, backtest Sharpe is overstated by approximately (live_slippage − model_slippage) × annual stop count × position size / equity.
+
+3. **Regime check.** If metals enter a sustained bear or sideways regime during this window, **that's the data we have nowhere else.** Don't act on a few weeks of weakness — record it. Test 3 inversion predicts metals Sharpe drops materially in non-bull regimes; a live observation either way is highly informative. Energy and biotech regime sensitivity also untested.
+
+4. **Correlated-entry frequency.** Track how often 3+ correlated bots in the same cluster enter within 30 minutes (e.g. GLD + IAU + SLV all long). Theoretical concern from `gap-distribution.md` was correlated overnight gap risk; live frequency tells us whether the theoretical worst case is actually rare or common.
+
+**Why this matters:** the bot lineup represents ~3 independent economic bets (gold cluster, energy cluster, biotech), not 7. Capital cap binds at 4 simultaneous full positions. Adding more bots without these measurements producing favourable data, AND without correlation-aware sizing built, is premature. See `research-roadmap.md` → "Live Observation Framework — What to Measure While Bots Run" for the structured task list.
 
 **Source:** Alpaca MCP `get_orders` (status=filled). pm2/DB cross-check not performed — MCP is canonical.
 

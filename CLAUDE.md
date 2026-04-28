@@ -95,8 +95,15 @@ python3 scripts/fetch_price_data_yfinance.py
 - **Hooks:** SessionStart (load-context.sh), PreToolUse guard (git-save-guard.sh), PreToolUse naming guard (domain-naming-guard.sh), PostToolUse OpenBrain audit (openbrain-audit-reminder.sh)
 
 ## Current Status
-Phase: Forward testing — validated params live, path to real money. 4 paper bots running on cloud (gld-test, iau-test, slv-test, gdx-test).
+Phase: Forward testing — validated params live, path to real money. **7 paper bots running** on cloud (gld-test, iau-test, slv-test, gdx-test, oih-test, xbi-test, xop-test).
 Price action chart live at `/chart` — Stage 1 complete (candlestick chart, symbol/range selector). Stage 2 next: trade overlays on chart.
+
+**Bot lineup ≈ 3 independent economic bets, not 7.** Don't reason about the lineup as "7 diversified bots." It's:
+- **Gold/precious-metals cluster:** GLD + IAU + SLV + GDX (4 bots, ~1 underlying bet — gold direction). When metals dump, all 4 lose simultaneously.
+- **Energy cluster:** OIH + XOP (2 bots, ~1 underlying bet — oil direction). Highly correlated.
+- **Biotech:** XBI (1 bot, 1 bet). The only true diversifier currently deployed.
+
+**Capital cap binds at 4 simultaneous positions.** Each bot can take up to 25% of equity per position (notional cap, validated). At $94k equity, **at most 4 bots can hold full positions at once** — so 7 bots ≠ 7 simultaneous exposures; it means more bots are sometimes idle while their correlated peers are in. Adding bots beyond ~4 doesn't add capacity, only diversification of *which* assets the framework is exposed to. Adding correlated bots adds neither. **First valid expansion candidate = IWM** (small-cap equities — Test 3 confirmed direction-agnostic, low correlation to existing 3 clusters), but **gated on correlation-aware sizing being built first.** See `research-roadmap.md` Critical Path.
 
 **Confirmed working (execution mechanics — separate from edge attribution):** entry placement + K-exit (76–80% win rate across 67+ trades), server-side stop loss, trailing stop in profit (SLV +$283.86 Apr 20), trail ratcheting, whole-share sizing (340+ shares/position), short entry + K-exit (GLD Apr 16 +$38.50), GTC stops (no overnight expiry gap), pm2 startup registered as systemd service, single-symbol overnight gap risk bounded by 25% notional cap (Apr 23 SLV gap-through = -0.64% equity, within p95 of historical distribution). *Note:* the 76–80% win rate reflects what the framework + StochRSI tilt produces in live conditions; per Apr 28 random-entry control, the bulk of the risk-adjusted edge comes from the framework, not from the StochRSI entry signal.
 

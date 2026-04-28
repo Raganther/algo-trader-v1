@@ -3,8 +3,17 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-28** — Apr 28 — durable framings from post-resolution discussion: bot lineup ≈ 3 independent bets (gold/energy/biotech), capital cap binds at 4 simultaneous positions, IWM is sole valid expansion candidate (gated on correlation sizing), held-out 12 + boundary 4 deprioritised as deployment path, Live Observation Framework added to roadmap + forward-test-log with 4 specific measurements to convert time-passing into real-money confidence.
+
+ .claude/calibration/forward-test-log.md | 16 +++++++++++++++-
+ .claude/strategies/research-roadmap.md  | 20 +++++++++++++++++++-
+ CLAUDE.md                               |  9 ++++++++-
+ 3 files changed, 42 insertions(+), 3 deletions(-)
+
+----
 **2026-04-28** — Apr 28 — edge resolution documentation pass: CLAUDE.md callout updated with Tests 1/2/3 results + resolved model, roadmap Framework Attribution section moved to resolved (with new diagnostic + research items), 8 strategy card status lines updated to 'framework IS the edge (signal decorative); regime-dependence' framing. Three-test edge resolution complete.
 
+ .claude/memory/gitlog.md                    | 29 +++++++++++++++++------------
  .claude/strategies/research-roadmap.md      | 23 +++++++++++++----------
  .claude/strategies/stochrsi-enhanced-gdx.md |  2 +-
  .claude/strategies/stochrsi-enhanced-gld.md |  2 +-
@@ -15,7 +24,7 @@
  .claude/strategies/stochrsi-enhanced-xle.md |  2 +-
  .claude/strategies/stochrsi-enhanced-xop.md |  2 +-
  CLAUDE.md                                   | 19 ++++++++++++++++---
- 10 files changed, 37 insertions(+), 21 deletions(-)
+ 11 files changed, 54 insertions(+), 33 deletions(-)
 
 ----
 **2026-04-28** — Apr 28 — Edge Test 3 + synthesis: GLD inverted Sharpe collapses 2.48→0.85 (real directional edge, regime-dependent), SPY direction-agnostic 1.36→1.53. Three-test resolution: framework IS the edge (Test 2), beats B&H universally (Test 1), but metals edge depends on bull-regime (Test 3). Honest model: position-management framework, not StochRSI mean-reversion. Live bots should size for Sharpe 1.0-1.5 not 2.46.
@@ -160,14 +169,4 @@
  backend/analysis/regime_sizing_portfolio.py        | 244 +++++++++++++++++++++
  backend/analysis/stochrsi_regime_performance.py    |  10 +
  9 files changed, 330 insertions(+), 14 deletions(-)
-
-----
-**2026-04-23** — chore: align regime diagnostic with harness v4.2
-
- .claude/harness-v4.md                            |  6 +++++-
- .claude/memory/gitlog.md                         | 19 +++++++++++--------
- .claude/strategies/regime-stochrsi-diagnostic.md |  4 +++-
- CLAUDE.md                                        |  1 +
- backend/analysis/stochrsi_regime_performance.py  |  4 +++-
- 5 files changed, 23 insertions(+), 11 deletions(-)
 
