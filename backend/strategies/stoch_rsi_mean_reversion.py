@@ -39,6 +39,10 @@ class StochRSIMeanReversionStrategy(Strategy):
         # Used to test whether the StochRSI entry signal carries edge or whether the
         # exit/trail framework is doing the work. Exit logic unchanged.
         self.random_entry_prob = float(parameters.get('random_entry_prob', 0.0))
+        # Random-exit control — replaces K-cross signal exit with Bernoulli draws (post min-hold).
+        # Stop loss and trailing stop are unaffected. Combined with random_entry_prob, isolates
+        # the framework's contribution (stop+trail+sizing+ADX+min-hold) with zero signal information.
+        self.random_exit_prob = float(parameters.get('random_exit_prob', 0.0))
         self._rng = random.Random(int(parameters.get('random_seed', 42)))
         self.event_blackout_hours = int(parameters.get('event_blackout_hours', 0))  # Skip entries within N hours of high-impact event (0=off)
         self.blackout_times = set()  # precomputed set of bar timestamps in blackout windows
@@ -355,7 +359,11 @@ class StochRSIMeanReversionStrategy(Strategy):
         # Exit Logic (Signal Based) — respect min_hold_bars
         elif self.position == 'long':
             bars_held = (i - self.entry_bar) if self.entry_bar is not None else 999
-            if current_k > self.overbought and bars_held >= self.min_hold_bars:
+            if self.random_exit_prob > 0:
+                exit_now = bars_held >= self.min_hold_bars and self._rng.random() < self.random_exit_prob
+            else:
+                exit_now = current_k > self.overbought and bars_held >= self.min_hold_bars
+            if exit_now:
                 qty = abs(self.broker.get_position(self.symbol))
                 if qty > 0:
                     result = self.sell(price=row['Close'], size=qty, timestamp=i, exit_reason='signal')
@@ -367,7 +375,11 @@ class StochRSIMeanReversionStrategy(Strategy):
 
         elif self.position == 'short':
             bars_held = (i - self.entry_bar) if self.entry_bar is not None else 999
-            if current_k < self.oversold and bars_held >= self.min_hold_bars:
+            if self.random_exit_prob > 0:
+                exit_now_s = bars_held >= self.min_hold_bars and self._rng.random() < self.random_exit_prob
+            else:
+                exit_now_s = current_k < self.oversold and bars_held >= self.min_hold_bars
+            if exit_now_s:
                 qty = abs(self.broker.get_position(self.symbol))
                 if qty > 0:
                     result = self.buy(price=row['Close'], size=qty, timestamp=i, exit_reason='signal')

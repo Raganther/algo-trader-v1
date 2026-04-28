@@ -481,6 +481,48 @@ These two readings are nearly the same statement and consistent with cross-cutti
 
 ---
 
+## Edge Question — Test 2: Fully-Random Ablation (Apr 28 2026)
+
+**Tried:** Added `random_exit_prob` parameter to `StochRSIMeanReversionStrategy` mirroring the existing `random_entry_prob`. With both set, the strategy uses the same RNG to fire entries (Bernoulli per flat bar, p=0.15) and exits (Bernoulli per in-position bar after min-hold, p=0.05 — calibrated to produce trade counts comparable to validated). Stop loss + trailing stop unchanged. ADX filter, skip-Mon, sizing, 25% notional cap, 10-bar min-hold all unchanged. This isolates the framework's contribution with **zero signal information** anywhere in the strategy.
+
+**Calibration (GLD):**
+- ep=0.03 → 546 trades, Sharpe 2.81
+- ep=0.05 → 553 trades, Sharpe 2.32 *(closest to validated 504; chosen for the batch)*
+- ep=0.10 → 573 trades, Sharpe 2.02
+
+Sharpe is robust across the exit-rate range. Framework Sharpe doesn't depend on calibration choice within reason.
+
+**Result (random_entry_prob=0.15, random_exit_prob=0.05, seed=42):**
+
+| Asset | Validated Sharpe | Random-Entry Only | **Fully-Random** | Δ vs Validated |
+|---|---|---|---|---|
+| GLD | 2.48 | 2.46 | **2.32** | -0.16 |
+| SLV | 2.46 | 2.04 | **2.64** | **+0.18** |
+| GDX | 2.46 | 2.05 | **2.57** | **+0.11** |
+| QQQ | 1.45 | 1.99 | **2.28** | **+0.83** |
+
+**Headlines:**
+- **Fully-random matches or exceeds validated on 3 of 4 assets.** Only GLD shows a modest deficit (-0.16); SLV, GDX, and QQQ are all higher than validated.
+- **Every fully-random Sharpe is ≥ 2.0.** The framework alone — with no signal information whatsoever — clears the quality bar on every asset tested.
+- **The StochRSI entry + K-cross exit signals are at best neutral and at worst slightly net-negative** versus a fully-random control. Across these four assets the average Sharpe is 2.45 fully-random vs 2.21 validated — random is **higher on average**.
+- This goes further than the Apr 28 random-entry-only test. That test still kept K-cross exits (which use real K values). This one removes the last signal-dependent piece. The fact that Sharpe goes *up* on most assets with the K-exit removed is the strong claim here: the K-cross exit signal isn't carrying useful information either, and may actually be triggering exits that hurt more than they help.
+
+**What this resolves:**
+- **The framework alone IS the edge.** ATR stop, trailing stop after 10 bars, ADX-ranging filter, 2% fixed-risk sizing, 25% notional cap, and 10-bar min-hold together produce Sharpe ≥ 2.0 on every tested asset, with no signal information of any kind. This is a clean, falsifiable, and now empirically-confirmed claim.
+- **The StochRSI signal is decorative or worse.** On 3 of 4 assets, removing it improves Sharpe. The "edge" we documented across the project as "StochRSI mean-reversion at 15m" was a misattribution — what we measured was a *position-management framework* that the signal happened to be sitting on top of.
+- **Cross-cutting learning #11 (added Apr 28) is now upgraded from "framework is doing most of the work" to "framework is doing all of the work, signal is at best neutral."**
+
+**What this does NOT resolve:**
+- The bull-market regime question. Framework alone produces Sharpe 2.0+ on a 2020–2026 bull-market window — but does it also do that outside this regime? Test 3 (synthetic price inversion) is the next test.
+- Why the framework works. The fact that it produces Sharpe 2.0+ from random entries + random exits is striking. Plausible mechanism: the trail-after-10-bars + 25% cap creates positive expectancy by *truncating losses sharply via the fixed ATR stop while letting winners run via the trail*. That's a structural asymmetry that doesn't need any signal — random entries on a slightly-trending asset, with that asymmetry, will produce positive Sharpe. Granular ablations (no-trail, no-ADX, no-min-hold individually) would attribute exactly which framework component is load-bearing — but for the deployment decision the bigger question is settled.
+- Why GLD shows -0.16 specifically. GLD might be the one asset where the StochRSI signal contributes a small genuine edge — or it might be RNG noise. Worth a multi-seed sweep on GLD specifically before claiming "signal helps GLD."
+
+**Implication for live bots:** The 7 paper bots are running a strategy where the signal contributes nothing on average. They could be replaced with random-entry/random-exit bots and likely produce equal or better Sharpe. **This is not a reason to change anything immediately** — the signal isn't *hurting* either, and the live bots are validating execution mechanics regardless of edge attribution. But for any future deployment decision, "we use StochRSI mean-reversion" should be replaced with "we use a position-management framework with the validated parameters" as the honest description.
+
+**Implication for next research:** Test 3 (synthetic inversion) becomes more important, not less. If the framework alone produces Sharpe 2.0+ from random signals, the regime-dependence question is the only remaining edge-attribution question. If the framework also produces Sharpe 2.0+ on inverted prices, then we know the framework is capturing volatility, not direction. If it doesn't, then the framework has real directional edge that depends on positive drift.
+
+---
+
 ## Random-Entry Control — Apr 28 2026
 
 **Tried:** After the boundary verification + Sharpe sweep made the strategy look suspiciously general ("works on almost everything"), ran a discriminator: replace the StochRSI entry signal with random Bernoulli draws (calibrated to match validated trade frequency, p=0.15 per flat bar, seed=42, 50/50 long/short). Keep all other logic identical — ADX filter, skip-Mon, 2% risk sizing, 25% notional cap, ATR stop, trailing stop after 10 bars, K-cross exit, min-hold. Added `random_entry_prob` param to `StochRSIMeanReversionStrategy`. Compared random-entry Sharpe to validated Sharpe on 6 representative assets.

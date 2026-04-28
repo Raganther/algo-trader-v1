@@ -3,11 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-28** — Apr 28 — Edge Test 2: fully-random ablation matches/beats validated on 3 of 4 assets (GLD 2.32 vs 2.48, SLV 2.64 vs 2.46, GDX 2.57 vs 2.46, QQQ 2.28 vs 1.45). Framework alone clears Sharpe ≥2.0 with zero signal information. The StochRSI entry + K-cross exit signals are at best neutral, slightly net-negative on average. Framework IS the edge.
+
+ .claude/strategies/research-log.md             | 42 ++++++++++++++++++++++++++
+ backend/strategies/stoch_rsi_mean_reversion.py | 16 ++++++++--
+ 2 files changed, 56 insertions(+), 2 deletions(-)
+
+----
 **2026-04-28** — Apr 28 — Edge Test 1: B&H comparison passes cleanly. Strategy beats B&H on all 12 assets by Δ Sharpe +0.46 to +1.94 (median ~+1.4), DD protection 8.5×-26.2×. Framework adds real risk-adjusted value over passive holding.
 
+ .claude/memory/gitlog.md                    |  47 +++++------
  .claude/strategies/research-log.md          |  42 ++++++++++
  backend/analysis/buy_and_hold_comparison.py | 122 ++++++++++++++++++++++++++++
- 2 files changed, 164 insertions(+)
+ 3 files changed, 188 insertions(+), 23 deletions(-)
 
 ----
 **2026-04-28** — Apr 28 — full domain-file audit: propagate framework-attribution finding to all 8 StochRSI cards, regime cards, calibration logs, CLAUDE.md, and roadmap. Verified Sharpe values now in cards. Headline returns/DD unchanged; interpretation flagged as 'headline confirmed; edge attribution under review' across the board. Critical Path now requires framework ablations + buy-and-hold comparison before real money.
@@ -170,23 +178,4 @@
  CLAUDE.md                                      |   4 +-
  backend/analysis/gap_distribution.py           | 302 +++++++++++++++++++++++++
  16 files changed, 492 insertions(+), 77 deletions(-)
-
-----
-**2026-04-21** — chore: migrate to harness v4.2 — single roadmap, retire observations.md, enforce domain purity
-
- .claude/calibration/calibration-notes.md    |  20 +--
- .claude/calibration/live-trade-log.md       |  19 +--
- .claude/harness-v4.md                       | 138 ++++++++++++++++
- .claude/hooks/git-save-guard.sh             | 237 +++++++++++++++++-----------
- .claude/hooks/load-context.sh               |  35 ++--
- .claude/integrations/alpaca-mcp.md          |  10 +-
- .claude/memory/gitlog.md                    |  65 +++++++-
- .claude/memory/observations.md              |  72 ---------
- .claude/strategies/event-surprise.md        |  12 +-
- .claude/strategies/regime-analysis.md       |  72 +--------
- .claude/strategies/research-roadmap.md      | 106 +++++++++++++
- .claude/strategies/stochrsi-enhanced-xle.md |   7 +-
- CLAUDE.md                                   |  36 ++---
- scripts/git-save.sh                         |  96 +++++++++--
- 14 files changed, 576 insertions(+), 349 deletions(-)
 
