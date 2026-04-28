@@ -323,6 +323,46 @@ Validated params extract 4–8× more return with fewer trades and lower or comp
 
 ---
 
+## Held-Out Generalisation Test — Apr 28 2026
+
+**Tried:** Ran the validated recipe (15m, OB80/OS15, 2.0 ATR trail after 10 bars, skip Mon, ADX 20) on 12 novel assets across diverse driver classes — assets we had **no prior signal on**. Three categories: (A) sector ETFs we'd never tested (XLF/XLV/XLI/XLK/KRE), (B) genuinely different drivers (UUP currency, GBTC bitcoin, EWZ emerging market, ITA defense), (C) **predicted failures** (VXX volatility, ARKK growth, TQQQ 3× leveraged Nasdaq). The hypothesis was that the strategy works on liquid sector ETFs but fails on trend-dominated assets — a boundary check rather than another expansion.
+
+**Result: every single asset passed.** Including all three predicted failures.
+
+| Asset | Driver class | Return | DD | Trades | WR | Predicted | Actual |
+|-------|--------------|--------|-----|--------|----|-----------| -------|
+| VXX | Volatility | **+200.92%** | 4.33% | 729 | 44% | should fail | extreme pass |
+| TQQQ | 3× leveraged tech | +187.88% | 6.58% | 705 | 41% | should fail | extreme pass |
+| ARKK | Disruptive growth | +98.20% | 3.48% | 539 | 41% | should fail | pass |
+| XLK | Tech sector | +82.73% | 2.08% | 629 | 45% | should pass | pass |
+| KRE | Regional banks | +76.20% | 1.68% | 596 | 45% | should pass | pass |
+| EWZ | Brazil emerging | +52.86% | 2.49% | 523 | 44% | uncertain | pass |
+| GBTC | Bitcoin | +48.59% | 2.75% | 216 | 49% | uncertain | pass |
+| ITA | Defense | +32.22% | 1.92% | 379 | 39% | uncertain | pass |
+| XLI | Industrials | +26.67% | 1.80% | 666 | 43% | should pass | pass |
+| XLV | Healthcare | +22.66% | 1.35% | 728 | 43% | should pass | pass |
+| XLF | Financials | +22.01% | 2.60% | 618 | 40% | should pass | pass |
+| UUP | US dollar | +10.02% | 0.76% | 557 | 41% | uncertain | marginal |
+
+**Why this is destabilising rather than just exciting:** The whole point of the held-out test was to find the boundary. If everything passes, either (a) the strategy is universally robust on liquid ETFs with sufficient volatility — a much stronger claim than we'd previously made — or (b) the test design isn't actually distinguishing real edge from artefact. Both interpretations need to be taken seriously.
+
+**The three artefact risks:**
+1. **Long-bias / regime artefact.** 2020–2026 was a sustained bull market for almost all risk assets. Even VXX shorts win because volatility declined on average over the period. The strategy may be implicitly riding equity-correlated beta, not capturing a structural mean-reversion edge. The honest control would be intraday data from the 2007–2010 bear or the dot-com 2000–2003 era — but Alpaca's intraday history doesn't reach back that far.
+2. **Survivorship bias.** The 12 assets are all liquid survivors of the past 6 years. Failed SPACs, delisted ETFs, and crashed-then-recovered names aren't in the set. The strategy might fail on the assets that didn't survive.
+3. **Recipe over-robustness.** If the validated recipe is so generic that any volatile liquid ETF produces +10–200% over 6 years, it might not be capturing a *specific* mean-reversion edge — it might just be a long-vol strategy with a sensible exit rule. That's still useful, but it's a different claim from what we've been making.
+
+**The single most informative follow-up:** re-run SPY/QQQ/IWM/DIA/TLT with the validated recipe. Cross-cutting learning #10 below claims the strategy "fails on broad equity indices (SPY/QQQ/IWM)" — but that finding came from **old params on the broken engine**. We never re-tested with the validated recipe. If they pass too, the boundary thesis is broken and we need a new mental model. If they still fail, the boundary is real and the held-out result is the strongest validation we've ever produced.
+
+**What this is NOT:** a green light to deploy any of the 12 held-out assets. They have one backtest each. The interpretation is unresolved. Until the SPY/QQQ retest answers the boundary question, treat all 12 as pending — interesting data points, not validated edges. **The cross-cutting learning #10 below is now in question and should be marked as such until resolved.**
+
+**Implication:** The next session-defining work is the boundary verification (5 more backtests, 5 minutes of compute). After that, depending on the result, either an expansion of how we think about the strategy universe, or a confirmation that we found a genuine sector-specific edge.
+
+---
+
+## Cross-Cutting Learnings
+
+---
+
 ## Cross-Cutting Learnings
 
 These apply across all experiments — read before designing any new test.
@@ -354,8 +394,8 @@ GDX = gold beta + mining equity beta. XLE = energy beta. Higher volatility asset
 **9. Forward test param design involves a trade-off between trade volume and trail observation.**
 Aggressive params (tight OB/OS, short hold, tight trail) generate high trade volume — useful for verifying execution mechanics quickly. But a trail of 0.5 ATR after 1 bar fires on noise constantly, so you never observe the trail doing what the validated strategy depends on. Three weeks of aggressive params confirmed all infrastructure and exit mechanics, but produced almost no meaningful TS exits — the two exceptions (GDX +3.267, GLD +3.706) only occurred because late-session entries forced overnight holds that accidentally mimicked validated params behaviour. For future strategy forward tests: use aggressive params only for the mechanics verification phase, then switch to validated params as soon as infrastructure is confirmed. Design the two phases explicitly rather than running aggressive params for the entire forward test window.
 
-**10. Mean-reversion at 15m appears to be a general microstructure pattern.**
-Works on precious metals (GLD, IAU, SLV, GDX), energy (XLE), and potentially other liquid ETFs. Fails on broad equity indices (SPY/QQQ/IWM) where momentum dominates at these timeframes. The boundary seems to be: does the asset have natural range-bound behaviour at intraday resolution? Commodities and commodity-linked ETFs: yes. Broad indices: no.
+**10. Mean-reversion at 15m appears to be a general microstructure pattern. ⚠️ Boundary in question (Apr 28).**
+Works on precious metals (GLD, IAU, SLV, GDX), energy (XLE/OIH/XOP), biotech (XBI), and — per Apr 28 held-out test — also tech (XLK), banks (KRE), industrials, healthcare, financials, defense, dollar, Brazil EM, bitcoin, growth (ARKK), volatility (VXX), and 3× leveraged Nasdaq (TQQQ). Previously claimed to fail on broad equity indices (SPY/QQQ/IWM), but **that finding was on old params + broken engine and was never re-tested with the validated recipe.** Until SPY/QQQ/IWM/DIA are re-tested on validated 15m recipe, the boundary thesis is not confirmed. If they too pass, the "boundary" is illusory and the strategy is much more general than we documented. The original claim's "Commodities and commodity-linked ETFs: yes. Broad indices: no" framing should not be relied on.
 
 ---
 

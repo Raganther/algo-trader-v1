@@ -3,13 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-28** — Apr 28 — held-out generalisation test on 12 novel assets all passed; boundary thesis in question pending SPY/QQQ retest
+
+ .claude/strategies/research-log.md     | 44 ++++++++++++++++++++++++++++++++--
+ .claude/strategies/research-roadmap.md | 12 +++++++++-
+ 2 files changed, 53 insertions(+), 3 deletions(-)
+
+----
 **2026-04-28** — Apr 28 — deploy OIH/XBI/XOP paper bots, e2-small upgrade complete
 
- CLAUDE.md               | 23 +++++++++++++----------
- scripts/run_oih_test.sh |  9 +++++++++
- scripts/run_xbi_test.sh |  9 +++++++++
- scripts/run_xop_test.sh |  9 +++++++++
- 4 files changed, 40 insertions(+), 10 deletions(-)
+ .claude/memory/gitlog.md | 20 +++++++++++---------
+ CLAUDE.md                | 23 +++++++++++++----------
+ scripts/run_oih_test.sh  |  9 +++++++++
+ scripts/run_xbi_test.sh  |  9 +++++++++
+ scripts/run_xop_test.sh  |  9 +++++++++
+ 5 files changed, 51 insertions(+), 19 deletions(-)
 
 ----
 **2026-04-28** — Apr 28 — walk-forward 4/4 passed for OIH/XBI/XOP; promoted from candidate to validated, lineup now 8 assets
@@ -171,20 +179,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
  backend/engine/alpaca_trader.py | 11 ++++-------
  1 file changed, 4 insertions(+), 7 deletions(-)
-
-----
-**2026-04-13** — feat: deploy full validated strategy — whole-share sizing + shorts + validated params
-- stoch_rsi_mean_reversion.py: math.floor sizing (long + short), skip sub-1-share signals
-- alpaca_trader.py: int(qty) for stock market + stop orders
-- live_broker.py: unblock short entry in sell(), place buy-stop with pending_stop_side='buy'
-- all 4 bot scripts: OB 80/OS 15, ADX 20, 10-bar hold, 2.0 ATR trail after 10 bars, skip Monday, 13:30-20:00 UTC
-
- backend/engine/alpaca_trader.py                |  4 ++--
- backend/engine/live_broker.py                  | 31 +++++++++++++++++++++++---
- backend/strategies/stoch_rsi_mean_reversion.py | 11 +++++++--
- scripts/run_gdx_test.sh                        |  5 ++---
- scripts/run_gld_test.sh                        |  5 ++---
- scripts/run_iau_test.sh                        |  5 ++---
- scripts/run_slv_test.sh                        |  5 ++---
- 7 files changed, 47 insertions(+), 19 deletions(-)
 
