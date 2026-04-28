@@ -3,11 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-28** — Apr 28 — Edge Test 3 + synthesis: GLD inverted Sharpe collapses 2.48→0.85 (real directional edge, regime-dependent), SPY direction-agnostic 1.36→1.53. Three-test resolution: framework IS the edge (Test 2), beats B&H universally (Test 1), but metals edge depends on bull-regime (Test 3). Honest model: position-management framework, not StochRSI mean-reversion. Live bots should size for Sharpe 1.0-1.5 not 2.46.
+
+ .claude/strategies/research-log.md | 86 ++++++++++++++++++++++++++++++++++++++
+ backend/runner.py                  | 19 +++++++++
+ 2 files changed, 105 insertions(+)
+
+----
 **2026-04-28** — Apr 28 — Edge Test 2: fully-random ablation matches/beats validated on 3 of 4 assets (GLD 2.32 vs 2.48, SLV 2.64 vs 2.46, GDX 2.57 vs 2.46, QQQ 2.28 vs 1.45). Framework alone clears Sharpe ≥2.0 with zero signal information. The StochRSI entry + K-cross exit signals are at best neutral, slightly net-negative on average. Framework IS the edge.
 
+ .claude/memory/gitlog.md                       | 29 ++++++------------
  .claude/strategies/research-log.md             | 42 ++++++++++++++++++++++++++
  backend/strategies/stoch_rsi_mean_reversion.py | 16 ++++++++--
- 2 files changed, 56 insertions(+), 2 deletions(-)
+ 3 files changed, 65 insertions(+), 22 deletions(-)
 
 ----
 **2026-04-28** — Apr 28 — Edge Test 1: B&H comparison passes cleanly. Strategy beats B&H on all 12 assets by Δ Sharpe +0.46 to +1.94 (median ~+1.4), DD protection 8.5×-26.2×. Framework adds real risk-adjusted value over passive holding.
@@ -157,25 +165,4 @@
  .claude/strategies/research-roadmap.md           |   6 +-
  backend/analysis/stochrsi_regime_performance.py  | 365 +++++++++++++++++++++++
  6 files changed, 506 insertions(+), 16 deletions(-)
-
-----
-**2026-04-23** — chore: Apr 23 — overnight gap analysis closes single-symbol gap policy, correlation-aware sizing flagged as sole remaining tail risk
-
- .claude/calibration/calibration-notes.md       |   2 +
- .claude/calibration/gap-distribution.md        |  73 ++++++
- .claude/calibration/live-trade-log.md          |  37 ++-
- .claude/memory/gitlog.md                       |  30 ++-
- .claude/procedures/_index.md                   |   1 -
- .claude/procedures/memory-harness-migration.md |  41 ----
- .claude/strategies/event-surprise.md           |   2 +-
- .claude/strategies/regime-analysis.md          |   4 +-
- .claude/strategies/research-log.md             |  16 +-
- .claude/strategies/research-roadmap.md         |  41 +++-
- .claude/strategies/stochrsi-enhanced-gdx.md    |   2 +-
- .claude/strategies/stochrsi-enhanced-gld.md    |   4 +-
- .claude/strategies/stochrsi-enhanced-iau.md    |   4 +-
- .claude/strategies/stochrsi-enhanced-slv.md    |   6 +-
- CLAUDE.md                                      |   4 +-
- backend/analysis/gap_distribution.py           | 302 +++++++++++++++++++++++++
- 16 files changed, 492 insertions(+), 77 deletions(-)
 

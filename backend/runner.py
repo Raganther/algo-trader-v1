@@ -285,6 +285,24 @@ def run_backtest(args):
         event_loader = DataLoader()
         params['_event_times'] = event_loader.get_event_blackout_times(args.start, args.end, currency='USD')
 
+    # 2c. Optional price inversion (control test for direction-dependence).
+    # Reflects OHLC around the mean of close. ATR / volatility / bar shape preserved;
+    # direction flipped (uptrends become downtrends and vice versa).
+    if getattr(args, 'invert_prices', False):
+        pivot = data['Close'].mean()
+        print(f"[INVERT] Reflecting OHLC around pivot={pivot:.4f}")
+        new_open = 2 * pivot - data['Open']
+        new_high_raw = 2 * pivot - data['High']
+        new_low_raw = 2 * pivot - data['Low']
+        new_close = 2 * pivot - data['Close']
+        # After reflection, original high becomes lower than original low → swap to keep high>=low.
+        data = data.copy()
+        data['Open'] = new_open
+        data['Close'] = new_close
+        data['High'] = new_low_raw  # was-low, now-high
+        data['Low'] = new_high_raw  # was-high, now-low
+        print(f"[INVERT] First bar before/after — close: orig→{data['Close'].iloc[0]:.4f}")
+
     # 3. Run Backtest
     # Initialize Backtester
     print(f"DEBUG: Data Shape: {data.shape}")
@@ -481,6 +499,7 @@ def main():
     bt_parser.add_argument("--iteration", type=int, help="Specific Iteration Index to link (Optional)")
     bt_parser.add_argument("--event-blackout", type=int, default=0, help="Event blackout hours (0=off, e.g. 2=skip entries within 2h of high-impact event)")
     bt_parser.add_argument("--trades", action='store_true', default=False, help="Print trade-by-trade list (entry_time, symbol, entry/exit price, exit_reason, pnl)")
+    bt_parser.add_argument("--invert-prices", action='store_true', default=False, help="Reflect OHLC prices around the close-mean pivot (high<->low swapped). Direction-flip control test.")
     
     # Matrix Command
     matrix_parser = subparsers.add_parser('matrix', help='Run matrix research')

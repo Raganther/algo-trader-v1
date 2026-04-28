@@ -523,6 +523,92 @@ Sharpe is robust across the exit-rate range. Framework Sharpe doesn't depend on 
 
 ---
 
+## Edge Question — Test 3: Synthetic Price Inversion (Apr 28 2026)
+
+**Tried:** Added `--invert-prices` flag to `backend/runner.py`. The flag reflects OHLC around the close-mean pivot (`new_x = 2 * pivot - x`) and swaps high ↔ low to keep high ≥ low. ATR, volatility, and bar shape are preserved; direction is flipped. Ran the validated recipe on inverted GLD (positive control — highest validated Sharpe) and inverted SPY (boundary asset — low Sharpe, broad index, suspected direction-agnostic).
+
+Sanity check: first 5 bars of GLD inverted by hand — `high ≥ low` preserved, original "below the mean" prices become "above the mean" and vice versa. Math verified.
+
+**Result:**
+
+| Asset | Original Return | Original DD | Original Sharpe | Inverted Return | Inverted DD | Inverted Sharpe | Δ Sharpe |
+|---|---|---|---|---|---|---|---|
+| GLD | +45.13% | 1.22% | **2.48** | +85.54% | 6.84% | **0.85** | **-1.63** |
+| SPY | +21.94% | 2.02% | **1.36** | +25.45% | 2.29% | **1.53** | +0.17 |
+
+**Headlines:**
+- **GLD has real directional edge.** Inverted Sharpe collapses from 2.48 → 0.85. Inverted return is actually HIGHER (+85.54% vs +45.13%) but DD is **5.6× worse** (6.84% vs 1.22%). The framework still produces positive expectancy on inverted GLD, but the favourable risk-adjusted profile depends on the actual direction of price movement.
+- **SPY is essentially direction-agnostic.** Inverted Sharpe 1.53 vs original 1.36 — within Sharpe noise; if anything slightly better. The framework's behaviour on SPY doesn't depend on the rising-tide tendency of the actual data.
+- **The two assets are telling different stories.** The metals edge depends on regime. The broad-index edge does not.
+
+**Mechanism — why GLD shows direction-dependence and SPY doesn't:**
+- GLD's 2020–2026 window is a strong, sustained bull market with relatively low volatility. The framework's trail-after-10-bars rule lets winners run; in a bull regime that asymmetry is amplified because winners genuinely persist. Flip the direction and the long-side trail is now riding *against* the underlying drift; positions that would have ratcheted up now whipsaw, hitting stops with worse fills. The 5.6× DD increase is exactly this: the framework is designed for "let winners run" and on inverted gold the runs go the wrong way.
+- SPY's 15m microstructure is different — even within a bull market, intraday SPY has more two-sided action, more mean-reversion within trend, and proportionally lower drift per bar. The framework's edge here is largely volatility capture (the ATR stop and trail are calibrated to bar-volatility, which doesn't care which direction) — flipping the direction doesn't change the volatility structure, so Sharpe holds.
+
+**Reconciliation with the GLD card's Feb 27 daily-bar bear-market test:**
+- Daily-bar GLD 2012–2015 (gold bear): Strategy +6.0% / 1.41% DD / Sharpe 0.50. B&H -34.9% over the same window.
+- Daily-bar GLD 2007–2011 (gold bull): Strategy +21.7% / 4.15% DD / Sharpe 1.06.
+- Pattern: bull-regime Sharpe ~2× bear-regime Sharpe. Today's inversion test (which is also a "bear-like" condition) shows similar magnitude collapse (2.48 → 0.85, ~3× drop). **Two independent tests now point to "metals framework Sharpe is regime-dependent."**
+
+**What this resolves:**
+- **The metals deployment is implicitly a long-volatility-on-precious-metals bet.** The framework has real edge but that edge depends on continued metals strength. If gold enters a sustained bear (like 2011–2015), live performance will be materially worse than the 2.46 backtest Sharpe suggests.
+- **Broad-index deployment (IWM at Sharpe 2.30) is more regime-robust.** The framework's edge on equity indices appears to be genuine volatility capture, not direction-dependent.
+- **The framework is universal in producing Sharpe ≥ 2 (Test 2), but the magnitude of that Sharpe varies with regime on directional assets.** The two facts aren't contradictory: framework alone is the edge; on directional assets the magnitude of that edge is regime-amplified.
+
+**What this does NOT resolve:**
+- Whether OIH/XBI/XOP/XLE behave like GLD (regime-dependent) or like SPY (regime-agnostic). Likely most are GLD-like — they're sector ETFs in trending sectors during the test window — but per-asset confirmation needs running.
+- The exact Sharpe one should expect in a different regime. Inversion is a proxy, not a direct measurement of bear-market performance. The Feb 27 daily-bar bear test gives one data point (~½ the bull Sharpe); this inversion gives another (~⅓ the bull Sharpe). True bear-regime intraday performance is between these, modulo regime-specific structure that neither test captures.
+- Whether a hedge or regime-detector could correct this. If we knew when we were in a metals bear, we could downsize or skip. But we don't have a real-time regime classifier validated to that purpose; the existing regime card is descriptive, not predictive.
+
+**Implication for live bots:**
+- Don't size the metals bots assuming Sharpe 2.46. Internal expected Sharpe for sizing/risk should be closer to 1.0–1.5 to account for regime variation. The current 2% risk per trade with 25% notional cap is conservative enough that this isn't an immediate issue, but **any push to scale up sizing for the metals bots needs to budget regime-dependence into the math.**
+- IWM is now a more attractive deployment candidate than its raw Sharpe suggests. Sharpe 2.30 with regime-agnostic behaviour is more robust than Sharpe 2.48 with regime-dependence.
+- The bond rejection (TLT) earlier this week makes more sense: TLT is rates-driven AND directionally stable in the test window. The framework's edge requires either real volatility or directional drift to capture; TLT had neither in a way the framework could exploit.
+
+---
+
+## Edge Question — Synthesis (Apr 28 2026)
+
+**Three tests, three resolutions:**
+
+| Test | Question | Result |
+|---|---|---|
+| 1 — Buy-and-Hold | Does the strategy add risk-adjusted value over passive holding? | **YES on all 12 assets.** Δ Sharpe +0.46 to +1.94, DD protection 8.5×–26.2×. |
+| 2 — Fully-Random Ablation | Is the StochRSI signal the source of edge, or is it the framework? | **Framework, not signal.** Random entries + random exits with the same framework match or beat validated Sharpe on 3 of 4 assets. |
+| 3 — Synthetic Inversion | Is the framework direction-agnostic, or does it depend on the bull-market regime? | **Asset-dependent.** GLD direction-dependent (Sharpe 2.48 → 0.85 inverted). SPY direction-agnostic (1.36 → 1.53). |
+
+**The honest, post-resolution model of what we built:**
+
+The system is a **position-management framework** consisting of: ATR stop loss, trailing stop ratcheting after 10 bars, ADX-ranging entry filter, 2% fixed-risk position sizing, 25% notional cap, skip-Mon, 10-bar minimum hold. This framework, applied to any reasonably liquid intraday-volatile asset, converts asset volatility into risk-adjusted return more efficiently than passive holding (Test 1). It does this without needing any signal — random entries and random exits produce comparable Sharpe (Test 2). The "StochRSI mean-reversion" entry and exit logic that we built around the framework is at best decorative; on average across 4 assets it slightly hurts.
+
+The framework's edge is regime-dependent on directional assets and regime-agnostic on lower-drift assets (Test 3). On metals like GLD, the high Sharpe (2.48) depends meaningfully on the actual direction of price movement — invert the direction and Sharpe collapses to 0.85. On SPY, Sharpe is unchanged by inversion. The implication: the metals deployment is implicitly a directional bet on continued metals strength; the broad-index deployment (IWM) is more regime-robust.
+
+**What this means for the project:**
+
+1. **The 7 paper bots are real edge, but a smaller and more specific edge than we documented.** They produce Sharpe 2.0+ on backtest *because the framework works*, not because the StochRSI signal predicts mean-reversion. They depend on continued metals strength to maintain that backtest Sharpe in live conditions.
+
+2. **The "validated edges across 8 assets" framing is overstated.** What's validated is one framework, applied to 8 assets, with 6 of them clearing Sharpe 2.0 in a 2020–2026 bull market. The framework is the edge; the per-asset Sharpe variations reflect each asset's volatility profile and regime.
+
+3. **The strategy library is smaller than we thought.** "StochRSI Enhanced" isn't a strategy in the sense we documented — it's `Framework v1` plus a misattributed signal. The actual research surface is: alternative framework parameters, regime-aware sizing for the framework, additional framework variants (different stop / trail / filter logic).
+
+4. **Real-money deployment posture:**
+   - **Conservative path:** keep the current paper bots running, size for Sharpe 1.0–1.5 expected (not 2.46), prioritise IWM over more metals on the next deployment because it's regime-robust. Continue the Critical Path technical items (correlation-aware sizing, ATR sizing, late-session guard).
+   - **Aggressive path:** increase sizing now based on backtest Sharpe. **Not recommended** — the inversion result shows backtest Sharpe overstates expected live Sharpe in a regime change.
+
+5. **Future research questions worth asking:**
+   - Which framework component is load-bearing? Granular ablations (no-trail / no-ADX / no-min-hold) would attribute exactly. Now diagnostic, not gating, because the framework attribution itself is settled.
+   - Can a real-time regime detector + dynamic sizing convert Test 3's regime-dependence into regime-aware deployment? Existing regime work is descriptive; a predictive component would be new.
+   - Is there an actual signal that adds value over the framework? The StochRSI doesn't. Other indicators or composable signals might. Lower priority than understanding the framework, but the question is now well-posed.
+   - Does the framework break or hold on assets with neither volatility nor drift? TLT failed; that was driver-class (rates). What other assets have similar profiles?
+
+**Status of the cross-cutting learnings as of Apr 28 evening:**
+- #10 (mean-reversion is general microstructure) — **revised: framework is general, signal is irrelevant.**
+- #11 (framework is doing most of the work) — **upgraded: framework is doing all of the work, signal is at best neutral, and framework has direction-dependence on metals.**
+
+The Apr 28 finding chain (held-out 12/12 → boundary 4/4 → Sharpe verification → random-entry control → fully-random ablation → buy-and-hold → inversion) was a single multi-day arc of empirically reframing the project. The framework is real. The signal isn't. The edge depends on regime for some assets and not others. That's the model now.
+
+---
+
 ## Random-Entry Control — Apr 28 2026
 
 **Tried:** After the boundary verification + Sharpe sweep made the strategy look suspiciously general ("works on almost everything"), ran a discriminator: replace the StochRSI entry signal with random Bernoulli draws (calibrated to match validated trade frequency, p=0.15 per flat bar, seed=42, 50/50 long/short). Keep all other logic identical — ADX filter, skip-Mon, 2% risk sizing, 25% notional cap, ATR stop, trailing stop after 10 bars, K-cross exit, min-hold. Added `random_entry_prob` param to `StochRSIMeanReversionStrategy`. Compared random-entry Sharpe to validated Sharpe on 6 representative assets.
