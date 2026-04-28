@@ -3,14 +3,23 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-28** — Apr 28 — random-entry control: StochRSI signal is NOT the primary edge. Random entries match validated Sharpe on GLD (2.46 vs 2.48), beat it on QQQ (1.99 vs 1.45). Framework (trail/ADX/sizing/exit) is doing most of the work. Reframes learning #10, opens framework-ablation queue.
+
+ .claude/strategies/research-log.md             | 51 ++++++++++++++++++++++++++
+ .claude/strategies/research-roadmap.md         | 16 ++++++++
+ backend/strategies/stoch_rsi_mean_reversion.py | 43 ++++++++++++++++++++++
+ 3 files changed, 110 insertions(+)
+
+----
 **2026-04-28** — Apr 28 — Sharpe instrumentation added to backtester, 16 runs verified: 6 of 8 validated lineup clear ≥2.0 cleanly (GLD/SLV/GDX/OIH/XLE/XBI), IWM is only broad index that passes, GLD/SLV long-only beat full-strategy
 
+ .claude/memory/gitlog.md               | 21 +++++++++--------
  .claude/strategies/research-log.md     | 42 ++++++++++++++++++++++++++++++++++
  .claude/strategies/research-roadmap.md |  6 ++---
  CLAUDE.md                              | 30 +++++++++++++++---------
  backend/engine/backtester.py           | 16 +++++++++++++
  backend/runner.py                      |  1 +
- 5 files changed, 81 insertions(+), 14 deletions(-)
+ 6 files changed, 93 insertions(+), 23 deletions(-)
 
 ----
 **2026-04-28** — Apr 28 — boundary verification: SPY/QQQ/IWM/DIA all pass validated recipe, broad-index boundary thesis refuted; real boundary is on driver class (rates), not asset class
@@ -167,11 +176,4 @@
  .claude/memory/observations.md | 24 ++++++++++++++++--------
  CLAUDE.md                      |  4 ++--
  4 files changed, 31 insertions(+), 21 deletions(-)
-
-----
-**2026-04-19** — chore: migrate to algotrader-us (us-east1-b) — update server refs, trail ratcheting confirmed
-
- .claude/memory/gitlog.md | 20 ++++++++++----------
- CLAUDE.md                |  6 +++---
- 2 files changed, 13 insertions(+), 13 deletions(-)
 

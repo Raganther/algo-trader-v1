@@ -439,6 +439,54 @@ These two readings are nearly the same statement and consistent with cross-cutti
 
 ---
 
+## Random-Entry Control — Apr 28 2026
+
+**Tried:** After the boundary verification + Sharpe sweep made the strategy look suspiciously general ("works on almost everything"), ran a discriminator: replace the StochRSI entry signal with random Bernoulli draws (calibrated to match validated trade frequency, p=0.15 per flat bar, seed=42, 50/50 long/short). Keep all other logic identical — ADX filter, skip-Mon, 2% risk sizing, 25% notional cap, ATR stop, trailing stop after 10 bars, K-cross exit, min-hold. Added `random_entry_prob` param to `StochRSIMeanReversionStrategy`. Compared random-entry Sharpe to validated Sharpe on 6 representative assets.
+
+**Result:**
+
+| Asset | Validated Sharpe | Random Sharpe | Δ | Validated Return | Random Return |
+|---|---|---|---|---|---|
+| GLD | 2.48 | **2.46** | -0.02 | 45.13% | 45.31% |
+| SLV | 2.46 | 2.04 | -0.42 | 131.04% | 96.55% |
+| GDX | 2.46 | 2.05 | -0.41 | 133.27% | 109.22% |
+| IWM | 2.30 | 1.65 | -0.65 | 57.42% | 42.35% |
+| SPY | 1.36 | 1.13 | -0.23 | 21.94% | 18.55% |
+| QQQ | 1.45 | **1.99** | **+0.54** | 27.17% | 49.39% |
+
+GLD swept across p=0.08/0.15/0.25/0.40 (Sharpe 2.02 / 2.46 / 2.43 / 2.47) — the random-entry Sharpe is robust to the probability choice, not a calibration artefact.
+
+**What this resolves (negative finding):**
+- The StochRSI mean-reversion entry signal is **not the primary source of edge**. Across 6 assets the entry contributes between -0.65 and +0.54 Sharpe over a random-entry baseline. On GLD it contributes essentially zero. **On QQQ it actively hurts** — random entries Sharpe 1.99 vs validated 1.45. The "edge" we've been documenting is mostly the position-management framework: ATR stop, trailing stop after 10 bars, ADX-ranging filter, skip-Mon, fixed-risk sizing, K-cross exit, 10-bar min-hold.
+- The mental model "the strategy works because StochRSI extremes mean-revert" is largely wrong. The honest model is closer to: "in ranging regimes (ADX < 20), liquid ETFs at 15m have enough microstructure for a 2.0-ATR trailing stop with 2% risk per trade and a 10-bar min-hold to capture positive expectancy from any reasonably timed entry, and a K-cross provides a noise-tolerant exit." The entry signal at most tilts that small.
+- This explains the held-out test result. If the entry signal isn't doing the work, then "everything passes" was inevitable as long as the asset has enough volatility for the trail to capture profits and the ADX filter to gate trending periods. The recipe is generic *because the signal isn't load-bearing*, not because we found a universal mean-reversion edge.
+
+**What this does NOT resolve:**
+- **Exits are still informed.** K-cross exit uses real K values; only entries are randomised. A fully clean control would randomise both. But stop-loss and trailing stop are pure-price and account for the majority of exits, so the result is still informative.
+- **Long-bias / regime artefact remains open.** Random entries with positive expectancy in a 6-year bull market is exactly the pattern we'd expect if we're capturing equity beta. To distinguish from real microstructure edge we still need either pre-2020 intraday data or a synthetic stress test.
+- **What in the framework is doing the work** is now the open question. Candidates ranked by likelihood: (1) trailing stop after N bars in profit — captures extended moves; (2) ADX filter — only trades when range-bound, avoiding trend continuation losses; (3) min-hold + K-cross exit — protects against premature signal exits; (4) 25% notional cap — bounds tail risk. Need ablations to attribute.
+- **Asset-specific signal quality.** SLV/GDX/IWM show real (~0.4–0.65) entry contribution; GLD shows zero; QQQ shows negative. The signal isn't worthless everywhere — it's just much smaller than we thought, and it's negative on at least one validated-class asset.
+
+**Implication for live bots:**
+- The 7 paper bots aren't necessarily wrong — they're producing real returns from a real framework. But **what we thought was driving the returns isn't what's driving them.** The implications:
+  - Future "does the strategy work on X?" tests are nearly meaningless until we understand which framework component is load-bearing. We'll keep finding "yes" because the framework keeps working.
+  - Walk-forward tests so far validate the framework, not the signal. Same conclusion: WF passes don't tell us what's actually generalising.
+  - Correlation-aware sizing (real-money critical path) is unaffected — that's a position-management concern, not an entry-signal concern.
+  - The Apr 4 "stop-check fix" being load-bearing makes more sense now: the trail is doing most of the work, so a bug in stop ordering would have outsized impact.
+
+**Implication for research direction:**
+- The next concrete experiments are framework ablations, not more asset tests:
+  1. **No trail** — fixed stop only. If Sharpe collapses, the trail is the edge.
+  2. **No ADX filter** — accept all regimes. If Sharpe collapses, the ranging-regime constraint is the edge.
+  3. **No min-hold** — exit immediately on K-cross. If Sharpe survives, min-hold isn't load-bearing.
+  4. **No K-cross exit (stop-only)** — pure price-based exit. Tests whether the K signal carries any exit information.
+  5. **Fully random (random entries + random exits + stop only)** — establishes the baseline for the trail+stop+sizing framework alone.
+- Order: 5 → 1 → 2 → 4 → 3. Each is one parameter change, ~3 minutes per asset.
+
+**Honest summary:** the held-out 12/12 + boundary 4/4 + Sharpe verification looked like a strategy library win. Combined with this random-entry control, the more accurate read is: **we have a strong position-management framework that we built around what we thought was the signal, and the framework is what's actually working.** That's still a project asset — the framework is real, deployable, and live in 7 paper bots — but it requires recasting how we describe and extend the strategy.
+
+---
+
 ## Cross-Cutting Learnings
 
 ---
@@ -473,6 +521,9 @@ GDX = gold beta + mining equity beta. XLE = energy beta. Higher volatility asset
 
 **9. Forward test param design involves a trade-off between trade volume and trail observation.**
 Aggressive params (tight OB/OS, short hold, tight trail) generate high trade volume — useful for verifying execution mechanics quickly. But a trail of 0.5 ATR after 1 bar fires on noise constantly, so you never observe the trail doing what the validated strategy depends on. Three weeks of aggressive params confirmed all infrastructure and exit mechanics, but produced almost no meaningful TS exits — the two exceptions (GDX +3.267, GLD +3.706) only occurred because late-session entries forced overnight holds that accidentally mimicked validated params behaviour. For future strategy forward tests: use aggressive params only for the mechanics verification phase, then switch to validated params as soon as infrastructure is confirmed. Design the two phases explicitly rather than running aggressive params for the entire forward test window.
+
+**11. The position-management framework is doing most of the work, not the StochRSI signal (Apr 28).**
+Random-entry control (Bernoulli draws calibrated to validated trade frequency, all other logic identical) produces Sharpes within 0.05–0.65 of validated across 6 assets, and *beats* validated on QQQ (+0.54). On GLD random ≈ validated (Sharpe 2.46 vs 2.48). The edge lives in the framework: 2.0-ATR stop, trailing stop after 10 bars, ADX-ranging filter, skip-Mon, 2% fixed-risk sizing, 25% notional cap, K-cross exit, 10-bar min-hold. The StochRSI entry signal contributes a small asset-dependent tilt — not the dominant effect we'd assumed. This re-frames learning #10: the strategy generalises because the framework generalises, not because StochRSI mean-reversion is universal. Implication: future "does it work on X?" tests are uninformative until ablations identify which framework component is load-bearing. (Caveat: K-cross exit still uses real K — exits aren't fully randomised in this control. Pure-price stop/trail account for majority of exits, so the result is informative but not airtight.)
 
 **10. Mean-reversion at 15m is a general microstructure pattern; boundary is on driver class, not asset class.**
 Works on precious metals (GLD/IAU/SLV/GDX), energy (XLE/OIH/XOP), biotech (XBI), tech (XLK/QQQ), banks (KRE/XLF), industrials (XLI/DIA), healthcare (XLV), defense (ITA), dollar (UUP), Brazil EM (EWZ), bitcoin (GBTC), growth (ARKK), volatility (VXX), 3× leveraged Nasdaq (TQQQ), and broad indices (SPY/QQQ/IWM/DIA — verified Apr 28 with validated recipe; previous "fails on broad indices" finding was old params + broken engine). The earlier "Commodities yes, Broad indices no" framing was wrong — it was an asset-class boundary that turned out to be illusory. **The real boundary is on driver class:** assets where intraday price action is dominated by rates/curve dynamics rather than microstructure (TLT, bonds generally) fail. Returns scale with underlying volatility — calmer assets like SPY produce smaller returns at similar DD-adjusted profiles, consistent with learning #8 (beta scales DD, not edge). For deployment decisions the question shifts from "does it work on X?" to "where is the edge highest per unit of correlation already in the portfolio?"

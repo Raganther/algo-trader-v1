@@ -3,6 +3,7 @@ from backend.indicators.stoch_rsi import StochRSI
 from backend.indicators.adx import adx
 from backend.indicators.atr import atr
 import math
+import random
 import pandas as pd
 from datetime import timedelta
 
@@ -34,6 +35,11 @@ class StochRSIMeanReversionStrategy(Strategy):
         self.trail_atr = float(parameters.get('trail_atr', self.sl_atr))  # Trailing ATR multiplier
         self.min_hold_bars = int(parameters.get('min_hold_bars', 0))  # Minimum bars before signal exit allowed
         self.long_only = parameters.get('long_only', False)  # Skip short entries entirely
+        # Random-entry control mode — replaces entry signal with Bernoulli draws when > 0.
+        # Used to test whether the StochRSI entry signal carries edge or whether the
+        # exit/trail framework is doing the work. Exit logic unchanged.
+        self.random_entry_prob = float(parameters.get('random_entry_prob', 0.0))
+        self._rng = random.Random(int(parameters.get('random_seed', 42)))
         self.event_blackout_hours = int(parameters.get('event_blackout_hours', 0))  # Skip entries within N hours of high-impact event (0=off)
         self.blackout_times = set()  # precomputed set of bar timestamps in blackout windows
 
@@ -222,6 +228,43 @@ class StochRSIMeanReversionStrategy(Strategy):
 
         # Entry Logic
         if self.position == 0: # 0 means flat
+            # --- RANDOM ENTRY CONTROL MODE ---
+            # When random_entry_prob > 0, replace StochRSI entry logic with Bernoulli draws.
+            # All other gates (ADX filter, skip_days, trading_hours, blackout, sizing) still apply.
+            # Direction is 50/50 long/short (unless long_only). Used to isolate edge contribution
+            # of entry signal vs framework.
+            if self.random_entry_prob > 0:
+                if not skip_entry and self._rng.random() < self.random_entry_prob:
+                    is_crypto = '/' in self.symbol
+                    go_long = True
+                    if not is_crypto and not self.long_only:
+                        go_long = self._rng.random() < 0.5
+                    equity = self.broker.get_equity()
+                    risk_amt = equity * 0.02
+                    atr_val = row[self.atr_col]
+                    stop_dist = atr_val * self.sl_atr
+                    if stop_dist > 0:
+                        size = risk_amt / stop_dist
+                        max_size = (equity * 0.25) / row['Close']
+                        size = min(size, max_size)
+                        size = math.floor(size)
+                        if size >= 1:
+                            if go_long:
+                                self.current_sl = row['Close'] - stop_dist
+                                result = self.buy(price=row['Close'], size=size, timestamp=i, stop_loss=self.current_sl)
+                                if result is not None:
+                                    self.position = 'long'
+                                    self.entry_bar = i
+                                    self.entry_price = row['Close']
+                            else:
+                                self.current_sl = row['Close'] + stop_dist
+                                result = self.sell(price=row['Close'], size=size, timestamp=i, stop_loss=self.current_sl)
+                                if result is not None:
+                                    self.position = 'short'
+                                    self.entry_bar = i
+                                    self.entry_price = row['Close']
+                return
+
             # Long Setup
             if prev_k <= self.oversold:  # Fixed: <= instead of < to include exact threshold
                 self.in_oversold_zone = True

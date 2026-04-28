@@ -9,6 +9,22 @@ Status labels: `idea` | `in progress` | `validated` | `rejected` | `monitoring`
 
 ---
 
+## Framework Attribution — Apr 28 2026 (NEW, blocking interpretation of all signal work)
+
+Random-entry control (`research-log.md` → "Random-Entry Control") shows the StochRSI entry contributes only a small fraction of total Sharpe; the framework (trail + ADX filter + sizing + K-cross exit + min-hold) is doing most of the work. Future "does the strategy work on X?" tests are uninformative until ablations identify which framework component is load-bearing. **All "test on more assets" items are deprioritised below this section.**
+
+| Item | Status | Notes |
+|------|--------|-------|
+| Ablation 1 — fully random (random entries + random exits + stop only) | next | Establishes baseline Sharpe for the trail+stop+sizing framework with no signal. Run on GLD/SLV/QQQ. If Sharpe stays ≥1.5, framework alone is the edge. |
+| Ablation 2 — no trailing stop (fixed stop only) | next | If Sharpe collapses, the trail is the load-bearing component. |
+| Ablation 3 — no ADX filter | next | If Sharpe collapses, the ranging-regime constraint is the load-bearing component. |
+| Ablation 4 — no K-cross exit (stop/trail only) | next | Tests whether the K signal carries exit information. |
+| Ablation 5 — no min-hold | next | If Sharpe survives, min-hold isn't load-bearing. |
+| Long-bias / regime artefact control (synthetic price inversion) | next | Run validated recipe on inverted price series for SPY/GLD. If Sharpe survives, the strategy is direction-agnostic (volatility capture). If it collapses, real directional edge exists. Cheap proxy for "what would this look like outside a bull market." |
+| Buy-and-hold comparison | next | For GLD/SLV/SPY: how does the strategy's return + Sharpe compare to simple buy-and-hold over the same window? If buy-and-hold matches or exceeds, we're capturing pure beta + position-sizing risk-adjustment. |
+
+---
+
 ## Critical Path — To Real Money
 
 | Item | Status | Notes |
