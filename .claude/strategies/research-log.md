@@ -439,6 +439,48 @@ These two readings are nearly the same statement and consistent with cross-cutti
 
 ---
 
+## Edge Question — Test 1: Buy-and-Hold Comparison (Apr 28 2026)
+
+**Tried:** Built `backend/analysis/buy_and_hold_comparison.py` to compute B&H return, max drawdown, and annualised Sharpe (daily-resampled close × √252) for all 12 tested assets over 2020-07-27 → 2026-04-27 — same window and Sharpe convention as the strategy backtests. Compared directly to verified strategy figures.
+
+**Result:**
+
+| Symbol | B&H Return | B&H DD | B&H Sharpe | Strat Return | Strat DD | Strat Sharpe | Δ Sharpe | DD ratio |
+|---|---|---|---|---|---|---|---|---|
+| GLD | +160.52% | 22.09% | 1.08 | +45.13% | 1.22% | 2.48 | **+1.40** | 18.1× |
+| SLV | +234.11% | 39.29% | 0.78 | +131.04% | 2.00% | 2.46 | **+1.68** | 19.6× |
+| GDX | +131.20% | 50.79% | 0.60 | +133.27% | 2.01% | 2.46 | **+1.86** | 25.3× |
+| IAU | +424.16%* | 21.03% | 0.80 | +39.34% | 1.32% | 1.95 | +1.15 | 15.9× |
+| XLE | +66.68% | 55.31% | 0.47 | +85.70% | 3.27% | 2.30 | **+1.83** | 16.9× |
+| OIH | +229.72% | 45.66% | 0.72 | +146.06% | 2.96% | 2.33 | **+1.61** | 15.4× |
+| XBI | +15.35% | 64.04% | 0.24 | +84.87% | 2.44% | 2.18 | **+1.94** | 26.2× |
+| XOP | +227.34% | 39.70% | 0.75 | +91.65% | 3.29% | 1.98 | +1.23 | 12.1× |
+| SPY | +121.16% | 25.22% | 0.90 | +21.94% | 2.02% | 1.36 | +0.46 | 12.5× |
+| QQQ | +155.18% | 35.54% | 0.83 | +27.17% | 2.19% | 1.45 | +0.62 | 16.2× |
+| IWM | +87.64% | 33.17% | 0.60 | +57.42% | 1.43% | 2.30 | **+1.70** | 23.2× |
+| DIA | +84.95% | 21.88% | 0.80 | +27.32% | 2.56% | 1.83 | +1.03 | 8.5× |
+
+\*IAU +424% is anomalous (GLD is +161% on the same metal). Likely the daily-bar split-adjustment inconsistency previously noted in `research-roadmap.md`. Sharpe is still consistent with the rest of the metals.
+
+**Headlines:**
+- **Strategy beats B&H on every single asset.** Δ Sharpe is positive everywhere, range +0.46 (SPY) to +1.94 (XBI), median ~+1.4.
+- **Every B&H Sharpe is below the 2.0 quality bar** (range 0.24 to 1.08). Passive holding doesn't clear the bar we hold the strategy to.
+- **DD protection is 8.5×–26.2×** across the board. Even the worst case (DIA, 8.5×) is meaningful.
+- **Strategy beats B&H on raw return for 3 assets** (GDX +133% vs +131%, XLE +86% vs +67%, XBI +85% vs +15%) — these aren't smoothing wrappers, they're outperforming on the absolute number too.
+- **Smallest gaps are on broad indices** (SPY +0.46, QQQ +0.62, DIA +1.03) — consistent with our learning #8 "edge scales with volatility." Calmer assets show less framework edge over B&H.
+- **XBI is the most striking case:** B&H Sharpe 0.24, strategy Sharpe 2.18. The framework converts a basically-uninvestable asset (biotech is high-vol with no clear long drift in this window — only +15% over 6 years) into a Sharpe-2 contributor.
+
+**What this resolves:** Test 1 cleanly passes the decision rule. The framework adds genuine risk-adjusted value over passive holding on every asset in this regime. **Story 1 (real risk-adjusted alpha) survives; Story 2 (smoothing wrapper) is partially refuted.** "Partially" because:
+- The result holds on Sharpe, where the framework dominates.
+- The result holds on raw return *for some assets but not others* — on SPY/QQQ/DIA/SLV/IAU/OIH/XOP, B&H made meaningfully more money. The framework trades absolute return for DD-adjusted return. That's a real edge but it's an edge of a specific kind: smoothing + selective participation, not "we make more money than buying and holding."
+- The result is still within a 2020–2026 bull market. Test 3 (synthetic inversion) is what tests whether the edge survives outside this regime.
+
+**Implication for next tests:** Proceed to Test 2 (fully-random ablation). The framework adds value over B&H — we now want to know how much of that value remains when we strip out the K-cross exit too, isolating the trail+stop+sizing+ADX+min-hold core.
+
+**Implication for project framing:** When describing the strategy, the honest claim is "framework converts asset volatility into risk-adjusted return at very low DD" — not "we predict mean-reversion." The Sharpe gap over B&H is the metric to lead with, not the absolute return.
+
+---
+
 ## Random-Entry Control — Apr 28 2026
 
 **Tried:** After the boundary verification + Sharpe sweep made the strategy look suspiciously general ("works on almost everything"), ran a discriminator: replace the StochRSI entry signal with random Bernoulli draws (calibrated to match validated trade frequency, p=0.15 per flat bar, seed=42, 50/50 long/short). Keep all other logic identical — ADX filter, skip-Mon, 2% risk sizing, 25% notional cap, ATR stop, trailing stop after 10 bars, K-cross exit, min-hold. Added `random_entry_prob` param to `StochRSIMeanReversionStrategy`. Compared random-entry Sharpe to validated Sharpe on 6 representative assets.

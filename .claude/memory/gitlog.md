@@ -3,24 +3,32 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-28** — Apr 28 — Edge Test 1: B&H comparison passes cleanly. Strategy beats B&H on all 12 assets by Δ Sharpe +0.46 to +1.94 (median ~+1.4), DD protection 8.5×-26.2×. Framework adds real risk-adjusted value over passive holding.
+
+ .claude/strategies/research-log.md          |  42 ++++++++++
+ backend/analysis/buy_and_hold_comparison.py | 122 ++++++++++++++++++++++++++++
+ 2 files changed, 164 insertions(+)
+
+----
 **2026-04-28** — Apr 28 — full domain-file audit: propagate framework-attribution finding to all 8 StochRSI cards, regime cards, calibration logs, CLAUDE.md, and roadmap. Verified Sharpe values now in cards. Headline returns/DD unchanged; interpretation flagged as 'headline confirmed; edge attribution under review' across the board. Critical Path now requires framework ablations + buy-and-hold comparison before real money.
 
- .claude/calibration/forward-test-log.md                  |  4 +++-
- .claude/calibration/live-trade-log.md                    |  6 +++---
- .claude/strategies/regime-analysis.md                    |  4 +++-
- .claude/strategies/regime-sizing-portfolio-diagnostic.md |  4 +++-
- .claude/strategies/regime-stochrsi-diagnostic.md         |  4 +++-
- .claude/strategies/research-roadmap.md                   |  2 ++
- .claude/strategies/stochrsi-enhanced-gdx.md              | 10 +++++++++-
- .claude/strategies/stochrsi-enhanced-gld.md              | 14 +++++++++++---
- .claude/strategies/stochrsi-enhanced-iau.md              | 10 +++++++++-
- .claude/strategies/stochrsi-enhanced-oih.md              | 10 +++++++++-
- .claude/strategies/stochrsi-enhanced-slv.md              | 10 +++++++++-
- .claude/strategies/stochrsi-enhanced-xbi.md              | 10 +++++++++-
- .claude/strategies/stochrsi-enhanced-xle.md              | 10 +++++++++-
- .claude/strategies/stochrsi-enhanced-xop.md              | 12 ++++++++++--
- CLAUDE.md                                                | 10 ++++++++--
- 15 files changed, 100 insertions(+), 20 deletions(-)
+ .claude/calibration/forward-test-log.md            |  4 ++-
+ .claude/calibration/live-trade-log.md              |  6 ++--
+ .claude/memory/gitlog.md                           | 32 +++++++++++++++-------
+ .claude/strategies/regime-analysis.md              |  4 ++-
+ .../regime-sizing-portfolio-diagnostic.md          |  4 ++-
+ .claude/strategies/regime-stochrsi-diagnostic.md   |  4 ++-
+ .claude/strategies/research-roadmap.md             |  2 ++
+ .claude/strategies/stochrsi-enhanced-gdx.md        | 10 ++++++-
+ .claude/strategies/stochrsi-enhanced-gld.md        | 14 ++++++++--
+ .claude/strategies/stochrsi-enhanced-iau.md        | 10 ++++++-
+ .claude/strategies/stochrsi-enhanced-oih.md        | 10 ++++++-
+ .claude/strategies/stochrsi-enhanced-slv.md        | 10 ++++++-
+ .claude/strategies/stochrsi-enhanced-xbi.md        | 10 ++++++-
+ .claude/strategies/stochrsi-enhanced-xle.md        | 10 ++++++-
+ .claude/strategies/stochrsi-enhanced-xop.md        | 12 ++++++--
+ CLAUDE.md                                          | 10 +++++--
+ 16 files changed, 122 insertions(+), 30 deletions(-)
 
 ----
 **2026-04-28** — Apr 28 — random-entry control: StochRSI signal is NOT the primary edge. Random entries match validated Sharpe on GLD (2.46 vs 2.48), beat it on QQQ (1.99 vs 1.45). Framework (trail/ADX/sizing/exit) is doing most of the work. Reframes learning #10, opens framework-ablation queue.
@@ -181,11 +189,4 @@
  CLAUDE.md                                   |  36 ++---
  scripts/git-save.sh                         |  96 +++++++++--
  14 files changed, 576 insertions(+), 349 deletions(-)
-
-----
-**2026-04-21** — chore: Apr 21 — validated trail fired in profit (SLV +$283.86), pm2 startup registered, path to real money updated
-
- .claude/memory/gitlog.md       | 17 ++++++++---------
- .claude/memory/observations.md | 21 +++++++++++----------
- 2 files changed, 19 insertions(+), 19 deletions(-)
 
