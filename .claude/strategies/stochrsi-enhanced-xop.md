@@ -1,9 +1,9 @@
-Status: candidate | Epistemic: single-run verified, not walk-forward validated | Last verified: 2026-04-28
+Status: validated | Epistemic: confirmed (WF 4/4 passed; Sharpe + correlation still pending) | Last verified: 2026-04-28
 
-# StochRSI Enhanced — XOP 15m (Candidate)
+# StochRSI Enhanced — XOP 15m (Validated)
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
-> **Status:** Discovered Apr 28 2026 during forgotten-asset audit. Single-run figures only — not walk-forward validated. Do not deploy until WF 4/4 + Sharpe ≥ 2.0 confirmed.
+> **Status:** Discovered Apr 28 2026 during forgotten-asset audit. **Walk-forward 4/4 windows positive (Apr 28).** Highly correlated with XLE/OIH — pick the strongest before deployment.
 
 ## Knowledge
 
@@ -61,10 +61,21 @@ Every year profitable. 2022 had highest DD (6.11%) — energy sector volatility 
 | XBI | +84.75% | 2.44% |
 | XLE | +80.42% | 3.27% |
 
+### Walk-Forward Validation (Apr 28 2026)
+
+| Window | Period | Return | Max DD | Trades | Win Rate |
+|--------|--------|--------|--------|--------|----------|
+| 1 | 2020 → mid 2022 | +39.61% | 2.41% | 226 | 45% |
+| 2 | mid 2022 → 2025 | +32.11% | 3.24% | 378 | 41% |
+| 3 | 2020 → 2021 | +24.97% | 2.05% | 166 | 46% |
+| 4 | 2022 → 2023 | +31.04% | 3.27% | 213 | 42% |
+
+**4/4 windows positive.** Returns +25% to +40%, consistent. Win rates 41–46%. Higher max DDs than OIH (3.24% / 3.27% vs OIH's 2.50% / 2.53%) — XOP is the highest-DD energy candidate.
+
 ### Required Validation Before Deployment
 
-- [ ] Walk-forward 4-window test
-- [ ] Sharpe computation
+- [x] Walk-forward 4-window test — **4/4 pass**
+- [ ] Sharpe computation (CLI gap)
 - [ ] Cross-correlation with XLE/OIH — strong overlap risk; running all three may not give independent diversification
 - [ ] Spread sensitivity
 

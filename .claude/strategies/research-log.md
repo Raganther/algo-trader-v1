@@ -319,6 +319,8 @@ Validated params extract 4–8× more return with fewer trades and lower or comp
 
 **Implication:** Don't celebrate yet, but the strategy library just got a lot more interesting. Walk-forward queue (next major work) plus Phase 2 regime-segmented broad-index resurrection (still open, may unlock more) are now the two biggest sources of additional candidates.
 
+**Apr 28 follow-up — WF validation complete.** All 3 candidates (OIH/XBI/XOP) passed 4/4 walk-forward windows. OIH range +35–57% per window, XBI +17–39%, XOP +25–40%. Win rates stable 41–47% across all 12 sub-period tests. The edge generalises across COVID, post-COVID, 2022 bear, 2023 recovery, and 2024–2025 bull regimes. Status on each card promoted from "candidate" to "validated." Still pending: Sharpe computation (CLI gap, affects all 9 validated assets), cross-correlation among XLE/OIH/XOP (likely overlap), correlation of XBI vs metals (diversification claim). The validated bot universe is now **8 assets** (4 metals + XLE + OIH + XOP + XBI), and the strategy library is empirically denser than any prior point in the project.
+
 ---
 
 ## Cross-Cutting Learnings

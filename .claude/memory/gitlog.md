@@ -3,8 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-28** — Apr 28 — walk-forward 4/4 passed for OIH/XBI/XOP; promoted from candidate to validated, lineup now 8 assets
+
+ .claude/strategies/research-log.md          |  2 ++
+ .claude/strategies/research-roadmap.md      |  4 +++-
+ .claude/strategies/stochrsi-enhanced-oih.md | 23 +++++++++++++++++------
+ .claude/strategies/stochrsi-enhanced-xbi.md | 25 ++++++++++++++++++-------
+ .claude/strategies/stochrsi-enhanced-xop.md | 21 ++++++++++++++++-----
+ CLAUDE.md                                   | 12 ++++++------
+ 6 files changed, 62 insertions(+), 25 deletions(-)
+
+----
 **2026-04-28** — Apr 28 — verified all metals/XLE/long-only baselines, discovered OIH/XBI/XOP candidates from forgotten-asset audit, rejected TLT, fixed Apr 4 transcription error
 
+ .claude/memory/gitlog.md                    | 27 ++++++---
  .claude/strategies/research-log.md          | 56 ++++++++++++++++++
  .claude/strategies/research-roadmap.md      | 29 +++++++--
  .claude/strategies/stochrsi-enhanced-gdx.md | 64 ++++++++++++--------
@@ -16,7 +28,7 @@
  .claude/strategies/stochrsi-enhanced-xle.md | 33 +++++------
  .claude/strategies/stochrsi-enhanced-xop.md | 73 +++++++++++++++++++++++
  CLAUDE.md                                   | 33 ++++++++---
- 11 files changed, 526 insertions(+), 134 deletions(-)
+ 12 files changed, 544 insertions(+), 143 deletions(-)
 
 ----
 **2026-04-27** — Apr 27 forward-test log — Apr 15-24 validated-params trades, organic short stop fire confirmed, Layer 3 sample 33→41
@@ -173,12 +185,4 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
  .claude/memory/gitlog.md                 | 18 ++++----
  .claude/memory/observations.md           |  4 +-
  3 files changed, 72 insertions(+), 25 deletions(-)
-
-----
-**2026-04-13** — chore: Apr 13 calibration run — Layer 1 PASS (75v75 1.00x), Layer 2 PARTIAL — backtest over-predicts overnight holds 2–3x, overnight stop model gap identified as next critical task
-
- .claude/calibration/calibration-notes.md | 39 +++++++++++++++++++++++++++++---
- .claude/memory/gitlog.md                 | 18 +++++++--------
- .claude/memory/observations.md           |  6 ++---
- 3 files changed, 48 insertions(+), 15 deletions(-)
 

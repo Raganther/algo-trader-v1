@@ -1,9 +1,9 @@
-Status: candidate | Epistemic: single-run verified, not walk-forward validated | Last verified: 2026-04-28
+Status: validated | Epistemic: confirmed (WF 4/4 passed; Sharpe + correlation still pending) | Last verified: 2026-04-28
 
-# StochRSI Enhanced — XBI 15m (Candidate — Diversifier)
+# StochRSI Enhanced — XBI 15m (Validated — Diversifier)
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
-> **Status:** Discovered Apr 28 2026 during forgotten-asset audit. Single-run figures only — not walk-forward validated. Do not deploy until WF 4/4 + Sharpe ≥ 2.0 confirmed.
+> **Status:** Discovered Apr 28 2026 during forgotten-asset audit. **Walk-forward 4/4 windows positive (Apr 28).** Sharpe and cross-correlation analysis still pending.
 
 ## Knowledge
 
@@ -76,13 +76,24 @@ XBI sits in the middle tier:
 | GLD | +49.83% | 1.18% | 728 |
 | IAU | +40.05% | 1.31% | 705 |
 
+### Walk-Forward Validation (Apr 28 2026)
+
+| Window | Period | Return | Max DD | Trades | Win Rate |
+|--------|--------|--------|--------|--------|----------|
+| 1 | 2020 → mid 2022 | +39.10% | 2.41% | 212 | 47% |
+| 2 | mid 2022 → 2025 | +31.91% | 1.65% | 364 | 42% |
+| 3 | 2020 → 2021 | +17.07% | 1.97% | 166 | 46% |
+| 4 | 2022 → 2023 | +35.36% | 2.43% | 203 | 44% |
+
+**4/4 windows positive.** Returns +17% to +39% — wider spread than OIH/XOP, with W3 (2020–2021) being notably weaker. Win rates stable 42–47%. The 2020–2021 softness is a real signal: biotech mean-reversion was weakest during the post-COVID stimulus period — possibly because the entire sector was trending strongly upward (mean-reversion fails in trends). Consistent with the "ranging-asset" thesis and not a deal-breaker.
+
 ### Required Validation Before Deployment
 
-- [ ] Walk-forward 4-window test
-- [ ] Sharpe computation
-- [ ] Regime-segmented analysis — particularly important given the 2025–2026 softness
-- [ ] Correlation analysis vs metals (the diversification claim above is plausible but unverified)
+- [x] Walk-forward 4-window test — **4/4 pass**
+- [ ] Sharpe computation (CLI gap)
+- [ ] Correlation analysis vs metals (the diversification claim is plausible but unverified)
 - [ ] Investigate the 2025–2026 weakening: temporary regime, structural change, or warning sign?
+- [ ] Regime-segmented analysis — particularly important given the W3 softness
 
 ### Significance
 

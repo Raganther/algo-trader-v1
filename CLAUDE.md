@@ -141,15 +141,15 @@ Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid 
 | StochRSI Enhanced | SLV | 15m | +144.26% | 2.00% | 581 | 47% | 4/4 |
 | StochRSI Enhanced | GDX | 15m | +132.91% | 2.01% | 581 | 46% | 4/4 |
 | StochRSI Enhanced | XLE | 15m | +80.42% | 3.27% | 570 | 45% | 4/4 |
+| StochRSI Enhanced | **OIH** | 15m | **+146.53%** ⭐ | 2.95% | 589 | 42% | **4/4** (Apr 28) |
+| StochRSI Enhanced | XOP | 15m | +90.34% | 3.29% | 629 | 42% | **4/4** (Apr 28) |
+| StochRSI Enhanced | XBI | 15m | +84.75% | 2.44% | 602 | 43% | **4/4** (Apr 28) |
 
-### Candidates (Apr 28 2026 — single-run only, not WF validated)
+### Rejected (below quality bar)
 
-| Strategy | Asset | TF | Return | Max DD | Trades | Win Rate | WF |
+| Strategy | Asset | TF | Return | Max DD | Trades | Win Rate | Reason |
 |---|---|---|---|---|---|---|---|
-| StochRSI Enhanced | **OIH** | 15m | **+146.53%** ⭐ | 2.95% | 589 | 42% | needs WF |
-| StochRSI Enhanced | XOP | 15m | +90.34% | 3.29% | 629 | 42% | needs WF |
-| StochRSI Enhanced | XBI | 15m | +84.75% | 2.44% | 602 | 43% | needs WF |
-| StochRSI Enhanced | TLT | 15m | +20.87% | 1.16% | 866 | 40% | **rejected** (below quality bar) |
+| StochRSI Enhanced | TLT | 15m | +20.87% | 1.16% | 866 | 40% | Bonds dominated by rates dynamics, not range-bound — confirmed Apr 28 |
 
 > **Sharpe figures pending** — CLI doesn't print Sharpe directly. Previous card claims (GLD 2.47 / IAU 1.97 / SLV 2.41 / GDX 2.58 / XLE 2.06) are from the Apr 4 transcription pattern and unverified. Will be recomputed from equity curves separately.
 >
