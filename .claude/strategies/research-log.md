@@ -397,6 +397,48 @@ These two readings are nearly the same statement and consistent with cross-cutti
 
 ---
 
+## Sharpe Verification — Apr 28 2026
+
+**Tried:** Extended `backend/engine/backtester.py` to compute annualised Sharpe from the bar-level equity history (resampled to daily, std/mean × √252). Added a print line in `backend/runner.py`. Re-ran all 8 validated assets full-strategy + 4 metals long-only + 4 boundary indices on the extended 2020 → Apr 27 2026 window. Same recipe across all runs (`dynamic_adx:false`).
+
+**Result:**
+
+| | Asset | Return | DD | Trades | WR | Sharpe |
+|---|---|---|---|---|---|---|
+| Full | GLD | 45.13% | 1.22% | 504 | 43% | **2.48** ✓ |
+| Full | SLV | 131.04% | 2.00% | 522 | 47% | **2.46** ✓ |
+| Full | GDX | 133.27% | 2.01% | 582 | 46% | **2.46** ✓ |
+| Full | OIH | 146.06% | 2.96% | 586 | 42% | **2.33** ✓ |
+| Full | XLE | 85.70% | 3.27% | 565 | 45% | **2.30** ✓ |
+| Full | XBI | 84.87% | 2.44% | 601 | 43% | **2.18** ✓ |
+| Full | XOP | 91.65% | 3.29% | 627 | 42% | 1.98 (at bar) |
+| Full | IAU | 39.34% | 1.32% | 493 | 40% | 1.95 (under) |
+| LO | GLD | 34.98% | 0.51% | 336 | 47% | **2.57** ✓ |
+| LO | SLV | 90.77% | 1.14% | 326 | 49% | **2.47** ✓ |
+| LO | GDX | 79.87% | 1.21% | 375 | 47% | 1.89 |
+| LO | IAU | 29.41% | 1.06% | 306 | 39% | 1.86 |
+| Idx | IWM | 57.42% | 1.43% | 655 | 46% | **2.30** ✓ |
+| Idx | DIA | 27.32% | 2.56% | 639 | 40% | 1.83 |
+| Idx | QQQ | 27.17% | 2.19% | 733 | 40% | 1.45 |
+| Idx | SPY | 21.94% | 2.02% | 655 | 40% | 1.36 |
+
+**What this resolves:**
+- The 2.0 quality bar is now measurable. **6 of 8 validated lineup clear cleanly** (GLD, SLV, GDX, OIH, XLE, XBI). XOP at 1.98 is at the bar; IAU at 1.95 falls just under and is the weakest of the metals on a DD-adjusted basis.
+- Old card claims for GLD (2.47), SLV (2.41), and IAU (1.97) were close to the verified values. **GDX claim 2.58 was too high** (verified 2.46). **XLE claim 2.06 was too low** (verified 2.30).
+- **GLD and SLV long-only Sharpes exceed full-strategy** (2.57 vs 2.48; 2.47 vs 2.46). Shorts hurt DD-adjusted return on these two — they reduce equity volatility less than they reduce mean return. GDX and IAU show the opposite pattern (long-only Sharpe drops), suggesting shorts contribute meaningfully on the higher-beta metals.
+- **IWM is the only broad index that clears the bar** (2.30 ✓). SPY (1.36), QQQ (1.45), DIA (1.83) are profitable but DD-adjusted profile is below the metals/energy lineup. Returns scale with underlying volatility per learning #8 — calmer assets produce smaller Sharpes at similar trade counts.
+
+**What this does NOT resolve:**
+- Sharpe is computed from a daily-resampled equity curve, not on per-trade returns. Both are standard, but they differ — daily resampling treats overnight gaps as bar moves; per-trade Sharpe weights by trade count. The 2.0 bar across the project's history was applied without specifying which — keep this as the canonical method going forward.
+- WF Sharpe is not yet computed per window. Full-period Sharpe ≥ 2.0 doesn't guarantee per-window Sharpe ≥ 2.0; some sub-periods will be lower. Worth running once the WF runner is touched again.
+- IAU at 1.95 raises a small question about whether it should remain in the validated lineup at the same status as the others. Currently kept because (a) live forward test is running, (b) the gap to 2.0 is within Sharpe noise on a 6-year window, (c) WF is 4/4. A judgement call rather than a hard rejection.
+
+**Implication for next steps:**
+- Quality bar is now applicable to all future candidate decisions. The held-out 12 + boundary 4 = 16 single-run passers can now be ranked DD-adjusted before committing WF compute to any of them.
+- For the 7-bot live lineup: nothing changes — they're already deployed. But knowing the Sharpe distribution makes the correlation-aware-sizing build more concrete: when GLD/IAU/SLV all enter together, the IAU leg is the lowest-quality contributor by DD-adjusted return.
+
+---
+
 ## Cross-Cutting Learnings
 
 ---

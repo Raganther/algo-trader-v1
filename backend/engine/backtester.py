@@ -221,6 +221,21 @@ class Backtester:
                 
         max_drawdown_pct = max_drawdown * 100
 
+        # Annualised Sharpe from bar-level equity history, resampled daily
+        sharpe = 0.0
+        eq_hist = getattr(self, 'equity_history', [])
+        if eq_hist and len(eq_hist) > 1:
+            df_eq = pd.DataFrame(eq_hist)
+            if isinstance(df_eq['time'].iloc[0], str):
+                df_eq['ts'] = pd.to_datetime(df_eq['time'])
+            else:
+                df_eq['ts'] = pd.to_datetime(df_eq['time'], unit='s')
+            df_eq = df_eq.set_index('ts').sort_index()
+            daily = df_eq['equity'].resample('1D').last().dropna()
+            daily_ret = daily.pct_change().dropna()
+            if len(daily_ret) > 1 and daily_ret.std() > 0:
+                sharpe = (daily_ret.mean() / daily_ret.std()) * (252 ** 0.5)
+
         self.results = {
             "initial_capital": self.initial_capital,
             "final_equity": round(final_equity, 2),
@@ -231,6 +246,7 @@ class Backtester:
             "avg_loss": round(avg_loss, 2),
             "profit_factor": round(profit_factor, 2),
             "max_drawdown": round(max_drawdown_pct, 2),
+            "sharpe": round(float(sharpe), 2),
             "equity_curve": getattr(self, 'equity_history', []), # Use the detailed history
             "orders": processed_orders,
             "trade_history": trades,

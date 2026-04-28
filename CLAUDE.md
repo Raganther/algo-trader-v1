@@ -137,16 +137,24 @@ Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid 
 
 ## Validated Edges (verified Apr 27–28 2026 on extended window 2020 → Apr 27 2026)
 
-| Strategy | Asset | TF | Return | Max DD | Trades | Win Rate | WF |
-|---|---|---|---|---|---|---|---|
-| StochRSI Enhanced | GLD | 15m | +49.83% | 1.18% | 728 | 43% | 4/4 |
-| StochRSI Enhanced | IAU | 15m | +40.05% | 1.31% | 705 | 41% | 4/4 |
-| StochRSI Enhanced | SLV | 15m | +144.26% | 2.00% | 581 | 47% | 4/4 |
-| StochRSI Enhanced | GDX | 15m | +132.91% | 2.01% | 581 | 46% | 4/4 |
-| StochRSI Enhanced | XLE | 15m | +80.42% | 3.27% | 570 | 45% | 4/4 |
-| StochRSI Enhanced | **OIH** | 15m | **+146.53%** ⭐ | 2.95% | 589 | 42% | **4/4** (Apr 28) |
-| StochRSI Enhanced | XOP | 15m | +90.34% | 3.29% | 629 | 42% | **4/4** (Apr 28) |
-| StochRSI Enhanced | XBI | 15m | +84.75% | 2.44% | 602 | 43% | **4/4** (Apr 28) |
+**Two passes on the extended window.** Apr 27 runs (Return/DD/Trades columns) used `dynamic_adx:true` (strategy default — `dynamic_adx:false` was not passed explicitly) → tighter dynamic threshold → ~10–15% more trades. Apr 28 Sharpe runs explicitly pass `dynamic_adx:false` per recipe spec → trade counts ~10–15% lower. Sharpe column is from the Apr 28 (recipe-correct) runs. Apr 27 Return/DD figures are kept here because the WF validations were done at those settings.
+
+| Strategy | Asset | TF | Return | Max DD | Trades | Win Rate | WF | Sharpe (Apr 28) |
+|---|---|---|---|---|---|---|---|---|
+| StochRSI Enhanced | GLD | 15m | +49.83% | 1.18% | 728 | 43% | 4/4 | **2.48** ✓ |
+| StochRSI Enhanced | IAU | 15m | +40.05% | 1.31% | 705 | 41% | 4/4 | 1.95 (under) |
+| StochRSI Enhanced | SLV | 15m | +144.26% | 2.00% | 581 | 47% | 4/4 | **2.46** ✓ |
+| StochRSI Enhanced | GDX | 15m | +132.91% | 2.01% | 581 | 46% | 4/4 | **2.46** ✓ |
+| StochRSI Enhanced | XLE | 15m | +80.42% | 3.27% | 570 | 45% | 4/4 | **2.30** ✓ |
+| StochRSI Enhanced | **OIH** | 15m | **+146.53%** ⭐ | 2.95% | 589 | 42% | **4/4** | **2.33** ✓ |
+| StochRSI Enhanced | XOP | 15m | +90.34% | 3.29% | 629 | 42% | **4/4** | 1.98 (at bar) |
+| StochRSI Enhanced | XBI | 15m | +84.75% | 2.44% | 602 | 43% | **4/4** | **2.18** ✓ |
+
+**Sharpe verified Apr 28 2026** — runner now prints annualised Sharpe (daily-resampled equity curve × √252). 6 of 8 cleanly clear Sharpe ≥ 2.0; XOP at 1.98 is at the bar; IAU at 1.95 is the weakest of the metals on a DD-adjusted basis.
+
+**Long-only metals Sharpe (Apr 28):** GLD 2.57, SLV 2.47, GDX 1.89, IAU 1.86. **GLD and SLV long-only Sharpes exceed full-strategy** — shorts hurt DD-adjusted return on these two; GDX/IAU lose Sharpe when shorts are removed.
+
+**Boundary-index Sharpe (Apr 28):** IWM **2.30 ✓** (clears bar — only broad-index deployment candidate by quality standard), DIA 1.83, QQQ 1.45, SPY 1.36. Returns scale with underlying volatility per learning #8.
 
 ### Rejected (below quality bar)
 
@@ -154,7 +162,7 @@ Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid 
 |---|---|---|---|---|---|---|---|
 | StochRSI Enhanced | TLT | 15m | +20.87% | 1.16% | 866 | 40% | Bonds dominated by rates dynamics, not range-bound — confirmed Apr 28 |
 
-> **Sharpe figures pending** — CLI doesn't print Sharpe directly. Previous card claims (GLD 2.47 / IAU 1.97 / SLV 2.41 / GDX 2.58 / XLE 2.06) are from the Apr 4 transcription pattern and unverified. Will be recomputed from equity curves separately.
+> **Sharpe figures verified Apr 28 2026** — backtester now computes annualised Sharpe from the equity curve (`backend/engine/backtester.py`), runner prints it (`backend/runner.py`). Previous card claims (GLD 2.47 / IAU 1.97 / SLV 2.41 / GDX 2.58 / XLE 2.06) were close to verified values for GLD/SLV but underestimated GDX (now 2.46 vs claimed 2.58 — claim was higher), and overestimated IAU (1.95 vs 1.97). XLE verified at 2.30 vs 2.06.
 >
 > **Apr 27 2026 verification:** Returns are higher than the cards previously claimed for 4 of 5 assets (SLV most dramatically — +144% vs claimed +98%). Trade counts are higher across the board. Drawdowns are slightly higher (1–2% rather than <1% for the metals). Engine itself is healthy — the Apr 4 stop-check fix is in place. Card discrepancies traced to Apr 4 transcription errors. See individual strategy cards for full per-asset correction notes.
 

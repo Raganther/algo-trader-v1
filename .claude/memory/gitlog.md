@@ -3,11 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-28** — Apr 28 — Sharpe instrumentation added to backtester, 16 runs verified: 6 of 8 validated lineup clear ≥2.0 cleanly (GLD/SLV/GDX/OIH/XLE/XBI), IWM is only broad index that passes, GLD/SLV long-only beat full-strategy
+
+ .claude/strategies/research-log.md     | 42 ++++++++++++++++++++++++++++++++++
+ .claude/strategies/research-roadmap.md |  6 ++---
+ CLAUDE.md                              | 30 +++++++++++++++---------
+ backend/engine/backtester.py           | 16 +++++++++++++
+ backend/runner.py                      |  1 +
+ 5 files changed, 81 insertions(+), 14 deletions(-)
+
+----
 **2026-04-28** — Apr 28 — boundary verification: SPY/QQQ/IWM/DIA all pass validated recipe, broad-index boundary thesis refuted; real boundary is on driver class (rates), not asset class
 
+ .claude/memory/gitlog.md               | 26 ++++++++-------------
  .claude/strategies/research-log.md     | 42 ++++++++++++++++++++++++++++++++--
  .claude/strategies/research-roadmap.md |  8 +++----
- 2 files changed, 44 insertions(+), 6 deletions(-)
+ 3 files changed, 53 insertions(+), 23 deletions(-)
 
 ----
 **2026-04-28** — Apr 28 — held-out generalisation test on 12 novel assets all passed; boundary thesis in question pending SPY/QQQ retest
@@ -163,12 +174,4 @@
  .claude/memory/gitlog.md | 20 ++++++++++----------
  CLAUDE.md                |  6 +++---
  2 files changed, 13 insertions(+), 13 deletions(-)
-
-----
-**2026-04-17** — chore: Apr 17 update — validated params live, first short confirmed, GTC stop fix deployed
-
- .claude/memory/gitlog.md       | 64 +++++++++++++++++++++++++++---------------
- .claude/memory/observations.md | 27 ++++++++++--------
- CLAUDE.md                      | 30 ++++++++------------
- 3 files changed, 67 insertions(+), 54 deletions(-)
 

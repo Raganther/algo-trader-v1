@@ -310,6 +310,7 @@ def run_backtest(args):
     print(f"Max DD: {results['max_drawdown']}%")
     print(f"Trades: {results['total_trades']}")
     print(f"Win Rate: {results['win_rate'] * 100:.2f}%")
+    print(f"Sharpe: {results.get('sharpe', 0.0)}")
 
     if getattr(args, 'trades', False):
         print("\n=== TRADE LIST ===")
