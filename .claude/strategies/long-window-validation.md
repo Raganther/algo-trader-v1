@@ -57,6 +57,32 @@ Validated 15m strategy applied to spot price proxies covering real bear regimes 
 
 **Caveats.** Numbers are spot-proxy directional evidence. Spot ≠ ETF. No 2008 GFC coverage (data starts March 2009). No GDX/XBI/IWM proxies. Live deployment confidence should anchor to Sharpe 1.5 (spot-window value) plus whatever residual ETF microstructure premium the live forward test demonstrates over time, not the 2.5 Alpaca-window figure.
 
+## Regime preference — strength ranking across the 18 cells
+
+Counter-intuitively for a strategy named after mean-reversion, the framework performs **better in trends than in chop, and worst in regime transitions.** The 10-bar minimum hold + trailing stop after 10 bars is trend-friendly: it captures sustained moves once entered.
+
+**Strongest — sustained directional moves (bull or bear) with normal-to-elevated volatility.** Direction does not matter; what matters is sustained character.
+- XAGUSD 2009–2011 bull run-up: **Sharpe +2.59** (best cell across 18)
+- XAGUSD 2013–15 bear: **+2.04**
+- XAUUSD 2020–26 bull: +1.70
+
+**Decent — chop / recovery / mixed.** Consistent ~1.5 Sharpe.
+- XAUUSD 2016–19 chop: +1.51
+- XAGUSD 2016–19 chop: +1.53
+- WTIUSD 2017–19 chop: +1.58
+- WTIUSD 2010–14 stable: +1.57
+
+**Weakest — sharp regime transitions / violent collapse / post-peak chaos.**
+- XAGUSD 2011 peak → 2012 collapse: **+0.80** (worst metals cell)
+- XAUUSD 2011 peak → 2012 transition: +0.86
+- WTIUSD 2014–16 oil collapse: +1.11 (with 5.51% DD — worst DD in dataset)
+
+**Single regime where buy-and-hold wins:** XAUUSD 2009–2011 smooth bull run-up (B&H +1.74 vs strategy +1.33). Strong steady uptrends are the only environment where the framework leaves real money on the table — its 2.0-ATR trail and 10-bar exits cut winners short.
+
+**Practical implication for live deployment.** The actually-dangerous regime for the bot lineup is **post-peak transition / sharp-top chaos**, not bear. Existing `regime_classifier.py` labels (RANGING / TRENDING_UP / TRENDING_DOWN / HIGH_VOL) don't isolate this case — it shows up as a mix of TRENDING_DOWN and HIGH_VOL but neither label captures the specific "sustained reversal after extended trend" character. Building a transition-regime detector (e.g. recent ATR spike + cross of 200-SMA in the opposite direction of the prior trend) would tag the highest-risk environment for the metals/energy clusters specifically.
+
+---
+
 ## Update to roadmap
 
 Item: "Synthetic price inversion" prediction needs revision — the Apr 28 GLD inversion result was a meaningful regime-dependence signal but **not a quantitative prediction of live performance in real bear regimes.** The framework's edge does carry through real bear markets at a level comparable to bull markets on these spot proxies. Live-money sizing should still use 1.0–1.5 Sharpe expectation (matches spot proxy, more conservative than Alpaca backtest), but the rationale shifts from "metals edge collapses in bear" to "the spot/ETF gap is large and the live edge probably sits between the two."

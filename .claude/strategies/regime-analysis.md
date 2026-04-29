@@ -1,9 +1,16 @@
-Status: current | Epistemic: classification confirmed; edge-attribution interpretation under review | Last verified: 2026-04-28
+Status: current | Epistemic: classification confirmed; strategy-implication column revised Apr 29 with long-window evidence | Last verified: 2026-04-29
 
 # Regime Analysis — Algo Trader V1
 
 > **Purpose:** Market regime classification, statistics, and implications for strategy sizing and risk management.
 > Read when: designing regime-aware sizing, interpreting live performance, planning regime-gated enhancements.
+
+> **Apr 29 2026 update — regime preference re-ranked from real history.** The 18-cell HistData spot-proxy backtest (`long-window-validation.md`) shows:
+> - **Strongest = sustained directional moves (bull or bear).** XAGUSD 2009–11 bull Sharpe +2.59; XAGUSD 2013–15 bear +2.04. Direction does not matter — character does.
+> - **Decent in chop / recovery (~+1.5 Sharpe consistently).** Not the strongest, contrary to the original "mean reversion works cleanly in RANGING" framing.
+> - **Weakest in regime transitions / sharp-top / violent collapse.** XAGUSD 2011 peak → 2012 = +0.80 (worst); XAUUSD 2011 peak → 2012 = +0.86; WTIUSD 2014–16 oil collapse = +1.11 with 5.51% DD.
+>
+> The "Strategy implication" column below is updated to reflect this. The Apr 28 framework-attribution finding stands: the position-management framework is doing the work, not the StochRSI signal. The Apr 29 addition: the framework's edge is biggest where there's a sustained move for the trailing stop to ride, smallest where regime is changing rapidly.
 
 > **Apr 28 2026 caveat — framework attribution finding.** Regime classification, statistics, and transition probabilities below are objective price-action measurements and remain valid. However, sections that interpret regime through the lens of "StochRSI mean-reversion" should be re-read with the Apr 28 finding in mind: the StochRSI entry signal contributes only a small fraction of total Sharpe (`research-log.md` → "Random-Entry Control — Apr 28 2026"). Interpretations like "oversold bounces are cleaner in TRENDING_UP" are likely *framework × volatility* effects rather than *signal × regime* effects. The methodology is sound; some causal claims need re-grounding.
 
@@ -13,14 +20,16 @@ Status: current | Epistemic: classification confirmed; edge-attribution interpre
 
 A market regime is the prevailing character of price action over a sustained period. Four regimes defined:
 
-| Regime | Definition | Strategy implication |
+| Regime | Definition | Strategy implication (revised Apr 29) |
 |--------|-----------|---------------------|
-| RANGING | ADX < 25, ATR normal | Ideal — mean reversion works cleanly |
-| TRENDING_UP | ADX > 25, close > 200 SMA | Tradeable long-only — bounces cleaner in uptrend |
-| TRENDING_DOWN | ADX > 25, close ≤ 200 SMA | Dangerous long-only — oversold often means continuation |
-| HIGH_VOL | ATR > 1.5× its 50-bar rolling mean | Avoid or halve size — slippage spikes, stops fire on noise |
+| RANGING | ADX < 25, ATR normal | Decent — ~+1.5 Sharpe in real chop windows. Not the strongest regime despite the strategy name. |
+| TRENDING_UP | ADX > 25, close > 200 SMA | **Strongest** — sustained bull = +2.0 to +2.6 Sharpe. Trailing stop rides the move. |
+| TRENDING_DOWN | ADX > 25, close ≤ 200 SMA | **Also strongest** when the bear is sustained, not crashing — XAGUSD 2013–15 bear gave Sharpe +2.04. The original "dangerous long-only" framing was wrong; shorts and the framework handle real bears well. |
+| HIGH_VOL | ATR > 1.5× its 50-bar rolling mean | **Weakest, especially during regime transitions.** Sharp-top / post-peak collapse hits Sharpe 0.8–1.1 with elevated DD. The actually-dangerous regime for the live lineup. |
 
 HIGH_VOL takes priority over TRENDING — a volatile trending session is classified HIGH_VOL.
+
+**The under-served regime label is "TRANSITION" / "POST-PEAK".** The current 4-label classifier mixes this case into HIGH_VOL or TRENDING_DOWN, but neither isolates it. Building a transition-detector (e.g. recent ATR spike + cross of 200-SMA opposite to prior trend, with elevated ADX) is the highest-leverage regime-engineering item — it would tag the worst environment for the bots specifically. Tracked in `research-roadmap.md` → Regime-Aware Sizing.
 
 ---
 

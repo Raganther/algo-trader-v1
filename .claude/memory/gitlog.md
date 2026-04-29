@@ -3,8 +3,18 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-29** — regime preference doc updates from Apr 29 long-window finding: framework is strongest in sustained directional moves (bull or bear, S 2.0-2.6), decent in chop (~1.5), WEAKEST in sharp-top / regime transitions (0.8-1.1 with elevated DD). Counter-intuitive for a mean-reversion-named strategy. Updates: regime-analysis.md (revised strategy-implication column), research-roadmap.md (superseded the 'downsize in TRENDING_DOWN' idea, promoted sharp-top/transition detector), CLAUDE.md (added regime preference bullet), long-window-validation.md (added 18-cell ranking section). Original 'downsize in bear' rule was wrong — bear is a strong regime; transition is the dangerous one.
+
+ .claude/strategies/long-window-validation.md | 26 ++++++++++++++++++++++++++
+ .claude/strategies/regime-analysis.md        | 21 +++++++++++++++------
+ .claude/strategies/research-roadmap.md       |  3 ++-
+ CLAUDE.md                                    |  1 +
+ 4 files changed, 44 insertions(+), 7 deletions(-)
+
+----
 **2026-04-29** — long-window validation via HistData spot proxies — 17 yr XAUUSD, 16 yr XAGUSD, 13 yr WTIUSD backtested through real bear regimes. Headline: framework HELD in 2013-15 metals bear (gold S=1.44, silver S=2.04, both better than B&H by 2+ Sharpe) and 2014-16 oil collapse (S=1.11). Apr 28 inversion-test prediction (metals Sharpe drops to ~1/3 in non-bull regime) did NOT reproduce on real history. Spot-proxy 2020+ Sharpe ~1.5 vs ETF Sharpe ~2.5 — 0.8-1.0 gap suggests ETF microstructure premium; CLAUDE.md sizing guidance reaffirmed at 1.0-1.5. New: HistDataLoader + fetcher + long_window_validation.py orchestrator + domain doc.
 
+ .claude/memory/gitlog.md                     |  32 ++--
  .claude/strategies/long-window-validation.md |  62 +++++++
  .claude/strategies/research-roadmap.md       |   3 +-
  CLAUDE.md                                    |   3 +-
@@ -12,7 +22,7 @@
  backend/engine/histdata_loader.py            | 195 ++++++++++++++++++++
  backend/runner.py                            |   9 +-
  scripts/fetch_price_data_histdata.py         |  79 +++++++++
- 7 files changed, 602 insertions(+), 3 deletions(-)
+ 8 files changed, 616 insertions(+), 21 deletions(-)
 
 ----
 **2026-04-29** — doc updates for correlation-aware sizing V1: roadmap gating language updated (IWM gate downgraded from 'gated on sizing landing' to 'gated on live verification'), Live Observation Framework adds [CORR-SIZE] discount audit measurement, forward-test-log records what to capture on each post-Apr-29 entry
@@ -148,16 +158,4 @@
  scripts/run_xbi_test.sh  |  9 +++++++++
  scripts/run_xop_test.sh  |  9 +++++++++
  5 files changed, 51 insertions(+), 19 deletions(-)
-
-----
-**2026-04-28** — Apr 28 — walk-forward 4/4 passed for OIH/XBI/XOP; promoted from candidate to validated, lineup now 8 assets
-
- .claude/memory/gitlog.md                    | 22 +++++++++++++---------
- .claude/strategies/research-log.md          |  2 ++
- .claude/strategies/research-roadmap.md      |  4 +++-
- .claude/strategies/stochrsi-enhanced-oih.md | 23 +++++++++++++++++------
- .claude/strategies/stochrsi-enhanced-xbi.md | 25 ++++++++++++++++++-------
- .claude/strategies/stochrsi-enhanced-xop.md | 21 ++++++++++++++++-----
- CLAUDE.md                                   | 12 ++++++------
- 7 files changed, 75 insertions(+), 34 deletions(-)
 
