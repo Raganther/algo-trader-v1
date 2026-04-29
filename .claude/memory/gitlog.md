@@ -3,13 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-29** — regime-aware asset rotation captured as strategic direction: combines Apr 28 generalisation + Apr 29 regime-preference into 'rotate across a wide universe' thesis. New roadmap section with 7 items, gating prerequisites, and the cheap first step (30-asset observational scan). Bot lineup framing updated to clarify 'no more fixed bots; rotation is the next strategic move.' regime-analysis.md notes the classifier's highest-leverage application is selection not sizing. Memory entry captures cross-session decision context.
+
+ .claude/strategies/regime-analysis.md  |  4 +++-
+ .claude/strategies/research-roadmap.md | 26 +++++++++++++++++++++++++-
+ CLAUDE.md                              |  1 +
+ 3 files changed, 29 insertions(+), 2 deletions(-)
+
+----
 **2026-04-29** — regime preference doc updates from Apr 29 long-window finding: framework is strongest in sustained directional moves (bull or bear, S 2.0-2.6), decent in chop (~1.5), WEAKEST in sharp-top / regime transitions (0.8-1.1 with elevated DD). Counter-intuitive for a mean-reversion-named strategy. Updates: regime-analysis.md (revised strategy-implication column), research-roadmap.md (superseded the 'downsize in TRENDING_DOWN' idea, promoted sharp-top/transition detector), CLAUDE.md (added regime preference bullet), long-window-validation.md (added 18-cell ranking section). Original 'downsize in bear' rule was wrong — bear is a strong regime; transition is the dangerous one.
 
+ .claude/memory/gitlog.md                     | 24 +++++++++++-------------
  .claude/strategies/long-window-validation.md | 26 ++++++++++++++++++++++++++
  .claude/strategies/regime-analysis.md        | 21 +++++++++++++++------
  .claude/strategies/research-roadmap.md       |  3 ++-
  CLAUDE.md                                    |  1 +
- 4 files changed, 44 insertions(+), 7 deletions(-)
+ 5 files changed, 55 insertions(+), 20 deletions(-)
 
 ----
 **2026-04-29** — long-window validation via HistData spot proxies — 17 yr XAUUSD, 16 yr XAGUSD, 13 yr WTIUSD backtested through real bear regimes. Headline: framework HELD in 2013-15 metals bear (gold S=1.44, silver S=2.04, both better than B&H by 2+ Sharpe) and 2014-16 oil collapse (S=1.11). Apr 28 inversion-test prediction (metals Sharpe drops to ~1/3 in non-bull regime) did NOT reproduce on real history. Spot-proxy 2020+ Sharpe ~1.5 vs ETF Sharpe ~2.5 — 0.8-1.0 gap suggests ETF microstructure premium; CLAUDE.md sizing guidance reaffirmed at 1.0-1.5. New: HistDataLoader + fetcher + long_window_validation.py orchestrator + domain doc.
@@ -148,14 +157,4 @@
  .claude/strategies/research-log.md     | 44 ++++++++++++++++++++++++++++++++--
  .claude/strategies/research-roadmap.md | 12 +++++++++-
  3 files changed, 66 insertions(+), 24 deletions(-)
-
-----
-**2026-04-28** — Apr 28 — deploy OIH/XBI/XOP paper bots, e2-small upgrade complete
-
- .claude/memory/gitlog.md | 20 +++++++++++---------
- CLAUDE.md                | 23 +++++++++++++----------
- scripts/run_oih_test.sh  |  9 +++++++++
- scripts/run_xbi_test.sh  |  9 +++++++++
- scripts/run_xop_test.sh  |  9 +++++++++
- 5 files changed, 51 insertions(+), 19 deletions(-)
 

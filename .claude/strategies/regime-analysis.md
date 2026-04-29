@@ -29,7 +29,9 @@ A market regime is the prevailing character of price action over a sustained per
 
 HIGH_VOL takes priority over TRENDING — a volatile trending session is classified HIGH_VOL.
 
-**The under-served regime label is "TRANSITION" / "POST-PEAK".** The current 4-label classifier mixes this case into HIGH_VOL or TRENDING_DOWN, but neither isolates it. Building a transition-detector (e.g. recent ATR spike + cross of 200-SMA opposite to prior trend, with elevated ADX) is the highest-leverage regime-engineering item — it would tag the worst environment for the bots specifically. Tracked in `research-roadmap.md` → Regime-Aware Sizing.
+**The under-served regime label is "TRANSITION" / "POST-PEAK".** The current 4-label classifier mixes this case into HIGH_VOL or TRENDING_DOWN, but neither isolates it. Building a transition-detector (e.g. recent ATR spike + cross of 200-SMA opposite to prior trend, with elevated ADX) is the highest-leverage regime-engineering item — it would tag the worst environment for the bots specifically. Tracked in `research-roadmap.md` → Regime-Aware Sizing + Regime-Aware Asset Rotation.
+
+**The classifier's highest-leverage application is asset rotation, not sizing.** The Apr 23 regime-sizing portfolio diagnostic showed broad regime multipliers do NOT improve drawdown-adjusted performance (baseline daily Sharpe 4.27 beats all variants). Apr 29 evidence reframes this: the bigger lift is using the regime classifier as an **asset-selection signal** across a wider universe — pause bots whose asset is in TRANSITION, activate bots whose asset is in sustained TRENDING. This is the strategic direction tracked in `research-roadmap.md` → "Regime-Aware Asset Rotation"; cheapest first step is a 30-asset observational scan with no live changes.
 
 ---
 
