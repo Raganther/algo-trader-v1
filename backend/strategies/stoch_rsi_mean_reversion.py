@@ -1,4 +1,5 @@
 from backend.engine.strategy import Strategy
+from backend.engine import correlation_sizing
 from backend.indicators.stoch_rsi import StochRSI
 from backend.indicators.adx import adx
 from backend.indicators.atr import atr
@@ -244,7 +245,8 @@ class StochRSIMeanReversionStrategy(Strategy):
                     if not is_crypto and not self.long_only:
                         go_long = self._rng.random() < 0.5
                     equity = self.broker.get_equity()
-                    risk_amt = equity * 0.02
+                    risk_frac = correlation_sizing.risk_fraction_for(self.symbol, self.broker.get_positions())
+                    risk_amt = equity * risk_frac
                     atr_val = row[self.atr_col]
                     stop_dist = atr_val * self.sl_atr
                     if stop_dist > 0:
@@ -274,9 +276,14 @@ class StochRSIMeanReversionStrategy(Strategy):
                 self.in_oversold_zone = True
 
             if self.in_oversold_zone and current_k > 50 and not skip_entry:
-                # Dynamic Sizing
+                # Dynamic Sizing — risk fraction discounted for correlated peers held in account
                 equity = self.broker.get_equity()
-                risk_amt = equity * 0.02 # 2% Risk
+                risk_frac = correlation_sizing.risk_fraction_for(self.symbol, self.broker.get_positions())
+                if risk_frac < correlation_sizing.BASE_RISK:
+                    cluster = correlation_sizing.cluster_for(self.symbol)
+                    n = round(correlation_sizing.BASE_RISK / risk_frac) if risk_frac > 0 else 0
+                    print(f"[CORR-SIZE] {self.symbol} long entry | cluster={cluster} N={n} risk_frac={risk_frac:.4f}")
+                risk_amt = equity * risk_frac
                 atr_val = row[self.atr_col]
                 stop_dist = atr_val * self.sl_atr
 
@@ -318,9 +325,14 @@ class StochRSIMeanReversionStrategy(Strategy):
                 self.in_overbought_zone = True
 
             if self.in_overbought_zone and current_k < 50 and not skip_entry:
-                # Dynamic Sizing
+                # Dynamic Sizing — risk fraction discounted for correlated peers held in account
                 equity = self.broker.get_equity()
-                risk_amt = equity * 0.02
+                risk_frac = correlation_sizing.risk_fraction_for(self.symbol, self.broker.get_positions())
+                if risk_frac < correlation_sizing.BASE_RISK:
+                    cluster = correlation_sizing.cluster_for(self.symbol)
+                    n = round(correlation_sizing.BASE_RISK / risk_frac) if risk_frac > 0 else 0
+                    print(f"[CORR-SIZE] {self.symbol} short entry | cluster={cluster} N={n} risk_frac={risk_frac:.4f}")
+                risk_amt = equity * risk_frac
                 atr_val = row[self.atr_col]
                 stop_dist = atr_val * self.sl_atr
 

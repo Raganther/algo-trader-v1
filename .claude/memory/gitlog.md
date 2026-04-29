@@ -3,12 +3,23 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-29** — correlation-aware sizing V1 — equal-split risk parity discount applied at entry, risk_frac = 0.02 / N where N = cluster peers held + self. Hardcoded clusters (gold/energy/biotech). 13/13 unit tests pass; GLD backtest regression Sharpe 2.48 unchanged (N=1 in single-symbol). Live audit signal: [CORR-SIZE] lines on discounted entries. V1 limitations: race on simultaneous fires, no resize of already-open peers, no shared-timeline backtest validation — accepted.
+
+ .claude/strategies/research-roadmap.md         |   2 +-
+ CLAUDE.md                                      |   4 +-
+ backend/engine/correlation_sizing.py           |  56 ++++++++++++++
+ backend/strategies/stoch_rsi_mean_reversion.py |  22 ++++--
+ backend/tests/test_correlation_sizing.py       | 102 +++++++++++++++++++++++++
+ 5 files changed, 179 insertions(+), 7 deletions(-)
+
+----
 **2026-04-28** — Apr 28 — durable framings from post-resolution discussion: bot lineup ≈ 3 independent bets (gold/energy/biotech), capital cap binds at 4 simultaneous positions, IWM is sole valid expansion candidate (gated on correlation sizing), held-out 12 + boundary 4 deprioritised as deployment path, Live Observation Framework added to roadmap + forward-test-log with 4 specific measurements to convert time-passing into real-money confidence.
 
  .claude/calibration/forward-test-log.md | 16 +++++++++++++++-
+ .claude/memory/gitlog.md                | 21 ++++++++++-----------
  .claude/strategies/research-roadmap.md  | 20 +++++++++++++++++++-
  CLAUDE.md                               |  9 ++++++++-
- 3 files changed, 42 insertions(+), 3 deletions(-)
+ 4 files changed, 52 insertions(+), 14 deletions(-)
 
 ----
 **2026-04-28** — Apr 28 — edge resolution documentation pass: CLAUDE.md callout updated with Tests 1/2/3 results + resolved model, roadmap Framework Attribution section moved to resolved (with new diagnostic + research items), 8 strategy card status lines updated to 'framework IS the edge (signal decorative); regime-dependence' framing. Three-test edge resolution complete.
@@ -155,18 +166,4 @@
  AGENTS.md                               | 170 ++++++++++++++++++++++++++++++
  CLAUDE.md                               |   1 +
  5 files changed, 361 insertions(+), 10 deletions(-)
-
-----
-**2026-04-23** — chore: Apr 23 regime sizing replay rejects broad multipliers
-
- .claude/harness-v4.md                              |   1 +
- .claude/memory/gitlog.md                           |  31 ++-
- .claude/strategies/regime-analysis.md              |   4 +-
- .../regime-sizing-portfolio-diagnostic.md          |  49 +++++
- .claude/strategies/research-log.md                 |   2 +
- .claude/strategies/research-roadmap.md             |   2 +-
- CLAUDE.md                                          |   1 +
- backend/analysis/regime_sizing_portfolio.py        | 244 +++++++++++++++++++++
- backend/analysis/stochrsi_regime_performance.py    |  10 +
- 9 files changed, 330 insertions(+), 14 deletions(-)
 
