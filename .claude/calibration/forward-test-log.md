@@ -186,7 +186,8 @@ Net unrealized: **+$22.67**.
 | Apr 20 | 3 (2 SS, 1 TS — SLV trail) | +$249.84 |
 | Apr 22 | 1 (IAU short SS) | -$54.80 |
 | Apr 23 | 6 (SLV gap, 3 GLD SS, IAU short SS, IAU long open) | -$854.92 |
-| **Total (12 closed)** | | **-$828.78** |
+| Apr 29 | 1 (XBI EM — gap-through-stop guard) | -$313.61 |
+| **Total (13 closed)** | | **-$1,142.39** |
 
 Apr 23 dominates the loss tape (-$855 across 6 fills). Removing that single session: net **+$26.14** across the other 6 closed trades. The validated trail fire (+$283.86) almost exactly offsets the SLV gap-through (-$605.52), with the GLD whiplash (-$244) being the residual hit.
 
@@ -208,3 +209,29 @@ Per-trade `risk_frac` discounted by cluster occupancy: `risk_frac = 0.02 / N` wh
 **V1 race condition to watch for:** if two cluster peers fire within ~1s of the same 15m close, both may see N=1 (neither has filled yet when the other polls). Symptom: both bots log a normal entry, no `[CORR-SIZE]` line on either, and total cluster exposure ends up at ~4% (2 × 2%) instead of the intended 3% (2% + 1%). If this materialises in the first ~5 cluster simultaneous entries, the V2 plan (DB advisory lock or staggered polling offsets) should be prioritised. If it doesn't, accept the looseness.
 
 **First cluster-simultaneous entry that triggers the discount: TBD.** Log here with N, risk_frac, share count, and a comparison to the most recent solo entry on the same symbol.
+
+---
+
+## 2026-04-29 — XBI gap-through-stop fix + market exit
+
+XBI long position (entered Apr 28 19:31 @ $131.25, qty 185) went unprotected overnight after the bot's "DAY stop gap recovery" logic canceled the GTC stop @ $130.85 at session re-open today and the re-place at $130.68 was rejected by Alpaca (price had gapped down to $129.36–$130.30, so "stop above market" for a long sell-stop). Bot entered a retry loop with no active protection.
+
+**Manual intervention:** placed safety stop @ $128.50 GTC at 13:55 UTC via Alpaca MCP (order id `447f0e3f`).
+
+**Fix deployed:** runner.py [LOOP] gap-recovery path + [SYNC] startup path now check whether the intended stop level is on the wrong side of current price. If breached, place a market exit + reset strategy state instead of retrying a stop Alpaca will keep rejecting. Two commits (`cfdc514` + `82fd682`), bots restarted at 14:03 and 14:11 UTC.
+
+**Outcome:** first new-bar [LOOP] iteration after restart fired the new guard correctly:
+```
+[LOOP] 🚨 Stop $130.68 already breached by price $129.50 — exiting at market
+```
+Market sell filled 14:06:11 UTC @ $129.5548 (185 shares). Manual safety stop auto-canceled by `cancel_all_orders_for_symbol` before the market exit.
+
+| Bot | Entry time (UTC) | Entry $ | Exit time (UTC) | Exit $ | Exit type | Stop level at exit | P&L/share | Notes |
+|-----|-----------------|---------|-----------------|--------|-----------|-------------------|-----------|-------|
+| xbi-test | (Apr 28) 19:31 | 131.25 | 14:06:11 | 129.5548 | EM (emergency market — gap-through-stop guard) | 130.68 (intended trail) | -1.6952 | qty 185 → **-$313.61**. Gap-through-stop bug surfaced + fixed same-session. New exit type `EM` introduced. Manual safety stop $128.50 was cheaper insurance — actual exit $1.06/share better than the manual stop level. |
+
+**Cost of the bug ultimately:** the bot would have exited cleanly via the GTC stop @ $130.85 (-$74) had the gap-recovery path not canceled it. Realised exit at $129.55 vs $130.85 = ~$240 incremental loss attributable to the bug. Net exit -$313.61.
+
+**New exit type:** `EM` (emergency market, gap-through-stop guard). Distinct from `K` (signal close), `SS` (stop fired), `TS` (trail fired). Should be rare — only fires when the bot's tracked stop is invalid against current price.
+
+**Still open:** root cause of why `pending_stop_order_id` was None despite a live GTC stop. Defensive guard means we don't end up unprotected even when the gate spuriously triggers, but the trigger condition itself should be investigated when convenient.

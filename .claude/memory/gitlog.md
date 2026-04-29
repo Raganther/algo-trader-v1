@@ -3,10 +3,17 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-29** — Apr 29 XBI gap-through-stop bug — log + fix outcome documented. forward-test-log.md: new dated section for Apr 29 XBI emergency-market exit (-$313.61), new exit type EM (emergency market, gap-through-stop guard). Realised P&L summary updated to 13 closed trades, total -$1,142.39. Memory recurring_bug_pattern.md: extended from one TIF bug to three closely-related failure modes — TIF mismatch (resolved Apr 17), gap-through-stop on re-placement (resolved today via defensive guard in [SYNC] + [LOOP] paths), and a 'where to look' index for future stop-related debugging. Outstanding: root cause of why pending_stop_order_id was None despite live GTC stop — defensive fix is sufficient for safety; investigation still open.
+
+ .claude/calibration/forward-test-log.md | 29 ++++++++++++++++++++++++++++-
+ 1 file changed, 28 insertions(+), 1 deletion(-)
+
+----
 **2026-04-29** — fix: extend gap-through-stop guard to [SYNC] startup path. Same logic as the [LOOP] guard from the previous commit, applied at bot-restart sync time so we don't sit unprotected for up to 15 min waiting for the next bar's [LOOP] iteration. Changes runner.py:672-715 — if reconstructed SL is on the wrong side of current price, place market exit + reset strategy state to flat instead of attempting a stop that Alpaca will reject.
 
- backend/runner.py | 62 ++++++++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 45 insertions(+), 17 deletions(-)
+ .claude/memory/gitlog.md | 19 +++++++--------
+ backend/runner.py        | 62 +++++++++++++++++++++++++++++++++++-------------
+ 2 files changed, 54 insertions(+), 27 deletions(-)
 
 ----
 **2026-04-29** — fix: gap-through-stop guard in DAY-stop recovery path. When a position is held overnight and price gaps through the intended stop level, Alpaca rejects the new stop order (stop above market for longs, below for shorts), leaving the bot in a retry loop with no active protection. Surfaced today on XBI: long entry .25 Apr 28, GTC stop $130.85 was canceled by the gap-recovery path at session re-open, intended re-place at $130.68 rejected because price had gapped to $130.30. Manual safety stop placed at $128.50 GTC for the live position; code fix prevents recurrence. Behavior change in runner.py:943-983: before cancel-and-replace, check whether intended stop is already breached by current price (long: SL >= price; short: SL <= price). If breached, cancel orders + place market exit (the stop's intent 'exit if we get here' is already satisfied) and reset strategy state. Otherwise, original cancel-and-replace path runs unchanged. Does NOT fix the upstream question of why pending_stop_order_id was None despite a live GTC stop — defensive guard means we no longer end up unprotected even when the gate spuriously triggers.
@@ -144,15 +151,4 @@
  .claude/strategies/research-roadmap.md         | 16 ++++++++
  backend/strategies/stoch_rsi_mean_reversion.py | 43 ++++++++++++++++++++++
  4 files changed, 120 insertions(+), 8 deletions(-)
-
-----
-**2026-04-28** — Apr 28 — Sharpe instrumentation added to backtester, 16 runs verified: 6 of 8 validated lineup clear ≥2.0 cleanly (GLD/SLV/GDX/OIH/XLE/XBI), IWM is only broad index that passes, GLD/SLV long-only beat full-strategy
-
- .claude/memory/gitlog.md               | 21 +++++++++--------
- .claude/strategies/research-log.md     | 42 ++++++++++++++++++++++++++++++++++
- .claude/strategies/research-roadmap.md |  6 ++---
- CLAUDE.md                              | 30 +++++++++++++++---------
- backend/engine/backtester.py           | 16 +++++++++++++
- backend/runner.py                      |  1 +
- 6 files changed, 93 insertions(+), 23 deletions(-)
 
