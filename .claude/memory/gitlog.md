@@ -3,14 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-29** — doc updates for correlation-aware sizing V1: roadmap gating language updated (IWM gate downgraded from 'gated on sizing landing' to 'gated on live verification'), Live Observation Framework adds [CORR-SIZE] discount audit measurement, forward-test-log records what to capture on each post-Apr-29 entry
+
+ .claude/calibration/forward-test-log.md | 17 +++++++++++++++++
+ .claude/strategies/research-roadmap.md  | 11 ++++++-----
+ 2 files changed, 23 insertions(+), 5 deletions(-)
+
+----
 **2026-04-29** — correlation-aware sizing V1 — equal-split risk parity discount applied at entry, risk_frac = 0.02 / N where N = cluster peers held + self. Hardcoded clusters (gold/energy/biotech). 13/13 unit tests pass; GLD backtest regression Sharpe 2.48 unchanged (N=1 in single-symbol). Live audit signal: [CORR-SIZE] lines on discounted entries. V1 limitations: race on simultaneous fires, no resize of already-open peers, no shared-timeline backtest validation — accepted.
 
+ .claude/memory/gitlog.md                       |  27 +++----
  .claude/strategies/research-roadmap.md         |   2 +-
  CLAUDE.md                                      |   4 +-
  backend/engine/correlation_sizing.py           |  56 ++++++++++++++
  backend/strategies/stoch_rsi_mean_reversion.py |  22 ++++--
  backend/tests/test_correlation_sizing.py       | 102 +++++++++++++++++++++++++
- 5 files changed, 179 insertions(+), 7 deletions(-)
+ 6 files changed, 191 insertions(+), 22 deletions(-)
 
 ----
 **2026-04-28** — Apr 28 — durable framings from post-resolution discussion: bot lineup ≈ 3 independent bets (gold/energy/biotech), capital cap binds at 4 simultaneous positions, IWM is sole valid expansion candidate (gated on correlation sizing), held-out 12 + boundary 4 deprioritised as deployment path, Live Observation Framework added to roadmap + forward-test-log with 4 specific measurements to convert time-passing into real-money confidence.
@@ -156,14 +164,4 @@
  .claude/strategies/stochrsi-enhanced-xop.md | 73 +++++++++++++++++++++++
  CLAUDE.md                                   | 33 ++++++++---
  12 files changed, 544 insertions(+), 143 deletions(-)
-
-----
-**2026-04-27** — Apr 27 forward-test log — Apr 15-24 validated-params trades, organic short stop fire confirmed, Layer 3 sample 33→41
-
- .claude/calibration/forward-test-log.md | 177 ++++++++++++++++++++++++++++++++
- .claude/memory/gitlog.md                |  19 ++--
- .claude/strategies/research-roadmap.md  |   4 +-
- AGENTS.md                               | 170 ++++++++++++++++++++++++++++++
- CLAUDE.md                               |   1 +
- 5 files changed, 361 insertions(+), 10 deletions(-)
 

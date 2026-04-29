@@ -191,3 +191,20 @@ Net unrealized: **+$22.67**.
 Apr 23 dominates the loss tape (-$855 across 6 fills). Removing that single session: net **+$26.14** across the other 6 closed trades. The validated trail fire (+$283.86) almost exactly offsets the SLV gap-through (-$605.52), with the GLD whiplash (-$244) being the residual hit.
 
 **Sample is small** — 12 closed round-trips is far below the calibration window's 65. Win-rate convergence vs backtest predictions (GLD 48% / SLV 57% / GDX 59% / IAU 37%) is not yet meaningful. Continue collecting.
+
+---
+
+## Apr 29 2026 — correlation-aware sizing V1 deployed
+
+Per-trade `risk_frac` discounted by cluster occupancy: `risk_frac = 0.02 / N` where N = peers in same cluster currently held + self. Hardcoded clusters: gold = GLD/IAU/SLV/GDX, energy = OIH/XOP/XLE, biotech = XBI. Effective from this date forward.
+
+**What to record on each entry from this date:**
+
+- N at entry time (count of cluster peers held + self)
+- Risk fraction applied (0.02, 0.01, 0.0067, or 0.005)
+- Whether the `[CORR-SIZE]` line appeared in pm2 logs (it should appear iff N > 1)
+- Approximate share count vs what an undiscounted entry of the same symbol/ATR would have produced (rough sanity check — should scale ~1/N until 25% notional cap binds)
+
+**V1 race condition to watch for:** if two cluster peers fire within ~1s of the same 15m close, both may see N=1 (neither has filled yet when the other polls). Symptom: both bots log a normal entry, no `[CORR-SIZE]` line on either, and total cluster exposure ends up at ~4% (2 × 2%) instead of the intended 3% (2% + 1%). If this materialises in the first ~5 cluster simultaneous entries, the V2 plan (DB advisory lock or staggered polling offsets) should be prioritised. If it doesn't, accept the looseness.
+
+**First cluster-simultaneous entry that triggers the discount: TBD.** Log here with N, risk_frac, share count, and a comparison to the most recent solo entry on the same symbol.
