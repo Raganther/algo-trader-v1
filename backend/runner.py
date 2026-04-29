@@ -59,6 +59,13 @@ def run_backtest(args):
         # IG supports 15m natively, so no resampling needed for common timeframes
         data = loader.fetch_data(args.symbol, args.timeframe, args.start, args.end)
 
+    elif args.source == 'histdata':
+        print("Using HistData Data Source (spot prices, RTH-filtered)...")
+        from backend.engine.histdata_loader import HistDataLoader
+        loader = HistDataLoader(restrict_to_rth=True)
+        # HistData stores 1m natively; resample to target timeframe inside loader
+        data = loader.fetch_data(args.symbol, args.timeframe, args.start, args.end)
+
     elif args.source == 'alpaca':
         print("Using Alpaca Data Source...")
         loader = AlpacaDataLoader()
@@ -493,7 +500,7 @@ def main():
     bt_parser.add_argument('--end', type=str, default='2024-12-31', help='End Date')
     bt_parser.add_argument("--spread", type=float, default=0.0, help="Spread in price units (default 0.0)")
     bt_parser.add_argument("--delay", type=int, default=0, help="Execution Delay (0=Instant, 1=Next Bar)")
-    bt_parser.add_argument("--source", type=str, default="csv", choices=["csv", "alpaca", "ig"], help="Data Source (csv, alpaca, or ig)")
+    bt_parser.add_argument("--source", type=str, default="csv", choices=["csv", "alpaca", "ig", "histdata"], help="Data Source (csv, alpaca, ig, or histdata)")
     bt_parser.add_argument("--parameters", type=str, help="JSON string of parameters to override defaults")
     bt_parser.add_argument("--tag", type=str, help="Optional tag to identify this run variation")
     bt_parser.add_argument("--iteration", type=int, help="Specific Iteration Index to link (Optional)")

@@ -3,11 +3,24 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-29** — long-window validation via HistData spot proxies — 17 yr XAUUSD, 16 yr XAGUSD, 13 yr WTIUSD backtested through real bear regimes. Headline: framework HELD in 2013-15 metals bear (gold S=1.44, silver S=2.04, both better than B&H by 2+ Sharpe) and 2014-16 oil collapse (S=1.11). Apr 28 inversion-test prediction (metals Sharpe drops to ~1/3 in non-bull regime) did NOT reproduce on real history. Spot-proxy 2020+ Sharpe ~1.5 vs ETF Sharpe ~2.5 — 0.8-1.0 gap suggests ETF microstructure premium; CLAUDE.md sizing guidance reaffirmed at 1.0-1.5. New: HistDataLoader + fetcher + long_window_validation.py orchestrator + domain doc.
+
+ .claude/strategies/long-window-validation.md |  62 +++++++
+ .claude/strategies/research-roadmap.md       |   3 +-
+ CLAUDE.md                                    |   3 +-
+ backend/analysis/long_window_validation.py   | 254 +++++++++++++++++++++++++++
+ backend/engine/histdata_loader.py            | 195 ++++++++++++++++++++
+ backend/runner.py                            |   9 +-
+ scripts/fetch_price_data_histdata.py         |  79 +++++++++
+ 7 files changed, 602 insertions(+), 3 deletions(-)
+
+----
 **2026-04-29** — doc updates for correlation-aware sizing V1: roadmap gating language updated (IWM gate downgraded from 'gated on sizing landing' to 'gated on live verification'), Live Observation Framework adds [CORR-SIZE] discount audit measurement, forward-test-log records what to capture on each post-Apr-29 entry
 
  .claude/calibration/forward-test-log.md | 17 +++++++++++++++++
+ .claude/memory/gitlog.md                | 20 +++++++++-----------
  .claude/strategies/research-roadmap.md  | 11 ++++++-----
- 2 files changed, 23 insertions(+), 5 deletions(-)
+ 3 files changed, 32 insertions(+), 16 deletions(-)
 
 ----
 **2026-04-29** — correlation-aware sizing V1 — equal-split risk parity discount applied at entry, risk_frac = 0.02 / N where N = cluster peers held + self. Hardcoded clusters (gold/energy/biotech). 13/13 unit tests pass; GLD backtest regression Sharpe 2.48 unchanged (N=1 in single-symbol). Live audit signal: [CORR-SIZE] lines on discounted entries. V1 limitations: race on simultaneous fires, no resize of already-open peers, no shared-timeline backtest validation — accepted.
@@ -147,21 +160,4 @@
  .claude/strategies/stochrsi-enhanced-xop.md | 21 ++++++++++++++++-----
  CLAUDE.md                                   | 12 ++++++------
  7 files changed, 75 insertions(+), 34 deletions(-)
-
-----
-**2026-04-28** — Apr 28 — verified all metals/XLE/long-only baselines, discovered OIH/XBI/XOP candidates from forgotten-asset audit, rejected TLT, fixed Apr 4 transcription error
-
- .claude/memory/gitlog.md                    | 27 ++++++---
- .claude/strategies/research-log.md          | 56 ++++++++++++++++++
- .claude/strategies/research-roadmap.md      | 29 +++++++--
- .claude/strategies/stochrsi-enhanced-gdx.md | 64 ++++++++++++--------
- .claude/strategies/stochrsi-enhanced-gld.md | 68 ++++++++++++---------
- .claude/strategies/stochrsi-enhanced-iau.md | 60 +++++++++++--------
- .claude/strategies/stochrsi-enhanced-oih.md | 91 +++++++++++++++++++++++++++++
- .claude/strategies/stochrsi-enhanced-slv.md | 64 ++++++++++++--------
- .claude/strategies/stochrsi-enhanced-xbi.md | 89 ++++++++++++++++++++++++++++
- .claude/strategies/stochrsi-enhanced-xle.md | 33 +++++------
- .claude/strategies/stochrsi-enhanced-xop.md | 73 +++++++++++++++++++++++
- CLAUDE.md                                   | 33 ++++++++---
- 12 files changed, 544 insertions(+), 143 deletions(-)
 

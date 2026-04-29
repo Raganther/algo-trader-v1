@@ -36,6 +36,7 @@ Read on demand only:
 - `.claude/strategies/regime-stochrsi-diagnostic.md` — read when interpreting Apr 23 per-regime StochRSI results, deciding whether regime-aware sizing is justified, or comparing metals vs other assets
 - `.claude/strategies/regime-sizing-portfolio-diagnostic.md` — read when evaluating whether regime multipliers improve portfolio-level return/drawdown before live sizing
 - `.claude/strategies/arbitrage-automation-concepts.md` — read when exploring new strategy families (pairs trading, cross-asset, event-driven), evaluating adjacent business ideas, or planning beyond the current 4-symbol setup
+- `.claude/strategies/long-window-validation.md` — read when reasoning about how the strategy performs in real bear regimes (XAUUSD/XAGUSD/WTIUSD spot proxies 2009–2026), or interpreting the spot-vs-ETF Sharpe gap when sizing live
 
 ## Run Commands
 
@@ -161,7 +162,7 @@ Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid 
 > **Implications for the table below:**
 > - Sharpes are real and verified. The numbers are accurate.
 > - The *interpretation* of those numbers is "framework Sharpe with StochRSI tilt on this asset," not "StochRSI mean-reversion edge on this asset."
-> - **Metals Sharpes overstate live expectation.** Inverted-GLD test + Feb 27 daily-bar bear test both suggest live metals Sharpe in a non-bull regime is ~½ to ⅓ of backtest. Size for Sharpe 1.0–1.5 expectation, not 2.46.
+> - **Metals Sharpes likely overstate live expectation, but the bear-regime collapse predicted Apr 28 did NOT reproduce in real history.** Apr 29 long-window backtest on HistData spot proxies (XAUUSD 2009–2026, XAGUSD 2009–2026, WTIUSD 2010–2023) shows the framework held through the 2013–15 metals bear (gold Sharpe +1.44, silver +2.04 — comparable to bull periods) and the 2014–16 oil collapse (Sharpe +1.11). The conservative sizing rule still applies but for a different reason: **spot-proxy Sharpe over the 2020+ overlap is ~1.5 vs ETF Sharpe ~2.5 on Alpaca for the same period.** That 0.8–1.0 Sharpe gap suggests an ETF-microstructure premium in the live data that the spot proxy doesn't have. Size for Sharpe 1.0–1.5 expectation (matches spot proxy, more conservative than Alpaca backtest). See `.claude/strategies/long-window-validation.md`.
 > - **IWM is now relatively more attractive.** Sharpe 2.30 with regime-agnostic profile is more robust than metals Sharpe 2.46 with regime-dependence.
 > - "StochRSI Enhanced" should be read as "Framework v1 applied to <asset>" — the strategy library is one framework, not 8 strategies.
 
