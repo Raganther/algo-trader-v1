@@ -3,10 +3,17 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-29** — fix: extend gap-through-stop guard to [SYNC] startup path. Same logic as the [LOOP] guard from the previous commit, applied at bot-restart sync time so we don't sit unprotected for up to 15 min waiting for the next bar's [LOOP] iteration. Changes runner.py:672-715 — if reconstructed SL is on the wrong side of current price, place market exit + reset strategy state to flat instead of attempting a stop that Alpaca will reject.
+
+ backend/runner.py | 62 ++++++++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 45 insertions(+), 17 deletions(-)
+
+----
 **2026-04-29** — fix: gap-through-stop guard in DAY-stop recovery path. When a position is held overnight and price gaps through the intended stop level, Alpaca rejects the new stop order (stop above market for longs, below for shorts), leaving the bot in a retry loop with no active protection. Surfaced today on XBI: long entry .25 Apr 28, GTC stop $130.85 was canceled by the gap-recovery path at session re-open, intended re-place at $130.68 rejected because price had gapped to $130.30. Manual safety stop placed at $128.50 GTC for the live position; code fix prevents recurrence. Behavior change in runner.py:943-983: before cancel-and-replace, check whether intended stop is already breached by current price (long: SL >= price; short: SL <= price). If breached, cancel orders + place market exit (the stop's intent 'exit if we get here' is already satisfied) and reset strategy state. Otherwise, original cancel-and-replace path runs unchanged. Does NOT fix the upstream question of why pending_stop_order_id was None despite a live GTC stop — defensive guard means we no longer end up unprotected even when the gate spuriously triggers.
 
- backend/runner.py | 60 +++++++++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 45 insertions(+), 15 deletions(-)
+ .claude/memory/gitlog.md | 17 +++++++-------
+ backend/runner.py        | 60 ++++++++++++++++++++++++++++++++++++------------
+ 2 files changed, 53 insertions(+), 24 deletions(-)
 
 ----
 **2026-04-29** — regime-aware asset rotation captured as strategic direction: combines Apr 28 generalisation + Apr 29 regime-preference into 'rotate across a wide universe' thesis. New roadmap section with 7 items, gating prerequisites, and the cheap first step (30-asset observational scan). Bot lineup framing updated to clarify 'no more fixed bots; rotation is the next strategic move.' regime-analysis.md notes the classifier's highest-leverage application is selection not sizing. Memory entry captures cross-session decision context.
@@ -148,12 +155,4 @@
  backend/engine/backtester.py           | 16 +++++++++++++
  backend/runner.py                      |  1 +
  6 files changed, 93 insertions(+), 23 deletions(-)
-
-----
-**2026-04-28** — Apr 28 — boundary verification: SPY/QQQ/IWM/DIA all pass validated recipe, broad-index boundary thesis refuted; real boundary is on driver class (rates), not asset class
-
- .claude/memory/gitlog.md               | 26 ++++++++-------------
- .claude/strategies/research-log.md     | 42 ++++++++++++++++++++++++++++++++--
- .claude/strategies/research-roadmap.md |  8 +++----
- 3 files changed, 53 insertions(+), 23 deletions(-)
 
