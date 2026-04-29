@@ -487,6 +487,187 @@ def run_backtest(args):
     
     # Auto-Analysis removed to decouple execution from analysis.
 
+def run_portfolio(args):
+    """Shared-timeline portfolio backtest — N symbols, one capital pool, one PaperTrader.
+
+    Reuses the symbol-loading + resampling logic from run_backtest, then drives
+    a PortfolioRunner instead of a single-symbol Backtester.
+    """
+    from pathlib import Path
+    from datetime import datetime
+    from backend.engine.portfolio_runner import PortfolioRunner
+    from backend.engine import correlation_sizing
+
+    print(f"--- Starting Portfolio Backtest: {args.strategy} on {args.symbols} ({args.timeframe}) ---")
+
+    symbols = [s.strip() for s in args.symbols.split(',') if s.strip()]
+    if not symbols:
+        print("Error: --symbols must list at least one symbol.")
+        return
+
+    # Load data per symbol (mirrors run_backtest's Alpaca path; intraday only).
+    symbol_data = {}
+    if args.source == 'alpaca':
+        loader = AlpacaDataLoader()
+        target_tf = args.timeframe
+        fetch_tf = '1m' if target_tf == '5m' else ('1h' if target_tf == '4h' else target_tf)
+        ohlc_dict = {'Open': 'first', 'High': 'max', 'Low': 'min', 'Close': 'last', 'Volume': 'sum'}
+        resample_alias = {'5m': '5min', '15m': '15min'}.get(target_tf, target_tf)
+
+        for sym in symbols:
+            print(f"  Fetching {sym} {fetch_tf} {args.start}→{args.end}...")
+            df = loader.fetch_data(sym, fetch_tf, args.start, args.end)
+            if df is None or df.empty:
+                print(f"  WARN: no data for {sym}, skipping")
+                continue
+            if target_tf != fetch_tf:
+                df = df.resample(resample_alias).agg(ohlc_dict).dropna()
+            symbol_data[sym] = df
+            print(f"  OK   {sym}: {len(df)} bars ({df.index[0]} → {df.index[-1]})")
+    else:
+        loader = DataLoader()
+        for sym in symbols:
+            df, _ = loader.fetch_ohlcv(sym, args.start, args.end, interval=args.timeframe)
+            if df is not None and not df.empty:
+                symbol_data[sym] = df
+                print(f"  OK   {sym}: {len(df)} bars")
+
+    if not symbol_data:
+        print("Error: no usable symbol data.")
+        return
+
+    strategy_class = STRATEGY_MAP.get(args.strategy)
+    if not strategy_class:
+        print(f"Error: Strategy '{args.strategy}' not found.")
+        return
+
+    params: dict = {}
+    if args.parameters:
+        try:
+            params = json.loads(args.parameters)
+        except json.JSONDecodeError:
+            print("Error: invalid JSON in --parameters")
+            return
+
+    print(f"\nInstantiating {len(symbol_data)} strategy instances on shared broker...")
+    pr = PortfolioRunner(
+        symbol_data=symbol_data,
+        strategy_class=strategy_class,
+        parameters=params,
+        initial_capital=args.initial,
+        spread=args.spread,
+    )
+    results = pr.run()
+
+    # Console summary
+    print("\n=== PORTFOLIO RESULTS ===")
+    print(f"Initial capital  : ${results['initial_capital']:,.2f}")
+    print(f"Final equity     : ${results['final_equity']:,.2f}")
+    print(f"Return           : {results['return_pct']:.2f}%")
+    print(f"Max DD           : {results['max_drawdown']:.2f}%")
+    print(f"Sharpe (daily)   : {results['sharpe']:.2f}")
+    print(f"Total trades     : {results['total_trades']}")
+    print(f"Max concurrent   : {results['max_concurrent']} positions")
+
+    print("\n--- Per-symbol contribution ---")
+    print(f"{'symbol':<8}{'trades':>8}{'pnl ($)':>14}{'win rate':>12}")
+    for sym in sorted(results['per_symbol'].keys()):
+        e = results['per_symbol'][sym]
+        print(f"{sym:<8}{e['trades']:>8}{e['pnl']:>14,.2f}{e['win_rate']*100:>11.1f}%")
+
+    print("\n--- Cluster co-occupancy (bar-count by N members held) ---")
+    for cluster, dist in results['cluster_cooccupancy'].items():
+        members = sorted(correlation_sizing.CLUSTERS[cluster])
+        total = sum(dist.values())
+        print(f"  {cluster:<8} ({','.join(members)})")
+        for n in sorted(dist.keys()):
+            pct = dist[n] / total * 100 if total else 0
+            print(f"    N={n}: {dist[n]:>8} bars ({pct:.1f}%)")
+
+    # Markdown snapshot
+    snapshot_path = args.snapshot
+    if snapshot_path is None:
+        snapshot_path = Path(__file__).resolve().parents[1] / ".claude" / "strategies" / "portfolio-runner-baseline.md"
+    else:
+        snapshot_path = Path(snapshot_path)
+    snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    md = []
+    md.append(f"Status: current | Epistemic: confirmed | Last verified: {today}")
+    md.append("")
+    md.append("# Portfolio Runner Baseline")
+    md.append("")
+    md.append(
+        "Shared-timeline portfolio backtest. Single PaperTrader, one capital pool, "
+        "one strategy class instantiated per symbol. Generated by "
+        "`python3 -m backend.runner portfolio ...` via `backend/engine/portfolio_runner.py`."
+    )
+    md.append("")
+    md.append("## Run config")
+    md.append("")
+    md.append(f"- Strategy: `{args.strategy}`")
+    md.append(f"- Symbols: {', '.join(sorted(symbol_data.keys()))} (n={len(symbol_data)})")
+    md.append(f"- Timeframe: {args.timeframe}")
+    md.append(f"- Window: {args.start} → {args.end}")
+    md.append(f"- Initial capital: ${args.initial:,.0f}")
+    md.append(f"- Spread: {args.spread}")
+    md.append(f"- Parameters: `{json.dumps(params, sort_keys=True)}`")
+    md.append("")
+    md.append("## Headline")
+    md.append("")
+    md.append("| Metric | Value |")
+    md.append("|---|---:|")
+    md.append(f"| Final equity | ${results['final_equity']:,.2f} |")
+    md.append(f"| Return | {results['return_pct']:.2f}% |")
+    md.append(f"| Max DD (daily) | {results['max_drawdown']:.2f}% |")
+    md.append(f"| Sharpe (daily, ×√252) | {results['sharpe']:.2f} |")
+    md.append(f"| Total trades | {results['total_trades']} |")
+    md.append(f"| Max concurrent positions | {results['max_concurrent']} |")
+    md.append("")
+    md.append("> **Interpretation note.** Total return reflects shared-capital compounding")
+    md.append("> with each strategy sizing 2% of total equity per trade. As equity grows,")
+    md.append("> per-trade notional grows with it — there is no per-bot allocation cap in V1.")
+    md.append("> Treat the *return* and *Sharpe* figures here as upper-bound model output,")
+    md.append("> not deployment expectation. The reliable V1 outputs are: (a) per-symbol")
+    md.append("> trade counts (match single-symbol backtests), (b) cluster co-occupancy")
+    md.append("> distribution below, (c) max concurrent positions. Apples-to-apples")
+    md.append("> comparisons (with-discount vs without-discount, kill-switch on/off,")
+    md.append("> rotation vs fixed) are valid because both sides share the same")
+    md.append("> compounding mechanic.")
+    md.append("")
+    md.append("## Per-symbol contribution")
+    md.append("")
+    md.append("| Symbol | Trades | P&L ($) | Win rate |")
+    md.append("|---|---:|---:|---:|")
+    for sym in sorted(results['per_symbol'].keys()):
+        e = results['per_symbol'][sym]
+        md.append(f"| {sym} | {e['trades']} | {e['pnl']:,.2f} | {e['win_rate']*100:.1f}% |")
+    md.append("")
+    md.append("## Cluster co-occupancy")
+    md.append("")
+    md.append(
+        "How many bars (out of all observed) had N cluster members holding open positions "
+        "simultaneously. N≥2 rows show how often the correlation-aware sizing discount "
+        "had a chance to fire on the *next* cluster entry."
+    )
+    md.append("")
+    for cluster, dist in results['cluster_cooccupancy'].items():
+        members = sorted(correlation_sizing.CLUSTERS[cluster])
+        total = sum(dist.values())
+        md.append(f"### {cluster} ({', '.join(members)})")
+        md.append("")
+        md.append("| N members held | Bars | % of bars |")
+        md.append("|---:|---:|---:|")
+        for n in sorted(dist.keys()):
+            pct = dist[n] / total * 100 if total else 0
+            md.append(f"| {n} | {dist[n]:,} | {pct:.1f}% |")
+        md.append("")
+
+    snapshot_path.write_text("\n".join(md) + "\n")
+    print(f"\nWrote {snapshot_path}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Gemini Trading Research Engine")
     subparsers = parser.add_subparsers(dest='command', help='Command to run')
@@ -531,14 +712,30 @@ def main():
     trade_parser.add_argument("--iteration", type=int, help="Specific Iteration Index to link (Optional)")
     trade_parser.add_argument("--event-blackout", type=int, default=0, help="Event blackout hours (0=off)")
     
+    # Portfolio Command (shared-timeline runner — multi-symbol, single capital pool)
+    pf_parser = subparsers.add_parser('portfolio', help='Run shared-timeline portfolio backtest')
+    pf_parser.add_argument('--strategy', type=str, required=True, help='Strategy Name (single strategy across all symbols)')
+    pf_parser.add_argument('--symbols', type=str, required=True, help='Comma-separated symbols (e.g. GLD,IAU,SLV,GDX)')
+    pf_parser.add_argument('--timeframe', type=str, default='15m', help='Timeframe')
+    pf_parser.add_argument('--start', type=str, default='2020-01-01', help='Start Date')
+    pf_parser.add_argument('--end', type=str, default='2026-04-27', help='End Date')
+    pf_parser.add_argument('--spread', type=float, default=0.0003, help='Spread (default 0.0003)')
+    pf_parser.add_argument('--delay', type=int, default=0, help='Execution Delay (0=Instant). Currently informational only.')
+    pf_parser.add_argument('--source', type=str, default='alpaca', choices=['alpaca', 'csv'])
+    pf_parser.add_argument('--initial', type=float, default=94000.0, help='Initial capital (default $94k matches live)')
+    pf_parser.add_argument('--parameters', type=str, help='JSON string of strategy parameters (applied to every symbol)')
+    pf_parser.add_argument('--snapshot', type=str, default=None, help='Path to write markdown summary (default .claude/strategies/portfolio-runner-baseline.md)')
+
     args = parser.parse_args()
-    
+
     if args.command == 'backtest':
         run_backtest(args)
     elif args.command == 'matrix':
         run_matrix(args)
     elif args.command == 'trade':
         run_live_trading(args)
+    elif args.command == 'portfolio':
+        run_portfolio(args)
     else:
         parser.print_help()
 

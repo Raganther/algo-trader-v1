@@ -3,10 +3,39 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-29** — Apr 29 evening: regime-aware rotation infrastructure + shared-timeline portfolio runner V1.
+Three new analysis tools shipped, three roadmap items resolved.
+
+regime_universe_scan.py — daily regime classification across 33-asset ETF universe, snapshot to .claude/strategies/regime-universe-snapshot.md. First reading 2026-04-29: 7/33 favourable (TRENDING_UP), 26 RANGING, 0 TRENDING_DOWN, 0 HIGH_VOL. Most of deployed lineup (GLD/IAU/SLV/GDX/XLE/XOP/XBI) currently in RANGING; only OIH made the TRENDING set. Notable that today's TRENDING set (DBA/ITA/IWM/OIH/QQQ/SMH/XLK) is largely undeployed — first concrete evidence of the rotation thesis premise.
+
+regime_distribution_history.py — rolling weekly snapshots over 2010-11 to 2026-05 (807 weekly snapshots, 33-asset universe). HEADLINE: median favourable count = 8, mean 9.1 — exactly inside the 8-15 selective band. Rotation backtest is justified. Today's 7/33 reading is between p10 (3) and p90 (16), i.e. typical historical territory not anomalous. HIGH_VOL is rare in normal tape (median 0, mean 1.4) but spikes universally in panics — March 2020 had 3 consecutive weeks with 30+ assets in HIGH_VOL, plus April 2025. Promoted as candidate kill-switch trigger (separate roadmap item). Year-by-year averages cluster 8-11; outliers 2011 metals/EU-debt period (avg 6.2) and 2026 YTD (avg 12.9, currently above-average trending). CSV at backend/analysis/regime_distribution_history.csv for plotting.
+
+portfolio_runner.py + runner.py 'portfolio' subcommand — shared-timeline portfolio backtester. One PaperTrader, N strategies on unified time grid. Single-symbol equivalence verified (GLD-only run matches per-symbol card on return / trades / win rate). FIRST V1 FINDING: gold cluster has 2+ members open on 46.7% of bars and 3+ on 20.1% over 2020-07 to 2026-04 — the Apr 29 correlation-aware sizing discount fires materially in historical conditions. Single-symbol backtest could never see this (N=1 always). Energy cluster has 2+ open on 15.4%; biotech 35.1%. Snapshot at .claude/strategies/portfolio-runner-baseline.md. V1 CAVEAT: total return / Sharpe figures are model upper-bounds (no per-bot allocation cap → shared-capital compounds aggressively, +10,496% over 5.7yr is artefact). Apples-to-apples comparisons still valid because both sides share the same compounding mechanic. V2 (per-bot cap) promoted to roadmap as next item before quoting headline portfolio Sharpe.
+
+Domain file updates:
+- regime-analysis.md: added Apr 29 callout block at top with rolling-history headline and universe-scan observations.
+- research-roadmap.md: 30-asset scan + rolling history both marked shipped with results inlined; Universal HIGH_VOL kill-switch promoted as standalone roadmap item; portfolio runner V1 marked shipped; new V2 row (per-bot allocation cap) and V2 correlation-sizing backtest validation rows added; rotation rule backtest expected-lift envelope added (0.5-1.0 Sharpe theoretical, +0.3 bar to beat).
+- CLAUDE.md: strategic-direction bullet updated with shipped scripts + headline numbers; Validated Edges section gets Confirmed-working bullet for the portfolio runner V1 finding; on-demand domain-file reads list adds three new files; Run Commands gets the portfolio invocation.
+
+ .claude/strategies/portfolio-runner-baseline.md   |  68 ++
+ .claude/strategies/regime-analysis.md             |  15 +
+ .claude/strategies/regime-distribution-history.md |  94 +++
+ .claude/strategies/regime-universe-snapshot.md    | 103 +++
+ .claude/strategies/research-roadmap.md            |  16 +-
+ CLAUDE.md                                         |  10 +-
+ backend/analysis/regime_distribution_history.csv  | 808 ++++++++++++++++++++++
+ backend/analysis/regime_distribution_history.py   | 346 +++++++++
+ backend/analysis/regime_universe_scan.py          | 275 ++++++++
+ backend/engine/portfolio_runner.py                | 173 +++++
+ backend/runner.py                                 | 199 +++++-
+ 11 files changed, 2099 insertions(+), 8 deletions(-)
+
+----
 **2026-04-29** — doc + memory: capture Apr 29 stop-handling fixes + post-mortem. research-roadmap.md Resolved table extended with two entries — gap-through-stop guard and SYNC race condition. Memory recurring_bug_pattern.md restructured from 'one TIF bug' to 'four closely-related stop-handling failure modes' (TIF mismatch Apr 17, trailing-stop race Mar 19, SYNC race Apr 29, gap-through-stop Apr 29). Memory now explains the structural reason the SYNC race surfaced only on Apr 29 (DAY-TIF era pre-Apr-17 had nothing for cancel to race against; Apr 29 correlation-sizing deploy hit the race on all overnight-position bots simultaneously and XBI was the unlucky one due to biotech gap-profile). Added a 'where to look' index covering SYNC block, LOOP gate, SERVER STOP FIRED detection, alpaca_trader, and live_broker for future stop-related debugging.
 
- .claude/strategies/research-roadmap.md | 2 ++
- 1 file changed, 2 insertions(+)
+ .claude/memory/gitlog.md               | 30 ++++++++----------------------
+ .claude/strategies/research-roadmap.md |  2 ++
+ 2 files changed, 10 insertions(+), 22 deletions(-)
 
 ----
 **2026-04-29** — fix: SYNC race upstream — adopt existing GTC stop on restart instead of cancel-and-replace. Root cause of Apr 29 XBI bug identified post-mortem: cancel_all_orders_for_symbol is async on Alpaca's side, but the SYNC block calls place_stop_order immediately after — the cancel is queued, the existing GTC stop still holds the qty, place fails with 'insufficient qty available', SYNC catches and prints 'bot will manage locally' but doesn't set pending_stop_order_id. The cancel propagates a few seconds later, killing the original GTC stop. Position is now unprotected on Alpaca AND the bot has no record of any stop. This race fired on every overnight-position bot at the correlation-sizing pm2 restart this morning; XBI was the unlucky one because biotech gaps at the open and the [LOOP] gap-recovery hit a price already past the intended SL. Same pattern was fixed Mar 19 in live_broker.py trailing-stop path with a 1s sleep. New: alpaca_trader.get_open_stop_order(symbol, side) returns the first open stop matching side, with id/qty/stop_price. SYNC block now: (1) check if an existing stop exists and is within $0.50 of reconstructed SL; if yes, adopt its order_id and snap current_sl to the live level (no cancel, no race); (2) if no existing stop or level differs materially, fall back to cancel + 1s sleep + place. Both changes preserve the Apr 29 defensive guards (gap-through-stop breach detection + emergency market exit). The defensive guard from Apr 29 still applies — this fix is the upstream version that prevents the unprotected window in the first place.
@@ -128,12 +157,4 @@
  .claude/strategies/research-log.md             | 42 ++++++++++++++++++++++++++
  backend/strategies/stoch_rsi_mean_reversion.py | 16 ++++++++--
  3 files changed, 65 insertions(+), 22 deletions(-)
-
-----
-**2026-04-28** — Apr 28 — Edge Test 1: B&H comparison passes cleanly. Strategy beats B&H on all 12 assets by Δ Sharpe +0.46 to +1.94 (median ~+1.4), DD protection 8.5×-26.2×. Framework adds real risk-adjusted value over passive holding.
-
- .claude/memory/gitlog.md                    |  47 +++++------
- .claude/strategies/research-log.md          |  42 ++++++++++
- backend/analysis/buy_and_hold_comparison.py | 122 ++++++++++++++++++++++++++++
- 3 files changed, 188 insertions(+), 23 deletions(-)
 
