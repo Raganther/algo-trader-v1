@@ -701,18 +701,49 @@ def run_live_trading(args):
                     except Exception as e:
                         print(f"[SYNC] ❌ Emergency market exit failed: {e} — bot will manage locally")
                 if not exited_at_market and not stop_breached:
-                    try:
-                        broker.trader.cancel_all_orders_for_symbol(args.symbol)
-                        stop_res = broker.trader.place_stop_order(
-                            symbol=args.symbol,
-                            qty=abs(pos['size']),
-                            side=stop_side,
-                            stop_price=strategy.current_sl
-                        )
-                        broker.pending_stop_order_id = stop_res['id']
-                        print(f"[SYNC] Server stop placed at ${strategy.current_sl:.2f}")
-                    except Exception as e:
-                        print(f"[SYNC] ⚠️ Server stop failed: {e} — bot will manage locally")
+                    # Adopt-or-replace: if there's already an open GTC stop from a
+                    # previous session/restart, prefer adopting its order_id over
+                    # cancel-and-replace. cancel_all_orders is async on Alpaca's side
+                    # and races against place_stop_order — the cancel queues, place
+                    # fails with "qty unavailable" because the existing stop still
+                    # holds the shares, and the cancel propagates a few seconds later
+                    # leaving the position with no protection on Alpaca AND no
+                    # pending_stop_order_id in memory. Surfaced live on XBI Apr 29
+                    # 2026 at the correlation-sizing deploy restart. Adopting the
+                    # existing stop avoids the race entirely when its level is close
+                    # to our intended SL.
+                    existing_stop = broker.trader.get_open_stop_order(args.symbol, stop_side)
+                    if existing_stop and abs(existing_stop['stop_price'] - strategy.current_sl) < 0.50:
+                        broker.pending_stop_order_id = existing_stop['id']
+                        broker.pending_stop_qty = existing_stop['qty']
+                        broker.pending_stop_side = stop_side
+                        broker._last_stop_price = existing_stop['stop_price']
+                        # Snap our tracked SL to the live stop level so trail logic
+                        # ratchets from the actual server-side level, not the
+                        # reconstructed-from-ATR estimate.
+                        strategy.current_sl = existing_stop['stop_price']
+                        print(f"[SYNC] Adopted existing stop {existing_stop['id'][:8]}... @ ${existing_stop['stop_price']:.2f} (reconstructed SL was ${strategy.current_sl:.2f}; within 0.50 — no replace needed)")
+                    else:
+                        try:
+                            broker.trader.cancel_all_orders_for_symbol(args.symbol)
+                            # Wait for the async cancel to propagate before placing
+                            # the new stop. Mirrors the Mar 19 fix in live_broker.py
+                            # for the trailing-stop path. Without this sleep, the
+                            # next place_stop_order races the cancel and fails with
+                            # "insufficient qty available" while the existing stop
+                            # still holds the shares.
+                            import time as _time
+                            _time.sleep(1.0)
+                            stop_res = broker.trader.place_stop_order(
+                                symbol=args.symbol,
+                                qty=abs(pos['size']),
+                                side=stop_side,
+                                stop_price=strategy.current_sl
+                            )
+                            broker.pending_stop_order_id = stop_res['id']
+                            print(f"[SYNC] Server stop placed at ${strategy.current_sl:.2f}")
+                        except Exception as e:
+                            print(f"[SYNC] ⚠️ Server stop failed: {e} — bot will manage locally")
 
         if not exited_at_market:
             # Set entry_bar so min_hold is already satisfied (conservative: allow exit immediately)

@@ -150,6 +150,31 @@ class AlpacaTrader:
             print(f"⚠️ Cancel order {order_id} failed: {e}")
             return False
 
+    def get_open_stop_order(self, symbol, side):
+        """Return the first open stop order for symbol matching side ('buy'/'sell'),
+        or None if there is none. Used by SYNC to adopt an existing GTC stop on
+        bot restart instead of cancel-and-replacing it (which races against
+        Alpaca's async cancel and can leave the position unprotected).
+        Returns: {'id': str, 'qty': float, 'stop_price': float} or None.
+        """
+        try:
+            request = GetOrdersRequest(status='open', symbols=[symbol])
+            orders = self.client.get_orders(filter=request)
+            target_side = OrderSide.BUY if side.lower() == 'buy' else OrderSide.SELL
+            for order in orders:
+                # Match: stop order, correct side, has a stop_price.
+                # `type` enum exposes value via .value or string repr.
+                otype = str(getattr(order, 'order_type', getattr(order, 'type', ''))).lower()
+                if 'stop' in otype and order.side == target_side and getattr(order, 'stop_price', None):
+                    return {
+                        'id': str(order.id),
+                        'qty': float(order.qty) if order.qty else 0.0,
+                        'stop_price': float(order.stop_price)
+                    }
+        except Exception as e:
+            print(f"⚠️ get_open_stop_order({symbol}) failed: {e}")
+        return None
+
     def cancel_all_orders_for_symbol(self, symbol):
         """Cancel all open orders for a specific symbol. Returns count cancelled."""
         try:
