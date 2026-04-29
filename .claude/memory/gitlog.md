@@ -3,12 +3,19 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-29** — fix: gap-through-stop guard in DAY-stop recovery path. When a position is held overnight and price gaps through the intended stop level, Alpaca rejects the new stop order (stop above market for longs, below for shorts), leaving the bot in a retry loop with no active protection. Surfaced today on XBI: long entry .25 Apr 28, GTC stop $130.85 was canceled by the gap-recovery path at session re-open, intended re-place at $130.68 rejected because price had gapped to $130.30. Manual safety stop placed at $128.50 GTC for the live position; code fix prevents recurrence. Behavior change in runner.py:943-983: before cancel-and-replace, check whether intended stop is already breached by current price (long: SL >= price; short: SL <= price). If breached, cancel orders + place market exit (the stop's intent 'exit if we get here' is already satisfied) and reset strategy state. Otherwise, original cancel-and-replace path runs unchanged. Does NOT fix the upstream question of why pending_stop_order_id was None despite a live GTC stop — defensive guard means we no longer end up unprotected even when the gate spuriously triggers.
+
+ backend/runner.py | 60 +++++++++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 45 insertions(+), 15 deletions(-)
+
+----
 **2026-04-29** — regime-aware asset rotation captured as strategic direction: combines Apr 28 generalisation + Apr 29 regime-preference into 'rotate across a wide universe' thesis. New roadmap section with 7 items, gating prerequisites, and the cheap first step (30-asset observational scan). Bot lineup framing updated to clarify 'no more fixed bots; rotation is the next strategic move.' regime-analysis.md notes the classifier's highest-leverage application is selection not sizing. Memory entry captures cross-session decision context.
 
+ .claude/memory/gitlog.md               | 21 ++++++++++-----------
  .claude/strategies/regime-analysis.md  |  4 +++-
  .claude/strategies/research-roadmap.md | 26 +++++++++++++++++++++++++-
  CLAUDE.md                              |  1 +
- 3 files changed, 29 insertions(+), 2 deletions(-)
+ 4 files changed, 39 insertions(+), 13 deletions(-)
 
 ----
 **2026-04-29** — regime preference doc updates from Apr 29 long-window finding: framework is strongest in sustained directional moves (bull or bear, S 2.0-2.6), decent in chop (~1.5), WEAKEST in sharp-top / regime transitions (0.8-1.1 with elevated DD). Counter-intuitive for a mean-reversion-named strategy. Updates: regime-analysis.md (revised strategy-implication column), research-roadmap.md (superseded the 'downsize in TRENDING_DOWN' idea, promoted sharp-top/transition detector), CLAUDE.md (added regime preference bullet), long-window-validation.md (added 18-cell ranking section). Original 'downsize in bear' rule was wrong — bear is a strong regime; transition is the dangerous one.
@@ -149,12 +156,4 @@
  .claude/strategies/research-log.md     | 42 ++++++++++++++++++++++++++++++++--
  .claude/strategies/research-roadmap.md |  8 +++----
  3 files changed, 53 insertions(+), 23 deletions(-)
-
-----
-**2026-04-28** — Apr 28 — held-out generalisation test on 12 novel assets all passed; boundary thesis in question pending SPY/QQQ retest
-
- .claude/memory/gitlog.md               | 34 ++++++++++----------------
- .claude/strategies/research-log.md     | 44 ++++++++++++++++++++++++++++++++--
- .claude/strategies/research-roadmap.md | 12 +++++++++-
- 3 files changed, 66 insertions(+), 24 deletions(-)
 

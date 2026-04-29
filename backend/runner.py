@@ -952,21 +952,51 @@ def run_live_trading(args):
                             pos_size = abs(broker.get_position(args.symbol))
                             if pos_size > 0.0001:
                                 stop_side = 'sell' if strategy.position == 'long' else 'buy'
-                                try:
-                                    broker.trader.cancel_all_orders_for_symbol(args.symbol)
-                                    stop_res = broker.trader.place_stop_order(
-                                        symbol=args.symbol,
-                                        qty=pos_size,
-                                        side=stop_side,
-                                        stop_price=strategy.current_sl
-                                    )
-                                    broker.pending_stop_order_id = stop_res['id']
-                                    broker.pending_stop_qty = pos_size
-                                    broker.pending_stop_side = stop_side
-                                    broker._last_stop_price = strategy.current_sl
-                                    print(f"[LOOP] ⚡ Stop re-placed at ${strategy.current_sl:.2f} (DAY stop gap recovery)")
-                                except Exception as e:
-                                    print(f"[LOOP] ⚠️ Stop re-place failed: {e}")
+                                # Gap-through-stop guard: if price has already moved past the
+                                # intended stop level (long: current ≤ stop; short: current ≥ stop),
+                                # Alpaca will reject the stop order. The stop's intent ("exit if we
+                                # get here") is already satisfied — we should be flat. Exit at market
+                                # rather than retry a stop that will keep failing.
+                                latest_price = float(last_row['Close'])
+                                stop_breached = (
+                                    (strategy.position == 'long' and strategy.current_sl >= latest_price)
+                                    or (strategy.position == 'short' and strategy.current_sl <= latest_price)
+                                )
+                                if stop_breached:
+                                    try:
+                                        broker.trader.cancel_all_orders_for_symbol(args.symbol)
+                                        broker.trader.place_order(
+                                            symbol=args.symbol,
+                                            qty=pos_size,
+                                            side=stop_side,
+                                            order_type='market'
+                                        )
+                                        print(f"[LOOP] 🚨 Stop ${strategy.current_sl:.2f} already breached by price ${latest_price:.2f} — exiting at market")
+                                        strategy.position = 0
+                                        strategy.current_sl = None
+                                        strategy.entry_bar = None
+                                        strategy.entry_price = None
+                                        broker.pending_stop_order_id = None
+                                        broker.pending_stop_qty = None
+                                        broker.pending_stop_side = None
+                                    except Exception as e:
+                                        print(f"[LOOP] ❌ Emergency market exit failed: {e}")
+                                else:
+                                    try:
+                                        broker.trader.cancel_all_orders_for_symbol(args.symbol)
+                                        stop_res = broker.trader.place_stop_order(
+                                            symbol=args.symbol,
+                                            qty=pos_size,
+                                            side=stop_side,
+                                            stop_price=strategy.current_sl
+                                        )
+                                        broker.pending_stop_order_id = stop_res['id']
+                                        broker.pending_stop_qty = pos_size
+                                        broker.pending_stop_side = stop_side
+                                        broker._last_stop_price = strategy.current_sl
+                                        print(f"[LOOP] ⚡ Stop re-placed at ${strategy.current_sl:.2f} (DAY stop gap recovery)")
+                                    except Exception as e:
+                                        print(f"[LOOP] ⚠️ Stop re-place failed: {e}")
 
                         if not skip_on_bar:
                             strategy.on_bar(last_row, last_index, latest_data)
