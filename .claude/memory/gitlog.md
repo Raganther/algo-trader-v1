@@ -3,8 +3,57 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-30** — Apr 30 PM: per-bot cap shrinking experiment — PASSES decision rule on both branches. New strategy param `position_cap_frac` (default 0.25 — byte-identical baseline) plus portfolio-runner CLI flag `--position-cap-frac`. Three runs over 2020-07 → 2026-04 on $94k. Run 0 (7 bots × 25%, baseline reproduction): +424.09% / 3.41% / 4.95 / 4344 — byte-identical to 070e3dc, confirms refactor is no-op at default. Run 1 (7 bots × 12.5%, pure cap-shrink ablation): +236.86% / 1.87% / 5.23 / 4413 — ΔSharpe +0.28, ΔDD −1.54pp, passes DD branch. Run 2 (8 bots × 12.5%, best-per-cluster GLD+SLV+OIH+XOP+IWM+SMH+XBI+IBB): +262.81% / 2.22% / 5.40 / 5004 / max-conc 8 — ΔSharpe +0.45, ΔDD −1.19pp, passes both branches independently. Returns drop by design (Sharpe is sizing-invariant — half-cap = half dollar P&L per trade); apples-to-apples is Sharpe + DD%. Lineup change (Run 1 → Run 2) contributes +0.17 Sharpe; bulk of lift is the cap-shrink itself. SMH, IBB, IWM (no live deployment) collectively contribute $80.8k of $247k aggregate P&L in Run 2. Strategic decision pending separately on whether to flip strategy default 0.25 → 0.125 and reshuffle live lineup (deploy IWM/SMH/IBB, retire IAU/GDX) — real-money trade-off (less absolute return today vs higher Sharpe with headroom to scale). Code shipped only; live bots untouched (default 0.25 preserved). Files: backend/strategies/stoch_rsi_mean_reversion.py (position_cap_frac param + 3 sizing blocks at L268/L314/L369), backend/runner.py (--position-cap-frac CLI flag + injection at L586), .claude/strategies/portfolio-runner-cap-shrink.md (new snapshot), .claude/strategies/research-roadmap.md (Per-bot cap shrinking row resolved; Best-per-cluster 4-bot row partially answered via Run 2), CLAUDE.md (strategic-direction block updated with experiment result + new on-demand snapshot ref). Bot check during session: 3 trades fired today (OIH short +$60, SLV long +$110, XOP long stop-out −$103), net +$67 paper; all entries sized at ~26% of equity confirming the 25% cap binds on every entry as theorised; trailing-stop ratchet visible on XOP (cancel-and-replace cycle 18:53/18:59/19:01); no errors, currently flat.
+
+ .claude/strategies/portfolio-runner-cap-shrink.md | 81 +++++++++++++++++++++++
+ .claude/strategies/research-roadmap.md            |  4 +-
+ CLAUDE.md                                         |  5 +-
+ backend/runner.py                                 |  8 +++
+ backend/strategies/stoch_rsi_mean_reversion.py    |  9 ++-
+ 5 files changed, 101 insertions(+), 6 deletions(-)
+
+----
+**2026-04-30** — Apr 30 PM: flip portfolio total-notional cap default ON.
+PORTFOLIO_CAP_ENABLED = True (FRAC=1.0) in correlation_sizing.py. Live bots
+now have an aggregate-notional safety guard that fires when total open
+positions exceed 100% of equity. On the 7-bot lineup this rarely binds
+(only on gold N=4 stacking ≈ 3.5% of bars in latest run), producing a tiny
+structural improvement: Sharpe 4.86 → 4.95, DD 3.58% → 3.41%, trades
+4413 → 4344. Headline figure for the live lineup is now +424.09% / 4.95.
+
+The guard's main value isn't the small Sharpe lift — it's preventing the
+silent leverage trap that universe expansion would otherwise hit (verified
+yesterday: 20-bot run hit max-conc 19 = ~4.75× leverage on $94k without
+this cap; with the cap, max-conc 14 stays inside 100% notional).
+
+Runner override semantics: --portfolio-cap-frac N still works as a
+diagnostic CLI flag; --portfolio-cap-frac 0 disables for comparison runs.
+No CLI flag = module default (now ON).
+
+Verified: portfolio backtest with 7-bot lineup reproduces Run A figures
+(+424.09% / 3.41% / 4.95 / 4344) byte-for-byte.
+
+Files: backend/engine/correlation_sizing.py (PORTFOLIO_CAP_ENABLED
+flipped True; comment updated with deployment context), backend/runner.py
+(diagnostic-print logic clarified for module-default vs CLI-override),
+.claude/strategies/research-roadmap.md (status updated to "shipped +
+default ON"), .claude/strategies/portfolio-runner-baseline.md (auto-refreshed
+by the verification run), CLAUDE.md (sister note updated to reflect
+default-on status).
+
+Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+
+ .claude/strategies/portfolio-runner-baseline.md | 64 ++++++++++---------------
+ .claude/strategies/research-roadmap.md          |  2 +-
+ CLAUDE.md                                       |  2 +-
+ backend/engine/correlation_sizing.py            | 12 ++++-
+ backend/runner.py                               | 12 +++--
+ 5 files changed, 46 insertions(+), 46 deletions(-)
+
+----
 **2026-04-30** — Apr 30 PM: rotation closed for StochRSI mean-reversion + portfolio total-notional cap shipped (default OFF). 4-run study (V2 baseline 7-bot / Run A 7+cap / Run B 20+cap / Run C 20+cap+TRENDING_UP / Run D 20+cap+RANGING) finalises the rotation question. Both rotation rules fail the +0.30 Sharpe gate: V1 TRENDING_UP 3.21 (ΔSharpe −1.65), V2 RANGING 4.49 (ΔSharpe −0.37). Reason: the strategy's own ADX<20 entry filter already self-selects regime at the right (15m) timeframe — adding a daily-bar rotation rule on top is redundant or destructive (TRENDING_UP) or strips marginal edge with no compensating signal (RANGING). Rotation is dead for StochRSI mean-reversion; remains a candidate for strategy classes without internal regime filters (breakouts, momentum, donchian-trend). Yesterday's +1013% / 6.20 Sharpe universe-expansion headline was 100% leverage (max-conc 19 × 25% cap = 475% of equity) — Run B with honest accounting collapses to +441.81% / 4.76 Sharpe / DD 2.45%, confirming universe expansion at our scale is a DD-reducer not a Sharpe-lifter. Code shipped: backend/engine/rotation.py (RotationController, build_weekly_regime_panel, ROTATION_RULES registry with 4 rules: trending_up, ranging, no_bad_regime, always_active), W-FRI boundary detection in portfolio_runner.py, single-line rotation_paused flag in stoch_rsi_mean_reversion.py:138 OR'd into existing skip_entry, CLI flags --rotation / --rotation-rule / --rotation-universe / --use-cache. Validation gates passed: V1 cache parity byte-identical, V2 always_active byte-identical, V3 pause-flag observable (300 weekly rebalances logged), V4 pause integrity. Side finding promoted from leverage discovery: portfolio-level total-notional cap shipped (correlation_sizing.portfolio_cap_max_size, helper returns (equity*FRAC - sum(|peer|*avg_price))/entry_price, sizing block now min(risk, 25%-per-pos, cluster_max, portfolio_max), CLI flag --portfolio-cap-frac N, default OFF currently — recommend default ON at FRAC=1.0). Run A on 7-bot lineup (+424.09% / 3.41% / 4.95 Sharpe / 4344 trades): cap binds on gold N=4 stacking (4.2% of bars), tiny structural improvement +0.09 Sharpe / -0.17pp DD; the Run B 20-bot result clears decision rule on DD branch. Mental-model update: previous '4 simultaneous full positions × 25% = 100% binding constraint' framing only valid with portfolio cap OFF; once ON the binding constraint becomes aggregate notional, unlocking the per-bot-cap-shrinking experiment (12.5% × 8 bots, 5% × 20 bots) as the genuinely-untested next lever. Roadmap promoted next: per-bot cap shrinking (theoretical √2 Sharpe lift via diversification), best-per-cluster 4-bot lineup (GLD+OIH+IWM+XBI). IWM-as-bot-#8 de-prioritised as Sharpe-boost play (Run B says no). Files: backend/engine/correlation_sizing.py (PORTFOLIO_CAP_ENABLED + PORTFOLIO_CAP_FRAC toggles, portfolio_cap_max_size helper), backend/engine/rotation.py (new), backend/engine/portfolio_runner.py (W-FRI boundary), backend/strategies/stoch_rsi_mean_reversion.py (skip_entry rotation hook + 4-cap min stack), backend/runner.py (CLI flags + DB cache load path), .claude/strategies/portfolio-runner-rotation-v1.md (final 4-run study, single source of truth), .claude/strategies/portfolio-runner-baseline.md (navigational callout), .claude/strategies/regime-analysis.md + regime-distribution-history.md + regime-universe-snapshot.md (FALSIFIED Apr 30 PM callouts), .claude/strategies/research-roadmap.md (rotation V1/V2 + portfolio cap + per-bot cap + best-per-cluster rows; falsification preamble on Regime-Aware Asset Rotation section; live-coordinator dropped; sharp-top detector repointed at regime-conditional cluster cap), CLAUDE.md (consolidated rotation/cap blocks, mental-model update, strategic direction rewrite). Memories: asset_rotation_thesis.md (full rewrite — FALSIFIED status), rotation_rule_conflict.md (full rewrite — 2-rule conclusion), portfolio_total_notional_cap.md (shipped status), notional_cap_dominates.md (full rewrite — sizing-cap stack), correlation_sizing.md (4-cap stack reminder), regime_preference.md (rotation-closed + sharp-top repointed), MEMORY.md index refreshed. Live bots untouched (default OFF on all new toggles); pm2 restart not required.
 
+ .claude/memory/gitlog.md                           |  36 ++--
  .claude/strategies/portfolio-runner-baseline.md    | 104 +++++-----
  .claude/strategies/portfolio-runner-rotation-v1.md | 128 ++++++++++++
  .claude/strategies/regime-analysis.md              |   6 +-
@@ -17,7 +66,7 @@
  backend/engine/rotation.py                         | 217 +++++++++++++++++++++
  backend/runner.py                                  | 105 ++++++++--
  backend/strategies/stoch_rsi_mean_reversion.py     |  29 ++-
- 12 files changed, 702 insertions(+), 101 deletions(-)
+ 13 files changed, 721 insertions(+), 118 deletions(-)
 
 ----
 **2026-04-30** — Apr 30 (PM): correlation-sizing with-vs-without backtest — discount is structurally inactive under V2 fixed-equity. New CLI flag --no-correlation-discount + module toggle correlation_sizing.DISCOUNT_ENABLED (default True; live bots, single-symbol backtests, default portfolio runs unaffected) enable the apples-to-apples comparison. 7-bot V2 baseline (2020-07 → 2026-04, $94k): discount ON +474.67% / 3.58% DD / Sharpe 4.86 / 4413 trades; discount OFF +474.87% / 3.58% / 4.86 / 4413. Trade counts and per-symbol win rates byte-identical. Reason: position size is min(risk_amt / stop_dist, equity * 0.25 / price). For risk to bind tighter than the 25% notional cap, stop_dist/price must exceed 8% at full risk; on 15m metals/energy bars 2 ATR/price ≈ 0.4–1.0%. The cap wins on every entry the strategy actually takes, overwriting whatever the discount sets. Verdict per roadmap rule: neutral (Sharpe and DD unchanged to 2 d.p.) — keep the discount for documentation + the high-volatility regime where it could bind, but reframe: the cap is doing the correlated-gap protection work, not the discount. Apr 23 tail-risk concern bounded by 25% × 4 = 100% notional ceiling regardless of discount state. IWM expansion gate is now unblocked from the discount-validation perspective; live [CORR-SIZE] log audit downgraded from deployment-decision gate to wiring check. Upstream implication: future portfolio-level sizing work should focus on the notional cap (e.g. cluster-aware cap) rather than risk-fraction adjustments. Files: backend/engine/correlation_sizing.py (DISCOUNT_ENABLED toggle), backend/runner.py (CLI flag + diagnostic snapshot path routes to a separate file to preserve the V2 baseline), .claude/strategies/portfolio-runner-baseline.md (full comparison + interpretation), .claude/strategies/research-roadmap.md (row 81 resolved with finding), CLAUDE.md (Correlation-aware sizing note rewritten to reflect cap-binds-first; IWM gate flipped to unblocked). Memories added: notional_cap_dominates.md (the structural finding) + correlation_sizing.md updated with Apr 30 note.
@@ -146,24 +195,4 @@ Domain file updates:
  .claude/memory/gitlog.md                | 20 +++++++++-----------
  .claude/strategies/research-roadmap.md  | 11 ++++++-----
  3 files changed, 32 insertions(+), 16 deletions(-)
-
-----
-**2026-04-29** — correlation-aware sizing V1 — equal-split risk parity discount applied at entry, risk_frac = 0.02 / N where N = cluster peers held + self. Hardcoded clusters (gold/energy/biotech). 13/13 unit tests pass; GLD backtest regression Sharpe 2.48 unchanged (N=1 in single-symbol). Live audit signal: [CORR-SIZE] lines on discounted entries. V1 limitations: race on simultaneous fires, no resize of already-open peers, no shared-timeline backtest validation — accepted.
-
- .claude/memory/gitlog.md                       |  27 +++----
- .claude/strategies/research-roadmap.md         |   2 +-
- CLAUDE.md                                      |   4 +-
- backend/engine/correlation_sizing.py           |  56 ++++++++++++++
- backend/strategies/stoch_rsi_mean_reversion.py |  22 ++++--
- backend/tests/test_correlation_sizing.py       | 102 +++++++++++++++++++++++++
- 6 files changed, 191 insertions(+), 22 deletions(-)
-
-----
-**2026-04-28** — Apr 28 — durable framings from post-resolution discussion: bot lineup ≈ 3 independent bets (gold/energy/biotech), capital cap binds at 4 simultaneous positions, IWM is sole valid expansion candidate (gated on correlation sizing), held-out 12 + boundary 4 deprioritised as deployment path, Live Observation Framework added to roadmap + forward-test-log with 4 specific measurements to convert time-passing into real-money confidence.
-
- .claude/calibration/forward-test-log.md | 16 +++++++++++++++-
- .claude/memory/gitlog.md                | 21 ++++++++++-----------
- .claude/strategies/research-roadmap.md  | 20 +++++++++++++++++++-
- CLAUDE.md                               |  9 ++++++++-
- 4 files changed, 52 insertions(+), 14 deletions(-)
 

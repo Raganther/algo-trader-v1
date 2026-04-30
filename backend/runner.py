@@ -583,6 +583,13 @@ def run_portfolio(args):
     else:
         print("[DIAGNOSTIC] cluster notional cap: disabled (V2 baseline)")
 
+    pos_cap_frac = getattr(args, 'position_cap_frac', None)
+    if pos_cap_frac is not None:
+        params['position_cap_frac'] = float(pos_cap_frac)
+        print(f"[DIAGNOSTIC] per-bot notional cap: {pos_cap_frac*100:.1f}% of equity (CLI override; default 25%)")
+    else:
+        print("[DIAGNOSTIC] per-bot notional cap: 25% of equity (default)")
+
     pf_cap_frac = getattr(args, 'portfolio_cap_frac', None)
     if pf_cap_frac is not None and pf_cap_frac > 0:
         correlation_sizing.PORTFOLIO_CAP_ENABLED = True
@@ -824,6 +831,7 @@ def main():
     pf_parser.add_argument('--rotation-universe', type=str, default=None, help='Optional comma-separated rotation universe (defaults to --symbols).')
     pf_parser.add_argument('--use-cache', action='store_true', help='Read 15m bars from research.db price_data table instead of Alpaca live fetch. Recommended for multi-symbol runs.')
     pf_parser.add_argument('--portfolio-cap-frac', type=float, default=None, help='Enable portfolio-level total-notional cap at this fraction of equity (e.g. 1.0 = cash-account parity, 2.0 = Reg-T margin parity). Default OFF preserves V2 baseline byte-identical.')
+    pf_parser.add_argument('--position-cap-frac', type=float, default=None, help='Per-bot notional cap as fraction of equity (default 0.25 → max 4 fully-invested bots). Pass e.g. 0.125 to allow 8 simultaneous, 0.05 for 20.')
 
     args = parser.parse_args()
 

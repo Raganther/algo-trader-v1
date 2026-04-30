@@ -33,6 +33,9 @@ class StochRSIMeanReversionStrategy(Strategy):
         # "fixed" mirrors live mechanics: 7 bots on one $94k account each see the same $94k when sizing.
         self.equity_mode = parameters.get('equity_mode', 'live')
         self.initial_capital = float(initial_cash)
+        # Per-bot notional cap as fraction of equity. 0.25 (default) → max 4 fully-invested
+        # bots simultaneously. Shrink (e.g. 0.125) to allow more parallel bots without leverage.
+        self.position_cap_frac = float(parameters.get('position_cap_frac', 0.25))
 
         # Enhancement params (all off by default — no impact on existing behaviour)
         self.skip_days = parameters.get('skip_days', [])  # e.g. [0] to skip Monday (0=Mon, 4=Fri)
@@ -262,7 +265,7 @@ class StochRSIMeanReversionStrategy(Strategy):
                     stop_dist = atr_val * self.sl_atr
                     if stop_dist > 0:
                         size = risk_amt / stop_dist
-                        max_size = (equity * 0.25) / row['Close']
+                        max_size = (equity * self.position_cap_frac) / row['Close']
                         cluster_max = correlation_sizing.cluster_cap_max_size(
                             self.symbol, self.broker.get_positions(), equity, row['Close']
                         )
@@ -308,7 +311,7 @@ class StochRSIMeanReversionStrategy(Strategy):
                     size = risk_amt / stop_dist
 
                     # Cap to 25% of equity per position (leaves room for multiple positions + fees)
-                    max_size = (equity * 0.25) / row['Close']
+                    max_size = (equity * self.position_cap_frac) / row['Close']
                     cluster_max = correlation_sizing.cluster_cap_max_size(
                         self.symbol, self.broker.get_positions(), equity, row['Close']
                     )
@@ -363,7 +366,7 @@ class StochRSIMeanReversionStrategy(Strategy):
                     size = risk_amt / stop_dist
 
                     # Cap to 25% of equity per position (leaves room for multiple positions + fees)
-                    max_size = (equity * 0.25) / row['Close']
+                    max_size = (equity * self.position_cap_frac) / row['Close']
                     cluster_max = correlation_sizing.cluster_cap_max_size(
                         self.symbol, self.broker.get_positions(), equity, row['Close']
                     )
