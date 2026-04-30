@@ -549,6 +549,12 @@ def run_portfolio(args):
             print("Error: invalid JSON in --parameters")
             return
 
+    correlation_sizing.DISCOUNT_ENABLED = not getattr(args, 'no_correlation_discount', False)
+    if not correlation_sizing.DISCOUNT_ENABLED:
+        print("[DIAGNOSTIC] correlation discount: DISABLED (apples-to-apples comparison run)")
+    else:
+        print("[DIAGNOSTIC] correlation discount: enabled (V2 baseline)")
+
     print(f"\nInstantiating {len(symbol_data)} strategy instances on shared broker...")
     pr = PortfolioRunner(
         symbol_data=symbol_data,
@@ -587,7 +593,14 @@ def run_portfolio(args):
     # Markdown snapshot
     snapshot_path = args.snapshot
     if snapshot_path is None:
-        snapshot_path = Path(__file__).resolve().parents[1] / ".claude" / "strategies" / "portfolio-runner-baseline.md"
+        # Diagnostic runs (discount disabled) write to a separate file so the
+        # V2 baseline snapshot is preserved for the with-vs-without comparison.
+        default_name = (
+            "portfolio-runner-no-discount.md"
+            if not correlation_sizing.DISCOUNT_ENABLED
+            else "portfolio-runner-baseline.md"
+        )
+        snapshot_path = Path(__file__).resolve().parents[1] / ".claude" / "strategies" / default_name
     else:
         snapshot_path = Path(snapshot_path)
     snapshot_path.parent.mkdir(parents=True, exist_ok=True)
@@ -731,6 +744,7 @@ def main():
     pf_parser.add_argument('--initial', type=float, default=94000.0, help='Initial capital (default $94k matches live)')
     pf_parser.add_argument('--parameters', type=str, help='JSON string of strategy parameters (applied to every symbol)')
     pf_parser.add_argument('--snapshot', type=str, default=None, help='Path to write markdown summary (default .claude/strategies/portfolio-runner-baseline.md)')
+    pf_parser.add_argument('--no-correlation-discount', action='store_true', help='Diagnostic: disable the cluster correlation discount in correlation_sizing.risk_fraction_for. Use to run the with-vs-without comparison against the V2 baseline.')
 
     args = parser.parse_args()
 

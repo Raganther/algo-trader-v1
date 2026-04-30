@@ -14,7 +14,7 @@ Shared-timeline portfolio backtest. Single PaperTrader, one capital pool, one st
 - Spread: 0.0003
 - Parameters: `{"adx_threshold": 20, "min_hold_bars": 10, "overbought": 80, "oversold": 15, "rsi_period": 7, "skip_adx_filter": false, "skip_days": [0], "sl_atr": 2.0, "stoch_period": 14, "trail_after_bars": 10, "trail_atr": 2.0, "trailing_stop": true}`
 
-## Headline
+## V2 baseline (correlation discount enabled)
 
 | Metric | Value |
 |---|---:|
@@ -24,6 +24,39 @@ Shared-timeline portfolio backtest. Single PaperTrader, one capital pool, one st
 | Sharpe (daily, ×√252) | 4.86 |
 | Total trades | 4413 |
 | Max concurrent positions | 7 |
+
+## V2 with-vs-without correlation discount (Apr 30 2026)
+
+Run via `python3 -m backend.runner portfolio ... --no-correlation-discount`. Toggle: `correlation_sizing.DISCOUNT_ENABLED` (module-level, default True; flipped only by the CLI flag). Live bots and single-symbol backtests are unaffected.
+
+| Metric | Discount ON (baseline) | Discount OFF | Δ |
+|---|---:|---:|---:|
+| Final equity | $540,186.32 | $540,378.53 | +$192.21 |
+| Return | 474.67% | 474.87% | +0.20pp |
+| Max DD (daily) | 3.58% | 3.58% | 0.00pp |
+| Sharpe (daily, ×√252) | 4.86 | 4.86 | 0.00 |
+| Total trades | 4,413 | 4,413 | 0 |
+| Max concurrent positions | 7 | 7 | 0 |
+
+Per-symbol P&L deltas: GDX +$313.14, SLV −$120.93, all others identical to the dollar. Trade counts and win rates byte-identical across all 7 symbols.
+
+### Why so little difference
+
+The discount is **structurally inactive** under V2 fixed-equity sizing. In `stoch_rsi_mean_reversion.py` the position size is `min(risk_amt / stop_dist, equity * 0.25 / price)`. For the risk-fraction to bind tighter than the 25% notional cap, `stop_dist / price > risk_frac / 0.25 = 8%` at full risk (or 2% at N=4 discounted risk). On 15m intraday metals/energy bars `2 ATR / price ≈ 0.4–1.0%` — the notional cap wins on every entry the strategy would actually take. The discount changes a number that the cap then overwrites.
+
+The tiny non-zero delta (+0.20pp return) comes from interaction with PaperTrader's cash accounting at the cap: when two cluster bots enter at slightly different cap-binding share counts in the discount-on world vs the discount-off world, downstream cash differs by trade-fee scale, propagating into a few hundred dollars of equity drift over 4,413 trades.
+
+### Decision
+
+Per roadmap rule (≥0.1 Sharpe lift OR ≥1pp DD reduction with ≤0.1 Sharpe loss to keep), the result is **neutral** — not negative. Sharpe and DD are unchanged to 2 decimal places.
+
+**Verdict — keep the discount, but for documentation, not protection.** It costs nothing (no live performance impact) and the code path stays correct for the case it was designed for: `risk_frac / 0.25 > stop_dist / price`, which only happens on much higher-volatility entries (`stop_dist > 8%` at full risk, or smaller equity-to-cap ratios). With the V2 cap regime the *notional cap is doing the correlated-gap protection work, not the discount*. The Apr 23 tail-risk concern (4-symbol correlated overnight gap) is bounded by the 25% × 4 = 100% notional ceiling regardless of discount state.
+
+### What this changes upstream
+
+- **The correlation-aware sizing V1 is correct, but the cap is the binding constraint.** Future portfolio-level sizing work should focus on the notional cap (e.g. cluster-aware notional cap — "don't let 4 gold bots all hit 25% notional simultaneously") rather than risk-fraction discounts.
+- **The IWM expansion gate is unblocked from the discount-validation perspective.** Live verification of `[CORR-SIZE]` log lines is still useful as a wiring check but no longer a deployment-decision gate.
+- **A "low-volatility-window" regime check could surface the discount.** If we ever take entries with stop distances >2% of price (e.g. on regime-stretched bars), the discount would start binding. None of the current 7 bots' historical entries are in that regime.
 
 > **Interpretation note (V2 — fixed-equity reference, Apr 30 2026).**
 > Each strategy sizes risk + notional cap off `initial_capital` ($94k), not
@@ -42,7 +75,7 @@ Shared-timeline portfolio backtest. Single PaperTrader, one capital pool, one st
 > The portfolio Sharpe shown here is real and reflects diversification across
 > imperfectly-correlated bots (≈ √N × asset Sharpe at low cross-correlation).
 
-## Per-symbol contribution
+## Per-symbol contribution (discount ON baseline)
 
 | Symbol | Trades | P&L ($) | Win rate |
 |---|---:|---:|---:|
@@ -56,7 +89,7 @@ Shared-timeline portfolio backtest. Single PaperTrader, one capital pool, one st
 
 ## Cluster co-occupancy
 
-How many bars (out of all observed) had N cluster members holding open positions simultaneously. N≥2 rows show how often the correlation-aware sizing discount had a chance to fire on the *next* cluster entry.
+How many bars (out of all observed) had N cluster members holding open positions simultaneously. N≥2 rows show how often the correlation-aware sizing discount had a chance to fire on the *next* cluster entry. (Note: per the with-vs-without finding above, "had a chance to fire" ≠ "actually changed sizing" because the 25% notional cap binds first.)
 
 ### gold (GDX, GLD, IAU, SLV)
 
@@ -82,4 +115,3 @@ How many bars (out of all observed) had N cluster members holding open positions
 |---:|---:|---:|
 | 0 | 26,749 | 64.9% |
 | 1 | 14,481 | 35.1% |
-

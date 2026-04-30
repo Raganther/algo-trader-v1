@@ -19,6 +19,12 @@ _SYMBOL_TO_CLUSTER = {
 
 BASE_RISK = 0.02
 
+# Diagnostic toggle. Default True everywhere (live bots, single-symbol backtests,
+# default portfolio runs). The portfolio CLI flips this to False when invoked
+# with --no-correlation-discount so the with-vs-without backtest can be run as
+# an apples-to-apples comparison.
+DISCOUNT_ENABLED = True
+
 
 def cluster_for(symbol):
     return _SYMBOL_TO_CLUSTER.get(symbol)
@@ -33,6 +39,9 @@ def risk_fraction_for(symbol, broker_positions, base_risk=BASE_RISK):
 
     Self is always counted in N (the caller is about to enter).
     """
+    if not DISCOUNT_ENABLED:
+        return base_risk
+
     cluster = _SYMBOL_TO_CLUSTER.get(symbol)
     if cluster is None:
         return base_risk
