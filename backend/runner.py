@@ -587,10 +587,16 @@ def run_portfolio(args):
     if pf_cap_frac is not None and pf_cap_frac > 0:
         correlation_sizing.PORTFOLIO_CAP_ENABLED = True
         correlation_sizing.PORTFOLIO_CAP_FRAC = float(pf_cap_frac)
-        print(f"[DIAGNOSTIC] portfolio total-notional cap: ENABLED @ {pf_cap_frac*100:.0f}% of equity")
-    else:
+        print(f"[DIAGNOSTIC] portfolio total-notional cap: ENABLED @ {pf_cap_frac*100:.0f}% of equity (CLI override)")
+    elif pf_cap_frac is not None and pf_cap_frac == 0:
         correlation_sizing.PORTFOLIO_CAP_ENABLED = False
-        print("[DIAGNOSTIC] portfolio total-notional cap: disabled (V2 baseline)")
+        print("[DIAGNOSTIC] portfolio total-notional cap: DISABLED (CLI override — diagnostic comparison run)")
+    else:
+        # No CLI override — use module default (ON since Apr 30 PM, FRAC=1.0)
+        if correlation_sizing.PORTFOLIO_CAP_ENABLED:
+            print(f"[DIAGNOSTIC] portfolio total-notional cap: enabled @ {correlation_sizing.PORTFOLIO_CAP_FRAC*100:.0f}% (module default)")
+        else:
+            print("[DIAGNOSTIC] portfolio total-notional cap: disabled (module default)")
 
     # Rotation controller (V1) — optional. When enabled, the portfolio runner
     # will mutate strategy.rotation_paused at each W-FRI boundary.

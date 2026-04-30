@@ -47,6 +47,16 @@ DISCOUNT_ENABLED = True
 CLUSTER_CAP_ENABLED = False
 CLUSTER_CAP_FRAC = 0.50
 
+# DEFAULT ON since Apr 30 2026 PM. Run A (7-bot + cap @ 100%) confirmed the cap
+# is a tiny structural positive: Sharpe 4.86 → 4.95 (+0.09), DD 3.58% → 3.41%,
+# trades 4413 → 4344 (the cap binds on gold N=4 stacking, 4.2% of bars in
+# baseline). On the live 7-bot lineup the cap rarely binds because cluster
+# correlation keeps max-concurrent ≈ 7 with total notional well under 100%,
+# but the guard is armed for any future expansion or unusual stacking event.
+# Without it, universe expansion (e.g. 20 bots) silently runs at ~4.75× leverage —
+# see `.claude/strategies/portfolio-runner-rotation-v1.md`. Toggle preserved for
+# diagnostic flips via `--portfolio-cap-frac` on the portfolio runner.
+
 # Portfolio-level total-notional cap (Apr 30 2026 PM — promoted from rotation V1
 # side finding: 20-bot universe-expansion control hit max-concurrent 19 →
 # ~4.75× leverage on $94k from per-bot fixed-equity sizing). Without an aggregate
@@ -59,7 +69,7 @@ CLUSTER_CAP_FRAC = 0.50
 # Default OFF to preserve byte-identical baseline. Enable via
 # `--portfolio-cap-frac N` on the portfolio runner. Recommended: 1.0 for
 # cash-account parity, 2.0 for Reg-T margin parity.
-PORTFOLIO_CAP_ENABLED = False
+PORTFOLIO_CAP_ENABLED = True
 PORTFOLIO_CAP_FRAC = 1.0
 
 
