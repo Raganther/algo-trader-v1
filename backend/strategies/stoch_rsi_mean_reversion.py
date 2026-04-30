@@ -27,6 +27,12 @@ class StochRSIMeanReversionStrategy(Strategy):
         self.skip_adx_filter = parameters.get('skip_adx_filter', True)  # Default True for forward testing validation
         self.atr_col = parameters.get('atr_col', 'atr')
         self.symbol = parameters.get('symbol', 'Unknown')
+        # Portfolio runner V2 — equity reference for sizing.
+        #   "live"  → self.broker.get_equity() (single-symbol backtest + live deployment)
+        #   "fixed" → initial_cash (portfolio backtest: each bot sizes off initial $, no compounding)
+        # "fixed" mirrors live mechanics: 7 bots on one $94k account each see the same $94k when sizing.
+        self.equity_mode = parameters.get('equity_mode', 'live')
+        self.initial_capital = float(initial_cash)
 
         # Enhancement params (all off by default — no impact on existing behaviour)
         self.skip_days = parameters.get('skip_days', [])  # e.g. [0] to skip Monday (0=Mon, 4=Fri)
@@ -244,7 +250,7 @@ class StochRSIMeanReversionStrategy(Strategy):
                     go_long = True
                     if not is_crypto and not self.long_only:
                         go_long = self._rng.random() < 0.5
-                    equity = self.broker.get_equity()
+                    equity = self.initial_capital if self.equity_mode == 'fixed' else self.broker.get_equity()
                     risk_frac = correlation_sizing.risk_fraction_for(self.symbol, self.broker.get_positions())
                     risk_amt = equity * risk_frac
                     atr_val = row[self.atr_col]
@@ -277,7 +283,7 @@ class StochRSIMeanReversionStrategy(Strategy):
 
             if self.in_oversold_zone and current_k > 50 and not skip_entry:
                 # Dynamic Sizing — risk fraction discounted for correlated peers held in account
-                equity = self.broker.get_equity()
+                equity = self.initial_capital if self.equity_mode == 'fixed' else self.broker.get_equity()
                 risk_frac = correlation_sizing.risk_fraction_for(self.symbol, self.broker.get_positions())
                 if risk_frac < correlation_sizing.BASE_RISK:
                     cluster = correlation_sizing.cluster_for(self.symbol)
@@ -326,7 +332,7 @@ class StochRSIMeanReversionStrategy(Strategy):
 
             if self.in_overbought_zone and current_k < 50 and not skip_entry:
                 # Dynamic Sizing — risk fraction discounted for correlated peers held in account
-                equity = self.broker.get_equity()
+                equity = self.initial_capital if self.equity_mode == 'fixed' else self.broker.get_equity()
                 risk_frac = correlation_sizing.risk_fraction_for(self.symbol, self.broker.get_positions())
                 if risk_frac < correlation_sizing.BASE_RISK:
                     cluster = correlation_sizing.cluster_for(self.symbol)

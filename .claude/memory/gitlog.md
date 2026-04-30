@@ -3,6 +3,17 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-04-30** — Apr 30: portfolio runner V2 — fixed-equity reference + Sharpe-invariance learning. Each strategy now reads equity_mode param: 'live' (default → broker.get_equity(), single-symbol backtester + live deployment unchanged) or 'fixed' (→ initial_capital, no compounding of the equity reference). PortfolioRunner injects equity_mode='fixed' so 7 bots on a shared $94k pool size off the same $94k each — mirrors live mechanics where 7 bots on one Alpaca account each see the same equity number. V1 artefact (every bot sizing 2% off the inflated total equity → +10,496%/Sharpe 5.55) replaced with V2 baseline +474.67%/3.58% DD/Sharpe 4.86/4413 trades on the validated 7-bot lineup (2020-07 → 2026-04). Trade counts and cluster co-occupancy (gold ≥2 on 46.7%, ≥3 on 20.1%) identical to V1 — entry logic unchanged. Important learning recorded across CLAUDE.md, research-roadmap.md, and the snapshot interpretation note: Sharpe is sizing-invariant by construction (scaling positions by a constant scales mean and stdev equally), so V1's Sharpe was NOT an upper-bound artefact — only the +10,496% return and 5.05% DD were. The earlier 'V1 caveat' framing in CLAUDE.md/roadmap that lumped Sharpe with return/DD was wrong. V2's slightly lower 4.86 vs V1's 5.55 reflects Option A's reweighting of early-vs-late-year contributions, not a metric fix. Files: backend/strategies/stoch_rsi_mean_reversion.py (equity_mode + initial_capital captured, three sizing blocks updated), backend/engine/portfolio_runner.py (injects equity_mode='fixed'), backend/runner.py (snapshot interpretation note rewritten). Roadmap rows updated: portfolio runner V2 row flipped to 'shipped'; correlation-sizing with-vs-without backtest promoted to 'next — gating IWM expansion' with V2 baseline as the comparison anchor. Snapshot at .claude/strategies/portfolio-runner-baseline.md.
+
+ .claude/strategies/portfolio-runner-baseline.md | 41 +++++++++++++++++--------
+ .claude/strategies/research-roadmap.md          |  6 ++--
+ CLAUDE.md                                       |  2 +-
+ backend/engine/portfolio_runner.py              |  3 ++
+ backend/runner.py                               | 26 ++++++++++------
+ backend/strategies/stoch_rsi_mean_reversion.py  | 12 ++++++--
+ 6 files changed, 61 insertions(+), 29 deletions(-)
+
+----
 **2026-04-29** — Apr 29 evening: regime-aware rotation infrastructure + shared-timeline portfolio runner V1.
 Three new analysis tools shipped, three roadmap items resolved.
 
@@ -17,6 +28,7 @@ Domain file updates:
 - research-roadmap.md: 30-asset scan + rolling history both marked shipped with results inlined; Universal HIGH_VOL kill-switch promoted as standalone roadmap item; portfolio runner V1 marked shipped; new V2 row (per-bot allocation cap) and V2 correlation-sizing backtest validation rows added; rotation rule backtest expected-lift envelope added (0.5-1.0 Sharpe theoretical, +0.3 bar to beat).
 - CLAUDE.md: strategic-direction bullet updated with shipped scripts + headline numbers; Validated Edges section gets Confirmed-working bullet for the portfolio runner V1 finding; on-demand domain-file reads list adds three new files; Run Commands gets the portfolio invocation.
 
+ .claude/memory/gitlog.md                          |  41 +-
  .claude/strategies/portfolio-runner-baseline.md   |  68 ++
  .claude/strategies/regime-analysis.md             |  15 +
  .claude/strategies/regime-distribution-history.md |  94 +++
@@ -28,7 +40,7 @@ Domain file updates:
  backend/analysis/regime_universe_scan.py          | 275 ++++++++
  backend/engine/portfolio_runner.py                | 173 +++++
  backend/runner.py                                 | 199 +++++-
- 11 files changed, 2099 insertions(+), 8 deletions(-)
+ 12 files changed, 2130 insertions(+), 18 deletions(-)
 
 ----
 **2026-04-29** — doc + memory: capture Apr 29 stop-handling fixes + post-mortem. research-roadmap.md Resolved table extended with two entries — gap-through-stop guard and SYNC race condition. Memory recurring_bug_pattern.md restructured from 'one TIF bug' to 'four closely-related stop-handling failure modes' (TIF mismatch Apr 17, trailing-stop race Mar 19, SYNC race Apr 29, gap-through-stop Apr 29). Memory now explains the structural reason the SYNC race surfaced only on Apr 29 (DAY-TIF era pre-Apr-17 had nothing for cancel to race against; Apr 29 correlation-sizing deploy hit the race on all overnight-position bots simultaneously and XBI was the unlucky one due to biotech gap-profile). Added a 'where to look' index covering SYNC block, LOOP gate, SERVER STOP FIRED detection, alpaca_trader, and live_broker for future stop-related debugging.
@@ -149,12 +161,4 @@ Domain file updates:
  .claude/strategies/research-log.md | 86 ++++++++++++++++++++++++++++++++++++++
  backend/runner.py                  | 19 +++++++++
  3 files changed, 114 insertions(+), 22 deletions(-)
-
-----
-**2026-04-28** — Apr 28 — Edge Test 2: fully-random ablation matches/beats validated on 3 of 4 assets (GLD 2.32 vs 2.48, SLV 2.64 vs 2.46, GDX 2.57 vs 2.46, QQQ 2.28 vs 1.45). Framework alone clears Sharpe ≥2.0 with zero signal information. The StochRSI entry + K-cross exit signals are at best neutral, slightly net-negative on average. Framework IS the edge.
-
- .claude/memory/gitlog.md                       | 29 ++++++------------
- .claude/strategies/research-log.md             | 42 ++++++++++++++++++++++++++
- backend/strategies/stoch_rsi_mean_reversion.py | 16 ++++++++--
- 3 files changed, 65 insertions(+), 22 deletions(-)
 

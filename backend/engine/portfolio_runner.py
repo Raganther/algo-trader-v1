@@ -50,6 +50,9 @@ class PortfolioRunner:
         for sym, df in self.symbol_data.items():
             params = dict(parameters)
             params["symbol"] = sym
+            # V2 — each bot sizes off initial_capital (mirrors live: 7 bots on one Alpaca
+            # account each see the same equity number when sizing). No compounding artefact.
+            params["equity_mode"] = "fixed"
             self.strategies[sym] = strategy_class(df, None, params, initial_capital, self.broker)
 
         self.equity_history: list[dict] = []

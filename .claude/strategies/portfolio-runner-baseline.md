@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-29
+Status: current | Epistemic: confirmed | Last verified: 2026-04-30
 
 # Portfolio Runner Baseline
 
@@ -18,24 +18,41 @@ Shared-timeline portfolio backtest. Single PaperTrader, one capital pool, one st
 
 | Metric | Value |
 |---|---:|
-| Final equity | $9,960,531.98 |
-| Return | 10496.31% |
-| Max DD (daily) | 5.05% |
-| Sharpe (daily, ×√252) | 5.55 |
+| Final equity | $540,186.32 |
+| Return | 474.67% |
+| Max DD (daily) | 3.58% |
+| Sharpe (daily, ×√252) | 4.86 |
 | Total trades | 4413 |
 | Max concurrent positions | 7 |
+
+> **Interpretation note (V2 — fixed-equity reference, Apr 30 2026).**
+> Each strategy sizes risk + notional cap off `initial_capital` ($94k), not
+> the compounding pool. This mirrors live mechanics: 7 bots on a single
+> Alpaca account each see the same equity number when sizing. The 25%
+> per-position notional cap × 4 simultaneous positions = 100% notional ceiling
+> matches the live deployment binding constraint exactly. No compounding.
+>
+> Single-symbol runs use `equity_mode='live'` (current equity, V1 behaviour)
+> and are byte-identical to single-symbol backtests. The portfolio runner
+> overrides this to `'fixed'` for multi-symbol runs.
+>
+> **About Sharpe.** Sharpe is sizing-invariant — scaling every position by a
+> constant scales mean return and stdev equally, so the ratio is unchanged.
+> V1's Sharpe was *not* an upper-bound artefact (only its return / DD were).
+> The portfolio Sharpe shown here is real and reflects diversification across
+> imperfectly-correlated bots (≈ √N × asset Sharpe at low cross-correlation).
 
 ## Per-symbol contribution
 
 | Symbol | Trades | P&L ($) | Win rate |
 |---|---:|---:|---:|
-| GDX | 581 | 1,969,196.20 | 45.8% |
-| GLD | 728 | 1,196,241.99 | 43.1% |
-| IAU | 705 | 1,054,097.69 | 41.0% |
-| OIH | 589 | 1,222,090.73 | 42.4% |
-| SLV | 581 | 2,645,034.39 | 47.3% |
-| XBI | 601 | 821,985.30 | 43.4% |
-| XOP | 628 | 867,635.29 | 42.0% |
+| GDX | 581 | 80,349.19 | 45.8% |
+| GLD | 728 | 39,671.71 | 43.1% |
+| IAU | 705 | 32,120.75 | 41.0% |
+| OIH | 589 | 88,017.85 | 42.4% |
+| SLV | 581 | 85,066.16 | 47.3% |
+| XBI | 601 | 59,181.16 | 43.4% |
+| XOP | 628 | 60,924.82 | 42.0% |
 
 ## Cluster co-occupancy
 
