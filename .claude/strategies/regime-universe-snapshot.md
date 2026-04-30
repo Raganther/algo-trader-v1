@@ -1,8 +1,8 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-29
+Status: current | Epistemic: snapshot confirmed; rotation-application FALSIFIED Apr 30 PM | Last verified: 2026-04-30
 
 # Regime Universe Snapshot
 
-Daily-bar regime classification across a ~30-asset ETF universe. First step in the Apr 29 strategic direction (Regime-Aware Asset Rotation, see `research-roadmap.md`). Tells us whether the universe has selection power — i.e. whether on a typical day there is a useful subset of assets in a strong regime worth rotating capital toward.
+Daily-bar regime classification across a ~30-asset ETF universe. **Apr 30 PM update:** the original Apr 29 strategic direction this fed into (regime-aware asset rotation) was tested and falsified for the deployed strategy class — see `.claude/strategies/portfolio-runner-rotation-v1.md`. The snapshot still has value as **observational context** (which assets are in which regime today, so live performance can be interpreted in regime terms) and as input to **future strategy-class composition** experiments. It is no longer "the first step toward asset rotation."
 
 - Universe size: 33 (target ~30)
 - Classifier: `backend/indicators/regime.py:classify_regime` (defaults: ADX 14 / SMA 200 / ATR 14, ADX threshold 25, ATR vol multiplier 1.5x)

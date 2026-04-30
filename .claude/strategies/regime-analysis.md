@@ -1,9 +1,11 @@
-Status: current | Epistemic: classification confirmed; strategy-implication column revised Apr 29 with long-window evidence | Last verified: 2026-04-29
+Status: current | Epistemic: classification confirmed; rotation-implication FALSIFIED Apr 30 PM | Last verified: 2026-04-30
 
 # Regime Analysis — Algo Trader V1
 
 > **Purpose:** Market regime classification, statistics, and implications for strategy sizing and risk management.
 > Read when: designing regime-aware sizing, interpreting live performance, planning regime-gated enhancements.
+
+> **Apr 30 PM falsification — rotation thesis is dead for StochRSI mean-reversion.** Built and tested rotation V1 (TRENDING_UP) and V2 (RANGING) with the new portfolio cap. Both fail the +0.30 Sharpe gate (ΔSharpe −1.65 and −0.37 respectively). Reason: the strategy's own `ADX < 20` entry filter already self-selects regime at the right (15m) timeframe — adding a daily-bar rotation rule on top is redundant or destructive. The "rotation has selection power" + "implication for rotation" callouts below remain valid as *measurements of the universe*, but **do not translate into a working rotation rule for this strategy class**. Different strategy classes without internal regime filters (breakouts, momentum, donchian-trend) remain candidates. See `.claude/strategies/portfolio-runner-rotation-v1.md` final report and `research-roadmap.md` → Portfolio Infrastructure → Rotation V1 / V2 rows.
 
 > **Apr 29 2026 update — regime preference re-ranked from real history.** The 18-cell HistData spot-proxy backtest (`long-window-validation.md`) shows:
 > - **Strongest = sustained directional moves (bull or bear).** XAGUSD 2009–11 bull Sharpe +2.59; XAGUSD 2013–15 bear +2.04. Direction does not matter — character does.
@@ -46,7 +48,7 @@ HIGH_VOL takes priority over TRENDING — a volatile trending session is classif
 
 **The under-served regime label is "TRANSITION" / "POST-PEAK".** The current 4-label classifier mixes this case into HIGH_VOL or TRENDING_DOWN, but neither isolates it. Building a transition-detector (e.g. recent ATR spike + cross of 200-SMA opposite to prior trend, with elevated ADX) is the highest-leverage regime-engineering item — it would tag the worst environment for the bots specifically. Tracked in `research-roadmap.md` → Regime-Aware Sizing + Regime-Aware Asset Rotation.
 
-**The classifier's highest-leverage application is asset rotation, not sizing.** The Apr 23 regime-sizing portfolio diagnostic showed broad regime multipliers do NOT improve drawdown-adjusted performance (baseline daily Sharpe 4.27 beats all variants). Apr 29 evidence reframes this: the bigger lift is using the regime classifier as an **asset-selection signal** across a wider universe — pause bots whose asset is in TRANSITION, activate bots whose asset is in sustained TRENDING. This is the strategic direction tracked in `research-roadmap.md` → "Regime-Aware Asset Rotation"; cheapest first step is a 30-asset observational scan with no live changes.
+**The classifier's highest-leverage application is no longer asset rotation (Apr 30 PM update).** The Apr 23 regime-sizing portfolio diagnostic ruled out broad regime multipliers as a sizing input (baseline Sharpe 4.27 beats all variants). The Apr 29 thesis "use it as an asset-selection signal across a wider universe" was tested Apr 30 PM and falsified for this strategy class — both rotation rules (TRENDING_UP and RANGING) fail the +0.30 Sharpe gate because the strategy's own `ADX < 20` filter already self-selects regime at the right (15m) timeframe. **The classifier remains valuable for:** (a) understanding live performance in context — RANGING ≈ Sharpe 1.5 expectation, sustained directional ≈ 2.0–2.6, transitions ≈ 0.8–1.1; (b) the universal HIGH_VOL kill-switch (system-wide flatten-all when count_HIGH_VOL ≥ 25); (c) future strategy-class composition — running a breakout strategy alongside StochRSI, with regime as the *strategy selector*, not a within-strategy filter. Tracked in `research-roadmap.md` → Regime-Aware Sizing + the FALSIFIED Regime-Aware Asset Rotation section.
 
 ---
 

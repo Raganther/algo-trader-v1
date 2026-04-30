@@ -136,6 +136,11 @@ class StochRSIMeanReversionStrategy(Strategy):
 
         # Day-of-week filter (skip entries on specified days, but allow exits)
         skip_entry = False
+        # Rotation pause — runner sets this flag at W-FRI boundary when the asset
+        # is not in the active regime set. Existing positions still trail / exit
+        # naturally; no NEW entries while paused.
+        if getattr(self, 'rotation_paused', False):
+            skip_entry = True
         if self.skip_days and hasattr(row.name, 'dayofweek'):
             if row.name.dayofweek in self.skip_days:
                 skip_entry = True
@@ -258,7 +263,13 @@ class StochRSIMeanReversionStrategy(Strategy):
                     if stop_dist > 0:
                         size = risk_amt / stop_dist
                         max_size = (equity * 0.25) / row['Close']
-                        size = min(size, max_size)
+                        cluster_max = correlation_sizing.cluster_cap_max_size(
+                            self.symbol, self.broker.get_positions(), equity, row['Close']
+                        )
+                        portfolio_max = correlation_sizing.portfolio_cap_max_size(
+                            self.broker.get_positions(), equity, row['Close']
+                        )
+                        size = min(size, max_size, cluster_max, portfolio_max)
                         size = math.floor(size)
                         if size >= 1:
                             if go_long:
@@ -298,7 +309,13 @@ class StochRSIMeanReversionStrategy(Strategy):
 
                     # Cap to 25% of equity per position (leaves room for multiple positions + fees)
                     max_size = (equity * 0.25) / row['Close']
-                    size = min(size, max_size)
+                    cluster_max = correlation_sizing.cluster_cap_max_size(
+                        self.symbol, self.broker.get_positions(), equity, row['Close']
+                    )
+                    portfolio_max = correlation_sizing.portfolio_cap_max_size(
+                        self.broker.get_positions(), equity, row['Close']
+                    )
+                    size = min(size, max_size, cluster_max, portfolio_max)
                     size = math.floor(size)
 
                     if size < 1:
@@ -347,7 +364,13 @@ class StochRSIMeanReversionStrategy(Strategy):
 
                     # Cap to 25% of equity per position (leaves room for multiple positions + fees)
                     max_size = (equity * 0.25) / row['Close']
-                    size = min(size, max_size)
+                    cluster_max = correlation_sizing.cluster_cap_max_size(
+                        self.symbol, self.broker.get_positions(), equity, row['Close']
+                    )
+                    portfolio_max = correlation_sizing.portfolio_cap_max_size(
+                        self.broker.get_positions(), equity, row['Close']
+                    )
+                    size = min(size, max_size, cluster_max, portfolio_max)
                     size = math.floor(size)
 
                     if size < 1:

@@ -34,6 +34,7 @@ class PortfolioRunner:
         parameters: dict,
         initial_capital: float = 94000.0,
         spread: float = 0.0,
+        rotation=None,
     ):
         self.symbol_data = {sym: df for sym, df in symbol_data.items() if df is not None and not df.empty}
         if not self.symbol_data:
@@ -54,6 +55,12 @@ class PortfolioRunner:
             # account each see the same equity number when sizing). No compounding artefact.
             params["equity_mode"] = "fixed"
             self.strategies[sym] = strategy_class(df, None, params, initial_capital, self.broker)
+            # Rotation flag — runner toggles at W-FRI boundary. Default False so
+            # no-rotation runs are bit-identical to baseline.
+            self.strategies[sym].rotation_paused = False
+
+        self.rotation = rotation
+        self._last_rotation_week = None
 
         self.equity_history: list[dict] = []
         self.concurrent_history: list[dict] = []   # per-timestamp count of open positions
@@ -86,6 +93,20 @@ class PortfolioRunner:
             group_list = list(group)
             for _, sym, row in group_list:
                 self.broker.update_price(sym, row["Close"])
+
+            # Rotation rebalance: at the W-FRI boundary, refresh each strategy's
+            # rotation_paused flag from the active set. period_start of W-FRI is
+            # Saturday → strictly increases at the Saturday→Friday boundary, so
+            # this fires once per week regardless of the bar's intra-week time.
+            if self.rotation is not None:
+                current_week = pd.Timestamp(ts).to_period("W-FRI").start_time
+                if current_week != self._last_rotation_week:
+                    active = self.rotation.active_set_for(ts)
+                    for sym, strat in self.strategies.items():
+                        strat.rotation_paused = (sym not in active)
+                    self.rotation.record_rebalance(ts, active)
+                    print(f"[ROTATION] {ts} active={len(active)}/{len(self.strategies)}: {sorted(active)}")
+                    self._last_rotation_week = current_week
 
             for _, sym, row in group_list:
                 self.strategies[sym].on_data(ts, row)
@@ -173,4 +194,5 @@ class PortfolioRunner:
             "cluster_cooccupancy": cooccupancy_summary,
             "equity_history": self.equity_history,
             "trade_history": self.broker.trade_history,
+            "rotation_log": (self.rotation.rebalance_log() if self.rotation is not None else []),
         }

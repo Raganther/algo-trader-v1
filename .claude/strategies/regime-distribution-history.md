@@ -1,8 +1,10 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-29
+Status: current | Epistemic: distribution confirmed; rotation-implication FALSIFIED Apr 30 PM | Last verified: 2026-04-30
 
 # Regime Distribution History
 
 Rolling weekly snapshot of how many assets in the universe sit in each regime, across the available daily-bar history. Tells us whether the favourable-count (TRENDING_UP + TRENDING_DOWN) distribution supports a rotation strategy.
+
+> **Apr 30 PM update — rotation backtest run, both rules failed.** The "rotation has selection power" + "rotation backtest is justified" verdicts below were inputs to the Apr 30 PM rotation V1+V2 study. The universe-distribution evidence here is real (median favourable = 8 is genuinely inside the selective band), **but the actual backtest still failed**: V1 TRENDING_UP rule ΔSharpe −1.65, V2 RANGING rule ΔSharpe −0.37. The selection power exists; what's missing is *a strategy class that doesn't already self-select regime via its own entry filter*. StochRSI mean-reversion has an ADX<20 filter that makes external rotation redundant or destructive. The distribution evidence remains valid for future strategy classes (breakouts, momentum, donchian-trend); the "rotation backtest is justified" conclusion below is closed for the deployed strategy. See `.claude/strategies/portfolio-runner-rotation-v1.md`.
 
 ## Inputs
 

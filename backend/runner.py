@@ -505,7 +505,10 @@ def run_portfolio(args):
         print("Error: --symbols must list at least one symbol.")
         return
 
-    # Load data per symbol (mirrors run_backtest's Alpaca path; intraday only).
+    # Load data per symbol. DB cache (research.db price_data) is preferred for
+    # multi-symbol runs (deterministic, no rate limits). Falls through to Alpaca
+    # live fetch when the DB has no rows for a symbol or args.source != 'alpaca'.
+    use_cache = bool(getattr(args, 'use_cache', False)) and args.source == 'alpaca'
     symbol_data = {}
     if args.source == 'alpaca':
         loader = AlpacaDataLoader()
@@ -514,16 +517,35 @@ def run_portfolio(args):
         ohlc_dict = {'Open': 'first', 'High': 'max', 'Low': 'min', 'Close': 'last', 'Volume': 'sum'}
         resample_alias = {'5m': '5min', '15m': '15min'}.get(target_tf, target_tf)
 
+        cache_db = None
+        if use_cache:
+            cache_db = DatabaseManager()
+            cache_db.initialize_db()
+
+        start_ts_unix = int(pd.Timestamp(args.start).tz_localize('UTC').timestamp()) if pd.Timestamp(args.start).tzinfo is None else int(pd.Timestamp(args.start).timestamp())
+        end_ts_unix = int(pd.Timestamp(args.end).tz_localize('UTC').timestamp()) if pd.Timestamp(args.end).tzinfo is None else int(pd.Timestamp(args.end).timestamp())
+
         for sym in symbols:
-            print(f"  Fetching {sym} {fetch_tf} {args.start}→{args.end}...")
-            df = loader.fetch_data(sym, fetch_tf, args.start, args.end)
-            if df is None or df.empty:
-                print(f"  WARN: no data for {sym}, skipping")
-                continue
-            if target_tf != fetch_tf:
-                df = df.resample(resample_alias).agg(ohlc_dict).dropna()
+            df = None
+            if cache_db is not None and target_tf == '15m':
+                rows = cache_db.get_price_bars(sym, start_ts=start_ts_unix, end_ts=end_ts_unix)
+                if rows:
+                    df = pd.DataFrame(rows)
+                    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s', utc=True)
+                    df = df.set_index('timestamp').sort_index()
+                    df = df.rename(columns={'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'})
+                    print(f"  CACHE {sym}: {len(df)} bars from research.db ({df.index[0]} → {df.index[-1]})")
+
+            if df is None:
+                print(f"  Fetching {sym} {fetch_tf} {args.start}→{args.end}...")
+                df = loader.fetch_data(sym, fetch_tf, args.start, args.end)
+                if df is None or df.empty:
+                    print(f"  WARN: no data for {sym}, skipping")
+                    continue
+                if target_tf != fetch_tf:
+                    df = df.resample(resample_alias).agg(ohlc_dict).dropna()
+                print(f"  OK   {sym}: {len(df)} bars ({df.index[0]} → {df.index[-1]})")
             symbol_data[sym] = df
-            print(f"  OK   {sym}: {len(df)} bars ({df.index[0]} → {df.index[-1]})")
     else:
         loader = DataLoader()
         for sym in symbols:
@@ -555,6 +577,47 @@ def run_portfolio(args):
     else:
         print("[DIAGNOSTIC] correlation discount: enabled (V2 baseline)")
 
+    correlation_sizing.CLUSTER_CAP_ENABLED = bool(getattr(args, 'cluster_cap', False))
+    if correlation_sizing.CLUSTER_CAP_ENABLED:
+        print(f"[DIAGNOSTIC] cluster notional cap: ENABLED @ {correlation_sizing.CLUSTER_CAP_FRAC*100:.0f}% per cluster (diagnostic run)")
+    else:
+        print("[DIAGNOSTIC] cluster notional cap: disabled (V2 baseline)")
+
+    pf_cap_frac = getattr(args, 'portfolio_cap_frac', None)
+    if pf_cap_frac is not None and pf_cap_frac > 0:
+        correlation_sizing.PORTFOLIO_CAP_ENABLED = True
+        correlation_sizing.PORTFOLIO_CAP_FRAC = float(pf_cap_frac)
+        print(f"[DIAGNOSTIC] portfolio total-notional cap: ENABLED @ {pf_cap_frac*100:.0f}% of equity")
+    else:
+        correlation_sizing.PORTFOLIO_CAP_ENABLED = False
+        print("[DIAGNOSTIC] portfolio total-notional cap: disabled (V2 baseline)")
+
+    # Rotation controller (V1) — optional. When enabled, the portfolio runner
+    # will mutate strategy.rotation_paused at each W-FRI boundary.
+    rotation = None
+    if getattr(args, 'rotation', False):
+        from backend.engine.rotation import (
+            RotationController,
+            build_weekly_regime_panel,
+            ROTATION_RULES,
+        )
+        rule_name = getattr(args, 'rotation_rule', 'trending_up')
+        if rule_name not in ROTATION_RULES:
+            print(f"Error: unknown --rotation-rule '{rule_name}'. Available: {sorted(ROTATION_RULES)}")
+            return
+        rot_universe_arg = getattr(args, 'rotation_universe', None)
+        rot_universe = ([s.strip() for s in rot_universe_arg.split(',')] if rot_universe_arg
+                        else list(symbol_data.keys()))
+        print(f"\n[ROTATION] building weekly regime panel for {len(rot_universe)} symbols (rule={rule_name})...")
+        db_for_panel = DatabaseManager()
+        db_for_panel.initialize_db()
+        panel = build_weekly_regime_panel(db_for_panel, rot_universe, end_date=pd.Timestamp(args.end))
+        if panel.empty:
+            print("[ROTATION] WARN: empty regime panel — falling back to no-rotation run")
+        else:
+            print(f"[ROTATION] panel: {len(panel)} weekly snapshots, {panel.index[0].date()} → {panel.index[-1].date()}")
+            rotation = RotationController(panel, ROTATION_RULES[rule_name], symbol_data.keys(), enabled=True)
+
     print(f"\nInstantiating {len(symbol_data)} strategy instances on shared broker...")
     pr = PortfolioRunner(
         symbol_data=symbol_data,
@@ -562,6 +625,7 @@ def run_portfolio(args):
         parameters=params,
         initial_capital=args.initial,
         spread=args.spread,
+        rotation=rotation,
     )
     results = pr.run()
 
@@ -593,13 +657,16 @@ def run_portfolio(args):
     # Markdown snapshot
     snapshot_path = args.snapshot
     if snapshot_path is None:
-        # Diagnostic runs (discount disabled) write to a separate file so the
-        # V2 baseline snapshot is preserved for the with-vs-without comparison.
-        default_name = (
-            "portfolio-runner-no-discount.md"
-            if not correlation_sizing.DISCOUNT_ENABLED
-            else "portfolio-runner-baseline.md"
-        )
+        # Diagnostic runs (discount or cluster-cap disabled) write to a separate
+        # file so the V2 baseline snapshot is preserved for comparison.
+        if not correlation_sizing.DISCOUNT_ENABLED:
+            default_name = "portfolio-runner-no-discount.md"
+        elif correlation_sizing.CLUSTER_CAP_ENABLED:
+            default_name = "portfolio-runner-cluster-cap.md"
+        elif rotation is not None:
+            default_name = "portfolio-runner-rotation-v1.md"
+        else:
+            default_name = "portfolio-runner-baseline.md"
         snapshot_path = Path(__file__).resolve().parents[1] / ".claude" / "strategies" / default_name
     else:
         snapshot_path = Path(snapshot_path)
@@ -745,6 +812,12 @@ def main():
     pf_parser.add_argument('--parameters', type=str, help='JSON string of strategy parameters (applied to every symbol)')
     pf_parser.add_argument('--snapshot', type=str, default=None, help='Path to write markdown summary (default .claude/strategies/portfolio-runner-baseline.md)')
     pf_parser.add_argument('--no-correlation-discount', action='store_true', help='Diagnostic: disable the cluster correlation discount in correlation_sizing.risk_fraction_for. Use to run the with-vs-without comparison against the V2 baseline.')
+    pf_parser.add_argument('--cluster-cap', action='store_true', help='Diagnostic: enable the cluster notional cap (correlation_sizing.cluster_cap_max_size, default OFF — fails roadmap rule at FRAC=0.50). Use to rerun the with-vs-without comparison.')
+    pf_parser.add_argument('--rotation', action='store_true', help='Enable regime-aware asset rotation (V1). At each W-FRI boundary, only symbols in the active set may take new entries; existing positions trail/exit naturally.')
+    pf_parser.add_argument('--rotation-rule', type=str, default='trending_up', help='Rotation rule (default trending_up). See backend.engine.rotation.ROTATION_RULES.')
+    pf_parser.add_argument('--rotation-universe', type=str, default=None, help='Optional comma-separated rotation universe (defaults to --symbols).')
+    pf_parser.add_argument('--use-cache', action='store_true', help='Read 15m bars from research.db price_data table instead of Alpaca live fetch. Recommended for multi-symbol runs.')
+    pf_parser.add_argument('--portfolio-cap-frac', type=float, default=None, help='Enable portfolio-level total-notional cap at this fraction of equity (e.g. 1.0 = cash-account parity, 2.0 = Reg-T margin parity). Default OFF preserves V2 baseline byte-identical.')
 
     args = parser.parse_args()
 
