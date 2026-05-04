@@ -42,6 +42,7 @@ Read on demand only:
 - `.claude/strategies/regime-sizing-portfolio-diagnostic.md` — read when evaluating whether regime multipliers improve portfolio-level return/drawdown before live sizing
 - `.claude/strategies/arbitrage-automation-concepts.md` — read when exploring new strategy families (pairs trading, cross-asset, event-driven), evaluating adjacent business ideas, or planning beyond the current 4-symbol setup
 - `.claude/strategies/long-window-validation.md` — read when reasoning about how the strategy performs in real bear regimes (XAUUSD/XAGUSD/WTIUSD spot proxies 2009–2026), or interpreting the spot-vs-ETF Sharpe gap when sizing live
+- `.claude/strategies/small-capital-deployment.md` — read when planning a real-money pilot below the original $5–10k threshold (e.g. $1k start), reasoning about whole-share rounding tax at small equity, or deciding which symbols become tradable as equity grows. Empirical $1k backtest: +411.83% / Sharpe 3.83 / DD 4.67% on 4-bot SLV/IAU/GDX/XBI lineup at 50% cap.
 
 ## Run Commands
 

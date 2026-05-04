@@ -3,14 +3,24 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-04** — Document $1k small-capital deployment plan + backtest validation
+
+ .claude/strategies/portfolio-runner-baseline.md |   2 +-
+ .claude/strategies/research-roadmap.md          |   3 +-
+ .claude/strategies/small-capital-deployment.md  | 145 ++++++++++++++++++++++++
+ CLAUDE.md                                       |   1 +
+ 4 files changed, 149 insertions(+), 2 deletions(-)
+
+----
 **2026-04-30** — Apr 30 PM: per-bot cap shrinking experiment — PASSES decision rule on both branches. New strategy param `position_cap_frac` (default 0.25 — byte-identical baseline) plus portfolio-runner CLI flag `--position-cap-frac`. Three runs over 2020-07 → 2026-04 on $94k. Run 0 (7 bots × 25%, baseline reproduction): +424.09% / 3.41% / 4.95 / 4344 — byte-identical to 070e3dc, confirms refactor is no-op at default. Run 1 (7 bots × 12.5%, pure cap-shrink ablation): +236.86% / 1.87% / 5.23 / 4413 — ΔSharpe +0.28, ΔDD −1.54pp, passes DD branch. Run 2 (8 bots × 12.5%, best-per-cluster GLD+SLV+OIH+XOP+IWM+SMH+XBI+IBB): +262.81% / 2.22% / 5.40 / 5004 / max-conc 8 — ΔSharpe +0.45, ΔDD −1.19pp, passes both branches independently. Returns drop by design (Sharpe is sizing-invariant — half-cap = half dollar P&L per trade); apples-to-apples is Sharpe + DD%. Lineup change (Run 1 → Run 2) contributes +0.17 Sharpe; bulk of lift is the cap-shrink itself. SMH, IBB, IWM (no live deployment) collectively contribute $80.8k of $247k aggregate P&L in Run 2. Strategic decision pending separately on whether to flip strategy default 0.25 → 0.125 and reshuffle live lineup (deploy IWM/SMH/IBB, retire IAU/GDX) — real-money trade-off (less absolute return today vs higher Sharpe with headroom to scale). Code shipped only; live bots untouched (default 0.25 preserved). Files: backend/strategies/stoch_rsi_mean_reversion.py (position_cap_frac param + 3 sizing blocks at L268/L314/L369), backend/runner.py (--position-cap-frac CLI flag + injection at L586), .claude/strategies/portfolio-runner-cap-shrink.md (new snapshot), .claude/strategies/research-roadmap.md (Per-bot cap shrinking row resolved; Best-per-cluster 4-bot row partially answered via Run 2), CLAUDE.md (strategic-direction block updated with experiment result + new on-demand snapshot ref). Bot check during session: 3 trades fired today (OIH short +$60, SLV long +$110, XOP long stop-out −$103), net +$67 paper; all entries sized at ~26% of equity confirming the 25% cap binds on every entry as theorised; trailing-stop ratchet visible on XOP (cancel-and-replace cycle 18:53/18:59/19:01); no errors, currently flat.
 
+ .claude/memory/gitlog.md                          | 71 ++++++++++++++------
  .claude/strategies/portfolio-runner-cap-shrink.md | 81 +++++++++++++++++++++++
  .claude/strategies/research-roadmap.md            |  4 +-
  CLAUDE.md                                         |  5 +-
  backend/runner.py                                 |  8 +++
  backend/strategies/stoch_rsi_mean_reversion.py    |  9 ++-
- 5 files changed, 101 insertions(+), 6 deletions(-)
+ 6 files changed, 151 insertions(+), 27 deletions(-)
 
 ----
 **2026-04-30** — Apr 30 PM: flip portfolio total-notional cap default ON.
@@ -187,12 +197,4 @@ Domain file updates:
  backend/runner.py                            |   9 +-
  scripts/fetch_price_data_histdata.py         |  79 +++++++++
  8 files changed, 616 insertions(+), 21 deletions(-)
-
-----
-**2026-04-29** — doc updates for correlation-aware sizing V1: roadmap gating language updated (IWM gate downgraded from 'gated on sizing landing' to 'gated on live verification'), Live Observation Framework adds [CORR-SIZE] discount audit measurement, forward-test-log records what to capture on each post-Apr-29 entry
-
- .claude/calibration/forward-test-log.md | 17 +++++++++++++++++
- .claude/memory/gitlog.md                | 20 +++++++++-----------
- .claude/strategies/research-roadmap.md  | 11 ++++++-----
- 3 files changed, 32 insertions(+), 16 deletions(-)
 

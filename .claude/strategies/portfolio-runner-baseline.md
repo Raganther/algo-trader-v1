@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-30
+Status: current | Epistemic: confirmed | Last verified: 2026-05-04
 
 # Portfolio Runner Baseline
 
