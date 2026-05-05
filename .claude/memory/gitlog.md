@@ -3,12 +3,20 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-05** — Wire live perf report into CLAUDE.md run commands + roadmap rows
+
+ .claude/strategies/research-roadmap.md | 4 ++--
+ CLAUDE.md                              | 3 +++
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+----
 **2026-05-05** — Live performance report — automated tripwire monitoring vs backtest
 
  .claude/calibration/live-performance-report.md |  70 ++++++
+ .claude/memory/gitlog.md                       |  24 +--
  CLAUDE.md                                      |   1 +
  backend/analysis/live_performance_report.py    | 288 +++++++++++++++++++++++++
- 3 files changed, 359 insertions(+)
+ 4 files changed, 369 insertions(+), 14 deletions(-)
 
 ----
 **2026-05-04** — Document $1k small-capital deployment plan + backtest validation
@@ -183,14 +191,4 @@ Domain file updates:
  .claude/strategies/research-roadmap.md | 26 +++++++++++++++++++++++++-
  CLAUDE.md                              |  1 +
  4 files changed, 39 insertions(+), 13 deletions(-)
-
-----
-**2026-04-29** — regime preference doc updates from Apr 29 long-window finding: framework is strongest in sustained directional moves (bull or bear, S 2.0-2.6), decent in chop (~1.5), WEAKEST in sharp-top / regime transitions (0.8-1.1 with elevated DD). Counter-intuitive for a mean-reversion-named strategy. Updates: regime-analysis.md (revised strategy-implication column), research-roadmap.md (superseded the 'downsize in TRENDING_DOWN' idea, promoted sharp-top/transition detector), CLAUDE.md (added regime preference bullet), long-window-validation.md (added 18-cell ranking section). Original 'downsize in bear' rule was wrong — bear is a strong regime; transition is the dangerous one.
-
- .claude/memory/gitlog.md                     | 24 +++++++++++-------------
- .claude/strategies/long-window-validation.md | 26 ++++++++++++++++++++++++++
- .claude/strategies/regime-analysis.md        | 21 +++++++++++++++------
- .claude/strategies/research-roadmap.md       |  3 ++-
- CLAUDE.md                                    |  1 +
- 5 files changed, 55 insertions(+), 20 deletions(-)
 

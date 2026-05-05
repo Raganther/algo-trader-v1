@@ -78,6 +78,9 @@ gcloud compute ssh algotrader-us --zone=us-east1-b --command="cd algo-trader-v1 
 # Git save
 ./scripts/git-save.sh "message"
 
+# Live performance report (refresh tripwire snapshot vs backtest expectation)
+python3 -m backend.analysis.live_performance_report
+
 # Discovery engine
 python -m backend.optimizer.run_overnight [--scan|--quick|--medium] [--max-hours N] [--symbols X,Y]
 
