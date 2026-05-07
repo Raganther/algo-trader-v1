@@ -29,9 +29,14 @@ from alpaca.trading.requests import GetOrdersRequest, GetPortfolioHistoryRequest
 DEPLOY_DATE = datetime(2026, 4, 15, tzinfo=timezone.utc)
 SYMBOLS = ["GLD", "IAU", "SLV", "GDX", "OIH", "XBI", "XOP"]
 
+# May 7 2026: backtest Sharpe is structurally optimistic by ~0.7 due to 1-bar
+# polling delay artifact (see live-vs-backtest-iau-diagnostic.md). Live tripwire
+# anchors use the corrected expectation, not the headline backtest figures.
+BACKTEST_DELAY_ADJUSTMENT = 0.7  # Sharpe points to subtract from backtest baseline
 BACKTEST_EXPECTED = {
     "annualised_return": 0.32,
-    "sharpe": 4.95,
+    "sharpe_backtest": 4.95,
+    "sharpe": 4.95 - BACKTEST_DELAY_ADJUSTMENT,  # ~4.25 — live-realistic anchor
     "max_dd_pct": 3.41,
     "win_rate_low": 0.41,
     "win_rate_high": 0.47,
@@ -166,8 +171,11 @@ def assess_tripwires(eq: dict, tr: dict) -> list[tuple[str, str, str]]:
     out = []
     days = eq["trading_days"]
 
+    # Tripwire bars adjusted for backtest delay artifact (-0.7 Sharpe).
+    # Original: 1.0 / 2.0 / 2.5 against backtest 4.95.
+    # Corrected: 0.5 / 1.5 / 2.0 against live-realistic ~4.25.
     if days >= 30:
-        bar = 1.0 if days < 60 else 2.0 if days < 90 else 2.5
+        bar = 0.5 if days < 60 else 1.5 if days < 90 else 2.0
         if eq["sharpe"] < bar:
             out.append(("warn", f"Live Sharpe {eq['sharpe']:.2f} < {bar:.1f}", f"At {days} days, expected ≥ {bar:.1f}"))
         else:
@@ -254,9 +262,11 @@ def write_report(eq: dict, tr: dict, tripwires: list, equity_series: list[tuple[
     lines += ["```", "",
               "## Decision rules (from CLAUDE.md tripwires section)",
               "",
-              "- **Sharpe < 1.0 at 30 days → degraded.** Investigate execution (slippage, fills, stop behaviour).",
-              "- **Sharpe < 2.0 at 60 days → degraded.** Stop adding capital; root-cause analysis.",
-              "- **Sharpe < 2.5 at 90 days → stop & investigate.** Real-money pilot blocked.",
+              "Anchored to **live-realistic expectation** (backtest Sharpe 4.95 − 0.7 delay artifact = ~4.25 expected). See `live-vs-backtest-iau-diagnostic.md` for the 0.7 derivation.",
+              "",
+              "- **Sharpe < 0.5 at 30 days → degraded.** Investigate execution (slippage, fills, stop behaviour).",
+              "- **Sharpe < 1.5 at 60 days → degraded.** Stop adding capital; root-cause analysis.",
+              "- **Sharpe < 2.0 at 90 days → stop & investigate.** Real-money pilot blocked.",
               "- **Win rate < 35% on 50+ trades → distributional shift.** Compare to backtest per-symbol win rates.",
               "- **Avg-win/avg-loss < 1.3 → right tail collapsing.** Trailing-stop or K-exit may be clipping winners.",
               "- **No |daily P&L|>0.5% day in 4+ weeks → swing days missing.** The strategy depends on these.",

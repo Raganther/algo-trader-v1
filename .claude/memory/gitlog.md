@@ -3,11 +3,23 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-07** — IAU live-vs-backtest diagnostic — identifies 1-bar polling delay artifact (~0.7 Sharpe). Anchor live tripwires to corrected expectation.
+
+ .claude/calibration/live-performance-report.md     |  27 +++--
+ .../calibration/live-vs-backtest-iau-diagnostic.md | 119 +++++++++++++++++++++
+ .claude/strategies/portfolio-runner-baseline.md    |  48 ++++-----
+ .claude/strategies/research-roadmap.md             |   2 +
+ CLAUDE.md                                          |   1 +
+ backend/analysis/live_performance_report.py        |  20 +++-
+ 6 files changed, 177 insertions(+), 40 deletions(-)
+
+----
 **2026-05-05** — Wire live perf report into CLAUDE.md run commands + roadmap rows
 
- .claude/strategies/research-roadmap.md | 4 ++--
- CLAUDE.md                              | 3 +++
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ .claude/memory/gitlog.md               | 20 +++++++++-----------
+ .claude/strategies/research-roadmap.md |  4 ++--
+ CLAUDE.md                              |  3 +++
+ 3 files changed, 14 insertions(+), 13 deletions(-)
 
 ----
 **2026-05-05** — Live performance report — automated tripwire monitoring vs backtest
@@ -182,13 +194,4 @@ Domain file updates:
  .claude/memory/gitlog.md | 17 +++++++-------
  backend/runner.py        | 60 ++++++++++++++++++++++++++++++++++++------------
  2 files changed, 53 insertions(+), 24 deletions(-)
-
-----
-**2026-04-29** — regime-aware asset rotation captured as strategic direction: combines Apr 28 generalisation + Apr 29 regime-preference into 'rotate across a wide universe' thesis. New roadmap section with 7 items, gating prerequisites, and the cheap first step (30-asset observational scan). Bot lineup framing updated to clarify 'no more fixed bots; rotation is the next strategic move.' regime-analysis.md notes the classifier's highest-leverage application is selection not sizing. Memory entry captures cross-session decision context.
-
- .claude/memory/gitlog.md               | 21 ++++++++++-----------
- .claude/strategies/regime-analysis.md  |  4 +++-
- .claude/strategies/research-roadmap.md | 26 +++++++++++++++++++++++++-
- CLAUDE.md                              |  1 +
- 4 files changed, 39 insertions(+), 13 deletions(-)
 
