@@ -26,18 +26,23 @@ from alpaca.trading.enums import QueryOrderStatus
 from alpaca.trading.requests import GetOrdersRequest, GetPortfolioHistoryRequest
 
 
-DEPLOY_DATE = datetime(2026, 4, 15, tzinfo=timezone.utc)
+# Forward-test clock reset May 7 2026 PM when HWM trail anchor was deployed live
+# on all 7 bots (see trail-anchor-hwm.md). Pre-May-7 data was close-anchored;
+# May 7 onward is HWM-anchored. Anchor live tripwires to HWM-backtest baseline.
+DEPLOY_DATE = datetime(2026, 5, 7, 21, 0, tzinfo=timezone.utc)  # HWM live deploy
 SYMBOLS = ["GLD", "IAU", "SLV", "GDX", "OIH", "XBI", "XOP"]
 
-# May 7 2026: backtest Sharpe is structurally optimistic by ~0.7 due to 1-bar
-# polling delay artifact (see live-vs-backtest-iau-diagnostic.md). Live tripwire
-# anchors use the corrected expectation, not the headline backtest figures.
-BACKTEST_DELAY_ADJUSTMENT = 0.7  # Sharpe points to subtract from backtest baseline
+# May 7 2026 — HWM trail anchor is live. The 1-bar polling delay artifact that
+# previously made backtest ~0.7 Sharpe optimistic is structurally bypassed by
+# HWM (it anchors trail to the trade's actual high-water-mark, not a noisy
+# bar-Close reference). Live expectation now anchors to HWM backtest baseline
+# (Sharpe 5.73), not the close-anchored 4.95 - 0.7 adjustment.
+BACKTEST_DELAY_ADJUSTMENT = 0.0  # HWM bypasses the artifact; no adjustment needed
 BACKTEST_EXPECTED = {
-    "annualised_return": 0.32,
-    "sharpe_backtest": 4.95,
-    "sharpe": 4.95 - BACKTEST_DELAY_ADJUSTMENT,  # ~4.25 — live-realistic anchor
-    "max_dd_pct": 3.41,
+    "annualised_return": 0.39,  # HWM long-window: +517% over 5.75y ≈ 39%/yr
+    "sharpe_backtest": 5.73,    # HWM long-window 7-bot
+    "sharpe": 5.73,             # live anchor = HWM backtest (no delay artifact)
+    "max_dd_pct": 3.05,         # HWM long-window 7-bot
     "win_rate_low": 0.41,
     "win_rate_high": 0.47,
     "avg_win_loss_ratio_min": 1.3,
@@ -51,7 +56,7 @@ def get_client() -> TradingClient:
 
 
 def pull_equity_curve(client: TradingClient, start: datetime) -> tuple[list[datetime], list[float]]:
-    days = (datetime.now(timezone.utc) - start).days + 1
+    days = max(1, (datetime.now(timezone.utc) - start).days + 1)
     period = f"{days}D" if days <= 30 else "1M" if days <= 31 else "3M"
     req = GetPortfolioHistoryRequest(period=period, timeframe="1D")
     h = client.get_portfolio_history(history_filter=req)
@@ -68,7 +73,11 @@ def pull_closed_orders(client: TradingClient, start: datetime) -> list:
 
 def compute_equity_metrics(equity: list[float]) -> dict:
     if len(equity) < 2:
-        return {"return_pct": 0.0, "sharpe": 0.0, "max_dd_pct": 0.0, "trading_days": 0}
+        last = float(equity[-1]) if equity else 0.0
+        return {
+            "return_pct": 0.0, "sharpe": 0.0, "max_dd_pct": 0.0, "trading_days": 0,
+            "start_equity": last, "end_equity": last, "rets": np.array([]),
+        }
     arr = np.array(equity)
     rets = np.diff(arr) / arr[:-1]
     mean = rets.mean()
@@ -171,11 +180,13 @@ def assess_tripwires(eq: dict, tr: dict) -> list[tuple[str, str, str]]:
     out = []
     days = eq["trading_days"]
 
-    # Tripwire bars adjusted for backtest delay artifact (-0.7 Sharpe).
-    # Original: 1.0 / 2.0 / 2.5 against backtest 4.95.
-    # Corrected: 0.5 / 1.5 / 2.0 against live-realistic ~4.25.
+    # Tripwire bars anchored to HWM backtest expectation (Sharpe 5.73).
+    # HWM bypasses the 1-bar polling delay artifact, so live should track HWM
+    # backtest within noise — no -0.7 adjustment needed.
+    # Bars: 1.5 (30d) / 3.0 (60d) / 4.0 (90d) — proportionally scaled from
+    # the close-anchored thresholds (0.5/1.5/2.0 against 4.25 expectation).
     if days >= 30:
-        bar = 0.5 if days < 60 else 1.5 if days < 90 else 2.0
+        bar = 1.5 if days < 60 else 3.0 if days < 90 else 4.0
         if eq["sharpe"] < bar:
             out.append(("warn", f"Live Sharpe {eq['sharpe']:.2f} < {bar:.1f}", f"At {days} days, expected ≥ {bar:.1f}"))
         else:
@@ -219,7 +230,7 @@ def write_report(eq: dict, tr: dict, tripwires: list, equity_series: list[tuple[
     sev_marker = {"ok": "✓", "watch": "·", "warn": "⚠"}
 
     lines = [
-        f"Status: current | Epistemic: live observation | Last refreshed: {now.strftime('%Y-%m-%d %H:%M UTC')}",
+        f"Status: current | Epistemic: live observation | Last verified: {now.strftime('%Y-%m-%d')} ({now.strftime('%H:%M UTC')})",
         "",
         "# Live Performance Report",
         "",
@@ -262,11 +273,11 @@ def write_report(eq: dict, tr: dict, tripwires: list, equity_series: list[tuple[
     lines += ["```", "",
               "## Decision rules (from CLAUDE.md tripwires section)",
               "",
-              "Anchored to **live-realistic expectation** (backtest Sharpe 4.95 − 0.7 delay artifact = ~4.25 expected). See `live-vs-backtest-iau-diagnostic.md` for the 0.7 derivation.",
+              "Anchored to **HWM backtest expectation** (Sharpe 5.73, deployed live May 7 2026 PM). HWM bypasses the 1-bar polling delay artifact (see `trail-anchor-hwm.md`), so live should track backtest within noise.",
               "",
-              "- **Sharpe < 0.5 at 30 days → degraded.** Investigate execution (slippage, fills, stop behaviour).",
-              "- **Sharpe < 1.5 at 60 days → degraded.** Stop adding capital; root-cause analysis.",
-              "- **Sharpe < 2.0 at 90 days → stop & investigate.** Real-money pilot blocked.",
+              "- **Sharpe < 1.5 at 30 days → degraded.** Investigate execution (slippage, fills, stop behaviour, HWM tracking).",
+              "- **Sharpe < 3.0 at 60 days → degraded.** Stop adding capital; root-cause analysis.",
+              "- **Sharpe < 4.0 at 90 days → stop & investigate.** Real-money pilot blocked.",
               "- **Win rate < 35% on 50+ trades → distributional shift.** Compare to backtest per-symbol win rates.",
               "- **Avg-win/avg-loss < 1.3 → right tail collapsing.** Trailing-stop or K-exit may be clipping winners.",
               "- **No |daily P&L|>0.5% day in 4+ weeks → swing days missing.** The strategy depends on these.",

@@ -3,8 +3,18 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-07** — Update roadmap, CLAUDE.md, memory, live perf report — HWM is LIVE; tripwires re-anchored to HWM expectations (Sharpe 5.73 baseline)
+
+ .claude/calibration/live-performance-report.md | 62 ++++++--------------------
+ .claude/strategies/research-roadmap.md         |  2 +-
+ CLAUDE.md                                      |  4 +-
+ backend/analysis/live_performance_report.py    | 51 ++++++++++++---------
+ 4 files changed, 48 insertions(+), 71 deletions(-)
+
+----
 **2026-05-07** — Deploy HWM trail anchor to all 7 live bots — trail_anchor:hwm in run_*_test.sh scripts. Existing OIH position continues with close-anchored fallback (HWM only initializes on entry); new trades use HWM.
 
+ .claude/memory/gitlog.md               | 31 +++++++++++++++++++------------
  .claude/strategies/trail-anchor-hwm.md | 11 +++++++++++
  scripts/run_gdx_test.sh                |  2 +-
  scripts/run_gld_test.sh                |  2 +-
@@ -13,7 +23,7 @@
  scripts/run_slv_test.sh                |  2 +-
  scripts/run_xbi_test.sh                |  2 +-
  scripts/run_xop_test.sh                |  2 +-
- 8 files changed, 18 insertions(+), 7 deletions(-)
+ 9 files changed, 37 insertions(+), 19 deletions(-)
 
 ----
 **2026-05-07** — Domain audit — propagate May 7 delay-artifact + HWM findings across all Sharpe-referencing files. Adds memory entries, research-log entry, uniform caveat banners on per-asset and infrastructure files.
@@ -193,33 +203,4 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
  backend/runner.py                               | 26 ++++++++++------
  backend/strategies/stoch_rsi_mean_reversion.py  | 12 ++++++--
  7 files changed, 74 insertions(+), 38 deletions(-)
-
-----
-**2026-04-29** — Apr 29 evening: regime-aware rotation infrastructure + shared-timeline portfolio runner V1.
-Three new analysis tools shipped, three roadmap items resolved.
-
-regime_universe_scan.py — daily regime classification across 33-asset ETF universe, snapshot to .claude/strategies/regime-universe-snapshot.md. First reading 2026-04-29: 7/33 favourable (TRENDING_UP), 26 RANGING, 0 TRENDING_DOWN, 0 HIGH_VOL. Most of deployed lineup (GLD/IAU/SLV/GDX/XLE/XOP/XBI) currently in RANGING; only OIH made the TRENDING set. Notable that today's TRENDING set (DBA/ITA/IWM/OIH/QQQ/SMH/XLK) is largely undeployed — first concrete evidence of the rotation thesis premise.
-
-regime_distribution_history.py — rolling weekly snapshots over 2010-11 to 2026-05 (807 weekly snapshots, 33-asset universe). HEADLINE: median favourable count = 8, mean 9.1 — exactly inside the 8-15 selective band. Rotation backtest is justified. Today's 7/33 reading is between p10 (3) and p90 (16), i.e. typical historical territory not anomalous. HIGH_VOL is rare in normal tape (median 0, mean 1.4) but spikes universally in panics — March 2020 had 3 consecutive weeks with 30+ assets in HIGH_VOL, plus April 2025. Promoted as candidate kill-switch trigger (separate roadmap item). Year-by-year averages cluster 8-11; outliers 2011 metals/EU-debt period (avg 6.2) and 2026 YTD (avg 12.9, currently above-average trending). CSV at backend/analysis/regime_distribution_history.csv for plotting.
-
-portfolio_runner.py + runner.py 'portfolio' subcommand — shared-timeline portfolio backtester. One PaperTrader, N strategies on unified time grid. Single-symbol equivalence verified (GLD-only run matches per-symbol card on return / trades / win rate). FIRST V1 FINDING: gold cluster has 2+ members open on 46.7% of bars and 3+ on 20.1% over 2020-07 to 2026-04 — the Apr 29 correlation-aware sizing discount fires materially in historical conditions. Single-symbol backtest could never see this (N=1 always). Energy cluster has 2+ open on 15.4%; biotech 35.1%. Snapshot at .claude/strategies/portfolio-runner-baseline.md. V1 CAVEAT: total return / Sharpe figures are model upper-bounds (no per-bot allocation cap → shared-capital compounds aggressively, +10,496% over 5.7yr is artefact). Apples-to-apples comparisons still valid because both sides share the same compounding mechanic. V2 (per-bot cap) promoted to roadmap as next item before quoting headline portfolio Sharpe.
-
-Domain file updates:
-- regime-analysis.md: added Apr 29 callout block at top with rolling-history headline and universe-scan observations.
-- research-roadmap.md: 30-asset scan + rolling history both marked shipped with results inlined; Universal HIGH_VOL kill-switch promoted as standalone roadmap item; portfolio runner V1 marked shipped; new V2 row (per-bot allocation cap) and V2 correlation-sizing backtest validation rows added; rotation rule backtest expected-lift envelope added (0.5-1.0 Sharpe theoretical, +0.3 bar to beat).
-- CLAUDE.md: strategic-direction bullet updated with shipped scripts + headline numbers; Validated Edges section gets Confirmed-working bullet for the portfolio runner V1 finding; on-demand domain-file reads list adds three new files; Run Commands gets the portfolio invocation.
-
- .claude/memory/gitlog.md                          |  41 +-
- .claude/strategies/portfolio-runner-baseline.md   |  68 ++
- .claude/strategies/regime-analysis.md             |  15 +
- .claude/strategies/regime-distribution-history.md |  94 +++
- .claude/strategies/regime-universe-snapshot.md    | 103 +++
- .claude/strategies/research-roadmap.md            |  16 +-
- CLAUDE.md                                         |  10 +-
- backend/analysis/regime_distribution_history.csv  | 808 ++++++++++++++++++++++
- backend/analysis/regime_distribution_history.py   | 346 +++++++++
- backend/analysis/regime_universe_scan.py          | 275 ++++++++
- backend/engine/portfolio_runner.py                | 173 +++++
- backend/runner.py                                 | 199 +++++-
- 12 files changed, 2130 insertions(+), 18 deletions(-)
 
