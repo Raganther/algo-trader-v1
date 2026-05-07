@@ -43,6 +43,11 @@ class StochRSIMeanReversionStrategy(Strategy):
         self.trailing_stop = parameters.get('trailing_stop', False)  # Enable trailing stop
         self.trail_after_bars = int(parameters.get('trail_after_bars', 0))  # Start trailing after N bars in profit
         self.trail_atr = float(parameters.get('trail_atr', self.sl_atr))  # Trailing ATR multiplier
+        # Trail anchor: 'close' (default — anchor trail to current bar Close) or 'hwm'
+        # (anchor to high-water-mark of the trade — highest high since entry for longs,
+        # lowest low for shorts). HWM is less sensitive to bar-Close phase shifts caused
+        # by live's 1-bar polling delay (see live-vs-backtest-iau-diagnostic.md).
+        self.trail_anchor = parameters.get('trail_anchor', 'close')
         self.min_hold_bars = int(parameters.get('min_hold_bars', 0))  # Minimum bars before signal exit allowed
         self.long_only = parameters.get('long_only', False)  # Skip short entries entirely
         # Random-entry control mode — replaces entry signal with Bernoulli draws when > 0.
@@ -85,6 +90,7 @@ class StochRSIMeanReversionStrategy(Strategy):
         self.current_sl = None
         self.entry_bar = None  # bar index at entry (for duration calc)
         self.entry_price = None  # for trailing stop breakeven check
+        self.high_water_mark = None  # highest High (long) / lowest Low (short) since entry — for HWM trail anchor
         
         self.generate_signals(self.data)
 
@@ -165,13 +171,24 @@ class StochRSIMeanReversionStrategy(Strategy):
         # at bar close; the ratchet from this bar takes effect next bar).
         sl_for_check = self.current_sl
 
+        # Update high-water-mark (highest High since entry for longs, lowest Low for shorts).
+        # Tracked unconditionally so the value is current whenever trail logic runs.
+        if self.entry_bar is not None and self.high_water_mark is not None:
+            if self.position == 'long' and row['High'] > self.high_water_mark:
+                self.high_water_mark = row['High']
+            elif self.position == 'short' and row['Low'] < self.high_water_mark:
+                self.high_water_mark = row['Low']
+
         # Trailing stop update (move stop to lock in profits)
         if self.trailing_stop and self.entry_bar is not None and self.current_sl is not None:
             bars_held = i - self.entry_bar
             atr_val = row[self.atr_col]
             if bars_held >= self.trail_after_bars and atr_val > 0:
+                # Anchor: 'close' uses current bar Close; 'hwm' uses high-water-mark.
+                # HWM mode is less sensitive to bar-Close phase shifts (live polling delay).
                 if self.position == 'long':
-                    new_sl = row['Close'] - (atr_val * self.trail_atr)
+                    anchor = self.high_water_mark if self.trail_anchor == 'hwm' and self.high_water_mark is not None else row['Close']
+                    new_sl = anchor - (atr_val * self.trail_atr)
                     if new_sl > self.current_sl:
                         self.current_sl = new_sl
                         # Update server-side stop order if broker supports it
@@ -180,7 +197,8 @@ class StochRSIMeanReversionStrategy(Strategy):
                             if qty > 0:
                                 self.broker.update_stop_order(new_sl, qty)
                 elif self.position == 'short':
-                    new_sl = row['Close'] + (atr_val * self.trail_atr)
+                    anchor = self.high_water_mark if self.trail_anchor == 'hwm' and self.high_water_mark is not None else row['Close']
+                    new_sl = anchor + (atr_val * self.trail_atr)
                     if new_sl < self.current_sl:
                         self.current_sl = new_sl
                         if self.broker and hasattr(self.broker, 'update_stop_order'):
@@ -231,6 +249,7 @@ class StochRSIMeanReversionStrategy(Strategy):
                         self.position = 0
                         self.current_sl = None
                         self.entry_bar = None
+                        self.high_water_mark = None
                 return # Exit logic done
 
         elif self.position == 'short' and sl_for_check:
@@ -243,6 +262,7 @@ class StochRSIMeanReversionStrategy(Strategy):
                         self.position = 0
                         self.current_sl = None
                         self.entry_bar = None
+                        self.high_water_mark = None
                 return # Exit logic done
 
         # Entry Logic
@@ -282,6 +302,7 @@ class StochRSIMeanReversionStrategy(Strategy):
                                     self.position = 'long'
                                     self.entry_bar = i
                                     self.entry_price = row['Close']
+                                    self.high_water_mark = row['High']
                             else:
                                 self.current_sl = row['Close'] + stop_dist
                                 result = self.sell(price=row['Close'], size=size, timestamp=i, stop_loss=self.current_sl)
@@ -289,6 +310,7 @@ class StochRSIMeanReversionStrategy(Strategy):
                                     self.position = 'short'
                                     self.entry_bar = i
                                     self.entry_price = row['Close']
+                                    self.high_water_mark = row['Low']
                 return
 
             # Long Setup
@@ -332,6 +354,7 @@ class StochRSIMeanReversionStrategy(Strategy):
                         self.position = 'long'
                         self.entry_bar = i
                         self.entry_price = row['Close']
+                        self.high_water_mark = row['High']
                         if hasattr(self.broker, 'set_entry_metadata'):
                             self.broker.set_entry_metadata(self.symbol, {
                                 'entry_time': str(row.name),
@@ -387,6 +410,7 @@ class StochRSIMeanReversionStrategy(Strategy):
                         self.position = 'short'
                         self.entry_bar = i
                         self.entry_price = row['Close']
+                        self.high_water_mark = row['Low']
                         if hasattr(self.broker, 'set_entry_metadata'):
                             self.broker.set_entry_metadata(self.symbol, {
                                 'entry_time': str(row.name),
@@ -416,6 +440,7 @@ class StochRSIMeanReversionStrategy(Strategy):
                         self.current_sl = None
                         self.entry_bar = None
                         self.entry_price = None
+                        self.high_water_mark = None
 
         elif self.position == 'short':
             bars_held = (i - self.entry_bar) if self.entry_bar is not None else 999
@@ -432,3 +457,4 @@ class StochRSIMeanReversionStrategy(Strategy):
                         self.current_sl = None
                         self.entry_bar = None
                         self.entry_price = None
+                        self.high_water_mark = None

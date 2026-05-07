@@ -3,10 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-07** — Path 2 SHIPPED — HWM trail anchor delivers +0.78 Sharpe / -0.36pp DD vs close-anchored. Opt-in via trail_anchor parameter. Live deployment pending strategic decision.
+
+ .claude/strategies/portfolio-runner-baseline.md |  46 +++++-----
+ .claude/strategies/research-roadmap.md          |   2 +-
+ .claude/strategies/trail-anchor-hwm.md          | 107 ++++++++++++++++++++++++
+ CLAUDE.md                                       |   1 +
+ backend/strategies/stoch_rsi_mean_reversion.py  |  30 ++++++-
+ 5 files changed, 157 insertions(+), 29 deletions(-)
+
+----
 **2026-05-07** — Disambiguate IAU delay finding from Apr 28-29 XBI gap-through-stop incident — unrelated
 
  .claude/calibration/live-vs-backtest-iau-diagnostic.md | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ .claude/memory/gitlog.md                               | 16 ++++++++--------
+ 2 files changed, 22 insertions(+), 8 deletions(-)
 
 ----
 **2026-05-07** — IAU live-vs-backtest diagnostic — identifies 1-bar polling delay artifact (~0.7 Sharpe). Anchor live tripwires to corrected expectation.
@@ -187,11 +198,4 @@ Domain file updates:
  .claude/calibration/forward-test-log.md | 29 ++++++++++++++++++++++++++++-
  .claude/memory/gitlog.md                | 22 +++++++++-------------
  2 files changed, 37 insertions(+), 14 deletions(-)
-
-----
-**2026-04-29** — fix: extend gap-through-stop guard to [SYNC] startup path. Same logic as the [LOOP] guard from the previous commit, applied at bot-restart sync time so we don't sit unprotected for up to 15 min waiting for the next bar's [LOOP] iteration. Changes runner.py:672-715 — if reconstructed SL is on the wrong side of current price, place market exit + reset strategy state to flat instead of attempting a stop that Alpaca will reject.
-
- .claude/memory/gitlog.md | 19 +++++++--------
- backend/runner.py        | 62 +++++++++++++++++++++++++++++++++++-------------
- 2 files changed, 54 insertions(+), 27 deletions(-)
 
