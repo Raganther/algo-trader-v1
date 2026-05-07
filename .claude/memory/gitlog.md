@@ -3,14 +3,21 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-07** — Restore canonical Run 0 baseline snapshot (+424.09% / 4.95 / 3.41%) overwritten during HWM A/B testing
+
+ .claude/strategies/portfolio-runner-baseline.md | 46 ++++++++++++++-----------
+ 1 file changed, 26 insertions(+), 20 deletions(-)
+
+----
 **2026-05-07** — Path 2 SHIPPED — HWM trail anchor delivers +0.78 Sharpe / -0.36pp DD vs close-anchored. Opt-in via trail_anchor parameter. Live deployment pending strategic decision.
 
+ .claude/memory/gitlog.md                        |  20 +++--
  .claude/strategies/portfolio-runner-baseline.md |  46 +++++-----
  .claude/strategies/research-roadmap.md          |   2 +-
  .claude/strategies/trail-anchor-hwm.md          | 107 ++++++++++++++++++++++++
  CLAUDE.md                                       |   1 +
  backend/strategies/stoch_rsi_mean_reversion.py  |  30 ++++++-
- 5 files changed, 157 insertions(+), 29 deletions(-)
+ 6 files changed, 169 insertions(+), 37 deletions(-)
 
 ----
 **2026-05-07** — Disambiguate IAU delay finding from Apr 28-29 XBI gap-through-stop incident — unrelated
@@ -191,11 +198,4 @@ Domain file updates:
  backend/engine/alpaca_trader.py | 25 +++++++++++++++++++
  backend/runner.py               | 55 ++++++++++++++++++++++++++++++++---------
  3 files changed, 77 insertions(+), 22 deletions(-)
-
-----
-**2026-04-29** — Apr 29 XBI gap-through-stop bug — log + fix outcome documented. forward-test-log.md: new dated section for Apr 29 XBI emergency-market exit (-$313.61), new exit type EM (emergency market, gap-through-stop guard). Realised P&L summary updated to 13 closed trades, total -$1,142.39. Memory recurring_bug_pattern.md: extended from one TIF bug to three closely-related failure modes — TIF mismatch (resolved Apr 17), gap-through-stop on re-placement (resolved today via defensive guard in [SYNC] + [LOOP] paths), and a 'where to look' index for future stop-related debugging. Outstanding: root cause of why pending_stop_order_id was None despite live GTC stop — defensive fix is sufficient for safety; investigation still open.
-
- .claude/calibration/forward-test-log.md | 29 ++++++++++++++++++++++++++++-
- .claude/memory/gitlog.md                | 22 +++++++++-------------
- 2 files changed, 37 insertions(+), 14 deletions(-)
 

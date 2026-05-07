@@ -7,23 +7,23 @@ Shared-timeline portfolio backtest. Single PaperTrader, one capital pool, one st
 ## Run config
 
 - Strategy: `StochRSIMeanReversion`
-- Symbols: GDX, GLD, IAU, SLV (n=4)
+- Symbols: GDX, GLD, IAU, OIH, SLV, XBI, XOP (n=7)
 - Timeframe: 15m
-- Window: 2026-04-15 → 2026-05-07
+- Window: 2020-07-27 → 2026-04-27
 - Initial capital: $94,000
 - Spread: 0.0003
-- Parameters: `{"adx_threshold": 20, "min_hold_bars": 10, "overbought": 80, "oversold": 15, "rsi_period": 7, "skip_adx_filter": false, "skip_days": [0], "sl_atr": 2.0, "stoch_period": 14, "trail_after_bars": 10, "trail_anchor": "hwm", "trail_atr": 2.0, "trailing_stop": true}`
+- Parameters: `{"adx_threshold": 20, "min_hold_bars": 10, "overbought": 80, "oversold": 15, "rsi_period": 7, "skip_adx_filter": false, "skip_days": [0], "sl_atr": 2.0, "stoch_period": 14, "trail_after_bars": 10, "trail_atr": 2.0, "trailing_stop": true}`
 
 ## Headline
 
 | Metric | Value |
 |---|---:|
-| Final equity | $95,215.26 |
-| Return | 1.29% |
-| Max DD (daily) | 0.88% |
-| Sharpe (daily, ×√252) | 2.98 |
-| Total trades | 17 |
-| Max concurrent positions | 4 |
+| Final equity | $492,642.94 |
+| Return | 424.09% |
+| Max DD (daily) | 3.41% |
+| Sharpe (daily, ×√252) | 4.95 |
+| Total trades | 4344 |
+| Max concurrent positions | 7 |
 
 > **Interpretation note (V2 — fixed-equity reference, Apr 30 2026).**
 > Each strategy sizes risk + notional cap off `initial_capital` ($94k), not
@@ -46,10 +46,13 @@ Shared-timeline portfolio backtest. Single PaperTrader, one capital pool, one st
 
 | Symbol | Trades | P&L ($) | Win rate |
 |---|---:|---:|---:|
-| GDX | 2 | -349.67 | 0.0% |
-| GLD | 6 | -187.98 | 33.3% |
-| IAU | 4 | 4.63 | 75.0% |
-| SLV | 5 | 1,089.89 | 40.0% |
+| GDX | 573 | 67,765.22 | 45.0% |
+| GLD | 716 | 36,206.27 | 43.3% |
+| IAU | 698 | 27,706.31 | 40.8% |
+| OIH | 564 | 85,117.62 | 44.5% |
+| SLV | 579 | 73,876.92 | 47.0% |
+| XBI | 591 | 51,439.95 | 44.2% |
+| XOP | 623 | 55,639.24 | 42.9% |
 
 ## Cluster co-occupancy
 
@@ -59,21 +62,24 @@ How many bars (out of all observed) had N cluster members holding open positions
 
 | N members held | Bars | % of bars |
 |---:|---:|---:|
-| 0 | 313 | 60.3% |
-| 1 | 131 | 25.2% |
-| 2 | 42 | 8.1% |
-| 3 | 30 | 5.8% |
-| 4 | 3 | 0.6% |
+| 0 | 9,144 | 22.2% |
+| 1 | 13,058 | 31.7% |
+| 2 | 11,100 | 26.9% |
+| 3 | 6,491 | 15.7% |
+| 4 | 1,437 | 3.5% |
 
 ### energy (OIH, XLE, XOP)
 
 | N members held | Bars | % of bars |
 |---:|---:|---:|
-| 0 | 519 | 100.0% |
+| 0 | 18,197 | 44.1% |
+| 1 | 17,338 | 42.1% |
+| 2 | 5,695 | 13.8% |
 
 ### biotech (XBI)
 
 | N members held | Bars | % of bars |
 |---:|---:|---:|
-| 0 | 519 | 100.0% |
+| 0 | 26,711 | 64.8% |
+| 1 | 14,519 | 35.2% |
 
