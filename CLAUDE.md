@@ -190,6 +190,8 @@ Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid 
 
 ## Validated Edges (verified Apr 27–28 2026 on extended window 2020 → Apr 27 2026)
 
+> **May 7 2026 caveat — backtest delay artifact + HWM lift.** The Sharpe figures in this table are **close-anchored backtests with ~0.7 Sharpe optimism baked in** (live's 1-bar polling delay is not modelled). Live expectation is each figure **− 0.7**. The HWM trail anchor (`trail_anchor: 'hwm'`, opt-in May 7) lifts long-window 7-bot Sharpe from 4.95 → 5.73 (+0.78), structurally insensitive to the delay artifact. Per-asset Sharpes have not yet been re-run with HWM. See `.claude/calibration/live-vs-backtest-iau-diagnostic.md` and `.claude/strategies/trail-anchor-hwm.md`.
+>
 > **Apr 28 2026 edge resolution — three discriminating tests run, results below. Read before interpreting the Sharpe column.**
 >
 > Three tests run Apr 28 evening to resolve the question "is the edge real, and if so, what is it?" Full details in `research-log.md` → "Edge Question — Test 1/2/3" + "Edge Question — Synthesis (Apr 28 2026)".

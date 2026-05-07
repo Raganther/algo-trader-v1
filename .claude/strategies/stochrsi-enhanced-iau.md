@@ -2,6 +2,8 @@ Status: current | Epistemic: headline confirmed; framework IS the edge (signal d
 
 # StochRSI Enhanced — IAU 15m
 
+> **May 7 2026 caveat.** Sharpe figures below are **close-anchored backtests with ~0.7 Sharpe optimism** (1-bar polling delay artifact, see `.claude/calibration/live-vs-backtest-iau-diagnostic.md`). Live expectation = backtest Sharpe **− 0.7**. HWM trail anchor (`.claude/strategies/trail-anchor-hwm.md`, opt-in via `trail_anchor: 'hwm'`) lifts long-window 7-bot Sharpe by +0.78 and is structurally insensitive to the artifact; per-asset HWM Sharpes not yet re-run.
+
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 
 > **Apr 28 2026 status update — framework attribution finding.**

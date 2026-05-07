@@ -1,4 +1,8 @@
+Status: current | Epistemic: confirmed | Last verified: 2026-05-07
+
 # Portfolio Runner — Per-Bot Cap Shrinking Experiment (Apr 30 2026 PM)
+
+> **May 7 2026 caveat.** All Sharpe figures in this file are close-anchored backtests with ~0.7 Sharpe optimism baked in (1-bar polling delay artifact). Live expectation = backtest Sharpe **− 0.7**. ΔSharpe comparisons between configs in this file remain valid (the artifact is roughly uniform across runs). HWM trail anchor (May 7 finding) bypasses the artifact; cap-shrink and rotation experiments not yet re-run with HWM. See `.claude/calibration/live-vs-backtest-iau-diagnostic.md` and `.claude/strategies/trail-anchor-hwm.md`.
 
 > **Headline:** Shrinking the per-bot notional cap from 25% → 12.5% **passes the decision rule** on both branches (cap-shrink alone +0.28 Sharpe / −1.54pp DD; cap-shrink + lineup expansion +0.45 Sharpe / −1.19pp DD). The 8-bot best-per-cluster lineup at 12.5% cap is the new highest-Sharpe configuration tested.
 >

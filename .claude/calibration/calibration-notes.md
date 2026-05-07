@@ -1,8 +1,10 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-21
+Status: current | Epistemic: confirmed | Last verified: 2026-05-07
 
 # Calibration Notes — Algo Trader V1
 
 Confirmed methodology for validating the backtest engine against live results.
+
+> **May 7 2026 update — backtest delay artifact identified.** The Apr 13 Layer 1/2/4 calibration validated entry/exit/spread mechanics. The May 7 IAU live-vs-backtest diagnostic identified a separate **structural** issue: backtest's effective execution delay is 0 bars (signal evaluated and "filled" at bar Close); live's effective delay is ~1 bar (Alpaca polling cadence). The 1-bar phase shift propagates through the close-anchored trail formula, producing different stop-fire bars on identical price paths. **Backtest is structurally optimistic by ~0.7 Sharpe** because of this. See `.claude/calibration/live-vs-backtest-iau-diagnostic.md`. The HWM trail anchor (`.claude/strategies/trail-anchor-hwm.md`) is structurally insensitive to the artifact and is the primary path to closing the gap.
 
 ## Knowledge
 

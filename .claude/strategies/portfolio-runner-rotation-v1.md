@@ -2,6 +2,8 @@ Status: resolved | Epistemic: confirmed | Last verified: 2026-04-30
 
 # Portfolio Runner Rotation V1 — Final Report
 
+> **May 7 2026 caveat.** All Sharpe figures in this file are close-anchored backtests with ~0.7 Sharpe optimism baked in (1-bar polling delay artifact). Live expectation = backtest Sharpe **− 0.7**. ΔSharpe comparisons between configs in this file remain valid (the artifact is roughly uniform across runs). HWM trail anchor (May 7 finding) bypasses the artifact; cap-shrink and rotation experiments not yet re-run with HWM. See `.claude/calibration/live-vs-backtest-iau-diagnostic.md` and `.claude/strategies/trail-anchor-hwm.md`.
+
 Comprehensive 4-run study (Apr 30 PM) testing whether regime-aware asset rotation lifts portfolio Sharpe over the V2 baseline. **Result: rotation is dead as a research direction for this strategy class. Universe expansion (with proper portfolio-level notional cap) is a DD-reducer not a Sharpe-lifter. Portfolio cap at 100% emerges as a small structural win and as the prerequisite for any future universe-expansion work.**
 
 ## TL;DR results

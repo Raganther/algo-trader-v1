@@ -1,8 +1,10 @@
-Status: current | Epistemic: trades confirmed; edge interpretation revised Apr 28 | Last verified: 2026-04-28
+Status: current | Epistemic: trades confirmed; edge interpretation revised Apr 28; live-vs-backtest gap explained May 7 | Last verified: 2026-05-07
 
 # Forward Test Log — Validated Params
 
 Per-trade records for the validated-params forward test (Apr 15 2026 onward).
+
+> **May 7 2026 — live-vs-backtest gap is largely explained by a structural backtest artifact, not a forward-test issue.** First diagnostic at 14 trading days revealed the backtest is ~0.7 Sharpe optimistic due to a 1-bar polling delay in live execution that the backtest doesn't model. The forward-test data here is genuinely tracking corrected expectations. See `.claude/calibration/live-vs-backtest-iau-diagnostic.md`. Live perf report tripwires now anchored to backtest − 0.7. HWM trail anchor (May 7 finding) is the structural fix; pending live deployment.
 Distinct from `live-trade-log.md` (Mar 20–Apr 20 calibration window, test params).
 
 > **Apr 28 2026 caveat — framework attribution finding.** Trade records below are observational fact and unaffected. However, any interpretation that reads forward-test win rates as confirming "the StochRSI mean-reversion edge" is now under review. Apr 28 random-entry control shows random entries with the same framework produce comparable Sharpes; live forward-test results may largely reflect framework performance, not signal performance. See `research-log.md` → "Random-Entry Control — Apr 28 2026".

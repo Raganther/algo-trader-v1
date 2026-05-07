@@ -2,6 +2,8 @@ Status: current | Epistemic: confirmed | Last verified: 2026-03-26
 
 # Phase 3 — Composable Strategy Results
 
+> **May 7 2026 caveat.** All Sharpe figures in this file are close-anchored backtests with ~0.7 Sharpe optimism (1-bar polling delay artifact, see `.claude/calibration/live-vs-backtest-iau-diagnostic.md`). Live expectation = backtest Sharpe **− 0.7**. Per-regime/per-cell rankings are unaffected (the artifact is roughly uniform); absolute live numbers should be deflated.
+
 > **Code:** `backend/optimizer/composable_strategy.py`, `backend/optimizer/building_blocks.py`
 > **Run script:** `backend/optimizer/run_composable.py`
 > **Note:** 3 validated combos found, not yet paper tested or deployed.

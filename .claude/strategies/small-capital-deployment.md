@@ -4,6 +4,8 @@ Status: current | Epistemic: backtest-validated, not live-tested | Last verified
 
 > Practical deployment shape if real-money pilot starts at **$1k** rather than the original $5–10k threshold. Documents what changes and why, with the empirical $1k backtest as the anchor.
 
+> **May 7 2026 caveat.** The +411.83% / Sharpe 3.83 / DD 4.67% figure here is a **close-anchored backtest** with ~0.7 Sharpe optimism baked in (1-bar polling delay artifact, see `.claude/calibration/live-vs-backtest-iau-diagnostic.md`). Live small-capital expectation = Sharpe ~3.1, which still clears the 2.0 quality bar but with less margin than the headline suggests. The whole-share rounding tax (Sharpe drop of 1.12 vs $94k version) is unrelated to the delay artifact and stacks on top. Combined: live Sharpe at $1k ≈ 3.0 minus rounding tax already baked in. The HWM trail anchor (`.claude/strategies/trail-anchor-hwm.md`) is structurally insensitive to the artifact and would lift this; small-cap HWM backtest not yet re-run.
+
 ## Why this exists
 
 Original framing in CLAUDE.md was "need $5–10k to deploy real money." User asked Apr 30 PM whether $1k could work as a slow-compounding starting point. The answer is **yes with structural modifications** — the strategy survives at $1k but is not the same product as the $94k system. This file is the spec for that smaller variant.

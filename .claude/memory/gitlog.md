@@ -3,10 +3,35 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-07** — Domain audit — propagate May 7 delay-artifact + HWM findings across all Sharpe-referencing files. Adds memory entries, research-log entry, uniform caveat banners on per-asset and infrastructure files.
+
+ .claude/calibration/calibration-notes.md           |  4 +++-
+ .claude/calibration/forward-test-log.md            |  4 +++-
+ .claude/strategies/composable-results.md           |  2 ++
+ .claude/strategies/long-window-validation.md       |  2 ++
+ .claude/strategies/portfolio-runner-cap-shrink.md  |  4 ++++
+ .claude/strategies/portfolio-runner-rotation-v1.md |  2 ++
+ .../regime-sizing-portfolio-diagnostic.md          |  2 ++
+ .claude/strategies/regime-stochrsi-diagnostic.md   |  2 ++
+ .claude/strategies/research-log.md                 | 23 +++++++++++++++++++++-
+ .claude/strategies/small-capital-deployment.md     |  2 ++
+ .claude/strategies/stochrsi-enhanced-gdx.md        |  2 ++
+ .claude/strategies/stochrsi-enhanced-gld.md        |  2 ++
+ .claude/strategies/stochrsi-enhanced-iau.md        |  2 ++
+ .claude/strategies/stochrsi-enhanced-oih.md        |  2 ++
+ .claude/strategies/stochrsi-enhanced-slv.md        |  2 ++
+ .claude/strategies/stochrsi-enhanced-xbi.md        |  2 ++
+ .claude/strategies/stochrsi-enhanced-xle.md        |  2 ++
+ .claude/strategies/stochrsi-enhanced-xop.md        |  2 ++
+ CLAUDE.md                                          |  2 ++
+ 19 files changed, 62 insertions(+), 3 deletions(-)
+
+----
 **2026-05-07** — Restore canonical Run 0 baseline snapshot (+424.09% / 4.95 / 3.41%) overwritten during HWM A/B testing
 
+ .claude/memory/gitlog.md                        | 16 ++++-----
  .claude/strategies/portfolio-runner-baseline.md | 46 ++++++++++++++-----------
- 1 file changed, 26 insertions(+), 20 deletions(-)
+ 2 files changed, 34 insertions(+), 28 deletions(-)
 
 ----
 **2026-05-07** — Path 2 SHIPPED — HWM trail anchor delivers +0.78 Sharpe / -0.36pp DD vs close-anchored. Opt-in via trail_anchor parameter. Live deployment pending strategic decision.
@@ -190,12 +215,4 @@ Domain file updates:
  .claude/memory/gitlog.md               | 30 ++++++++----------------------
  .claude/strategies/research-roadmap.md |  2 ++
  2 files changed, 10 insertions(+), 22 deletions(-)
-
-----
-**2026-04-29** — fix: SYNC race upstream — adopt existing GTC stop on restart instead of cancel-and-replace. Root cause of Apr 29 XBI bug identified post-mortem: cancel_all_orders_for_symbol is async on Alpaca's side, but the SYNC block calls place_stop_order immediately after — the cancel is queued, the existing GTC stop still holds the qty, place fails with 'insufficient qty available', SYNC catches and prints 'bot will manage locally' but doesn't set pending_stop_order_id. The cancel propagates a few seconds later, killing the original GTC stop. Position is now unprotected on Alpaca AND the bot has no record of any stop. This race fired on every overnight-position bot at the correlation-sizing pm2 restart this morning; XBI was the unlucky one because biotech gaps at the open and the [LOOP] gap-recovery hit a price already past the intended SL. Same pattern was fixed Mar 19 in live_broker.py trailing-stop path with a 1s sleep. New: alpaca_trader.get_open_stop_order(symbol, side) returns the first open stop matching side, with id/qty/stop_price. SYNC block now: (1) check if an existing stop exists and is within $0.50 of reconstructed SL; if yes, adopt its order_id and snap current_sl to the live level (no cancel, no race); (2) if no existing stop or level differs materially, fall back to cancel + 1s sleep + place. Both changes preserve the Apr 29 defensive guards (gap-through-stop breach detection + emergency market exit). The defensive guard from Apr 29 still applies — this fix is the upstream version that prevents the unprotected window in the first place.
-
- .claude/memory/gitlog.md        | 19 +++++++-------
- backend/engine/alpaca_trader.py | 25 +++++++++++++++++++
- backend/runner.py               | 55 ++++++++++++++++++++++++++++++++---------
- 3 files changed, 77 insertions(+), 22 deletions(-)
 

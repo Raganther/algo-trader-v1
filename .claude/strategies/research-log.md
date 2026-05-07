@@ -1,9 +1,30 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-04-23
+Status: current | Epistemic: confirmed | Last verified: 2026-05-07
 
 # Research Log — Algo Trader V1
 
 > **Purpose:** Cumulative reasoning across all strategy exploration. Not a results ledger — a record of what was tried, what was learned, and what it implies.
 > Read this when deciding what to try next. Individual strategy cards hold the depth; this file holds the synthesis.
+
+---
+
+## Live-vs-Backtest Diagnostic + HWM Trail Anchor — May 7 2026
+
+**Trigger.** Live perf report at 14 trading days showed metals four roughly tracking backtest, except IAU which diverged sharply (backtest +$384, live −$196). Drilled in to find the cause.
+
+**Method.** Ran portfolio backtest over the same Apr 15 → May 7 window with same params, compared trade-by-trade against live `live_trade_log` + Alpaca closed-order history.
+
+**Finding 1 — Backtest is structurally optimistic by ~0.7 Sharpe.** The backtest evaluates signals at bar Close with effective delay=0; live polls Alpaca every ~60s, so live's effective execution timing is ~1 bar after each bar Close. The phase shift propagates through `trail_after_bars=10` (trail activates on a different bar) and the close-anchored trail formula uses each bar's Close as reference (different bar = different reference Close = different trail level). On choppy price action where prices wobble around the trail level, live's stop fires while backtest's doesn't. Apr 23 IAU short was the smoking gun: same entry $89.05 in both, backtest let it run to K-exit at $88.00 (+$274), live got whipsawed at trail stop $89.10 (−$14). Wider trail (2.5 ATR) tested — does NOT mitigate (long-window Sharpe 4.95 → 4.33, DD 3.41% → 4.07%). The issue is structural to the trail formula's bar-Close anchoring, not parameter-tunable. **Implication:** all validated-edges Sharpes (GLD 2.48 etc.) overstate live by ~0.7. CLAUDE.md guidance "size for Sharpe 1.0–1.5 on metals" was correct intuition; this provides the mechanism.
+
+**Finding 2 — HWM trail anchor closes the gap (Path 2 shipped).** New `trail_anchor` parameter on `stoch_rsi_mean_reversion.py` with values `'close'` (default — byte-identical to legacy) or `'hwm'` (anchors trail to trade's high-water-mark: highest High since entry for longs, lowest Low for shorts). HWM is intrinsic to the trade's price action, structurally insensitive to bar timing. **Long-window 7-bot result: Close +424.09% / 4.95 / 3.41% vs HWM +517.41% / 5.73 / 3.05%.** ΔSharpe +0.78, ΔDD −0.36pp, all 7 symbols improve, no regressions. The +0.78 lift ≈ the 0.7 estimated delay artifact, suggesting HWM in live should approximately recover the gap. **Why it works:** HWM fixes two problems at once — (a) timing-sensitivity (different bar = different Close = different trail) AND (b) noisy signal (bar Close is variable; trade's actual best price is invariant). The improvements compound.
+
+**Implications across the project.**
+- All headline backtest Sharpe figures should be read as close-anchored with ~0.7 live optimism. Live expectations subtract this.
+- Spot/ETF Sharpe gap interpretation revised: both backtests have the delay artifact, so it can't explain a backtest-vs-backtest gap. The "ETF microstructure premium" hypothesis from `long-window-validation.md` remains open but is now decoupled from the live-deployment sizing question.
+- Live forward-test tripwires anchored to backtest − 0.7. Sharpe<0.5 at 30d / <1.5 at 60d / <2.0 at 90d → degraded.
+- Validated-edges Sharpe table needs eventual re-run with HWM for canonical reference.
+- Pending strategic decisions: (1) flip live bots to `trail_anchor: hwm`, (2) flip strategy default `close → hwm`, (3) re-run per-asset Sharpe table, (4) test interaction with cap-shrink and small-capital configurations.
+
+**Files.** `.claude/calibration/live-vs-backtest-iau-diagnostic.md` (full diagnosis), `.claude/strategies/trail-anchor-hwm.md` (HWM A/B + decision matrix), `backend/strategies/stoch_rsi_mean_reversion.py` (`trail_anchor` parameter), `backend/analysis/live_performance_report.py` (corrected tripwires).
 
 ---
 

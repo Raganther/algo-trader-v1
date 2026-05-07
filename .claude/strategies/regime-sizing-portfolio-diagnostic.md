@@ -2,6 +2,8 @@ Status: current | Epistemic: confirmed | Last verified: 2026-04-23 (results unaf
 
 # Regime Sizing Portfolio Diagnostic
 
+> **May 7 2026 caveat.** All Sharpe figures in this file are close-anchored backtests with ~0.7 Sharpe optimism (1-bar polling delay artifact, see `.claude/calibration/live-vs-backtest-iau-diagnostic.md`). Live expectation = backtest Sharpe **− 0.7**. Per-regime/per-cell rankings are unaffected (the artifact is roughly uniform); absolute live numbers should be deflated.
+
 > **Apr 28 2026 note:** This diagnostic asks whether broad regime multipliers improve drawdown-adjusted portfolio performance. The answer (no — baseline 4.27 daily Sharpe beats all regime variants) is a portfolio-level replay of validated trades; it does not depend on whether the StochRSI entry signal or the framework is the source of edge. Conclusion stands.
 
 ## Knowledge
