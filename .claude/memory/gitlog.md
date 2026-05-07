@@ -3,17 +3,31 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-07** — Deploy HWM trail anchor to all 7 live bots — trail_anchor:hwm in run_*_test.sh scripts. Existing OIH position continues with close-anchored fallback (HWM only initializes on entry); new trades use HWM.
+
+ .claude/strategies/trail-anchor-hwm.md | 11 +++++++++++
+ scripts/run_gdx_test.sh                |  2 +-
+ scripts/run_gld_test.sh                |  2 +-
+ scripts/run_iau_test.sh                |  2 +-
+ scripts/run_oih_test.sh                |  2 +-
+ scripts/run_slv_test.sh                |  2 +-
+ scripts/run_xbi_test.sh                |  2 +-
+ scripts/run_xop_test.sh                |  2 +-
+ 8 files changed, 18 insertions(+), 7 deletions(-)
+
+----
 **2026-05-07** — Domain audit — propagate May 7 delay-artifact + HWM findings across all Sharpe-referencing files. Adds memory entries, research-log entry, uniform caveat banners on per-asset and infrastructure files.
 
- .claude/calibration/calibration-notes.md           |  4 +++-
- .claude/calibration/forward-test-log.md            |  4 +++-
+ .claude/calibration/calibration-notes.md           |  4 ++-
+ .claude/calibration/forward-test-log.md            |  4 ++-
+ .claude/memory/gitlog.md                           | 35 ++++++++++++++++------
  .claude/strategies/composable-results.md           |  2 ++
  .claude/strategies/long-window-validation.md       |  2 ++
- .claude/strategies/portfolio-runner-cap-shrink.md  |  4 ++++
+ .claude/strategies/portfolio-runner-cap-shrink.md  |  4 +++
  .claude/strategies/portfolio-runner-rotation-v1.md |  2 ++
  .../regime-sizing-portfolio-diagnostic.md          |  2 ++
  .claude/strategies/regime-stochrsi-diagnostic.md   |  2 ++
- .claude/strategies/research-log.md                 | 23 +++++++++++++++++++++-
+ .claude/strategies/research-log.md                 | 23 +++++++++++++-
  .claude/strategies/small-capital-deployment.md     |  2 ++
  .claude/strategies/stochrsi-enhanced-gdx.md        |  2 ++
  .claude/strategies/stochrsi-enhanced-gld.md        |  2 ++
@@ -24,7 +38,7 @@
  .claude/strategies/stochrsi-enhanced-xle.md        |  2 ++
  .claude/strategies/stochrsi-enhanced-xop.md        |  2 ++
  CLAUDE.md                                          |  2 ++
- 19 files changed, 62 insertions(+), 3 deletions(-)
+ 20 files changed, 88 insertions(+), 12 deletions(-)
 
 ----
 **2026-05-07** — Restore canonical Run 0 baseline snapshot (+424.09% / 4.95 / 3.41%) overwritten during HWM A/B testing
@@ -208,11 +222,4 @@ Domain file updates:
  backend/engine/portfolio_runner.py                | 173 +++++
  backend/runner.py                                 | 199 +++++-
  12 files changed, 2130 insertions(+), 18 deletions(-)
-
-----
-**2026-04-29** — doc + memory: capture Apr 29 stop-handling fixes + post-mortem. research-roadmap.md Resolved table extended with two entries — gap-through-stop guard and SYNC race condition. Memory recurring_bug_pattern.md restructured from 'one TIF bug' to 'four closely-related stop-handling failure modes' (TIF mismatch Apr 17, trailing-stop race Mar 19, SYNC race Apr 29, gap-through-stop Apr 29). Memory now explains the structural reason the SYNC race surfaced only on Apr 29 (DAY-TIF era pre-Apr-17 had nothing for cancel to race against; Apr 29 correlation-sizing deploy hit the race on all overnight-position bots simultaneously and XBI was the unlucky one due to biotech gap-profile). Added a 'where to look' index covering SYNC block, LOOP gate, SERVER STOP FIRED detection, alpaca_trader, and live_broker for future stop-related debugging.
-
- .claude/memory/gitlog.md               | 30 ++++++++----------------------
- .claude/strategies/research-roadmap.md |  2 ++
- 2 files changed, 10 insertions(+), 22 deletions(-)
 

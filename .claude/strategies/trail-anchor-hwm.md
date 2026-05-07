@@ -78,6 +78,17 @@ python3 -m backend.runner portfolio --strategy StochRSIMeanReversion \
     --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0],"trail_anchor":"hwm"}'
 ```
 
+## Live deployment — May 7 2026 (DEPLOYED)
+
+All 7 bot scripts (`scripts/run_{gld,iau,slv,gdx,oih,xbi,xop}_test.sh`) updated to include `"trail_anchor":"hwm"` parameter. Bots restarted on cloud server via `pm2 restart all` after `git pull`.
+
+**Behaviour at deploy time:**
+- Existing OIH short position (54 @ $442.14, +$1,205 unrealized at deploy) continues with **close-anchored trail** — `self.high_water_mark` is None for that position because HWM only initializes on entry, and the strategy code falls back to close-anchor when HWM is None
+- All new trades (post-restart) initialize HWM and use the new formula
+- Effective transition: HWM applies fully once OIH exits and a new trade fires
+
+**Forward test reset.** This change resets the close-anchored forward-test convergence clock. Live performance from May 7 onward will validate HWM, not the original close-anchored expectations. Tripwire bars in `live_performance_report.py` should be updated to anchor against HWM backtest expectations (Sharpe 5.73, not 4.95) once HWM live data accumulates.
+
 ## Pending strategic decisions (NOT auto-applied)
 
 1. **Flip live bots to `trail_anchor: hwm`.** Would require restarting all 7 paper bots with updated config. Live forward-test would resume on the new trail formula. **Tradeoff:** today's backtest says +0.78 Sharpe, but live execution still has the 1-bar polling delay — HWM should be insensitive to it, but this is unverified in live conditions.
