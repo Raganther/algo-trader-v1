@@ -3,15 +3,22 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-07** — Disambiguate IAU delay finding from Apr 28-29 XBI gap-through-stop incident — unrelated
+
+ .claude/calibration/live-vs-backtest-iau-diagnostic.md | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+----
 **2026-05-07** — IAU live-vs-backtest diagnostic — identifies 1-bar polling delay artifact (~0.7 Sharpe). Anchor live tripwires to corrected expectation.
 
  .claude/calibration/live-performance-report.md     |  27 +++--
  .../calibration/live-vs-backtest-iau-diagnostic.md | 119 +++++++++++++++++++++
+ .claude/memory/gitlog.md                           |  27 ++---
  .claude/strategies/portfolio-runner-baseline.md    |  48 ++++-----
  .claude/strategies/research-roadmap.md             |   2 +
  CLAUDE.md                                          |   1 +
  backend/analysis/live_performance_report.py        |  20 +++-
- 6 files changed, 177 insertions(+), 40 deletions(-)
+ 7 files changed, 192 insertions(+), 52 deletions(-)
 
 ----
 **2026-05-05** — Wire live perf report into CLAUDE.md run commands + roadmap rows
@@ -187,11 +194,4 @@ Domain file updates:
  .claude/memory/gitlog.md | 19 +++++++--------
  backend/runner.py        | 62 +++++++++++++++++++++++++++++++++++-------------
  2 files changed, 54 insertions(+), 27 deletions(-)
-
-----
-**2026-04-29** — fix: gap-through-stop guard in DAY-stop recovery path. When a position is held overnight and price gaps through the intended stop level, Alpaca rejects the new stop order (stop above market for longs, below for shorts), leaving the bot in a retry loop with no active protection. Surfaced today on XBI: long entry .25 Apr 28, GTC stop $130.85 was canceled by the gap-recovery path at session re-open, intended re-place at $130.68 rejected because price had gapped to $130.30. Manual safety stop placed at $128.50 GTC for the live position; code fix prevents recurrence. Behavior change in runner.py:943-983: before cancel-and-replace, check whether intended stop is already breached by current price (long: SL >= price; short: SL <= price). If breached, cancel orders + place market exit (the stop's intent 'exit if we get here' is already satisfied) and reset strategy state. Otherwise, original cancel-and-replace path runs unchanged. Does NOT fix the upstream question of why pending_stop_order_id was None despite a live GTC stop — defensive guard means we no longer end up unprotected even when the gate spuriously triggers.
-
- .claude/memory/gitlog.md | 17 +++++++-------
- backend/runner.py        | 60 ++++++++++++++++++++++++++++++++++++------------
- 2 files changed, 53 insertions(+), 24 deletions(-)
 

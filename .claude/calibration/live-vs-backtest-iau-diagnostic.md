@@ -110,6 +110,20 @@ Tested whether widening trail to 2.5 ATR mitigates the whipsaw:
 
 Path 3 immediately (zero engineering, accurate framing). Path 2 next (parameter change, can backtest in an hour). Path 1 last (real engineering work, but the most epistemically honest fix).
 
+## What this is NOT — disambiguation from Apr 28-29 XBI incident
+
+This finding is **unrelated to the Apr 28-29 XBI gap-through-stop incident** (committed Apr 29, `runner.py:943-983` patch). They occurred in the same calendar window because Apr 28 was a busy day (e2-micro → e2-small server upgrade + oih-test/xbi-test/xop-test deployment + the XBI overnight gap), but the two issues are mechanistically distinct:
+
+| | XBI gap-through-stop (Apr 28-29) | 1-bar polling delay (May 7 finding) |
+|---|---|---|
+| Type | One-time bug in gap-recovery code path | Structural mismatch in backtest model |
+| Frequency | One position, one symbol, one night | Every trade, every bot, every day |
+| Cause | Tried to place a stop above current price after overnight gap; Alpaca rejected | Backtest assumes 0-delay execution; live has ~60s polling cycle |
+| Status | **Fixed** — `runner.py:943-983` adds breach-check | **Not fixed** — Paths 1/2/3 documented |
+| Impact | Single XBI trade left unprotected for hours | Systematic ~0.7 Sharpe gap backtest vs live |
+
+The server upgrade (e2-micro 1GB → e2-small 2GB on Apr 28) probably made polling cadence more *consistent* under load, but did not cause and does not fix the 1-bar delay — that's structural to the polling architecture itself.
+
 ## Files referenced
 
 - `backend/strategies/stoch_rsi_mean_reversion.py` — stop-check (line 222), trail update (line 168)
