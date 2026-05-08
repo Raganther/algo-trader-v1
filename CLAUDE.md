@@ -27,9 +27,8 @@ Read on demand only:
 - `.claude/strategies/stochrsi-enhanced-xbi.md` — read when working on XBI (biotech diversifier candidate from Apr 28 audit, +85% verified, needs WF)
 - `.claude/strategies/stochrsi-enhanced-xop.md` — read when working on XOP (energy E&P candidate from Apr 28 audit, +90% verified, needs WF)
 - `.claude/strategies/event-surprise.md` — read when researching economic event strategies or revisiting CPI/NFP trading
-- `.claude/calibration/calibration-notes.md` — read when running calibration, checking Apr 20 methodology, or comparing backtest vs live
-- `.claude/calibration/live-trade-log.md` — read when auditing trades, filling in daily trade data, or running the Apr 20 calibration comparison
-- `.claude/calibration/forward-test-log.md` — read for forward-test milestones, named patterns, anomalies, and Layer 3 sample status. **Per-trade detail not maintained here** — query Alpaca MCP `get_orders` or cloud `live_trade_log` for raw trades; use `daily-trade-audit.md` procedure for ad-hoc analysis. Restructured May 8 to milestones + patterns format (was per-session ledger).
+- `.claude/calibration/calibration-journal.md` — **the single living calibration document.** Status board (10 components × source-of-truth pointers), findings timeline (Apr 13 / May 7 / May 8), live forward-test milestones + named patterns, Layer 3 running sample, methodology, and the archived Apr 13 full results. Read first for any calibration question. **Per-trade detail not here** — query Alpaca MCP `get_orders` or cloud `live_trade_log` table; use `daily-trade-audit.md` procedure. Replaces the prior `calibration-notes.md` + `forward-test-log.md` split (consolidated May 8).
+- `.claude/calibration/archive/calibration-window-mar-apr.md` — frozen per-trade ledger for the Mar 20 – Apr 20 calibration window (test params). Historical reference only, no maintenance. Read only if reconstructing what specifically happened in a given calibration-window trade.
 - `.claude/calibration/live-performance-report.md` — read when checking live forward-test health (Sharpe / win-rate / right-tail tripwires) vs backtest expectation. Refresh with `python3 -m backend.analysis.live_performance_report`. Headline tripwires: Sharpe<1.0 at 30d / <2.0 at 60d / <2.5 at 90d → degraded; win-rate<35% on 50+ trades → distributional shift; avg-win/avg-loss<1.3 → right tail collapsing.
 - `.claude/calibration/live-vs-backtest-iau-diagnostic.md` — read when reasoning about why live Sharpe differs from backtest Sharpe, debugging individual bot underperformance, considering trail-stop changes, or fixing the `--delay 1` backtest mode. **May 7 finding (refined May 8): backtest is structurally optimistic by ~0.4–0.7 Sharpe** because it doesn't model live's 1-bar polling delay. May 8 falsification audit reproduced 0.42 Sharpe of the artifact via data-shift simulation; 0.7 is now an upper bound. Wider trail (2.5 ATR) does NOT mitigate.
 - `.claude/strategies/trail-anchor-hwm.md` — read when reasoning about trail-stop behaviour, the live HWM forward-test, or recalibrating validated-edges Sharpe figures. **May 7 result: HWM delivers +0.78 Sharpe (4.95 → 5.73) and −0.36pp DD (3.41% → 3.05%) on long-window 7-bot backtest** — all 7 symbols improve. **HWM DEPLOYED LIVE on all 7 bots May 7 PM** via `"trail_anchor":"hwm"`. **May 8 mechanism audit SUPPORTED with caveats**: HWM is ~2.8× more delay-resistant than close-anchored (Δsharpe(close)=0.42 vs Δsharpe(hwm)=0.15) but **not delay-immune** — the original "+0.78 ≈ 0.7 delay artifact" identity is a directional rhyme, not a causal equality. Live HWM gap likely ~0.2–0.3 Sharpe. Recommended live tripwire anchor: ~5.50 Sharpe.
@@ -104,8 +103,8 @@ python3 scripts/fetch_price_data_yfinance.py
 - **Harness spec:** `.claude/harness-v4.md` — knowledge conventions, layer model, hook descriptions
 - **Roadmap:** `.claude/strategies/research-roadmap.md` — all in-flight work and open questions
 - **Strategy notes:** `.claude/strategies/` — domain files, individually listed in Session Start above
-- **Calibration notes:** `.claude/calibration/calibration-notes.md` — methodology, Apr 20 commands, snapshots
-- **Live trade log:** `.claude/calibration/live-trade-log.md` — per-trade records for Mar 20–Apr 20 calibration window
+- **Calibration journal:** `.claude/calibration/calibration-journal.md` — single living doc; status board + timeline + milestones + patterns + methodology
+- **Calibration window archive:** `.claude/calibration/archive/calibration-window-mar-apr.md` — frozen Mar 20–Apr 20 per-trade ledger
 - **OpenBrain category:** `.claude/openbrain-category` — `algo-trader`
 - **Alpaca MCP:** configured in `~/.claude/settings.json` — 57 tools for market data, orders, positions, portfolio history. No news endpoint. Requires Claude Code restart to activate. Uses existing Alpaca paper trading keys. `uvx` installed at `~/.local/bin/uvx`.
 - **Integrations:** `.claude/integrations/alpaca-mcp.md` — full tool reference, high-value tools ranked, usage notes
@@ -154,7 +153,7 @@ See `.claude/strategies/portfolio-runner-rotation-v1.md` for the final report. R
 
 **Confirmed working (execution mechanics — separate from edge attribution):** entry placement + K-exit (76–80% win rate across 67+ trades), server-side stop loss, trailing stop in profit (SLV +$283.86 Apr 20), trail ratcheting, whole-share sizing (340+ shares/position), short entry + K-exit (GLD Apr 16 +$38.50), GTC stops (no overnight expiry gap), pm2 startup registered as systemd service, single-symbol overnight gap risk bounded by 25% notional cap (Apr 23 SLV gap-through = -0.64% equity, within p95 of historical distribution). *Note:* the 76–80% win rate reflects what the framework + StochRSI tilt produces in live conditions; per Apr 28 random-entry control, the bulk of the risk-adjusted edge comes from the framework, not from the StochRSI entry signal.
 
-**Execution layer validated (Apr 13 calibration):** Layers 1/2/4 pass. Backtest engine accurate for test params / intraday regime. See calibration-notes.md for full results.
+**Execution layer validated (Apr 13 calibration):** Layers 1/2/4 pass. Backtest engine accurate for test params / intraday regime. See `calibration-journal.md` §7 for full results.
 
 **Remaining before real money:** see `research-roadmap.md` → Critical Path section.
 

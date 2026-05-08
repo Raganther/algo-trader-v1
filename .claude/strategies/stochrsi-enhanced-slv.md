@@ -109,7 +109,7 @@ Most consistent year-by-year of all four metals — every year between +5.56% an
 
 ### Forward Testing
 
-slv-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — see `CLAUDE.md` and `.claude/calibration/calibration-notes.md`.
+slv-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — see `CLAUDE.md` and `.claude/calibration/calibration-journal.md`.
 
 Backtest prediction for test params (Dec 2025 – Mar 2026): +14.25%, 44 trades, 57% WR — strongest of the 4 symbols under test params.
 

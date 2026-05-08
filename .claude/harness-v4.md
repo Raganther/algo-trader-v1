@@ -96,7 +96,7 @@ Always use `git-save.sh` — not raw `git commit`.
 | `CLAUDE.md` | Commit message must explain why |
 | `research-roadmap.md` | Have settled items been promoted to domain files? |
 | `.claude/strategies/stochrsi-enhanced-*.md` | Is CLAUDE.md Validated Edges table current? |
-| `backend/engine/backtester.py` | Update calibration-notes.md if calibration methodology affected |
+| `backend/engine/backtester.py` | Update calibration-journal.md if calibration methodology affected |
 
 ## Hooks
 
@@ -133,8 +133,8 @@ These hooks are Claude Code automation. In Codex sessions, treat them as a requi
 | `.claude/strategies/regime-stochrsi-diagnostic.md` | Interpreting Apr 23 per-regime StochRSI results or deciding whether regime-aware sizing is justified |
 | `.claude/strategies/regime-sizing-portfolio-diagnostic.md` | Evaluating whether regime multipliers improve portfolio-level return/drawdown before live sizing |
 | `.claude/strategies/arbitrage-automation-concepts.md` | Exploring new strategy families, evaluating adjacent business ideas |
-| `.claude/calibration/calibration-notes.md` | Running calibration, checking Apr 20 methodology, comparing backtest vs live |
-| `.claude/calibration/live-trade-log.md` | Auditing trades, filling in daily trade data, reviewing calibration data |
+| `.claude/calibration/calibration-journal.md` | Running calibration, checking Apr 20 methodology, comparing backtest vs live |
+| `.claude/calibration/archive/calibration-window-mar-apr.md` | Auditing trades, filling in daily trade data, reviewing calibration data |
 | `.claude/calibration/gap-distribution.md` | Sizing overnight-capable positions, evaluating gap-risk policy, interpreting overnight gap losses |
 | `.claude/integrations/alpaca-mcp.md` | Using Alpaca MCP tools, running trade audits, checking what data is available |
 

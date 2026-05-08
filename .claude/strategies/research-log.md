@@ -747,7 +747,7 @@ Sequenced by dependency and priority. Critical path: **1 → 2 → 3 → 6**. It
 
 ### Critical path — required before real money
 
-1. **Calibration — run Mon/Tue Apr 14–15** — don't wait until Apr 20. Gate: overnight GLD/SLV/GDX positions close first. Run backtest comparison over clean window (~70–75 trades, sufficient for execution layer validation). See calibration-notes.md for commands and layered framework.
+1. **Calibration — run Mon/Tue Apr 14–15** — don't wait until Apr 20. Gate: overnight GLD/SLV/GDX positions close first. Run backtest comparison over clean window (~70–75 trades, sufficient for execution layer validation). See calibration-journal.md for commands and layered framework.
 
 2. **Whole-share sizing + short broker code** — implement immediately after calibration passes. Position sizing: `floor(risk_budget / stop_distance) = whole shares`. Broker code: audit `live_broker.py` for direction-aware stop placement, trail ratcheting, and exit order type on the short side. Short signal code already exists and is blocked — unblock once sizing is in place. No intermediate parameter phase needed to verify short mechanics.
 

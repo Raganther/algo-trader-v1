@@ -121,6 +121,6 @@ All years profitable but 2020–2021 are very slim (+0.38% / +1.03%). Shorts are
 
 ### Forward Testing
 
-iau-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — see `CLAUDE.md` and `.claude/calibration/calibration-notes.md`.
+iau-test bot running on cloud with aggressive params (OB 60/OS 40, 3-bar hold/trail after 1 bar, 0.5 ATR). All 4 exit mechanics confirmed — see `CLAUDE.md` and `.claude/calibration/calibration-journal.md`.
 
 Backtest prediction for test params (Dec 2025 – Mar 2026): -0.50%, 54 trades, 37% WR — weakest of the 4 symbols under test params.

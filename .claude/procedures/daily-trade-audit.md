@@ -1,3 +1,5 @@
+Status: current | Epistemic: confirmed | Last verified: 2026-05-08
+
 # Procedure: Daily Trade Audit
 
 **When to apply:** after each trading day to verify live bot execution, or when backfilling the calibration window. Run before git save on any day with active trades.
@@ -36,12 +38,13 @@ get_all_positions()
 ```
    - Any open position at EOD is an overnight hold — note in the trade log with entry details and current stop level
 
-6. **Log to live-trade-log.md** — add a section for the day:
-```
-## YYYY-MM-DD
-**Audit status:** PASS (N/N Alpaca filled orders matched — M trades reconstructed)
-| Bot | Entry time (UTC) | Entry $ | Exit time (UTC) | Exit $ | Exit type | Stop level at exit | P&L/share | Notes |
-```
+6. **Log only what's durable.** Per-trade tables are NOT maintained in any domain file — the cloud `live_trade_log` and Alpaca MCP are the source of truth, query on demand. The exceptions worth writing down (in `.claude/calibration/calibration-journal.md` §3 milestones or §4 patterns):
+   - First-occurrence events (first short, first organic short stop, first overnight gap, first HWM trade, etc.)
+   - Named pattern observations ("GLD whiplash" type) when they recur
+   - Anomalies + bug surfaces (the gap-through-stop incident type)
+   - New Layer 3 stop-fire entries that move the running sample meaningfully (update §5)
+   
+   For ad-hoc per-trade tables (one-off audits, diagnostic reports), generate from the DB at need; don't persist them as a domain file.
 
 7. **Note anomalies** — delayed fills (gap between `created_at` and `filled_at`), simultaneous correlated entries/exits, unusual slippage, overnight holds.
 

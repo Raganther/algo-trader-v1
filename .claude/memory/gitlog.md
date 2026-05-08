@@ -3,6 +3,33 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-08** — Calibration docs consolidation — single living journal
+Calibration cluster: 7 files → 4 active + 1 archive.
+
+- New: .claude/calibration/calibration-journal.md — single living document. 8 sections: status board, findings timeline, live forward-test milestones, named patterns, Layer 3 sample, methodology, Apr 13 full results, historical snapshots. Single entry point for any calibration question.
+- Removed: calibration-notes.md, forward-test-log.md (content merged into journal)
+- Archived: live-trade-log.md → archive/calibration-window-mar-apr.md (frozen Mar 20–Apr 20 per-trade ledger, no maintenance)
+- Updated daily-trade-audit.md procedure: per-trade tables no longer persisted to any domain file (cloud live_trade_log + MCP are source of truth, query on demand). Only durable findings (milestones, patterns, anomalies, Layer 3 entries) get written to journal.
+- Cross-references updated in CLAUDE.md, harness-v4.md, research-log.md, research-roadmap.md, 4 strategy cards.
+
+Net: cleaner mental map (the journal, two long standalone reports, the auto-generated tripwire report), single update path for new findings, no more stale per-trade tables.
+
+ .../calibration-window-mar-apr.md}                 |   0
+ .claude/calibration/calibration-journal.md         | 233 ++++++++++++++++++
+ .claude/calibration/calibration-notes.md           | 268 ---------------------
+ .claude/calibration/forward-test-log.md            |  78 ------
+ .claude/harness-v4.md                              |   6 +-
+ .claude/procedures/daily-trade-audit.md            |  15 +-
+ .claude/strategies/research-log.md                 |   2 +-
+ .claude/strategies/research-roadmap.md             |   6 +-
+ .claude/strategies/stochrsi-enhanced-gdx.md        |   2 +-
+ .claude/strategies/stochrsi-enhanced-gld.md        |   2 +-
+ .claude/strategies/stochrsi-enhanced-iau.md        |   2 +-
+ .claude/strategies/stochrsi-enhanced-slv.md        |   2 +-
+ CLAUDE.md                                          |  11 +-
+ 13 files changed, 258 insertions(+), 369 deletions(-)
+
+----
 **2026-05-08** — HWM mechanism falsification audit (May 8) + calibration docs restructure
 - New audit script backend/analysis/audit_hwm_delay_sensitivity.py — data-shift falsification of the May 7 'HWM is delay-immune' causal claim
 - Verdict SUPPORTED with caveats: HWM ~2.8x more delay-resistant than close-anchored (Δsharpe close=0.42 vs hwm=0.15) but only 0.42 of predicted 0.7 artifact reproduced; live HWM gap likely ~0.2-0.3 Sharpe, recommended live tripwire anchor ~5.50 not 5.73
@@ -18,13 +45,14 @@
  .claude/calibration/forward-test-log.md            | 251 ++++---------------
  .claude/calibration/live-performance-report.md     |   2 +-
  .../calibration/live-vs-backtest-iau-diagnostic.md |   4 +-
+ .claude/memory/gitlog.md                           |  39 ++-
  .claude/strategies/research-log.md                 |  20 +-
  .claude/strategies/research-roadmap.md             |   5 +-
  .claude/strategies/trail-anchor-hwm.md             |   6 +-
  .gitignore                                         |   3 +
  CLAUDE.md                                          |   9 +-
  backend/analysis/audit_hwm_delay_sensitivity.py    | 269 +++++++++++++++++++++
- 12 files changed, 565 insertions(+), 220 deletions(-)
+ 13 files changed, 591 insertions(+), 233 deletions(-)
 
 ----
 **2026-05-07** — Update roadmap, CLAUDE.md, memory, live perf report — HWM is LIVE; tripwires re-anchored to HWM expectations (Sharpe 5.73 baseline)
@@ -205,15 +233,4 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
  backend/runner.py                                  | 105 ++++++++--
  backend/strategies/stoch_rsi_mean_reversion.py     |  29 ++-
  13 files changed, 721 insertions(+), 118 deletions(-)
-
-----
-**2026-04-30** — Apr 30 (PM): correlation-sizing with-vs-without backtest — discount is structurally inactive under V2 fixed-equity. New CLI flag --no-correlation-discount + module toggle correlation_sizing.DISCOUNT_ENABLED (default True; live bots, single-symbol backtests, default portfolio runs unaffected) enable the apples-to-apples comparison. 7-bot V2 baseline (2020-07 → 2026-04, $94k): discount ON +474.67% / 3.58% DD / Sharpe 4.86 / 4413 trades; discount OFF +474.87% / 3.58% / 4.86 / 4413. Trade counts and per-symbol win rates byte-identical. Reason: position size is min(risk_amt / stop_dist, equity * 0.25 / price). For risk to bind tighter than the 25% notional cap, stop_dist/price must exceed 8% at full risk; on 15m metals/energy bars 2 ATR/price ≈ 0.4–1.0%. The cap wins on every entry the strategy actually takes, overwriting whatever the discount sets. Verdict per roadmap rule: neutral (Sharpe and DD unchanged to 2 d.p.) — keep the discount for documentation + the high-volatility regime where it could bind, but reframe: the cap is doing the correlated-gap protection work, not the discount. Apr 23 tail-risk concern bounded by 25% × 4 = 100% notional ceiling regardless of discount state. IWM expansion gate is now unblocked from the discount-validation perspective; live [CORR-SIZE] log audit downgraded from deployment-decision gate to wiring check. Upstream implication: future portfolio-level sizing work should focus on the notional cap (e.g. cluster-aware cap) rather than risk-fraction adjustments. Files: backend/engine/correlation_sizing.py (DISCOUNT_ENABLED toggle), backend/runner.py (CLI flag + diagnostic snapshot path routes to a separate file to preserve the V2 baseline), .claude/strategies/portfolio-runner-baseline.md (full comparison + interpretation), .claude/strategies/research-roadmap.md (row 81 resolved with finding), CLAUDE.md (Correlation-aware sizing note rewritten to reflect cap-binds-first; IWM gate flipped to unblocked). Memories added: notional_cap_dominates.md (the structural finding) + correlation_sizing.md updated with Apr 30 note.
-
- .claude/memory/gitlog.md                        | 21 +++++++------
- .claude/strategies/portfolio-runner-baseline.md | 40 ++++++++++++++++++++++---
- .claude/strategies/research-roadmap.md          |  2 +-
- CLAUDE.md                                       |  6 ++--
- backend/engine/correlation_sizing.py            |  9 ++++++
- backend/runner.py                               | 16 +++++++++-
- 6 files changed, 76 insertions(+), 18 deletions(-)
 
