@@ -1,10 +1,43 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-05-07
+Status: current | Epistemic: confirmed | Last verified: 2026-05-08
 
 # Calibration Notes — Algo Trader V1
 
-Confirmed methodology for validating the backtest engine against live results.
+Confirmed methodology + living status board for validating the backtest engine against live results. New findings get folded in here as they're discovered; full reports live in their own files referenced from the timeline below.
 
-> **May 7 2026 update — backtest delay artifact identified.** The Apr 13 Layer 1/2/4 calibration validated entry/exit/spread mechanics. The May 7 IAU live-vs-backtest diagnostic identified a separate **structural** issue: backtest's effective execution delay is 0 bars (signal evaluated and "filled" at bar Close); live's effective delay is ~1 bar (Alpaca polling cadence). The 1-bar phase shift propagates through the close-anchored trail formula, producing different stop-fire bars on identical price paths. **Backtest is structurally optimistic by ~0.7 Sharpe** because of this. See `.claude/calibration/live-vs-backtest-iau-diagnostic.md`. The HWM trail anchor (`.claude/strategies/trail-anchor-hwm.md`) is structurally insensitive to the artifact and is the primary path to closing the gap.
+## Status board
+
+| Component | Status | Source of truth |
+|---|---|---|
+| Spread model (`--spread 0.0003`) | **Calibrated** Apr 13 | Layer 2 below |
+| Order mechanics (whole-share, GTC, shorts, sync, wash) | **Calibrated** Apr 13 + ongoing | Layer 1 below + `forward-test-log.md` |
+| Stop-fire mechanics (server-side stop, intrabar) | **Calibrated** | Layer 1 below |
+| Layer 3 — stop slippage aggregation | **In progress** — 41/50 fires | `forward-test-log.md` (latest sample), this file (methodology) |
+| Per-cluster slippage | **Pending** — sample too thin | (gated on Layer 3 hitting 50+) |
+| 1-bar polling delay artifact | **Identified May 7, magnitude refined May 8** — model-fit pending (`--delay 1` broken) | `live-vs-backtest-iau-diagnostic.md`, `audit-hwm-delay-mechanism.md` |
+| HWM trail anchor — live tracking | **T+1** (deployed May 7 PM) | `trail-anchor-hwm.md`, `live-performance-report.md` |
+| Sub-bar fill price variance | **Not characterized** — extractable from `live_trade_log` | (none yet) |
+| Overnight gap behavior on stops | **Characterized** Apr 23 incident + `gap-distribution.md` | `gap-distribution.md` |
+| Aggregate live Sharpe vs backtest | **In progress** — anchor ~5.50 (HWM-corrected) | `live-performance-report.md` (auto-refreshed) |
+
+> **Rule for this table:** numbers live in their source-of-truth file, not here. This row says *what* and *where*, not *how many*. When the Layer 3 sample grows to 45, only update `forward-test-log.md`; this row stays "in progress" until it crosses 50.
+
+## Findings timeline
+
+### Apr 13 2026 — Apr 13 calibration run, Layers 1/2/4 passed
+Entry/exit mechanics, spread model, and aggregate P&L direction all check out for test params over the Mar 20 – Apr 20 window. Layer 3 (slippage) deferred to forward test. Full results in the "Calibration Summary — All Layers (Apr 13 run)" section below.
+
+### May 7 2026 — Backtest 1-bar polling delay artifact identified (IAU diagnostic)
+14 days of validated-params live data revealed a structural mismatch: backtest evaluates signals at bar Close with delay=0; live polls Alpaca every ~60s, effective delay ≈ 1 bar. The phase shift propagates through `trail_after_bars=10` and the close-anchored trail formula's bar-Close reference, producing different stop-fire bars on identical price paths. Apr 23 IAU short was the smoking gun. **Initial estimate: backtest optimistic by ~0.7 Sharpe.** Full diagnosis: `.claude/calibration/live-vs-backtest-iau-diagnostic.md`. HWM trail anchor (Path 2) shipped + deployed live same day as the structural fix; `--delay 1` (Path 1) noted as broken in the existing backtester, deferred.
+
+### May 8 2026 — HWM mechanism falsification audit (magnitude refined)
+The "+0.78 Sharpe lift ≈ 0.7 delay artifact" causal claim from May 7 put under formal falsification (data-shift simulation of 1-bar phase shift, since `--delay 1` is broken). **Verdict SUPPORTED** — HWM is ~2.8× more delay-resistant than close-anchored (Δsharpe(close)=0.42 vs Δsharpe(hwm)=0.15). **But only 0.42 of the predicted 0.7 close-anchored artifact reproduced** under simulation; data-shift under-represents real polling delay's sub-bar effects. Practical implications:
+- Close-anchored real artifact range: **0.42 (lower bound) ≤ X ≤ 0.7 (upper bound)**
+- HWM live gap likely **~0.2–0.3 Sharpe**, not zero
+- Live HWM tripwire anchor should shift from 5.73 → **~5.50** (not yet applied to `live_performance_report.py`)
+- The "+0.78 ≈ 0.7" framing is a directional rhyme, not a causal identity
+- Mechanism support *strengthens* (does not weaken) the case for keeping HWM live
+
+Full audit + 2×2 + per-trade attribution: `.claude/calibration/audit-hwm-delay-mechanism.md`. Reproducible script: `python3 -m backend.analysis.audit_hwm_delay_sensitivity`.
 
 ## Knowledge
 

@@ -1,4 +1,6 @@
-Status: current | Epistemic: single-symbol diagnostic, finding generalises | Last verified: 2026-05-07
+Status: current | Epistemic: single-symbol diagnostic, magnitude refined by May 8 audit | Last verified: 2026-05-08
+
+> **May 8 2026 audit update — magnitude refined from "~0.7 Sharpe" to "~0.4–0.7 Sharpe".** The data-shift falsification audit (`.claude/calibration/audit-hwm-delay-mechanism.md`) reproduced only 0.42 Sharpe of the predicted 0.7 close-anchored artifact under a clean 1-bar shift. Either the real delay artifact is smaller than estimated, or it has additional components beyond pure 1-bar phase shift (sub-bar fill price differences, polling-cadence variance, etc.). Treat 0.7 as an upper bound and 0.4 as a lower bound on the close-anchored live-vs-backtest gap. HWM's gap appears smaller (~0.15 measured, possibly 0.2–0.3 in live).
 
 # IAU Live-vs-Backtest Diagnostic (May 7 2026)
 

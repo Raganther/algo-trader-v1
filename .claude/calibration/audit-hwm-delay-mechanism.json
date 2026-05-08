@@ -1,0 +1,66 @@
+{
+  "params": {
+    "rsi_period": 7,
+    "stoch_period": 14,
+    "overbought": 80,
+    "oversold": 15,
+    "adx_threshold": 20,
+    "skip_adx_filter": false,
+    "sl_atr": 2.0,
+    "trailing_stop": true,
+    "trail_atr": 2.0,
+    "trail_after_bars": 10,
+    "min_hold_bars": 10,
+    "skip_days": [
+      0
+    ]
+  },
+  "window": {
+    "start": "2020-07-27",
+    "end": "2026-04-27",
+    "initial": 94000.0,
+    "spread": 0.0003
+  },
+  "cells": {
+    "close_shift0": {
+      "return_pct": 424.09,
+      "sharpe": 4.95,
+      "max_drawdown": 3.41,
+      "total_trades": 4344
+    },
+    "close_shift1": {
+      "return_pct": 404.36,
+      "sharpe": 4.53,
+      "max_drawdown": 3.5,
+      "total_trades": 4360
+    },
+    "hwm_shift0": {
+      "return_pct": 517.41,
+      "sharpe": 5.73,
+      "max_drawdown": 3.05,
+      "total_trades": 4533
+    },
+    "hwm_shift1": {
+      "return_pct": 501.67,
+      "sharpe": 5.58,
+      "max_drawdown": 3.01,
+      "total_trades": 4540
+    }
+  },
+  "delta_sharpe_close": 0.42,
+  "delta_sharpe_hwm": 0.15,
+  "verdict": "SUPPORTED",
+  "attribution": {
+    "n_close_trades": 4344,
+    "n_hwm_trades": 4533,
+    "common": 3996,
+    "only_close": 348,
+    "only_hwm": 537,
+    "common_bar_aligned": 3756,
+    "common_hwm_held_longer": 0,
+    "common_hwm_held_shorter": 240,
+    "pnl_diff_common": 54326.41,
+    "pnl_only_close": 34119.13,
+    "pnl_only_hwm": 67573.13
+  }
+}

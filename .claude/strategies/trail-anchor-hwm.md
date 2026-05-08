@@ -1,4 +1,6 @@
-Status: current | Epistemic: backtest-validated, not live-tested | Last verified: 2026-05-07
+Status: current | Epistemic: backtest-validated + falsification audit SUPPORTED with caveats | Last verified: 2026-05-08
+
+> **May 8 2026 audit update — mechanism claim SUPPORTED but magnitude refined.** The "+0.78 Sharpe lift ≈ 0.7 delay artifact" coincidence below was put under formal falsification (data-shift simulation of 1-bar phase shift). HWM is ~2.8× more delay-resistant than close-anchored (`Δsharpe(close)=0.42`, `Δsharpe(hwm)=0.15`), comfortably under the 0.5× falsification threshold. **However, only 0.42 Sharpe of the predicted 0.7 artifact reproduced** — data-shift under-represents the real polling delay. Live HWM gap is probably ≈0.2–0.3, not zero. Recommended live tripwire anchor: ~5.50 Sharpe (5.73 − ~0.23 buffer), not the bare 5.73. See `.claude/calibration/audit-hwm-delay-mechanism.md` for full audit + 2×2 matrix + per-trade attribution (HWM exits earlier with more profit on 240/3996 common trades, 0 held longer).
 
 # Trail Anchor: High-Water-Mark (HWM) — Path 2 from May 7 Diagnostic
 
@@ -35,7 +37,7 @@ The trail level is anchored to the trade's actual best-price-reached, which is i
 
 **Decision rule (+0.30 Sharpe OR −1pp DD): passes both branches with massive margin.** ΔSharpe +0.78 is the largest single-parameter improvement we've measured to date.
 
-The Sharpe lift of +0.78 is **almost exactly the 0.7 Sharpe gap** estimated for the live-vs-backtest delay artifact (May 7 diagnostic). Not a coincidence — HWM is structurally insensitive to the 1-bar phase shift that close-anchor suffers from.
+The Sharpe lift of +0.78 is **close to the 0.7 Sharpe gap** estimated for the live-vs-backtest delay artifact (May 7 diagnostic). HWM is **more** delay-resistant than close-anchored, but the May 8 audit shows it is not delay-immune (HWM Sharpe drops 0.15 under simulated 1-bar phase shift; close drops 0.42). The "+0.78 ≈ 0.7" framing reads as identity but is at best a directional rhyme — see audit caveats above.
 
 ## Per-symbol comparison (long window)
 

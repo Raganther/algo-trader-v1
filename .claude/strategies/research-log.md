@@ -1,9 +1,27 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-05-07
+Status: current | Epistemic: confirmed | Last verified: 2026-05-08
 
 # Research Log — Algo Trader V1
 
 > **Purpose:** Cumulative reasoning across all strategy exploration. Not a results ledger — a record of what was tried, what was learned, and what it implies.
 > Read this when deciding what to try next. Individual strategy cards hold the depth; this file holds the synthesis.
+
+---
+
+## HWM Mechanism Falsification Audit — May 8 2026
+
+**Trigger.** May 7 deployed HWM live with the causal claim that the +0.78 Sharpe lift came from being structurally insensitive to a 1-bar polling delay (vs close-anchored which amplifies it into ~0.7 Sharpe of optimism). The "+0.78 ≈ 0.7" coincidence in `trail-anchor-hwm.md:38` is load-bearing — if HWM is just a better signal extractor (not delay-immune), live HWM expectation should still be discounted by ~0.7 Sharpe and the live tripwires anchored to 5.73 are too generous.
+
+**Method.** Falsification audit at `backend/analysis/audit_hwm_delay_sensitivity.py`. `--delay 1` is broken (paper_trader scalar override + ordering bug, not trivially fixable), so used **data-shift preprocessing**: shift OHLCV by 1 bar pre-backtest, re-run with delay=0. Strategy code untouched. Ran 4 cells: (close, hwm) × (shift=0, shift=1) on the long-window 7-bot. Decision rule (set in advance): falsified if `|Δsharpe(hwm)| ≥ 0.5 × |Δsharpe(close)|`.
+
+**Result — H₀ SUPPORTED with caveats.** Δsharpe(close) = 0.42, Δsharpe(hwm) = 0.15. HWM is ~2.8× more delay-resistant than close-anchored, comfortably under the 0.5× threshold. **But only 0.42 of the predicted 0.7 close-anchored artifact reproduced** — data-shift is a coarser model than the real polling delay, which has sub-bar fill-price effects and polling-cadence variance the audit doesn't capture. Live HWM gap is probably ~0.2–0.3 Sharpe, not zero. Per-trade attribution (close vs hwm at shift=0): 3996 common entries, 94% bar-aligned, 6% (240 trades) where HWM exits earlier with **more profit** (+$54k aggregate), 0 where HWM holds longer — clean asymmetric finding consistent with both mechanisms (delay-resistance + better signal extraction). The disambiguation comes from the 2×2: the *additional* Sharpe drop close-anchored takes under shift (0.42 vs HWM's 0.15) is the delay-resistance signature.
+
+**Implications.**
+- The "+0.78 ≈ 0.7" identity in `trail-anchor-hwm.md` is overstated; it's a directional rhyme, not a causal identity. Edited the doc to soften the language.
+- Live HWM tripwires should anchor at ~5.50 Sharpe (5.73 − ~0.23 buffer), not the bare 5.73. Not yet applied to `live_performance_report.py` — pending strategic call.
+- The original "all backtest Sharpes overstate live by ~0.7" rule of thumb in the diagnostic should be read as 0.4–0.7 (audit lower bound = 0.42, original estimate 0.7).
+- The mechanism support *strengthens* (does not weaken) the case for keeping HWM live. Pre-audit, +0.78 backtest could have been a backtest-only artifact; audit shows the mechanism is real, just weaker than headline framing implied.
+
+**Files.** `.claude/calibration/audit-hwm-delay-mechanism.md` (full report + 2×2 + per-trade attribution), `.claude/calibration/audit-hwm-delay-mechanism.json` (machine-readable summary), `backend/analysis/audit_hwm_delay_sensitivity.py` (reproducible script). Edited: `trail-anchor-hwm.md` (caveat banner + softened language), `live-vs-backtest-iau-diagnostic.md` (magnitude refined "0.5–1.0" → "0.4–0.7"), `research-roadmap.md` (rows updated).
 
 ---
 

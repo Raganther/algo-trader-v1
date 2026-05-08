@@ -3,13 +3,38 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-08** — HWM mechanism falsification audit (May 8) + calibration docs restructure
+- New audit script backend/analysis/audit_hwm_delay_sensitivity.py — data-shift falsification of the May 7 'HWM is delay-immune' causal claim
+- Verdict SUPPORTED with caveats: HWM ~2.8x more delay-resistant than close-anchored (Δsharpe close=0.42 vs hwm=0.15) but only 0.42 of predicted 0.7 artifact reproduced; live HWM gap likely ~0.2-0.3 Sharpe, recommended live tripwire anchor ~5.50 not 5.73
+- Audit report .claude/calibration/audit-hwm-delay-mechanism.md + JSON summary
+- calibration-notes.md restructured: status board (10 components, source-of-truth pointers) + findings timeline (Apr 13 / May 7 / May 8)
+- forward-test-log.md slimmed from per-trade ledger to milestones+patterns format — per-trade detail now queried on-demand from Alpaca MCP / cloud live_trade_log
+- Magnitude refinements propagated: '~0.7 Sharpe artifact' → '0.4-0.7 Sharpe'; '+0.78 ≈ 0.7' identity softened to directional rhyme across trail-anchor-hwm.md, iau-diagnostic, research-log, research-roadmap, CLAUDE.md
+- Live bot config unchanged — pure docs + analysis script
+
+ .claude/calibration/audit-hwm-delay-mechanism.json |  66 +++++
+ .claude/calibration/audit-hwm-delay-mechanism.md   | 111 +++++++++
+ .claude/calibration/calibration-notes.md           |  39 ++-
+ .claude/calibration/forward-test-log.md            | 251 ++++---------------
+ .claude/calibration/live-performance-report.md     |   2 +-
+ .../calibration/live-vs-backtest-iau-diagnostic.md |   4 +-
+ .claude/strategies/research-log.md                 |  20 +-
+ .claude/strategies/research-roadmap.md             |   5 +-
+ .claude/strategies/trail-anchor-hwm.md             |   6 +-
+ .gitignore                                         |   3 +
+ CLAUDE.md                                          |   9 +-
+ backend/analysis/audit_hwm_delay_sensitivity.py    | 269 +++++++++++++++++++++
+ 12 files changed, 565 insertions(+), 220 deletions(-)
+
+----
 **2026-05-07** — Update roadmap, CLAUDE.md, memory, live perf report — HWM is LIVE; tripwires re-anchored to HWM expectations (Sharpe 5.73 baseline)
 
  .claude/calibration/live-performance-report.md | 62 ++++++--------------------
+ .claude/memory/gitlog.md                       | 41 +++++------------
  .claude/strategies/research-roadmap.md         |  2 +-
  CLAUDE.md                                      |  4 +-
  backend/analysis/live_performance_report.py    | 51 ++++++++++++---------
- 4 files changed, 48 insertions(+), 71 deletions(-)
+ 5 files changed, 59 insertions(+), 101 deletions(-)
 
 ----
 **2026-05-07** — Deploy HWM trail anchor to all 7 live bots — trail_anchor:hwm in run_*_test.sh scripts. Existing OIH position continues with close-anchored fallback (HWM only initializes on entry); new trades use HWM.
@@ -191,16 +216,4 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
  backend/engine/correlation_sizing.py            |  9 ++++++
  backend/runner.py                               | 16 +++++++++-
  6 files changed, 76 insertions(+), 18 deletions(-)
-
-----
-**2026-04-30** — Apr 30: portfolio runner V2 — fixed-equity reference + Sharpe-invariance learning. Each strategy now reads equity_mode param: 'live' (default → broker.get_equity(), single-symbol backtester + live deployment unchanged) or 'fixed' (→ initial_capital, no compounding of the equity reference). PortfolioRunner injects equity_mode='fixed' so 7 bots on a shared $94k pool size off the same $94k each — mirrors live mechanics where 7 bots on one Alpaca account each see the same equity number. V1 artefact (every bot sizing 2% off the inflated total equity → +10,496%/Sharpe 5.55) replaced with V2 baseline +474.67%/3.58% DD/Sharpe 4.86/4413 trades on the validated 7-bot lineup (2020-07 → 2026-04). Trade counts and cluster co-occupancy (gold ≥2 on 46.7%, ≥3 on 20.1%) identical to V1 — entry logic unchanged. Important learning recorded across CLAUDE.md, research-roadmap.md, and the snapshot interpretation note: Sharpe is sizing-invariant by construction (scaling positions by a constant scales mean and stdev equally), so V1's Sharpe was NOT an upper-bound artefact — only the +10,496% return and 5.05% DD were. The earlier 'V1 caveat' framing in CLAUDE.md/roadmap that lumped Sharpe with return/DD was wrong. V2's slightly lower 4.86 vs V1's 5.55 reflects Option A's reweighting of early-vs-late-year contributions, not a metric fix. Files: backend/strategies/stoch_rsi_mean_reversion.py (equity_mode + initial_capital captured, three sizing blocks updated), backend/engine/portfolio_runner.py (injects equity_mode='fixed'), backend/runner.py (snapshot interpretation note rewritten). Roadmap rows updated: portfolio runner V2 row flipped to 'shipped'; correlation-sizing with-vs-without backtest promoted to 'next — gating IWM expansion' with V2 baseline as the comparison anchor. Snapshot at .claude/strategies/portfolio-runner-baseline.md.
-
- .claude/memory/gitlog.md                        | 22 +++++++------
- .claude/strategies/portfolio-runner-baseline.md | 41 +++++++++++++++++--------
- .claude/strategies/research-roadmap.md          |  6 ++--
- CLAUDE.md                                       |  2 +-
- backend/engine/portfolio_runner.py              |  3 ++
- backend/runner.py                               | 26 ++++++++++------
- backend/strategies/stoch_rsi_mean_reversion.py  | 12 ++++++--
- 7 files changed, 74 insertions(+), 38 deletions(-)
 
