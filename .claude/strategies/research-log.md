@@ -7,6 +7,36 @@ Status: current | Epistemic: confirmed | Last verified: 2026-05-08
 
 ---
 
+## ADX-Filter Exit-Block Bug — May 8 2026 PM
+
+**Trigger.** Investigating why backtest didn't reproduce a live OIH +$22.53 short (entered May 5 19:47 @ $442.09, K-exited May 8 13:31 @ $419.56). Backtest fired the same entry but couldn't exit through May 6-8 even when K dropped to 0.0.
+
+**Root cause.** `stoch_rsi_mean_reversion.py:211-239` `if current_adx > adx_threshold: return` exits `on_data` early when ADX is high. Intent was to block entries during trends; actual effect blocks stop-loss check (line 242), entry block (line 269), AND signal-exit blocks (lines 428, 445). Trail-update runs BEFORE the filter so trails keep ratcheting, but exits cannot fire mid-trade in high-ADX regimes. Live partially escapes via server-side Alpaca stops + K-exits on transient ADX dips. Backtest cannot escape.
+
+**A vs C audit, long-window 7-bot, $94k, 2020-07 → 2026-04:**
+
+| | A (`'all'` — buggy) | C (`'entry_only'` — fix) | Δ |
+|---|---:|---:|---:|
+| Return | +424.09% | +212.28% | −211.81pp |
+| Sharpe | 4.95 | 3.72 | **−1.23** |
+| Max DD | 3.41% | 2.06% | −1.35pp |
+| Trades | 4344 | 4486 | +142 |
+
+**Bug contributes ~50% of headline return and ~1.23 Sharpe.** Per-symbol P&L drops uniformly (GDX $67k → $25k, OIH $85k → $49k, SLV $74k → $39k, etc.). Effect is structural across the lineup.
+
+**Implications.** Most of the calibration journey to date is contaminated:
+- All validated-edges per-asset Sharpes were computed under this bug — likely upper bounds
+- HWM A/B (May 7, +0.78 lift) was computed under the bug — direction preserved, magnitude needs re-validation
+- May 7-8 "delay artifact" 0.4-0.7 Sharpe estimate was conflating polling delay AND ADX-bug expressing differently in live vs backtest. True delay magnitude likely smaller
+- HWM mechanism audit (May 8 AM) ran under the bug — caveat added
+- **Live Sharpe expectation revised:** previously ~5.50 (HWM-corrected), now realistic range **~3.7-4.5**, anchor ~4.0 ±0.5
+
+**Action.** Parameterized fix shipped behind `adx_filter_mode` parameter (`'all'` default preserves prior backtests byte-identical; `'entry_only'` is the proper fix). Live bots unchanged. Strategic decision deferred — needs full A/B re-suite under `'entry_only'` before flipping default + live deploy.
+
+**Files.** `backend/strategies/stoch_rsi_mean_reversion.py:50,211-239,269-273`, `backend/analysis/audit_adx_filter_exit_block.py`, `.claude/calibration/audit-adx-filter-exit-block.json`. Full narrative + caveats: `calibration-journal.md` §2 May 8 PM entries.
+
+---
+
 ## HWM Mechanism Falsification Audit — May 8 2026
 
 **Trigger.** May 7 deployed HWM live with the causal claim that the +0.78 Sharpe lift came from being structurally insensitive to a 1-bar polling delay (vs close-anchored which amplifies it into ~0.7 Sharpe of optimism). The "+0.78 ≈ 0.7" coincidence in `trail-anchor-hwm.md:38` is load-bearing — if HWM is just a better signal extractor (not delay-immune), live HWM expectation should still be discounted by ~0.7 Sharpe and the live tripwires anchored to 5.73 are too generous.

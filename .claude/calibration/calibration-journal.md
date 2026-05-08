@@ -18,10 +18,11 @@ Single living document for the calibration journey. **Status of every component,
 | Layer 3 — stop slippage aggregation | **In progress** — 41/50 fires (Apr 24 refresh; floor not current) | §5 below + cloud `live_trade_log` for refresh |
 | Per-cluster slippage | **Pending** — sample too thin | (gated on Layer 3 hitting 50+) |
 | 1-bar polling delay artifact | **Identified May 7, magnitude refined May 8** — model-fit pending (`--delay 1` broken) | `live-vs-backtest-iau-diagnostic.md`, `audit-hwm-delay-mechanism.md` |
+| ADX-filter early-return blocks exits | **Quantified May 8 PM** — bug contributes ~50% of return and ~1.23 Sharpe in long-window 7-bot. Parameterized fix shipped behind `adx_filter_mode='entry_only'` opt-in; default still buggy for backward compat. Strategic decision pending. | §2 timeline May 8 PM entry |
 | HWM trail anchor — live tracking | **T+1** (deployed May 7 PM) | `trail-anchor-hwm.md`, `live-performance-report.md` |
 | Sub-bar fill price variance | **Not characterized** — extractable from `live_trade_log` | (none yet) |
 | Overnight gap behavior on stops | **Characterized** Apr 23 incident + `gap-distribution.md` | `gap-distribution.md` |
-| Aggregate live Sharpe vs backtest | **In progress** — anchor ~5.50 (HWM-corrected) | `live-performance-report.md` (auto-refreshed) |
+| Aggregate live Sharpe expectation | **Anchor revised May 8 PM** — was 5.73 (HWM backtest), then 5.50 (HWM-corrected for delay), now **~4.0 ±0.5** after ADX-bug quantification. Tripwires in `live_performance_report.py` not yet updated. | §2 May 8 PM second audit |
 
 > **Rule for this table:** numbers live in their source-of-truth file, not here. This row says *what* and *where*, not *how many*. When the Layer 3 sample grows to 45, only update §5; this row stays "in progress" until it crosses 50.
 
@@ -35,15 +36,67 @@ Entry/exit mechanics, spread model, and aggregate P&L direction all check out fo
 ### May 7 2026 — Backtest 1-bar polling delay artifact identified (IAU diagnostic)
 14 days of validated-params live data revealed a structural mismatch: backtest evaluates signals at bar Close with delay=0; live polls Alpaca every ~60s, effective delay ≈ 1 bar. The phase shift propagates through `trail_after_bars=10` and the close-anchored trail formula's bar-Close reference, producing different stop-fire bars on identical price paths. Apr 23 IAU short was the smoking gun. **Initial estimate: backtest optimistic by ~0.7 Sharpe.** Full diagnosis: `live-vs-backtest-iau-diagnostic.md`. HWM trail anchor (Path 2) shipped + deployed live same day as the structural fix; `--delay 1` (Path 1) noted as broken in the existing backtester, deferred.
 
-### May 8 2026 — HWM mechanism falsification audit (magnitude refined)
-The "+0.78 Sharpe lift ≈ 0.7 delay artifact" causal claim from May 7 put under formal falsification (data-shift simulation of 1-bar phase shift, since `--delay 1` is broken). **Verdict SUPPORTED** — HWM is ~2.8× more delay-resistant than close-anchored (Δsharpe(close)=0.42 vs Δsharpe(hwm)=0.15). **But only 0.42 of the predicted 0.7 close-anchored artifact reproduced** under simulation; data-shift under-represents real polling delay's sub-bar effects. Practical implications:
+### May 8 2026 (AM) — HWM mechanism falsification audit (magnitude refined)
+The "+0.78 Sharpe lift ≈ 0.7 delay artifact" causal claim from May 7 put under formal falsification (data-shift simulation of 1-bar phase shift, since `--delay 1` is broken). **Verdict SUPPORTED** — HWM is ~2.8× more delay-resistant than close-anchored (Δsharpe(close)=0.42 vs Δsharpe(hwm)=0.15). **But only 0.42 of the predicted 0.7 close-anchored artifact reproduced** under simulation; data-shift under-represents real polling delay's sub-bar effects. Practical implications (as understood at this point — superseded by the May 8 PM finding below):
 - Close-anchored real artifact range: **0.42 (lower bound) ≤ X ≤ 0.7 (upper bound)**
 - HWM live gap likely **~0.2–0.3 Sharpe**, not zero
-- Live HWM tripwire anchor should shift from 5.73 → **~5.50** (not yet applied to `live_performance_report.py`)
+- Live HWM tripwire anchor recommendation at this point: 5.73 → **~5.50** (later revised again to ~4.0 after the PM ADX-bug finding)
 - The "+0.78 ≈ 0.7" framing is a directional rhyme, not a causal identity
 - Mechanism support *strengthens* (does not weaken) the case for keeping HWM live
 
-Full audit + 2×2 + per-trade attribution: `audit-hwm-delay-mechanism.md`. Reproducible script: `python3 -m backend.analysis.audit_hwm_delay_sensitivity`.
+Full audit + 2×2 + per-trade attribution: `audit-hwm-delay-mechanism.md` (with caveat header noting the audit was run under the ADX-bug). Reproducible script: `python3 -m backend.analysis.audit_hwm_delay_sensitivity`.
+
+### May 8 2026 (PM) — ADX-filter early-return blocks mid-trade exits
+While investigating why backtest didn't reproduce the live OIH +$22.53 short (May 5 19:47 entry → May 8 13:31 K-exit), found a bug in `backend/strategies/stoch_rsi_mean_reversion.py:211-239`. The ADX filter `if current_adx > self.adx_threshold: return` runs **before** the stop-loss check (line 242), entry block (line 269), and signal-exit blocks (lines 428, 445). When ADX rises above threshold mid-trade, the strategy returns early and **all exits are blocked** — only the trail-update path (line 168-208, before the filter) keeps running.
+
+Effect: positions opened in low-ADX regime cannot exit (via stop or K-signal) once ADX rises above 20 mid-trade. The OIH short opened May 5 at ADX=8.5 with K=23 (clean entry), but ADX rose to 30+ as the down-move accelerated; backtest's exit logic was locked out for the entire May 6-7 window even when K dropped to 0.0 (clear K-exit condition). Empirically confirmed: backtest leaves the position open with `qty=-5` at end of data window.
+
+**Live has two safety nets that mask the bug:**
+1. Server-side Alpaca stops fire independently of bot code
+2. The K-exit fires when ADX briefly dips below threshold (transient ranging in a trend)
+
+**This is a third backtest-vs-live divergence**, alongside the delay artifact (May 7) and the trade-fire divergence. Direction of impact on aggregate Sharpe is unclear — depends on whether trapped trades are net winners or losers.
+
+**Suggested fix:** move the ADX filter to gate only the entry block, not the whole `on_data` function. Stops and signal-exits should run regardless of ADX state. Single-block code change in `stoch_rsi_mean_reversion.py:211-269`.
+
+**Status:** identified, not fixed. Holding off on the fix because (a) HWM was deployed yesterday and is still being verified, (b) the fix invalidates every prior backtest result (validated edges, portfolio runner, HWM A/B, May 8 audit) until re-run, (c) impact direction needs quantification before committing.
+
+**First quantification audit (May 8 PM, `audit_adx_filter_exit_block.py`):** ran A (current, buggy) vs B (`skip_adx_filter=True`, no ADX filter at all) on long-window 7-bot. **B was substantially worse**: +248.77% / Sharpe 3.24 / DD 4.54% / 10,122 trades vs A's +424.09% / 4.95 / 3.41% / 4,344 trades. ΔSharpe −1.71. **But B is the wrong proxy** — removing the ADX filter from both entries AND exits floods in 5,778 extra losing entries during trends, drowning out any exit-effect signal.
+
+What the audit *did* surface, on the 2,149 trades that fired in both runs:
+- 567 trades (26% of common) had different exits → direct fingerprint of the exit-block bug
+- ΔP&L on common trades: **−$101,759** (B captured ~$102k LESS than buggy A)
+- Per common trade: ~$47/trade extra profit captured by the buggy version
+
+**Counter-intuitive interpretation:** the bug appears to be *helping* aggregate backtest performance, not hurting it. Mechanism: trades enter in low-ADX (ranging) regime, the move accelerates into a trend (ADX rises), bug locks exits during the high-ADX phase, trade rides further than the strategy's exit logic would normally allow, eventually closes when ADX dips. The OIH May 5 short is the canonical example. **Some non-trivial fraction of the validated-edges Sharpes (GLD 2.48 etc.) is bug-derived "let winners run via accidental exit-block."**
+
+**Live partially escapes the bug** via server-side Alpaca stops + K-exits that fire when ADX briefly dips. So live captures *some* of the bug's benefit but not all. **This contributes to the live-vs-backtest gap on top of the delay artifact** — the gap may be larger than the May 7-8 magnitude estimate suggested.
+
+**Audit B inconclusive on bug magnitude.** Need a parameterized fix (gate ADX on entries only, leave exits alone) for clean A-vs-C comparison.
+
+JSON record: `audit-adx-filter-exit-block.json`.
+
+**Second quantification audit (May 8 PM, parameterized fix).** Added `adx_filter_mode` parameter to `stoch_rsi_mean_reversion.py` with values `'all'` (default — legacy buggy behaviour, byte-identical to prior backtests) or `'entry_only'` (proper fix — ADX gate blocks new entries only, stops and signal-exits run regardless). Re-ran long-window 7-bot:
+
+| Metric | A (`'all'` — buggy) | C (`'entry_only'` — fix) | Δ |
+|---|---:|---:|---:|
+| Return | +424.09% | +212.28% | **−211.81pp** |
+| Sharpe | 4.95 | 3.72 | **−1.23** |
+| Max DD | 3.41% | 2.06% | **−1.35pp** |
+| Trades | 4,344 | 4,486 | +142 |
+
+**The bug is contributing roughly half the headline return and one-quarter of the Sharpe.** Every symbol's per-symbol P&L drops materially (GDX $67k → $25k, OIH $85k → $49k, SLV $74k → $39k, etc.) — the "let winners run via accidental exit-block" effect is structural across the lineup, not concentrated.
+
+**Per existing decision rule** (ship change if ΔSharpe ≥+0.30 OR ΔDD ≥−1pp with ΔSharpe ≥−0.10): fix FAILS catastrophically (ΔSharpe −1.23 vs −0.10 tolerance). **But this isn't an optimization decision — it's correctness.** The buggy version is the wrong model of what the strategy actually does in trending tape; the fix produces an honest backtest.
+
+**Implications for the calibration journey:**
+- All validated-edges per-asset Sharpes (GLD 2.48, IAU 1.95, SLV 2.46, GDX 2.46, OIH 2.33, XBI 2.18, XOP 1.98) were computed under this bug — likely overstated by similar magnitude per asset
+- HWM A/B (+0.78 Sharpe, 4.95→5.73) was computed under the bug — relative direction probably preserved but magnitude needs re-run
+- The May 7-8 "delay artifact" estimate of 0.4–0.7 Sharpe was conflating two effects: the actual polling delay AND the ADX-bug expressing differently in live (where server-side stops + ADX dips partially escape it) vs backtest (where it can't be escaped). True delay artifact magnitude likely smaller than 0.7.
+- **Live Sharpe expectation revised:** previously recommended tripwire anchor ~5.50 (HWM-corrected from 5.73). Now realistic live range is **~3.7–4.5** Sharpe, depending on how much of the bug live escapes via safety nets. **Tripwire anchor should drop to ~4.0** as a reasonable midpoint.
+- Real-money pilot timeline shifts — the calibrated baseline just dropped meaningfully
+
+**Status:** parameterized fix shipped behind opt-in flag (default preserves legacy behaviour byte-identical, so all prior backtests remain reproducible). Live bots unchanged. Pending: full A/B re-suite (validated edges per asset, HWM A/B, small-cap, cap-shrink) under `'entry_only'`, then strategic decision on flipping default. Treat as a multi-week initiative similar to HWM deploy but bigger blast radius.
 
 ---
 
@@ -63,8 +116,9 @@ Full audit + 2×2 + per-trade attribution: `audit-hwm-delay-mechanism.md`. Repro
 | Apr 28 | OIH/XBI/XOP bots added (4 → 7 lineup) | Energy + biotech clusters introduced live |
 | Apr 29 | **Correlation-aware sizing V1 deployed** | `risk_frac = 0.02 / N` (cluster occupancy discount). First cluster-simultaneous entry that triggers discount: TBD — record N, risk_frac, share count when it happens |
 | Apr 29 | **First EM exit** — XBI, entered Apr 28 @ $131.25, gap-through-stop guard fired market exit @ $129.55 (−$313.61) | New exit type `EM` introduced; gap-recovery code path bug surfaced + fixed same session |
-| May 7 | **HWM trail anchor deployed live** all 7 bots | First HWM trade: TBD (existing OIH short continues with close-anchored fallback; HWM only initializes on entry) |
-| May 7 | First HWM live entry | TBD — record date, symbol, exit type when it fires |
+| May 7 | **HWM trail anchor deployed live** all 7 bots | Existing OIH short continues with close-anchored fallback (HWM only initializes on entry) |
+| May 8 | **Last close-anchored trade closed** — OIH short opened May 5 19:47 @ $442.09 (qty 54), K-exit (market) May 8 13:31 @ $419.56 = **+$22.53/share × 54 = +$1,217** over ~3-day hold. Exit mechanism: K-signal (StochRSI mean-reversion complete), not trail-fire — trail was tracking at ~$443-444 and got canceled when K-exit fired. | Transition point: every new entry from this point forward initializes HWM. Live record is now HWM-only. Signal-driven capture on a sustained move (~5% OIH drop over the hold) — the trail backed it up but didn't fire. |
+| TBD | First HWM live entry | TBD — record date, symbol, exit type when it fires |
 
 ---
 

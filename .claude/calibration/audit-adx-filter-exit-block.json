@@ -1,0 +1,47 @@
+{
+  "params": {
+    "rsi_period": 7,
+    "stoch_period": 14,
+    "overbought": 80,
+    "oversold": 15,
+    "adx_threshold": 20,
+    "skip_adx_filter": false,
+    "sl_atr": 2.0,
+    "trailing_stop": true,
+    "trail_atr": 2.0,
+    "trail_after_bars": 10,
+    "min_hold_bars": 10,
+    "skip_days": [
+      0
+    ]
+  },
+  "window": {
+    "start": "2020-07-27",
+    "end": "2026-04-27",
+    "initial": 94000.0,
+    "spread": 0.0003
+  },
+  "run_a_buggy": {
+    "return_pct": 424.09,
+    "sharpe": 4.95,
+    "max_drawdown": 3.41,
+    "total_trades": 4344
+  },
+  "run_b_no_adx_filter": {
+    "return_pct": 248.77,
+    "sharpe": 3.24,
+    "max_drawdown": 4.54,
+    "total_trades": 10122
+  },
+  "attribution": {
+    "n_buggy": 4344,
+    "n_unfiltered": 10122,
+    "common": 2149,
+    "only_buggy": 2195,
+    "only_unfiltered": 7973,
+    "common_exit_changed": 567,
+    "common_pnl_diff_unfiltered_minus_buggy": -101758.94,
+    "pnl_only_unfiltered": 156333.23,
+    "pnl_only_buggy": 218612.31
+  }
+}

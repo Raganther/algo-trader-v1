@@ -48,6 +48,13 @@ class StochRSIMeanReversionStrategy(Strategy):
         # lowest low for shorts). HWM is less sensitive to bar-Close phase shifts caused
         # by live's 1-bar polling delay (see live-vs-backtest-iau-diagnostic.md).
         self.trail_anchor = parameters.get('trail_anchor', 'close')
+        # ADX filter mode: 'all' (default, legacy — gate blocks entire on_data when
+        # ADX > threshold, which incidentally blocks stop checks and signal exits too)
+        # vs 'entry_only' (May 8 2026 fix — gate only blocks new entries, stops and
+        # exits run regardless of ADX). 'all' preserves backward compatibility byte-
+        # identical with prior backtests; 'entry_only' is the proper fix that lets
+        # exits fire mid-trade in trending regimes.
+        self.adx_filter_mode = parameters.get('adx_filter_mode', 'all')
         self.min_hold_bars = int(parameters.get('min_hold_bars', 0))  # Minimum bars before signal exit allowed
         self.long_only = parameters.get('long_only', False)  # Skip short entries entirely
         # Random-entry control mode — replaces entry signal with Bernoulli draws when > 0.
@@ -206,8 +213,11 @@ class StochRSIMeanReversionStrategy(Strategy):
                             if qty > 0:
                                 self.broker.update_stop_order(new_sl, qty)
 
-        # Regime Filter: Only trade if Market is Ranging (ADX < Threshold)
-        # Skip this check when called from HybridRegime (which already filtered by ADX)
+        # Regime Filter: Only trade if Market is Ranging (ADX < Threshold).
+        # Mode 'all' (legacy) — early-return blocks entries AND stops/exits.
+        # Mode 'entry_only' (May 8 2026 fix) — set adx_blocks_entry flag, exits still run.
+        # Skip this check when called from HybridRegime (which already filtered by ADX).
+        adx_blocks_entry = False
         if not self.skip_adx_filter:
             # --- Adaptive Logic ---
             if self.dynamic_adx:
@@ -215,12 +225,12 @@ class StochRSIMeanReversionStrategy(Strategy):
                 # atr_val is already calculated in generate_signals
                 atr_val = row[self.atr_col]
                 close_price = row['Close']
-                
+
                 if close_price > 0:
                     atr_pct = (atr_val / close_price) * 100
                 else:
                     atr_pct = 0
-                    
+
                 # Determine Threshold based on Volatility
                 # If Volatility is High (> 0.12%), be Defensive (Threshold 20)
                 # If Volatility is Low (<= 0.12%), be Aggressive (Threshold 30)
@@ -228,15 +238,21 @@ class StochRSIMeanReversionStrategy(Strategy):
                     dynamic_threshold = 20
                 else:
                     dynamic_threshold = 30
-                    
+
                 # Use the dynamic threshold
                 if current_adx > dynamic_threshold:
-                    # Market is trending too strongly for the current regime
-                    return
+                    if self.adx_filter_mode == 'entry_only':
+                        adx_blocks_entry = True
+                    else:
+                        # Legacy 'all' mode: early-return blocks all subsequent logic
+                        return
             else:
                 # Static Threshold (Strict Filter)
                 if current_adx > self.adx_threshold:
-                    return
+                    if self.adx_filter_mode == 'entry_only':
+                        adx_blocks_entry = True
+                    else:
+                        return
 
         # 0. Check Stop Loss (Priority) — use sl_for_check (stop level from previous bar)
         if self.position == 'long' and sl_for_check:
@@ -267,6 +283,10 @@ class StochRSIMeanReversionStrategy(Strategy):
 
         # Entry Logic
         if self.position == 0: # 0 means flat
+            # ADX filter (entry_only mode): block new entries when ADX above threshold,
+            # but exits already ran above this point regardless of ADX state.
+            if adx_blocks_entry:
+                return
             # --- RANDOM ENTRY CONTROL MODE ---
             # When random_entry_prob > 0, replace StochRSI entry logic with Bernoulli draws.
             # All other gates (ADX filter, skip_days, trading_hours, blackout, sizing) still apply.

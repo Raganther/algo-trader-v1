@@ -3,6 +3,48 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-08** — ADX-filter exit-block bug — discovered, quantified, parameterized fix shipped behind opt-in flag
+Strategy bug found in stoch_rsi_mean_reversion.py:211-239 — `if current_adx > adx_threshold: return` exits on_data early when ADX is high. Intent was to block new entries during trends; actual effect blocks stop checks (line 242), entry block (line 269), AND signal-exit blocks (lines 428, 445). Trail-update runs before the filter so trails ratchet, but exits cannot fire mid-trade in high-ADX regimes. Live partially escapes via server-side Alpaca stops + K-exits firing on transient ADX dips; backtest cannot escape.
+
+Discovery trigger: investigating why backtest didn't reproduce the live OIH +$22.53 short (May 5 entry, May 8 K-exit). Backtest fired the same entry but couldn't exit through May 6-8 even when K dropped to 0.0.
+
+A vs C audit (long-window 7-bot, $94k, 2020-07 → 2026-04):
+- A 'all' (buggy): +424.09% / Sharpe 4.95 / DD 3.41% / 4344 trades
+- C 'entry_only' (fix): +212.28% / Sharpe 3.72 / DD 2.06% / 4486 trades
+- Bug contributes ~50% of headline return and ~1.23 Sharpe; per-symbol P&L drops uniformly across the lineup (effect is structural)
+
+Parameterized fix shipped: new `adx_filter_mode` parameter on stoch_rsi_mean_reversion. Default 'all' preserves prior backtests byte-identical. 'entry_only' is the proper fix — ADX gate blocks new entries only, stops and signal-exits run regardless. Live bots unchanged. Strategic decision deferred — needs full A/B re-suite (validated edges, HWM A/B, cap-shrink, small-cap) under entry_only before deciding whether to flip default + deploy live.
+
+Implications cascading through the calibration journey:
+- All validated-edges per-asset Sharpes (GLD 2.48, IAU 1.95, etc.) are upper bounds — true Sharpes lower
+- HWM A/B (+0.78 lift, May 7) was computed under bug — direction preserved, magnitude needs re-run
+- May 7-8 'delay artifact' 0.4-0.7 Sharpe estimate was conflating polling delay AND ADX-bug expressing differently in live vs backtest. True delay magnitude likely smaller
+- Live Sharpe expectation: 5.73 (HWM backtest) → 5.50 (HWM-corrected May 8 AM) → ~4.0 ±0.5 (ADX-bug-corrected May 8 PM)
+- live_performance_report.py tripwires need re-anchoring to ~4.0 (NOT yet applied)
+
+Code: backend/strategies/stoch_rsi_mean_reversion.py (param + ADX gate + entry-block check), backend/analysis/audit_adx_filter_exit_block.py (audit script). JSON record: .claude/calibration/audit-adx-filter-exit-block.json.
+
+Domain updates:
+- calibration-journal.md restructured: status board + timeline (Apr 13 / May 7 / May 8 AM HWM / May 8 PM ADX), removed duplicate Aggregate-Sharpe row, fixed timeline ordering
+- research-roadmap.md: new ADX-bug row (deferred packaged release), HWM row updated with caveat
+- CLAUDE.md validated-edges caveat banner rewritten + new audit reference
+- trail-anchor-hwm.md, audit-hwm-delay-mechanism.md, live-vs-backtest-iau-diagnostic.md: May 8 PM caveats added flagging bug contamination
+- research-log.md: May 8 PM entry above May 8 AM HWM audit
+- New memory: adx_filter_exit_block_bug.md + MEMORY.md index updated
+
+ .../calibration/audit-adx-filter-exit-block.json   |  47 +++++
+ .claude/calibration/audit-hwm-delay-mechanism.md   |  11 ++
+ .claude/calibration/calibration-journal.md         |  68 ++++++-
+ .../calibration/live-vs-backtest-iau-diagnostic.md |   2 +
+ .claude/strategies/research-log.md                 |  30 +++
+ .claude/strategies/research-roadmap.md             |   5 +-
+ .claude/strategies/trail-anchor-hwm.md             |   2 +
+ CLAUDE.md                                          |   7 +-
+ backend/analysis/audit_adx_filter_exit_block.py    | 214 +++++++++++++++++++++
+ backend/strategies/stoch_rsi_mean_reversion.py     |  36 +++-
+ 10 files changed, 402 insertions(+), 20 deletions(-)
+
+----
 **2026-05-08** — Calibration docs consolidation — single living journal
 Calibration cluster: 7 files → 4 active + 1 archive.
 
@@ -19,6 +61,7 @@ Net: cleaner mental map (the journal, two long standalone reports, the auto-gene
  .claude/calibration/calibration-notes.md           | 268 ---------------------
  .claude/calibration/forward-test-log.md            |  78 ------
  .claude/harness-v4.md                              |   6 +-
+ .claude/memory/gitlog.md                           |  41 +++-
  .claude/procedures/daily-trade-audit.md            |  15 +-
  .claude/strategies/research-log.md                 |   2 +-
  .claude/strategies/research-roadmap.md             |   6 +-
@@ -27,7 +70,7 @@ Net: cleaner mental map (the journal, two long standalone reports, the auto-gene
  .claude/strategies/stochrsi-enhanced-iau.md        |   2 +-
  .claude/strategies/stochrsi-enhanced-slv.md        |   2 +-
  CLAUDE.md                                          |  11 +-
- 13 files changed, 258 insertions(+), 369 deletions(-)
+ 14 files changed, 287 insertions(+), 381 deletions(-)
 
 ----
 **2026-05-08** — HWM mechanism falsification audit (May 8) + calibration docs restructure
@@ -215,22 +258,4 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
  backend/engine/correlation_sizing.py            | 12 ++++-
  backend/runner.py                               | 12 +++--
  5 files changed, 46 insertions(+), 46 deletions(-)
-
-----
-**2026-04-30** — Apr 30 PM: rotation closed for StochRSI mean-reversion + portfolio total-notional cap shipped (default OFF). 4-run study (V2 baseline 7-bot / Run A 7+cap / Run B 20+cap / Run C 20+cap+TRENDING_UP / Run D 20+cap+RANGING) finalises the rotation question. Both rotation rules fail the +0.30 Sharpe gate: V1 TRENDING_UP 3.21 (ΔSharpe −1.65), V2 RANGING 4.49 (ΔSharpe −0.37). Reason: the strategy's own ADX<20 entry filter already self-selects regime at the right (15m) timeframe — adding a daily-bar rotation rule on top is redundant or destructive (TRENDING_UP) or strips marginal edge with no compensating signal (RANGING). Rotation is dead for StochRSI mean-reversion; remains a candidate for strategy classes without internal regime filters (breakouts, momentum, donchian-trend). Yesterday's +1013% / 6.20 Sharpe universe-expansion headline was 100% leverage (max-conc 19 × 25% cap = 475% of equity) — Run B with honest accounting collapses to +441.81% / 4.76 Sharpe / DD 2.45%, confirming universe expansion at our scale is a DD-reducer not a Sharpe-lifter. Code shipped: backend/engine/rotation.py (RotationController, build_weekly_regime_panel, ROTATION_RULES registry with 4 rules: trending_up, ranging, no_bad_regime, always_active), W-FRI boundary detection in portfolio_runner.py, single-line rotation_paused flag in stoch_rsi_mean_reversion.py:138 OR'd into existing skip_entry, CLI flags --rotation / --rotation-rule / --rotation-universe / --use-cache. Validation gates passed: V1 cache parity byte-identical, V2 always_active byte-identical, V3 pause-flag observable (300 weekly rebalances logged), V4 pause integrity. Side finding promoted from leverage discovery: portfolio-level total-notional cap shipped (correlation_sizing.portfolio_cap_max_size, helper returns (equity*FRAC - sum(|peer|*avg_price))/entry_price, sizing block now min(risk, 25%-per-pos, cluster_max, portfolio_max), CLI flag --portfolio-cap-frac N, default OFF currently — recommend default ON at FRAC=1.0). Run A on 7-bot lineup (+424.09% / 3.41% / 4.95 Sharpe / 4344 trades): cap binds on gold N=4 stacking (4.2% of bars), tiny structural improvement +0.09 Sharpe / -0.17pp DD; the Run B 20-bot result clears decision rule on DD branch. Mental-model update: previous '4 simultaneous full positions × 25% = 100% binding constraint' framing only valid with portfolio cap OFF; once ON the binding constraint becomes aggregate notional, unlocking the per-bot-cap-shrinking experiment (12.5% × 8 bots, 5% × 20 bots) as the genuinely-untested next lever. Roadmap promoted next: per-bot cap shrinking (theoretical √2 Sharpe lift via diversification), best-per-cluster 4-bot lineup (GLD+OIH+IWM+XBI). IWM-as-bot-#8 de-prioritised as Sharpe-boost play (Run B says no). Files: backend/engine/correlation_sizing.py (PORTFOLIO_CAP_ENABLED + PORTFOLIO_CAP_FRAC toggles, portfolio_cap_max_size helper), backend/engine/rotation.py (new), backend/engine/portfolio_runner.py (W-FRI boundary), backend/strategies/stoch_rsi_mean_reversion.py (skip_entry rotation hook + 4-cap min stack), backend/runner.py (CLI flags + DB cache load path), .claude/strategies/portfolio-runner-rotation-v1.md (final 4-run study, single source of truth), .claude/strategies/portfolio-runner-baseline.md (navigational callout), .claude/strategies/regime-analysis.md + regime-distribution-history.md + regime-universe-snapshot.md (FALSIFIED Apr 30 PM callouts), .claude/strategies/research-roadmap.md (rotation V1/V2 + portfolio cap + per-bot cap + best-per-cluster rows; falsification preamble on Regime-Aware Asset Rotation section; live-coordinator dropped; sharp-top detector repointed at regime-conditional cluster cap), CLAUDE.md (consolidated rotation/cap blocks, mental-model update, strategic direction rewrite). Memories: asset_rotation_thesis.md (full rewrite — FALSIFIED status), rotation_rule_conflict.md (full rewrite — 2-rule conclusion), portfolio_total_notional_cap.md (shipped status), notional_cap_dominates.md (full rewrite — sizing-cap stack), correlation_sizing.md (4-cap stack reminder), regime_preference.md (rotation-closed + sharp-top repointed), MEMORY.md index refreshed. Live bots untouched (default OFF on all new toggles); pm2 restart not required.
-
- .claude/memory/gitlog.md                           |  36 ++--
- .claude/strategies/portfolio-runner-baseline.md    | 104 +++++-----
- .claude/strategies/portfolio-runner-rotation-v1.md | 128 ++++++++++++
- .claude/strategies/regime-analysis.md              |   6 +-
- .claude/strategies/regime-distribution-history.md  |   4 +-
- .claude/strategies/regime-universe-snapshot.md     |   4 +-
- .claude/strategies/research-roadmap.md             |  45 +++--
- CLAUDE.md                                          |  27 ++-
- backend/engine/correlation_sizing.py               | 112 +++++++++++
- backend/engine/portfolio_runner.py                 |  22 +++
- backend/engine/rotation.py                         | 217 +++++++++++++++++++++
- backend/runner.py                                  | 105 ++++++++--
- backend/strategies/stoch_rsi_mean_reversion.py     |  29 ++-
- 13 files changed, 721 insertions(+), 118 deletions(-)
 

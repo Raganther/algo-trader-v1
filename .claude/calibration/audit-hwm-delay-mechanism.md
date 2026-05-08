@@ -68,6 +68,17 @@ The split of HWM's total advantage:
 
 That HWM "exits earlier with more profit" is consistent with both delay-immunity *and* better-signal-extraction. The 2×2 disambiguation is what nails it as delay-immunity: at shift=0 close already loses to HWM (the formula effect), but at shift=1 close loses *additional* 0.42 Sharpe while HWM only loses 0.15. The 0.27 Sharpe gap that *opens up* under shift is the delay-resistance signal.
 
+## Critical caveat added May 8 PM — audit was run under the ADX-filter exit-block bug
+
+After this audit was published, a bug was found in the strategy's ADX filter (`stoch_rsi_mean_reversion.py:211-239`) that blocks not just entries but also stop checks and signal-exits when ADX > threshold mid-trade. **The 2×2 above and the Δsharpe values (close 0.42 / hwm 0.15) were computed under this bug.** Implications:
+
+- Both close-anchored and HWM cells in the 2×2 are inflated by the bug's "let winners run via accidental exit-block" effect
+- The 0.42 Δsharpe(close) attributed to the data-shift may be partly the bug expressing differently under shifted vs unshifted data, not pure delay sensitivity
+- The HWM "delay-resistance" interpretation may be partly the bug interacting with HWM's different trail formula
+- The mechanism conclusion (SUPPORTED — HWM is more delay-resistant) is probably still directionally correct, but the magnitude estimates are unreliable
+
+**Audit needs re-run under `adx_filter_mode='entry_only'`** to produce a clean 2×2 free of the bug. Pending as part of the broader A/B re-suite. See `calibration-journal.md` §2 May 8 PM entries for full ADX-bug quantification.
+
 ## Limitations
 
 1. **The simulation under-represents the real delay artifact.** Predicted live-vs-backtest Sharpe gap was ~0.7; this audit only reproduces 0.42 of it via data-shift. Possible reasons: (a) data-shift moves both signal-evaluation *and* fill-price by 1 bar in lockstep, while real live splits them (signal stale by ~1 bar, fill at "next bar's price" within the same UTC minute); (b) real polling delay variance is asymmetric and event-driven, not a clean 1-bar shift on every bar. Either way, the audit's `Δsharpe(close) = 0.42` is a *lower bound* on the true artifact. If the real artifact scales similarly across anchors, the live HWM gap could be ~`(0.15 / 0.42) × 0.7 ≈ 0.25`.

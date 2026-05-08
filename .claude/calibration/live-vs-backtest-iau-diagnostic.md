@@ -1,6 +1,8 @@
 Status: current | Epistemic: single-symbol diagnostic, magnitude refined by May 8 audit | Last verified: 2026-05-08
 
 > **May 8 2026 audit update — magnitude refined from "~0.7 Sharpe" to "~0.4–0.7 Sharpe".** The data-shift falsification audit (`.claude/calibration/audit-hwm-delay-mechanism.md`) reproduced only 0.42 Sharpe of the predicted 0.7 close-anchored artifact under a clean 1-bar shift. Either the real delay artifact is smaller than estimated, or it has additional components beyond pure 1-bar phase shift (sub-bar fill price differences, polling-cadence variance, etc.). Treat 0.7 as an upper bound and 0.4 as a lower bound on the close-anchored live-vs-backtest gap. HWM's gap appears smaller (~0.15 measured, possibly 0.2–0.3 in live).
+>
+> **May 8 2026 PM further revision — the gap was conflating two effects.** A second audit found an ADX-filter exit-block bug (`stoch_rsi_mean_reversion.py:211-239`) that contributes ~1.23 Sharpe to the buggy backtest. Live partially escapes the bug via server-side stops + transient ADX dips; backtest cannot. This means the May 7 "live-vs-backtest gap" attributed to polling delay was actually a *combined* effect: pure delay artifact + ADX-bug expressing differently in the two environments. **True polling-delay magnitude is likely substantially smaller than 0.7 Sharpe** — the IAU Apr 23 smoking-gun trade specifically may have been driven by the ADX bug rather than the delay artifact alone. Cleanly isolating the two requires re-running the audit under `adx_filter_mode='entry_only'`. See `calibration-journal.md` §2 May 8 PM entries.
 
 # IAU Live-vs-Backtest Diagnostic (May 7 2026)
 
