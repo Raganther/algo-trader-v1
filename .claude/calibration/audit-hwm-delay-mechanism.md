@@ -1,14 +1,16 @@
-Status: current | Epistemic: backtest-validated falsification, supports H₀ with caveats | Last verified: 2026-05-08
+Status: current | Epistemic: backtest-validated falsification, supports H₀ with caveats | Last verified: 2026-05-08 (audit) / 2026-05-09 (interpretation)
 
 # Audit — HWM Delay-Insensitivity Mechanism Claim
 
 > Falsification audit of the May 7 causal claim that the HWM trail anchor's +0.78 Sharpe lift comes from being structurally insensitive to a 1-bar polling delay (vs the close-anchored trail that amplifies the delay into ~0.7 Sharpe of optimism). Run via `backend/analysis/audit_hwm_delay_sensitivity.py`. JSON record at `audit-hwm-delay-mechanism.json`.
 
+> **May 9 2026 update — interpretation revised after HWM A/B re-run under `adx_filter_mode='entry_only'`.** The "+0.78 ≈ 0.7 delay artifact" identity that motivated this audit dies under bug correction: bug-fixed HWM A/B is **+0.45 Sharpe** (3.72 → 4.17), not +0.78. ~42% of the buggy-mode lift was the ADX-bug interacting worse with close-anchored than with HWM, not the delay artifact. **The audit's mechanism finding (HWM 2.8× more delay-resistant) still holds qualitatively** — both Δs (close 0.42, HWM 0.15) were measured under the buggy default and are partly conflated with the bug, but the *ratio* between them is mechanism-driven and likely robust. Audit pending re-run under `entry_only` to nail down both magnitudes cleanly. Live tripwire anchor revised to **~4.0 ±0.5** (see `live_performance_report.py` and `calibration-journal.md` §2 May 9 entry).
+
 ## Headline
 
 **Verdict: SUPPORTED.** HWM's Sharpe drops 0.15 under a 1-bar input data shift; close-anchored drops 0.42 over the same shift. HWM is roughly **2.8× more resistant** to the phase shift than close-anchored, comfortably below the 0.5× falsification threshold. Mechanism claim is consistent with the data.
 
-**Important caveats** in §Limitations below — the audit confirms the *direction* of the claim but not the *magnitude*. The "+0.78 Sharpe lift ≈ 0.7 delay artifact" coincidence in `trail-anchor-hwm.md:38` is not fully reproduced by this simulation, so the live HWM expectation is probably *better than backtest-minus-zero* but probably still *worse than the +5.73 backtest headline*. Interim recommendation: anchor live tripwires conservatively at **HWM-Sharpe minus ~0.2** until more live data accumulates, not the +5.73 figure.
+**Important caveats** in §Limitations below — the audit confirms the *direction* of the claim but not the *magnitude*. The "+0.78 Sharpe lift ≈ 0.7 delay artifact" coincidence in `trail-anchor-hwm.md` was an artefact of the buggy-mode A/B (now superseded — see banner above). Live tripwires anchored to **~4.0 ±0.5 Sharpe** (May 9, post-bug-fix HWM A/B portfolio Sharpe 4.17 vs buggy 5.73; live sits between since it partially escapes the bug).
 
 ## Reproduce step (Part 1)
 

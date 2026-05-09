@@ -216,18 +216,18 @@ Stop orders use GTC TIF (switched Apr 17 — whole-share sizing makes GTC valid 
 
 **Two passes on the extended window.** Apr 27 runs (Return/DD/Trades columns) used `dynamic_adx:true` (strategy default — `dynamic_adx:false` was not passed explicitly) → tighter dynamic threshold → ~10–15% more trades. Apr 28 Sharpe runs explicitly pass `dynamic_adx:false` per recipe spec → trade counts ~10–15% lower. Sharpe column is from the Apr 28 (recipe-correct) runs. Apr 27 Return/DD figures are kept here because the WF validations were done at those settings.
 
-| Strategy | Asset | TF | Return | Max DD | Trades | Win Rate | WF | Sharpe (Apr 28) |
+| Strategy | Asset | TF | Return (buggy) | DD (buggy) | Trades (buggy) | Sharpe (Apr 28, buggy) | Sharpe (May 9, entry_only) | Δ |
 |---|---|---|---|---|---|---|---|---|
-| StochRSI Enhanced | GLD | 15m | +49.83% | 1.18% | 728 | 43% | 4/4 | **2.48** ✓ |
-| StochRSI Enhanced | IAU | 15m | +40.05% | 1.31% | 705 | 41% | 4/4 | 1.95 (under) |
-| StochRSI Enhanced | SLV | 15m | +144.26% | 2.00% | 581 | 47% | 4/4 | **2.46** ✓ |
-| StochRSI Enhanced | GDX | 15m | +132.91% | 2.01% | 581 | 46% | 4/4 | **2.46** ✓ |
-| StochRSI Enhanced | XLE | 15m | +80.42% | 3.27% | 570 | 45% | 4/4 | **2.30** ✓ |
-| StochRSI Enhanced | **OIH** | 15m | **+146.53%** ⭐ | 2.95% | 589 | 42% | **4/4** | **2.33** ✓ |
-| StochRSI Enhanced | XOP | 15m | +90.34% | 3.29% | 629 | 42% | **4/4** | 1.98 (at bar) |
-| StochRSI Enhanced | XBI | 15m | +84.75% | 2.44% | 602 | 43% | **4/4** | **2.18** ✓ |
+| StochRSI Enhanced | GLD | 15m | +49.83% | 1.18% | 728 | 2.48 | **2.28** ✓ | −0.20 |
+| StochRSI Enhanced | IAU | 15m | +40.05% | 1.31% | 705 | 1.95 | 1.88 | −0.07 |
+| StochRSI Enhanced | SLV | 15m | +144.26% | 2.00% | 581 | 2.46 | **2.19** ✓ | −0.27 |
+| StochRSI Enhanced | GDX | 15m | +132.91% | 2.01% | 581 | 2.46 | 1.46 | **−1.00** |
+| StochRSI Enhanced | XLE | 15m | +80.42% | 3.27% | 570 | 2.30 | 1.55 | −0.75 |
+| StochRSI Enhanced | OIH | 15m | +146.53% | 2.95% | 589 | 2.33 | 1.91 | −0.42 |
+| StochRSI Enhanced | XOP | 15m | +90.34% | 3.29% | 629 | 1.98 | 1.32 | −0.66 |
+| StochRSI Enhanced | XBI | 15m | +84.75% | 2.44% | 602 | 2.18 | 1.18 | **−1.00** |
 
-**Sharpe verified Apr 28 2026** — runner now prints annualised Sharpe (daily-resampled equity curve × √252). 6 of 8 cleanly clear Sharpe ≥ 2.0; XOP at 1.98 is at the bar; IAU at 1.95 is the weakest of the metals on a DD-adjusted basis.
+**May 9 2026 update — per-asset Sharpes re-run under `adx_filter_mode='entry_only'` (close-anchored, single-symbol).** Only **GLD (2.28) and SLV (2.19)** still cleanly clear the 2.0 quality bar. Six of eight assets drop below it under bug correction. **GDX and XBI** lose the most (−1.00 each — they were the heaviest bug-beneficiaries). Caveats before reading too much in: (a) these are close-anchored numbers; HWM lift adds ~0.3–0.5 (live runs HWM); (b) live partially escapes the bug via server-side stops + ADX dips, so live per-asset > pure entry_only backtest; (c) **portfolio Sharpe (4.17 under HWM+entry_only) is much higher than per-asset average due to diversification** — the lineup is a portfolio, not 8 standalone bots. Per-asset numbers below 2.0 don't directly invalidate the lineup; they invalidate the "8-of-8 quality candidates" framing.
 
 **Long-only metals Sharpe (Apr 28):** GLD 2.57, SLV 2.47, GDX 1.89, IAU 1.86. **GLD and SLV long-only Sharpes exceed full-strategy** — shorts hurt DD-adjusted return on these two; GDX/IAU lose Sharpe when shorts are removed.
 

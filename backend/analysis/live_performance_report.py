@@ -32,17 +32,21 @@ from alpaca.trading.requests import GetOrdersRequest, GetPortfolioHistoryRequest
 DEPLOY_DATE = datetime(2026, 5, 7, 21, 0, tzinfo=timezone.utc)  # HWM live deploy
 SYMBOLS = ["GLD", "IAU", "SLV", "GDX", "OIH", "XBI", "XOP"]
 
-# May 7 2026 — HWM trail anchor is live. The 1-bar polling delay artifact that
-# previously made backtest ~0.7 Sharpe optimistic is structurally bypassed by
-# HWM (it anchors trail to the trade's actual high-water-mark, not a noisy
-# bar-Close reference). Live expectation now anchors to HWM backtest baseline
-# (Sharpe 5.73), not the close-anchored 4.95 - 0.7 adjustment.
-BACKTEST_DELAY_ADJUSTMENT = 0.0  # HWM bypasses the artifact; no adjustment needed
+# May 8 2026 PM — live Sharpe expectation revised from 5.73 → ~4.0 ±0.5 after
+# discovery + quantification of the ADX-filter exit-block bug (see
+# calibration-journal.md §2 May 8 PM). The 5.73 HWM long-window figure was
+# computed under the buggy default and is overstated by ~1.23 Sharpe. A vs C
+# audit on long-window 7-bot: 4.95 buggy → 3.72 fixed. HWM lift on top of the
+# fix is not yet measured (re-run pending under adx_filter_mode='entry_only'),
+# so the live anchor uses ~4.0 as a midpoint of the plausible band.
+# Live partially escapes the bug via server-side stops + ADX dips, so live
+# expectation > pure entry_only backtest, but < buggy backtest.
+BACKTEST_DELAY_ADJUSTMENT = 0.0  # HWM bypasses the polling-delay artifact (May 8 audit)
 BACKTEST_EXPECTED = {
-    "annualised_return": 0.39,  # HWM long-window: +517% over 5.75y ≈ 39%/yr
-    "sharpe_backtest": 5.73,    # HWM long-window 7-bot
-    "sharpe": 5.73,             # live anchor = HWM backtest (no delay artifact)
-    "max_dd_pct": 3.05,         # HWM long-window 7-bot
+    "annualised_return": 0.22,  # bug-corrected midpoint (was 0.39 under buggy backtest)
+    "sharpe_backtest": 4.0,     # provisional anchor, pending entry_only A/B re-run
+    "sharpe": 4.0,              # live anchor ~4.0 ±0.5
+    "max_dd_pct": 3.05,         # HWM long-window 7-bot (provisional; entry_only DD pending)
     "win_rate_low": 0.41,
     "win_rate_high": 0.47,
     "avg_win_loss_ratio_min": 1.3,
@@ -180,13 +184,14 @@ def assess_tripwires(eq: dict, tr: dict) -> list[tuple[str, str, str]]:
     out = []
     days = eq["trading_days"]
 
-    # Tripwire bars anchored to HWM backtest expectation (Sharpe 5.73).
-    # HWM bypasses the 1-bar polling delay artifact, so live should track HWM
-    # backtest within noise — no -0.7 adjustment needed.
-    # Bars: 1.5 (30d) / 3.0 (60d) / 4.0 (90d) — proportionally scaled from
-    # the close-anchored thresholds (0.5/1.5/2.0 against 4.25 expectation).
+    # Tripwire bars anchored to ~4.0 ±0.5 Sharpe expectation (post-ADX-bug
+    # quantification, May 8 PM). Standard error of an annualised Sharpe estimate
+    # scales ≈ 1/√days: 30d ≈ ±0.7, 60d ≈ ±0.5, 90d ≈ ±0.4. Bars are set ~2σ
+    # below the anchor's lower edge (3.5) so a healthy strategy clears them
+    # comfortably while genuinely degraded execution trips them.
+    # Bars: 1.8 (30d) / 2.5 (60d) / 3.0 (90d).
     if days >= 30:
-        bar = 1.5 if days < 60 else 3.0 if days < 90 else 4.0
+        bar = 1.8 if days < 60 else 2.5 if days < 90 else 3.0
         if eq["sharpe"] < bar:
             out.append(("warn", f"Live Sharpe {eq['sharpe']:.2f} < {bar:.1f}", f"At {days} days, expected ≥ {bar:.1f}"))
         else:
@@ -273,11 +278,11 @@ def write_report(eq: dict, tr: dict, tripwires: list, equity_series: list[tuple[
     lines += ["```", "",
               "## Decision rules (from CLAUDE.md tripwires section)",
               "",
-              "Anchored to **HWM backtest expectation** (Sharpe 5.73, deployed live May 7 2026 PM). HWM bypasses the 1-bar polling delay artifact (see `trail-anchor-hwm.md`), so live should track backtest within noise.",
+              "Anchored to **~4.0 ±0.5 Sharpe expectation** (post-ADX-bug quantification, May 8 PM — see `calibration-journal.md` §2). The buggy backtest's 5.73 HWM Sharpe was overstated by ~1.23. Live partially escapes the bug via server-side stops + ADX dips, so live expectation sits above the pure `entry_only` backtest (3.72) and below the buggy one (4.95). Bars are ~2σ below the anchor's lower edge (3.5) given SE scaling 1/√days.",
               "",
-              "- **Sharpe < 1.5 at 30 days → degraded.** Investigate execution (slippage, fills, stop behaviour, HWM tracking).",
-              "- **Sharpe < 3.0 at 60 days → degraded.** Stop adding capital; root-cause analysis.",
-              "- **Sharpe < 4.0 at 90 days → stop & investigate.** Real-money pilot blocked.",
+              "- **Sharpe < 1.8 at 30 days → degraded.** Investigate execution (slippage, fills, stop behaviour, HWM tracking).",
+              "- **Sharpe < 2.5 at 60 days → degraded.** Stop adding capital; root-cause analysis.",
+              "- **Sharpe < 3.0 at 90 days → stop & investigate.** Real-money pilot blocked.",
               "- **Win rate < 35% on 50+ trades → distributional shift.** Compare to backtest per-symbol win rates.",
               "- **Avg-win/avg-loss < 1.3 → right tail collapsing.** Trailing-stop or K-exit may be clipping winners.",
               "- **No |daily P&L|>0.5% day in 4+ weeks → swing days missing.** The strategy depends on these.",

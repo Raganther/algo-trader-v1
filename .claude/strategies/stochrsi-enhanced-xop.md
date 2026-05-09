@@ -2,7 +2,9 @@ Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; framework IS th
 
 # StochRSI Enhanced — XOP 15m (Validated — at-the-bar)
 
-> **May 7 2026 caveat.** Sharpe figures below are **close-anchored backtests with ~0.7 Sharpe optimism** (1-bar polling delay artifact, see `.claude/calibration/live-vs-backtest-iau-diagnostic.md`). Live expectation = backtest Sharpe **− 0.7**. HWM trail anchor (`.claude/strategies/trail-anchor-hwm.md`, opt-in via `trail_anchor: 'hwm'`) lifts long-window 7-bot Sharpe by +0.78 and is structurally insensitive to the artifact; per-asset HWM Sharpes not yet re-run.
+> **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: XOP Sharpe 1.98 → 1.32 (close-anchored, single-symbol). FAILS the 2.0 quality bar.** ΔSharpe −0.66 — XOP was at the bar even under the buggy mode and falls clearly below under bug fix. Buggy 1.98 figure preserved below as historical reference. **Live impact mitigated** by HWM (+~0.4 Sharpe) and partial bug-escape, but per-asset standalone XOP is below the quality bar. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
+>
+> **May 7 2026 caveat (now superseded by May 9 above for magnitude).** Sharpe figures below were close-anchored backtests with apparent ~0.7 Sharpe live-vs-backtest gap. May 9 bug-fixed re-run is the current source of truth.
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 

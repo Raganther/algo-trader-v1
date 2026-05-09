@@ -3,6 +3,46 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-09** — May 9 calibration update — tripwires recalibrated, HWM A/B + per-asset Sharpes re-run under entry_only
+Tripwire anchor 5.73 → 4.0 ±0.5 in live_performance_report.py (bars 1.8/2.5/3.0
+at 30/60/90d, ~2σ below lower-band edge given Sharpe SE ≈ 1/sqrt(days)).
+
+HWM A/B re-run under adx_filter_mode='entry_only': close 3.72 → HWM 4.17,
+Δ +0.45 Sharpe (vs +0.78 buggy). About 58% of the buggy-mode lift survives
+bug correction. Decision-rule still passes; HWM stays live on all 7 bots.
+The '+0.78 ≈ 0.7 delay-artifact identity' framing is dead.
+
+Per-asset Sharpe table refresh under entry_only (close-anchored, single-symbol):
+only GLD (2.28) and SLV (2.19) clear the 2.0 quality bar at the per-asset level.
+GDX (2.46→1.46) and XBI (2.18→1.18) are the heaviest bug-beneficiaries.
+Portfolio Sharpe (4.17) remains much higher than per-asset average due to
+cross-asset diversification — the lineup is a portfolio, not 8 standalone bots.
+
+Domain-file sweep: research-roadmap, research-log, calibration-journal,
+trail-anchor-hwm, audit-hwm-delay-mechanism, live-vs-backtest-iau-diagnostic,
+long-window-validation, all 8 per-asset cards, CLAUDE.md validated-edges
+table — all updated with May 9 figures and bug-corrected interpretation.
+
+ .claude/calibration/audit-hwm-delay-mechanism.md   |  6 ++-
+ .claude/calibration/calibration-journal.md         | 36 +++++++++++++++++
+ .../calibration/live-vs-backtest-iau-diagnostic.md |  4 +-
+ .claude/strategies/long-window-validation.md       |  2 +-
+ .claude/strategies/research-log.md                 | 40 ++++++++++++++++++-
+ .claude/strategies/research-roadmap.md             |  8 ++--
+ .claude/strategies/stochrsi-enhanced-gdx.md        |  4 +-
+ .claude/strategies/stochrsi-enhanced-gld.md        |  4 +-
+ .claude/strategies/stochrsi-enhanced-iau.md        |  4 +-
+ .claude/strategies/stochrsi-enhanced-oih.md        |  4 +-
+ .claude/strategies/stochrsi-enhanced-slv.md        |  4 +-
+ .claude/strategies/stochrsi-enhanced-xbi.md        |  4 +-
+ .claude/strategies/stochrsi-enhanced-xle.md        |  4 +-
+ .claude/strategies/stochrsi-enhanced-xop.md        |  4 +-
+ .claude/strategies/trail-anchor-hwm.md             | 14 +++++--
+ CLAUDE.md                                          | 22 +++++------
+ backend/analysis/live_performance_report.py        | 45 ++++++++++++----------
+ 17 files changed, 158 insertions(+), 51 deletions(-)
+
+----
 **2026-05-08** — ADX-filter exit-block bug — discovered, quantified, parameterized fix shipped behind opt-in flag
 Strategy bug found in stoch_rsi_mean_reversion.py:211-239 — `if current_adx > adx_threshold: return` exits on_data early when ADX is high. Intent was to block new entries during trends; actual effect blocks stop checks (line 242), entry block (line 269), AND signal-exit blocks (lines 428, 445). Trail-update runs before the filter so trails ratchet, but exits cannot fire mid-trade in high-ADX regimes. Live partially escapes via server-side Alpaca stops + K-exits firing on transient ADX dips; backtest cannot escape.
 
@@ -36,13 +76,14 @@ Domain updates:
  .claude/calibration/audit-hwm-delay-mechanism.md   |  11 ++
  .claude/calibration/calibration-journal.md         |  68 ++++++-
  .../calibration/live-vs-backtest-iau-diagnostic.md |   2 +
+ .claude/memory/gitlog.md                           |  63 ++++--
  .claude/strategies/research-log.md                 |  30 +++
  .claude/strategies/research-roadmap.md             |   5 +-
  .claude/strategies/trail-anchor-hwm.md             |   2 +
  CLAUDE.md                                          |   7 +-
  backend/analysis/audit_adx_filter_exit_block.py    | 214 +++++++++++++++++++++
  backend/strategies/stoch_rsi_mean_reversion.py     |  36 +++-
- 10 files changed, 402 insertions(+), 20 deletions(-)
+ 11 files changed, 446 insertions(+), 39 deletions(-)
 
 ----
 **2026-05-08** — Calibration docs consolidation — single living journal
@@ -220,42 +261,4 @@ Net: cleaner mental map (the journal, two long standalone reports, the auto-gene
  backend/runner.py                                 |  8 +++
  backend/strategies/stoch_rsi_mean_reversion.py    |  9 ++-
  6 files changed, 151 insertions(+), 27 deletions(-)
-
-----
-**2026-04-30** — Apr 30 PM: flip portfolio total-notional cap default ON.
-PORTFOLIO_CAP_ENABLED = True (FRAC=1.0) in correlation_sizing.py. Live bots
-now have an aggregate-notional safety guard that fires when total open
-positions exceed 100% of equity. On the 7-bot lineup this rarely binds
-(only on gold N=4 stacking ≈ 3.5% of bars in latest run), producing a tiny
-structural improvement: Sharpe 4.86 → 4.95, DD 3.58% → 3.41%, trades
-4413 → 4344. Headline figure for the live lineup is now +424.09% / 4.95.
-
-The guard's main value isn't the small Sharpe lift — it's preventing the
-silent leverage trap that universe expansion would otherwise hit (verified
-yesterday: 20-bot run hit max-conc 19 = ~4.75× leverage on $94k without
-this cap; with the cap, max-conc 14 stays inside 100% notional).
-
-Runner override semantics: --portfolio-cap-frac N still works as a
-diagnostic CLI flag; --portfolio-cap-frac 0 disables for comparison runs.
-No CLI flag = module default (now ON).
-
-Verified: portfolio backtest with 7-bot lineup reproduces Run A figures
-(+424.09% / 3.41% / 4.95 / 4344) byte-for-byte.
-
-Files: backend/engine/correlation_sizing.py (PORTFOLIO_CAP_ENABLED
-flipped True; comment updated with deployment context), backend/runner.py
-(diagnostic-print logic clarified for module-default vs CLI-override),
-.claude/strategies/research-roadmap.md (status updated to "shipped +
-default ON"), .claude/strategies/portfolio-runner-baseline.md (auto-refreshed
-by the verification run), CLAUDE.md (sister note updated to reflect
-default-on status).
-
-Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
-
- .claude/strategies/portfolio-runner-baseline.md | 64 ++++++++++---------------
- .claude/strategies/research-roadmap.md          |  2 +-
- CLAUDE.md                                       |  2 +-
- backend/engine/correlation_sizing.py            | 12 ++++-
- backend/runner.py                               | 12 +++--
- 5 files changed, 46 insertions(+), 46 deletions(-)
 

@@ -2,7 +2,9 @@ Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; framework IS th
 
 # StochRSI Enhanced — XBI 15m (Validated — Diversifier)
 
-> **May 7 2026 caveat.** Sharpe figures below are **close-anchored backtests with ~0.7 Sharpe optimism** (1-bar polling delay artifact, see `.claude/calibration/live-vs-backtest-iau-diagnostic.md`). Live expectation = backtest Sharpe **− 0.7**. HWM trail anchor (`.claude/strategies/trail-anchor-hwm.md`, opt-in via `trail_anchor: 'hwm'`) lifts long-window 7-bot Sharpe by +0.78 and is structurally insensitive to the artifact; per-asset HWM Sharpes not yet re-run.
+> **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: XBI Sharpe 2.18 → 1.18 (close-anchored, single-symbol). FAILS the 2.0 quality bar by a wide margin.** ΔSharpe **−1.00** — XBI (with GDX) is the heaviest bug-beneficiary. Most of XBI's "validated edge" was the ADX-bug letting trades run through high-ADX regimes without exit. Buggy 2.18 figure preserved below as historical reference. **Live impact mitigated** by HWM (+~0.4 Sharpe) and partial bug-escape, but per-asset standalone XBI is now well below the quality bar — re-evaluate "diversifier" framing once portfolio-level entry_only re-runs land. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
+>
+> **May 7 2026 caveat (now superseded by May 9 above for magnitude).** Sharpe figures below were close-anchored backtests with apparent ~0.7 Sharpe live-vs-backtest gap. May 9 bug-fixed re-run is the current source of truth.
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 

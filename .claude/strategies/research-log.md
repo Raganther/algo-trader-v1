@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-05-08
+Status: current | Epistemic: confirmed | Last verified: 2026-05-09
 
 # Research Log — Algo Trader V1
 
@@ -34,6 +34,44 @@ Status: current | Epistemic: confirmed | Last verified: 2026-05-08
 **Action.** Parameterized fix shipped behind `adx_filter_mode` parameter (`'all'` default preserves prior backtests byte-identical; `'entry_only'` is the proper fix). Live bots unchanged. Strategic decision deferred — needs full A/B re-suite under `'entry_only'` before flipping default + live deploy.
 
 **Files.** `backend/strategies/stoch_rsi_mean_reversion.py:50,211-239,269-273`, `backend/analysis/audit_adx_filter_exit_block.py`, `.claude/calibration/audit-adx-filter-exit-block.json`. Full narrative + caveats: `calibration-journal.md` §2 May 8 PM entries.
+
+---
+
+## A/B Re-Suite Under entry_only — May 9 2026
+
+**Trigger.** May 8 PM ADX-bug quantification left every prior backtest result as a buggy upper bound. First two re-runs landed today, before any further strategic use of the contaminated baselines.
+
+**Tripwire calibration.** `live_performance_report.py` re-anchored 5.73 → **4.0**, bars 1.5/3.0/4.0 → **1.8/2.5/3.0** at 30/60/90d. SE-justified (Sharpe SE ≈ 1/√days; 30d ±0.7, 60d ±0.5, 90d ±0.4); bars sit ~2σ below the lower edge of the 4.0 ±0.5 anchor.
+
+**HWM A/B re-run (long-window 7-bot, $94k, both legs `entry_only`):**
+
+| Metric | Close + entry_only | HWM + entry_only | Δ |
+|---|---:|---:|---:|
+| Return | +212.28% | +230.73% | +18.45pp |
+| Sharpe | 3.72 | **4.17** | **+0.45** |
+| Max DD | 2.06% | 2.58% | +0.52pp |
+| Trades | 4486 | 4639 | +153 |
+
+ΔSharpe shrinks **+0.78 buggy → +0.45 fixed** (~58% survives bug correction). The "+0.78 ≈ 0.7 delay artifact" identity dies; about 42% of the buggy lift was the bug interacting worse with close-anchored than with HWM (HWM stops triggered against an intrinsic high-water-mark are not blocked by the buggy ADX early-return — same reason HWM is more delay-resistant). Decision-rule still passes (+0.30 Sharpe branch clears). **HWM stays live as-is.**
+
+**Per-asset Sharpe under entry_only (close-anchored, single-symbol, 2020-01 → 2026-04):**
+
+| Asset | Buggy Sharpe | entry_only Sharpe | Δ | Clears 2.0? |
+|---|---:|---:|---:|---|
+| GLD | 2.48 | **2.28** | −0.20 | ✓ |
+| SLV | 2.46 | **2.19** | −0.27 | ✓ |
+| OIH | 2.33 | 1.91 | −0.42 | ✗ |
+| IAU | 1.95 | 1.88 | −0.07 | ✗ (was already) |
+| XLE | 2.30 | 1.55 | −0.75 | ✗ |
+| GDX | 2.46 | 1.46 | **−1.00** | ✗ |
+| XOP | 1.98 | 1.32 | −0.66 | ✗ |
+| XBI | 2.18 | 1.18 | **−1.00** | ✗ |
+
+Only **GLD and SLV** survive the 2.0 quality bar at the per-asset close-anchored level. **GDX and XBI** were the heaviest bug-beneficiaries (−1.00 each). Caveats: (a) HWM lift adds ~0.3–0.5 (live runs HWM); (b) live partially escapes the bug via server-side stops + ADX dips; (c) **portfolio Sharpe (4.17 under HWM+entry_only) is much higher than per-asset average** due to cross-asset diversification — the lineup is a portfolio, not 8 standalone bots. Per-asset numbers below 2.0 don't directly invalidate the lineup; they invalidate the "8-of-8 quality candidates" framing.
+
+**Outstanding under entry_only:** May 8 delay-mechanism audit re-run (separates delay from bug), portfolio-runner V2 baseline + cap-shrink + cluster-cap V1, small-capital deployment. All existing snapshots preserved as historical record but pending refresh before further strategic use.
+
+**Files.** `backend/analysis/live_performance_report.py` (tripwire revisions). Full narrative: `calibration-journal.md` §2 May 9 entry; `trail-anchor-hwm.md` (HWM A/B revision); `CLAUDE.md` validated-edges section (per-asset table refresh).
 
 ---
 

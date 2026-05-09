@@ -1,8 +1,16 @@
-Status: current | Epistemic: backtest-validated + falsification audit SUPPORTED with caveats | Last verified: 2026-05-08
+Status: current | Epistemic: backtest-validated under bug fix; HWM still wins; magnitude revised | Last verified: 2026-05-09
 
-> **May 8 2026 audit update — mechanism claim SUPPORTED but magnitude refined.** The "+0.78 Sharpe lift ≈ 0.7 delay artifact" coincidence below was put under formal falsification (data-shift simulation of 1-bar phase shift). HWM is ~2.8× more delay-resistant than close-anchored (`Δsharpe(close)=0.42`, `Δsharpe(hwm)=0.15`), comfortably under the 0.5× falsification threshold. **However, only 0.42 Sharpe of the predicted 0.7 artifact reproduced** — data-shift under-represents the real polling delay. Live HWM gap is probably ≈0.2–0.3, not zero. Recommended live tripwire anchor: ~5.50 Sharpe (5.73 − ~0.23 buffer), not the bare 5.73. See `.claude/calibration/audit-hwm-delay-mechanism.md` for full audit + 2×2 matrix + per-trade attribution (HWM exits earlier with more profit on 240/3996 common trades, 0 held longer).
+> **May 9 2026 update — HWM A/B re-run under `adx_filter_mode='entry_only'`. HWM still wins, but lift shrinks ~58% to **+0.45 Sharpe**.** Long-window 7-bot, $94k, both legs under `entry_only`:
+> - Close + entry_only: +212.28% / DD 2.06% / **Sharpe 3.72** / 4486 trades
+> - HWM   + entry_only: +230.73% / DD 2.58% / **Sharpe 4.17** / 4639 trades
 >
-> **May 8 2026 PM additional caveat — ADX-filter exit-block bug found.** All numbers in this card (close 4.95, HWM 5.73, Δ +0.78) were computed under the buggy `adx_filter_mode='all'` behaviour (the only mode prior to today). May 8 PM A vs C audit shows the bug contributes ~50% of return and ~1.23 Sharpe to the close-anchored baseline (4.95 → 3.72 when fixed). **HWM A/B has not been re-run under `'entry_only'` yet** — the +0.78 lift's relative direction is probably preserved but its magnitude is uncertain. Live tripwire anchor revised again: from ~5.50 → **~4.0 ±0.5**. See `calibration-journal.md` §2 May 8 PM entries.
+> ΔSharpe **+0.45** (was +0.78 buggy), ΔDD +0.52pp (was −0.36pp buggy), Δreturn +18pp. The decision-rule check still clears (+0.30 Sharpe branch passes; DD branch flips slightly negative but tiny). **Verdict: HWM stays live as-is** on all 7 bots. The "+0.78 ≈ 0.7 delay-artifact identity" framing dies — about 42% of the buggy-mode lift was the bug interacting worse with close-anchored than with HWM (HWM is more bug-resistant for the same reason it is more delay-resistant: stops triggered against an intrinsic HWM are not blocked by the buggy ADX early-return).
+>
+> **May 8 2026 audit (still valid context):** mechanism claim SUPPORTED via data-shift falsification. HWM is ~2.8× more delay-resistant than close-anchored (`Δsharpe(close)=0.42`, `Δsharpe(hwm)=0.15`). Only 0.42 of the predicted 0.7 artifact reproduced — see `.claude/calibration/audit-hwm-delay-mechanism.md`. Note that audit was itself run under the buggy default; both Δs are partly conflated with the bug; pending re-run under entry_only.
+>
+> **May 8 2026 PM caveat (now resolved by today's re-run):** the ADX-filter exit-block bug at `stoch_rsi_mean_reversion.py:211-239` inflated all prior numbers in this card. The original table below (close 4.95, HWM 5.73, Δ +0.78) is the buggy-mode A/B and is preserved as historical record. The bug-fixed A/B above is the current source of truth.
+>
+> **Live tripwire anchor: ~4.0 ±0.5 Sharpe.** Live should sit between 4.17 (pure entry_only fix) and 5.73 (pure buggy) since live partially escapes the bug via server-side stops + ADX dips. Tripwires in `live_performance_report.py` are calibrated to this band (1.8 / 2.5 / 3.0 at 30/60/90d).
 
 # Trail Anchor: High-Water-Mark (HWM) — Path 2 from May 7 Diagnostic
 

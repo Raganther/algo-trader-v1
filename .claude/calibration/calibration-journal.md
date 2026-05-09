@@ -100,6 +100,42 @@ JSON record: `audit-adx-filter-exit-block.json`.
 
 ---
 
+### May 9 2026 — Tripwire calibration + HWM A/B + per-asset Sharpe under bug fix
+
+**Tripwire update (`backend/analysis/live_performance_report.py`).** Anchor revised 5.73 → **4.0**, annualised return expectation 0.39 → 0.22, bars 1.5/3.0/4.0 → **1.8/2.5/3.0** at 30/60/90d. Bars sit ~2σ below the anchor's lower edge (3.5) given Sharpe SE ≈ 1/√days (30d ≈ ±0.7, 60d ≈ ±0.5, 90d ≈ ±0.4). DD expectation (3.05%) and win-rate band (41–47%) flagged "provisional" pending refresh under entry_only.
+
+**HWM A/B re-run under `entry_only` (long-window 7-bot, $94k):**
+
+| Metric | Close + entry_only | HWM + entry_only | Δ |
+|---|---:|---:|---:|
+| Return | +212.28% | +230.73% | +18.45pp |
+| Sharpe | 3.72 | **4.17** | **+0.45** |
+| Max DD | 2.06% | 2.58% | +0.52pp |
+| Trades | 4486 | 4639 | +153 |
+
+**ΔSharpe shrinks from buggy +0.78 → fixed +0.45** (~58% survives bug correction). Decision-rule passes (+0.30 Sharpe branch clears; DD branch flips slightly negative but tiny). **Verdict: HWM stays live as-is.** The "+0.78 ≈ 0.7 delay-artifact identity" framing dies — about 42% of the buggy lift was the bug interacting worse with close-anchored than with HWM (HWM is more bug-resistant for the same reason it is more delay-resistant: stops triggered against an intrinsic HWM are not blocked by the buggy ADX early-return).
+
+**Per-asset Sharpe under `entry_only` (close-anchored, single-symbol, 2020-01 → 2026-04):**
+
+| Asset | Buggy | entry_only | Δ | Clears 2.0? |
+|---|---:|---:|---:|---|
+| GLD | 2.48 | **2.28** | −0.20 | ✓ |
+| SLV | 2.46 | **2.19** | −0.27 | ✓ |
+| OIH | 2.33 | 1.91 | −0.42 | ✗ |
+| IAU | 1.95 | 1.88 | −0.07 | ✗ (was already) |
+| XLE | 2.30 | 1.55 | −0.75 | ✗ |
+| GDX | 2.46 | 1.46 | **−1.00** | ✗ |
+| XOP | 1.98 | 1.32 | −0.66 | ✗ |
+| XBI | 2.18 | 1.18 | **−1.00** | ✗ |
+
+Only **GLD and SLV** clear the 2.0 quality bar at the per-asset close-anchored level. **GDX and XBI** lose the most (−1.00 each — heaviest bug-beneficiaries). Caveats before reading too much in: (a) HWM lift adds ~0.3–0.5 (live runs HWM); (b) live partially escapes the bug via server-side stops + ADX dips; (c) **portfolio Sharpe (4.17 under HWM+entry_only) is much higher than per-asset average** due to cross-asset diversification — the lineup is a portfolio, not 8 standalone bots. Per-asset numbers below 2.0 don't directly invalidate the lineup; they invalidate the "8-of-8 quality candidates" framing.
+
+**Status board updates needed:** "All validated-edges per-asset Sharpes" row should reference the new May 9 column; HWM trail anchor row should reference the +0.45 result; live Sharpe expectation row resolved (4.0 ±0.5 anchor, tripwires now calibrated).
+
+**Outstanding A/B re-runs under `entry_only`:** May 8 delay-mechanism audit, small-cap deployment, cap-shrink experiment, portfolio-runner V2 baseline, cluster-cap V1 — all preserved as historical record but pending refresh before any further strategic use.
+
+---
+
 ## 3. Live forward-test milestones
 
 > **Bot config (all 7):** OB 80 / OS 15, ADX threshold 20, 10-bar min hold, 2.0 ATR trail after 10 bars, GTC stops, whole-share sizing, shorts enabled, `skip_days:[0]`. GLD/IAU/SLV/GDX deployed Apr 15–16; OIH/XBI/XOP added Apr 28; HWM trail anchor deployed all 7 May 7 PM.
