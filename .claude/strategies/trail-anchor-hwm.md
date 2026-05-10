@@ -99,28 +99,21 @@ All 7 bot scripts (`scripts/run_{gld,iau,slv,gdx,oih,xbi,xop}_test.sh`) updated 
 - All new trades (post-restart) initialize HWM and use the new formula
 - Effective transition: HWM applies fully once OIH exits and a new trade fires
 
-**Forward test reset.** This change resets the close-anchored forward-test convergence clock. Live performance from May 7 onward will validate HWM, not the original close-anchored expectations. Tripwire bars in `live_performance_report.py` should be updated to anchor against HWM backtest expectations (Sharpe 5.73, not 4.95) once HWM live data accumulates.
+**Forward test reset.** This change resets the close-anchored forward-test convergence clock. Live performance from May 7 onward validates HWM, not the original close-anchored expectations. Tripwire bars in `live_performance_report.py` shipped May 9 at **1.8 / 2.5 / 3.0 at 30/60/90d**, anchored to ~4.0 ±0.5 Sharpe (post-ADX-bug-fix midpoint).
 
-## Pending strategic decisions (NOT auto-applied)
+## Pending strategic decisions
 
-1. **Flip live bots to `trail_anchor: hwm`.** Would require restarting all 7 paper bots with updated config. Live forward-test would resume on the new trail formula. **Tradeoff:** today's backtest says +0.78 Sharpe, but live execution still has the 1-bar polling delay — HWM should be insensitive to it, but this is unverified in live conditions.
+1. **Flip live bots to `trail_anchor: hwm`** ✓ **done May 7 PM.** All 7 bots restarted with `trail_anchor:'hwm'`. Existing OIH short used close-anchored fallback until exit.
+2. **Flip strategy default `trail_anchor` from `'close'` to `'hwm'`.** Epistemic change — all future backtests use the new formula by default, all historical backtest snapshots become non-reproducible without the explicit `trail_anchor: 'close'` override. **Pending** — best done if/when 30+ days of HWM live data tracks the ~4.0 ±0.5 anchor.
+3. **Re-run validated-edges Sharpe table with HWM × entry_only (compound).** May 9 ran close-anchored × entry_only per-asset only. HWM × entry_only per-asset still pending. Lower priority since the portfolio-level HWM × entry_only result (4.17) is the live-relevant number; per-asset is informational.
+4. **Re-run cap-shrink experiment (Apr 30 PM Run 2, +0.45 Sharpe under buggy mode) under entry_only.** Promoted to next experiment after May 10 lineup-selection closed pruning direction. Only remaining candidate with credible path past Sharpe 4.17.
+5. **Re-run small-capital ($1k) deployment plan under HWM + entry_only.** Lower priority.
 
-2. **Flip strategy default `trail_anchor` from `'close'` to `'hwm'`.** Epistemic change — all future backtests use the new formula by default, all historical backtest snapshots become non-reproducible without the explicit `trail_anchor: 'close'` override. Best done if/when live HWM forward-test confirms the backtest result holds.
+## Open questions (post-bug-fix)
 
-3. **Re-run validated-edges Sharpe table with HWM.** All per-asset Sharpe figures (GLD 2.48, SLV 2.46, etc.) would shift upward by some amount. Whether to make this the canonical reference is part of decision 2.
-
-## Recommended order
-
-1. **Today (May 7):** Code shipped behind opt-in parameter. Document the result. (Done.)
-2. **Within 1 week:** Decide whether to flip live bots to HWM. Argument for: clean +0.78 Sharpe in backtest, reasoning predicts live should benefit similarly. Argument against: 14 days of close-anchored live data would be lost as comparison baseline; better to wait for the corrected-tripwires forward-test to converge first.
-3. **End of May:** Re-evaluate with full forward-test data and a strategic decision on HWM live deployment.
-4. **If HWM deployed and validated live:** flip default, re-run validated-edges table, update CLAUDE.md headlines.
-
-## Open questions
-
-- **Will the +0.78 Sharpe lift hold in live?** The hypothesis is yes (HWM is structurally insensitive to bar phase shifts). But hypothesis ≠ verified.
-- **Does HWM interact differently with the cap-shrink (Run 2) configuration?** Untested — should re-run Run 2 with `trail_anchor: hwm` before any cap-shrink decision.
-- **Does HWM affect the small-capital ($1k) deployment plan?** Untested — should re-run small-cap backtest with HWM to see if the rounding tax behaves differently.
+- **Will the +0.45 Sharpe lift (HWM vs close, both under entry_only) hold in live?** Live HWM has been running since May 7; pattern check at day 14 (~May 21), tripwire convergence at day 30+. Anchor band: 4.0 ±0.5.
+- **Does HWM × cap-shrink × entry_only compound positively?** Promoted as next experiment.
+- **Does HWM affect the small-cap ($1k) deployment plan under entry_only?** Untested.
 - **Per-asset interaction:** the long-window data shows all 7 symbols improving, but per-asset distribution of improvement varies (SLV +$22k vs GDX +$19k vs IAU only +$3k). Worth investigating whether HWM benefit is regime-dependent.
 
 ## Files referenced

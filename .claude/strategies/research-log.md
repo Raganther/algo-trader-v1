@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-05-09
+Status: current | Epistemic: confirmed | Last verified: 2026-05-10
 
 # Research Log — Algo Trader V1
 
@@ -34,6 +34,29 @@ Status: current | Epistemic: confirmed | Last verified: 2026-05-09
 **Action.** Parameterized fix shipped behind `adx_filter_mode` parameter (`'all'` default preserves prior backtests byte-identical; `'entry_only'` is the proper fix). Live bots unchanged. Strategic decision deferred — needs full A/B re-suite under `'entry_only'` before flipping default + live deploy.
 
 **Files.** `backend/strategies/stoch_rsi_mean_reversion.py:50,211-239,269-273`, `backend/analysis/audit_adx_filter_exit_block.py`, `.claude/calibration/audit-adx-filter-exit-block.json`. Full narrative + caveats: `calibration-journal.md` §2 May 8 PM entries.
+
+---
+
+## Lineup-Selection Test Under Bug-Fixed Calibration — May 10 2026
+
+**Trigger.** May 9 per-asset table showed only GLD and SLV clear the 2.0 quality bar at standalone level under entry_only. Naive read: "trim the lineup to the survivors." This experiment tests that read at the portfolio level.
+
+**Setup.** Three trimmed lineups vs the 7-bot HWM+entry_only baseline. Same window, capital, params; only `--symbols` varies.
+
+| Run | Lineup | N | Return | Max DD | Sharpe | Trades | Δ Sharpe |
+|---|---|---:|---:|---:|---:|---:|---:|
+| 0 | GLD,IAU,SLV,GDX,OIH,XBI,XOP | 7 | +230.73% | 2.58% | **4.17** | 4639 | — |
+| C | drop GDX | 6 | +202.47% | 2.99% | 4.01 | 4031 | −0.16 |
+| B | drop GDX+XOP | 5 | +172.55% | 2.80% | 3.87 | 3366 | −0.30 |
+| A | best-per-cluster | 4 | +151.56% | 2.45% | 3.79 | 2624 | −0.38 |
+
+**Finding.** Sharpe is monotonic with bot count across the tested range (3.79/3.87/4.01/4.17). Each additional bot adds ~+0.10–0.15 Sharpe via diversification. All three trimmed lineups *fail* the decision rule (Sharpe branch: lose 0.16–0.38; DD branch: biggest improvement 0.13pp, far short of 1pp bar).
+
+**Implication.** The May 9 per-asset 2.0 Sharpe bar is a **candidate-addition screen, not a prune threshold**. Even GDX (standalone 1.46) and XOP (standalone 1.32) add net positive at the portfolio level via diversification. Removing them loses Sharpe even though their individual numbers look weak.
+
+**Closes** the "lineup pruning" research direction. **Promotes** per-bot cap-shrink under entry_only as the only remaining candidate change with a credible path past Sharpe 4.17 (Apr 30 PM result was +0.45 Sharpe under buggy mode — needs re-validation).
+
+**Files.** `.claude/strategies/portfolio-runner-lineup-selection.md` (full report); per-asset cards (GDX/XOP/IAU/XBI/OIH) updated with "keep in lineup" banner.
 
 ---
 

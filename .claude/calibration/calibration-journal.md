@@ -1,4 +1,4 @@
-Status: current | Epistemic: living journal — status board + timeline + milestones + methodology | Last verified: 2026-05-08
+Status: current | Epistemic: living journal — status board + timeline + milestones + methodology | Last verified: 2026-05-10
 
 # Calibration Journal — Algo Trader V1
 
@@ -18,11 +18,12 @@ Single living document for the calibration journey. **Status of every component,
 | Layer 3 — stop slippage aggregation | **In progress** — 41/50 fires (Apr 24 refresh; floor not current) | §5 below + cloud `live_trade_log` for refresh |
 | Per-cluster slippage | **Pending** — sample too thin | (gated on Layer 3 hitting 50+) |
 | 1-bar polling delay artifact | **Identified May 7, magnitude refined May 8** — model-fit pending (`--delay 1` broken) | `live-vs-backtest-iau-diagnostic.md`, `audit-hwm-delay-mechanism.md` |
-| ADX-filter early-return blocks exits | **Quantified May 8 PM** — bug contributes ~50% of return and ~1.23 Sharpe in long-window 7-bot. Parameterized fix shipped behind `adx_filter_mode='entry_only'` opt-in; default still buggy for backward compat. Strategic decision pending. | §2 timeline May 8 PM entry |
+| ADX-filter early-return blocks exits | **Quantified May 8 PM** — bug contributes ~50% of return and ~1.23 Sharpe in long-window 7-bot. Parameterized fix shipped behind `adx_filter_mode='entry_only'` opt-in; default still buggy for backward compat. **HWM A/B + per-asset re-runs landed May 9; lineup-selection landed May 10. Strategic decision (flip default + live deploy) still pending.** | §2 timeline May 8 PM + May 9 + May 10 entries |
 | HWM trail anchor — live tracking | **T+1** (deployed May 7 PM) | `trail-anchor-hwm.md`, `live-performance-report.md` |
 | Sub-bar fill price variance | **Not characterized** — extractable from `live_trade_log` | (none yet) |
 | Overnight gap behavior on stops | **Characterized** Apr 23 incident + `gap-distribution.md` | `gap-distribution.md` |
-| Aggregate live Sharpe expectation | **Anchor revised May 8 PM** — was 5.73 (HWM backtest), then 5.50 (HWM-corrected for delay), now **~4.0 ±0.5** after ADX-bug quantification. Tripwires in `live_performance_report.py` not yet updated. | §2 May 8 PM second audit |
+| Aggregate live Sharpe expectation | **~4.0 ±0.5 (May 9)** — was 5.73 → 5.50 → 4.0 over May 7–9. Tripwires SHIPPED May 9 (bars 1.8/2.5/3.0 at 30/60/90d). | `live_performance_report.py`, §2 May 9 entry |
+| Lineup-pruning question (per-asset Sharpe < 2.0 ⇒ prune?) | **Resolved May 10 — NO.** Sharpe monotonic with bot count; per-asset bar is candidate-add screen, not prune threshold. | `portfolio-runner-lineup-selection.md`, §2 May 10 entry |
 
 > **Rule for this table:** numbers live in their source-of-truth file, not here. This row says *what* and *where*, not *how many*. When the Layer 3 sample grows to 45, only update §5; this row stays "in progress" until it crosses 50.
 
@@ -97,6 +98,18 @@ JSON record: `audit-adx-filter-exit-block.json`.
 - Real-money pilot timeline shifts — the calibrated baseline just dropped meaningfully
 
 **Status:** parameterized fix shipped behind opt-in flag (default preserves legacy behaviour byte-identical, so all prior backtests remain reproducible). Live bots unchanged. Pending: full A/B re-suite (validated edges per asset, HWM A/B, small-cap, cap-shrink) under `'entry_only'`, then strategic decision on flipping default. Treat as a multi-week initiative similar to HWM deploy but bigger blast radius.
+
+---
+
+### May 10 2026 — Lineup-selection experiment under bug-fixed calibration
+
+Three trimmed lineups vs 7-bot HWM+entry_only baseline (Sharpe 4.17). Run A (4-bot best-per-cluster GLD/SLV/OIH/XBI): **3.79**. Run B (5-bot drop GDX+XOP): **3.87**. Run C (6-bot drop GDX): **4.01**. Sharpe monotonic with bot count; each bot adds ~+0.10–0.15 Sharpe via diversification. All trimmed lineups fail the decision rule (Sharpe branch lost; DD branch best 0.13pp, far short of 1pp bar).
+
+**Verdict:** keep the 7-bot lineup. Even per-asset losers GDX (1.46) and XOP (1.32) add net positive at portfolio level. The May 9 per-asset 2.0 Sharpe bar is a candidate-addition screen, not a prune threshold.
+
+**Next experiment promoted:** per-bot cap-shrink under entry_only. Apr 30 PM +0.45 Sharpe finding (4.95 → 5.40 on 8 bots × 12.5%) needs re-validation under bug fix.
+
+Snapshot: `.claude/strategies/portfolio-runner-lineup-selection.md`. Per-asset cards (GDX/XOP/IAU/XBI/OIH) updated with "keep in lineup" banner. Roadmap row "Best-per-cluster 4-bot experiment" status: resolved.
 
 ---
 
@@ -246,7 +259,7 @@ One marginal factor: delayed fills at market open (3–4 min on some symbols) ca
 
 While the 7 bots run, four measurements convert time-passing into real-money confidence:
 
-1. **Live Sharpe vs backtest Sharpe — per cluster.** Once ~3 months of trades accumulated (target: late Jul 2026), per-cluster live Sharpe vs backtest expectation (gold ~2.46 close-anchored / ~5.50 portfolio HWM, energy ~2.30, biotech 2.18). Decision rule: live within 30% of backtest = sound; live <1.0 = something material mis-modelled. Surface in `live-performance-report.md` once per-cluster split is built.
+1. **Live Sharpe vs backtest Sharpe — per cluster.** Once ~3 months of trades accumulated (target: late Jul 2026), per-cluster live Sharpe vs backtest expectation. **Portfolio-level anchor: ~4.0 ±0.5** (May 9 revision after ADX-bug quantification). Per-cluster backtest expectations under bug fix are not yet measured cleanly (only standalone per-asset entry_only numbers exist: GLD 2.28, SLV 2.19, etc. — single-symbol, close-anchored). Decision rule: live within 30% of portfolio anchor = sound; live < 2.0 = something material mis-modelled. Surface in `live-performance-report.md` once per-cluster split is built.
 2. **Slippage tracking** — quarterly aggregate. If consistently above the model's ~$0.013/share median, backtest Sharpe is overstated by ~ (live − model) × annual stop count × position size / equity.
 3. **Regime check** — sustained bear / sideways during the window is data we have nowhere else. Apr 28 framework-attribution finding predicts the framework is *strong* in sustained directional moves and *weak* in transitions.
 4. **Correlated-entry frequency** — how often 3+ peers in the same cluster enter within 30 min. Theoretical concern from `gap-distribution.md`; live frequency tells us whether the worst case is rare or common.

@@ -1,10 +1,10 @@
-Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; framework IS the edge (signal decorative); regime-dependence presumed (untested per-asset) | Last verified: 2026-04-28
+Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; framework IS the edge (signal decorative); regime-dependence presumed (untested per-asset) | Last verified: 2026-05-10
 
 # StochRSI Enhanced — XOP 15m (Validated — at-the-bar)
 
-> **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: XOP Sharpe 1.98 → 1.32 (close-anchored, single-symbol). FAILS the 2.0 quality bar.** ΔSharpe −0.66 — XOP was at the bar even under the buggy mode and falls clearly below under bug fix. Buggy 1.98 figure preserved below as historical reference. **Live impact mitigated** by HWM (+~0.4 Sharpe) and partial bug-escape, but per-asset standalone XOP is below the quality bar. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
+> **May 10 2026 update — portfolio-level test settles XOP's status: KEEP IN LINEUP.** Dropping XOP (and GDX) from the 7-bot lineup (Run B in `portfolio-runner-lineup-selection.md`) drops portfolio Sharpe 4.17 → 3.87 (−0.30). Even with standalone Sharpe 1.32, XOP is adding net diversification at the portfolio level. The 2.0 per-asset bar is a candidate-addition screen, not a prune threshold.
 >
-> **May 7 2026 caveat (now superseded by May 9 above for magnitude).** Sharpe figures below were close-anchored backtests with apparent ~0.7 Sharpe live-vs-backtest gap. May 9 bug-fixed re-run is the current source of truth.
+> **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: XOP Sharpe 1.98 → 1.32 (close-anchored, single-symbol). FAILS the 2.0 quality bar.** ΔSharpe −0.66 — XOP was at the bar even under the buggy mode and falls clearly below under bug fix. Buggy 1.98 figure preserved below as historical reference. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 

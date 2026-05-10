@@ -1,10 +1,10 @@
-Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; framework IS the edge (signal decorative); regime-dependence presumed (untested per-asset) | Last verified: 2026-04-28
+Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; framework IS the edge (signal decorative); regime-dependence presumed (untested per-asset) | Last verified: 2026-05-10
 
 # StochRSI Enhanced — OIH 15m (Validated — Top-Tier)
 
-> **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: OIH Sharpe 2.33 → 1.91 (close-anchored, single-symbol). FAILS the 2.0 quality bar (just under).** ΔSharpe −0.42. Buggy 2.33 figure preserved below as historical reference. **Live impact mitigated** by HWM (+~0.4 Sharpe) and partial bug-escape via server-side stops + ADX dips — OIH plausibly lands at or just above 2.0 live, but standalone backtest under bug fix doesn't clear cleanly. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
+> **May 10 2026 update — portfolio-level test: OIH is the single biggest dollar-P&L contributor in the 7-bot lineup ($50.5k, ~22% of total).** Present in all four tested lineups (it's the only energy bot in Run A). KEEP IN LINEUP. See `portfolio-runner-lineup-selection.md`.
 >
-> **May 7 2026 caveat (now superseded by May 9 above for magnitude).** Sharpe figures below were close-anchored backtests with apparent ~0.7 Sharpe live-vs-backtest gap. May 9 bug-fixed re-run is the current source of truth.
+> **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: OIH Sharpe 2.33 → 1.91 (close-anchored, single-symbol). FAILS the 2.0 quality bar (just under).** ΔSharpe −0.42. Buggy 2.33 figure preserved below as historical reference. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 

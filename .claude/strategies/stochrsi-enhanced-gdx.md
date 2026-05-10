@@ -1,10 +1,10 @@
-Status: current | Epistemic: headline confirmed; framework IS the edge (signal decorative); metals direction-dependent (regime risk) | Last verified: 2026-04-28
+Status: current | Epistemic: headline confirmed; framework IS the edge (signal decorative); metals direction-dependent (regime risk) | Last verified: 2026-05-10
 
 # StochRSI Enhanced — GDX 15m
 
-> **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: GDX Sharpe 2.46 → 1.46 (close-anchored, single-symbol). FAILS the 2.0 quality bar by a wide margin.** ΔSharpe **−1.00** — GDX (with XBI) is the heaviest bug-beneficiary. Most of GDX's "validated edge" was the ADX-bug letting trades run through high-ADX regimes without exit. Buggy 2.46 figure preserved below as historical reference. **Live impact mitigated** by HWM (+~0.4 Sharpe) and partial bug-escape via server-side stops + ADX dips, but per-asset standalone GDX is now well below the quality bar. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
+> **May 10 2026 update — portfolio-level test settles GDX's status: KEEP IN LINEUP.** Dropping GDX from the 7-bot lineup (Run C in `portfolio-runner-lineup-selection.md`) drops portfolio Sharpe 4.17 → 4.01 (−0.16). Even with standalone Sharpe 1.46, GDX is adding net diversification at the portfolio level. The 2.0 per-asset bar is a candidate-addition screen, not a prune threshold.
 >
-> **May 7 2026 caveat (now superseded by May 9 above for magnitude).** Sharpe figures below were close-anchored backtests with apparent ~0.7 Sharpe live-vs-backtest gap. May 9 bug-fixed re-run is the current source of truth.
+> **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: GDX Sharpe 2.46 → 1.46 (close-anchored, single-symbol). FAILS the 2.0 quality bar by a wide margin.** ΔSharpe **−1.00** — GDX (with XBI) is the heaviest bug-beneficiary. Most of GDX's "validated edge" was the ADX-bug letting trades run through high-ADX regimes without exit. Buggy 2.46 figure preserved below as historical reference. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 

@@ -3,6 +3,50 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-10** — May 10 lineup-selection — pruning closed, 7-bot lineup wins, domain sweep
+Tested three trimmed lineups vs the 7-bot HWM+entry_only baseline (Sharpe 4.17).
+Run A (4-bot best-per-cluster GLD/SLV/OIH/XBI): 3.79.
+Run B (5-bot drop GDX+XOP): 3.87.
+Run C (6-bot drop GDX): 4.01.
+
+Sharpe is monotonic with bot count — each additional bot adds +0.10-0.15 via
+diversification. All trimmed lineups fail the decision rule (Sharpe branch:
+lose 0.16-0.38; DD branch: best -0.13pp, far short of 1pp bar).
+
+Verdict: keep the 7-bot lineup. Even per-asset losers GDX (1.46) and XOP (1.32)
+add net positive at portfolio level. The May 9 per-asset 2.0 Sharpe bar is a
+candidate-addition screen, not a prune threshold. Closes the lineup-pruning
+research direction.
+
+Next experiment promoted: per-bot cap-shrink under entry_only. Apr 30 PM
++0.45 Sharpe finding (4.95 -> 5.40 on 8 bots * 12.5%) needs re-validation
+under bug fix.
+
+Domain sweep: new portfolio-runner-lineup-selection.md; per-asset cards
+(GDX/XOP/IAU/XBI/OIH) get May 10 keep-in-lineup banners; redundant May 7
+caveats removed from all 8 cards. Status board in calibration-journal updated
+to mark tripwires shipped and lineup-pruning resolved. audit-hwm-delay-mechanism
+Live-tripwires section superseded note added. trail-anchor-hwm forward-test-reset
+section refreshed. CLAUDE.md domain-file list gains lineup-selection pointer.
+
+ .claude/calibration/audit-hwm-delay-mechanism.md   |   7 +-
+ .claude/calibration/calibration-journal.md         |  21 ++++-
+ .../portfolio-runner-lineup-selection.md           | 105 +++++++++++++++++++++
+ .claude/strategies/research-log.md                 |  25 ++++-
+ .claude/strategies/research-roadmap.md             |   7 +-
+ .claude/strategies/stochrsi-enhanced-gdx.md        |   6 +-
+ .claude/strategies/stochrsi-enhanced-gld.md        |   4 +-
+ .claude/strategies/stochrsi-enhanced-iau.md        |   6 +-
+ .claude/strategies/stochrsi-enhanced-oih.md        |   6 +-
+ .claude/strategies/stochrsi-enhanced-slv.md        |   4 +-
+ .claude/strategies/stochrsi-enhanced-xbi.md        |   6 +-
+ .claude/strategies/stochrsi-enhanced-xle.md        |   4 +-
+ .claude/strategies/stochrsi-enhanced-xop.md        |   6 +-
+ .claude/strategies/trail-anchor-hwm.md             |  29 +++---
+ CLAUDE.md                                          |   3 +
+ 15 files changed, 184 insertions(+), 55 deletions(-)
+
+----
 **2026-05-09** — May 9 calibration update — tripwires recalibrated, HWM A/B + per-asset Sharpes re-run under entry_only
 Tripwire anchor 5.73 → 4.0 ±0.5 in live_performance_report.py (bars 1.8/2.5/3.0
 at 30/60/90d, ~2σ below lower-band edge given Sharpe SE ≈ 1/sqrt(days)).
@@ -23,12 +67,13 @@ trail-anchor-hwm, audit-hwm-delay-mechanism, live-vs-backtest-iau-diagnostic,
 long-window-validation, all 8 per-asset cards, CLAUDE.md validated-edges
 table — all updated with May 9 figures and bug-corrected interpretation.
 
- .claude/calibration/audit-hwm-delay-mechanism.md   |  6 ++-
- .claude/calibration/calibration-journal.md         | 36 +++++++++++++++++
+ .claude/calibration/audit-hwm-delay-mechanism.md   |  6 +-
+ .claude/calibration/calibration-journal.md         | 36 ++++++++++
  .../calibration/live-vs-backtest-iau-diagnostic.md |  4 +-
+ .claude/memory/gitlog.md                           | 81 +++++++++++-----------
  .claude/strategies/long-window-validation.md       |  2 +-
- .claude/strategies/research-log.md                 | 40 ++++++++++++++++++-
- .claude/strategies/research-roadmap.md             |  8 ++--
+ .claude/strategies/research-log.md                 | 40 ++++++++++-
+ .claude/strategies/research-roadmap.md             |  8 +--
  .claude/strategies/stochrsi-enhanced-gdx.md        |  4 +-
  .claude/strategies/stochrsi-enhanced-gld.md        |  4 +-
  .claude/strategies/stochrsi-enhanced-iau.md        |  4 +-
@@ -37,10 +82,10 @@ table — all updated with May 9 figures and bug-corrected interpretation.
  .claude/strategies/stochrsi-enhanced-xbi.md        |  4 +-
  .claude/strategies/stochrsi-enhanced-xle.md        |  4 +-
  .claude/strategies/stochrsi-enhanced-xop.md        |  4 +-
- .claude/strategies/trail-anchor-hwm.md             | 14 +++++--
- CLAUDE.md                                          | 22 +++++------
- backend/analysis/live_performance_report.py        | 45 ++++++++++++----------
- 17 files changed, 158 insertions(+), 51 deletions(-)
+ .claude/strategies/trail-anchor-hwm.md             | 14 +++-
+ CLAUDE.md                                          | 22 +++---
+ backend/analysis/live_performance_report.py        | 45 ++++++------
+ 18 files changed, 200 insertions(+), 90 deletions(-)
 
 ----
 **2026-05-08** — ADX-filter exit-block bug — discovered, quantified, parameterized fix shipped behind opt-in flag
@@ -250,15 +295,4 @@ Net: cleaner mental map (the journal, two long standalone reports, the auto-gene
  .claude/strategies/small-capital-deployment.md  | 145 ++++++++++++++++++++++++
  CLAUDE.md                                       |   1 +
  5 files changed, 160 insertions(+), 11 deletions(-)
-
-----
-**2026-04-30** — Apr 30 PM: per-bot cap shrinking experiment — PASSES decision rule on both branches. New strategy param `position_cap_frac` (default 0.25 — byte-identical baseline) plus portfolio-runner CLI flag `--position-cap-frac`. Three runs over 2020-07 → 2026-04 on $94k. Run 0 (7 bots × 25%, baseline reproduction): +424.09% / 3.41% / 4.95 / 4344 — byte-identical to 070e3dc, confirms refactor is no-op at default. Run 1 (7 bots × 12.5%, pure cap-shrink ablation): +236.86% / 1.87% / 5.23 / 4413 — ΔSharpe +0.28, ΔDD −1.54pp, passes DD branch. Run 2 (8 bots × 12.5%, best-per-cluster GLD+SLV+OIH+XOP+IWM+SMH+XBI+IBB): +262.81% / 2.22% / 5.40 / 5004 / max-conc 8 — ΔSharpe +0.45, ΔDD −1.19pp, passes both branches independently. Returns drop by design (Sharpe is sizing-invariant — half-cap = half dollar P&L per trade); apples-to-apples is Sharpe + DD%. Lineup change (Run 1 → Run 2) contributes +0.17 Sharpe; bulk of lift is the cap-shrink itself. SMH, IBB, IWM (no live deployment) collectively contribute $80.8k of $247k aggregate P&L in Run 2. Strategic decision pending separately on whether to flip strategy default 0.25 → 0.125 and reshuffle live lineup (deploy IWM/SMH/IBB, retire IAU/GDX) — real-money trade-off (less absolute return today vs higher Sharpe with headroom to scale). Code shipped only; live bots untouched (default 0.25 preserved). Files: backend/strategies/stoch_rsi_mean_reversion.py (position_cap_frac param + 3 sizing blocks at L268/L314/L369), backend/runner.py (--position-cap-frac CLI flag + injection at L586), .claude/strategies/portfolio-runner-cap-shrink.md (new snapshot), .claude/strategies/research-roadmap.md (Per-bot cap shrinking row resolved; Best-per-cluster 4-bot row partially answered via Run 2), CLAUDE.md (strategic-direction block updated with experiment result + new on-demand snapshot ref). Bot check during session: 3 trades fired today (OIH short +$60, SLV long +$110, XOP long stop-out −$103), net +$67 paper; all entries sized at ~26% of equity confirming the 25% cap binds on every entry as theorised; trailing-stop ratchet visible on XOP (cancel-and-replace cycle 18:53/18:59/19:01); no errors, currently flat.
-
- .claude/memory/gitlog.md                          | 71 ++++++++++++++------
- .claude/strategies/portfolio-runner-cap-shrink.md | 81 +++++++++++++++++++++++
- .claude/strategies/research-roadmap.md            |  4 +-
- CLAUDE.md                                         |  5 +-
- backend/runner.py                                 |  8 +++
- backend/strategies/stoch_rsi_mean_reversion.py    |  9 ++-
- 6 files changed, 151 insertions(+), 27 deletions(-)
 

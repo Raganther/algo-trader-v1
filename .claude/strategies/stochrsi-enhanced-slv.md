@@ -1,10 +1,8 @@
-Status: current | Epistemic: headline confirmed; framework IS the edge (signal decorative); metals direction-dependent (regime risk) | Last verified: 2026-04-28
+Status: current | Epistemic: headline confirmed; framework IS the edge (signal decorative); metals direction-dependent (regime risk) | Last verified: 2026-05-10
 
 # StochRSI Enhanced — SLV 15m
 
 > **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: SLV Sharpe 2.46 → 2.19 (close-anchored, single-symbol). Still clears 2.0 quality bar.** ΔSharpe −0.27 under bug correction. SLV is one of only two assets (with GLD) that survives the 2.0 bar at the per-asset level. Buggy 2.46 figure preserved below as historical reference. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
->
-> **May 7 2026 caveat (now superseded by May 9 above for magnitude).** Sharpe figures below were close-anchored backtests with apparent ~0.7 Sharpe live-vs-backtest gap. May 9 bug-fixed re-run is the current source of truth.
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 

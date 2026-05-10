@@ -93,12 +93,7 @@ After this audit was published, a bug was found in the strategy's ADX filter (`s
 
 ## What this changes
 
-**Live tripwires.** The current `live_performance_report.py` tripwires anchor against HWM backtest expectation (Sharpe 5.73). Given the audit confirms HWM is more delay-resistant but not delay-immune, **anchor tripwires at ~5.50** (5.73 − 0.23 buffer for residual delay sensitivity + the 0.15 measured here) rather than 5.73. The original close-anchored "minus 0.7" rule of thumb is now retired because (a) close-anchored is no longer the live formula and (b) the audit shows HWM's expected gap is much smaller.
-
-Concrete tripwire updates worth considering (not auto-applied):
-- 30d Sharpe < 1.5 → degraded (was 1.0 close-anchored, would be 2.8 if anchored to 5.73 minus a typical 30d noise band; 1.5 is a midpoint)
-- 60d Sharpe < 3.0 (was 2.0)
-- 90d Sharpe < 4.0 (was 2.5)
+**Live tripwires — superseded May 9 2026.** The 5.50 anchor recommended in this section was based on the buggy-mode HWM Sharpe (5.73). After the May 8 PM ADX-bug discovery and May 9 HWM A/B re-run under `entry_only` (bug-fixed HWM Sharpe 4.17 vs buggy 5.73), the live anchor was revised to **~4.0 ±0.5**. Tripwires shipped May 9 at bars **1.8 / 2.5 / 3.0** at 30/60/90d. See `live_performance_report.py` and `calibration-journal.md` §2 May 9 entry. The reasoning in this section (HWM is delay-resistant but not delay-immune) still stands; only the numerical anchor changed.
 
 **Strategic decisions.** The audit *strengthens* (does not weaken) the case for keeping HWM live and eventually flipping the strategy default `'close' → 'hwm'`. Pre-audit, the +0.78 backtest lift could plausibly have been a backtest-only artifact that wouldn't transfer; this audit shows the underlying mechanism *is* there in some form. Live HWM should outperform live close-anchored — the open question is by how much, not whether.
 

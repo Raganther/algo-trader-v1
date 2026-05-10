@@ -1,10 +1,10 @@
-Status: current | Epistemic: headline confirmed; framework IS the edge (signal decorative); metals direction-dependent (regime risk) | Last verified: 2026-04-28
+Status: current | Epistemic: headline confirmed; framework IS the edge (signal decorative); metals direction-dependent (regime risk) | Last verified: 2026-05-10
 
 # StochRSI Enhanced — IAU 15m
 
-> **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: IAU Sharpe 1.95 → 1.88 (close-anchored, single-symbol). Still below 2.0 (was already).** ΔSharpe −0.07 — IAU was the smallest bug-beneficiary, indicating its prior figure was honest. Buggy 1.95 figure preserved below as historical reference. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
+> **May 10 2026 update — portfolio-level test confirms IAU's role: KEEP IN LINEUP.** Adding IAU to a 4-bot lineup (Run A → Run B in `portfolio-runner-lineup-selection.md`) lifts portfolio Sharpe 3.79 → 3.87 (+0.08). IAU contributes net positive diversification despite standalone Sharpe 1.88. The 2.0 per-asset bar is a candidate-addition screen, not a prune threshold.
 >
-> **May 7 2026 caveat (now superseded by May 9 above for magnitude).** Sharpe figures below were close-anchored backtests with apparent ~0.7 Sharpe live-vs-backtest gap. May 9 bug-fixed re-run is the current source of truth.
+> **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: IAU Sharpe 1.95 → 1.88 (close-anchored, single-symbol). Still below 2.0 (was already).** ΔSharpe −0.07 — IAU was the smallest bug-beneficiary, indicating its prior figure was honest. Buggy 1.95 figure preserved below as historical reference. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 

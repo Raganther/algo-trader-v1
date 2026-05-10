@@ -1,10 +1,8 @@
-Status: current | Epistemic: headline confirmed; framework IS the edge (signal decorative); metals direction-dependent (regime risk) | Last verified: 2026-04-28
+Status: current | Epistemic: headline confirmed; framework IS the edge (signal decorative); metals direction-dependent (regime risk) | Last verified: 2026-05-10
 
 # StochRSI Enhanced — XLE 15m
 
 > **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: XLE Sharpe 2.30 → 1.55 (close-anchored, single-symbol). FAILS the 2.0 quality bar.** ΔSharpe −0.75. Buggy 2.30 figure preserved below as historical reference. XLE is not currently deployed live (XOP/OIH cover energy); this is informational only. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
->
-> **May 7 2026 caveat (now superseded by May 9 above for magnitude).** Sharpe figures below were close-anchored backtests with apparent ~0.7 Sharpe live-vs-backtest gap. May 9 bug-fixed re-run is the current source of truth.
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 

@@ -1,10 +1,10 @@
-Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; framework IS the edge (signal decorative); regime-dependence presumed (untested per-asset) | Last verified: 2026-04-28
+Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; framework IS the edge (signal decorative); regime-dependence presumed (untested per-asset) | Last verified: 2026-05-10
 
 # StochRSI Enhanced — XBI 15m (Validated — Diversifier)
 
-> **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: XBI Sharpe 2.18 → 1.18 (close-anchored, single-symbol). FAILS the 2.0 quality bar by a wide margin.** ΔSharpe **−1.00** — XBI (with GDX) is the heaviest bug-beneficiary. Most of XBI's "validated edge" was the ADX-bug letting trades run through high-ADX regimes without exit. Buggy 2.18 figure preserved below as historical reference. **Live impact mitigated** by HWM (+~0.4 Sharpe) and partial bug-escape, but per-asset standalone XBI is now well below the quality bar — re-evaluate "diversifier" framing once portfolio-level entry_only re-runs land. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
+> **May 10 2026 update — portfolio-level test confirms XBI's "diversifier" framing: KEEP IN LINEUP.** XBI is present in all four tested lineups (it's the only biotech, so removing it would eliminate the cluster entirely). Sharpe-by-bot-count is monotonic 3.79/3.87/4.01/4.17, validating XBI's contribution alongside the others. The 2.0 per-asset bar is a candidate-addition screen, not a prune threshold.
 >
-> **May 7 2026 caveat (now superseded by May 9 above for magnitude).** Sharpe figures below were close-anchored backtests with apparent ~0.7 Sharpe live-vs-backtest gap. May 9 bug-fixed re-run is the current source of truth.
+> **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: XBI Sharpe 2.18 → 1.18 (close-anchored, single-symbol). FAILS the 2.0 quality bar by a wide margin.** ΔSharpe **−1.00** — XBI (with GDX) is the heaviest bug-beneficiary. Most of XBI's "validated edge" was the ADX-bug letting trades run through high-ADX regimes without exit. Buggy 2.18 figure preserved below as historical reference. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
 
 > **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
 
