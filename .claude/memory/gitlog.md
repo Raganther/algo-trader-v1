@@ -3,6 +3,28 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-13** — Fix trailing-stop idempotency — broker no-op when rounded stop price unchanged
+GDX May 12 audit revealed 4 cancel+replace cycles all at $96.92.
+Root cause: strategy stores current_sl as raw float, but
+alpaca_trader.place_stop_order rounds to $0.01. Successive bars
+produce tiny float deltas that pass the strategy's > / < check but
+round to identical broker prices, triggering wasted cancel+replace
+round-trips with no actual stop change.
+
+Fix: LiveBroker.update_stop_order now early-returns when the rounded
+new_stop_price matches rounded _last_stop_price. Single-line guard
+at the broker boundary applies to all strategies regardless of
+trail_anchor or trail_atr settings.
+
+SLV single-ratchet anomaly investigated and confirmed NOT a bug —
+pm2 logs show all 32 May 11 fifteen-minute bars processed; HWM-ATR
+trail formula correctly stayed below initial $72.15 stop until the
+final bar (expanding-volatility uptrend kept trail wide by design).
+
+ backend/engine/live_broker.py | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+----
 **2026-05-10** — May 10 lineup-selection — pruning closed, 7-bot lineup wins, domain sweep
 Tested three trimmed lineups vs the 7-bot HWM+entry_only baseline (Sharpe 4.17).
 Run A (4-bot best-per-cluster GLD/SLV/OIH/XBI): 3.79.
@@ -31,6 +53,7 @@ section refreshed. CLAUDE.md domain-file list gains lineup-selection pointer.
 
  .claude/calibration/audit-hwm-delay-mechanism.md   |   7 +-
  .claude/calibration/calibration-journal.md         |  21 ++++-
+ .claude/memory/gitlog.md                           |  72 ++++++++++----
  .../portfolio-runner-lineup-selection.md           | 105 +++++++++++++++++++++
  .claude/strategies/research-log.md                 |  25 ++++-
  .claude/strategies/research-roadmap.md             |   7 +-
@@ -44,7 +67,7 @@ section refreshed. CLAUDE.md domain-file list gains lineup-selection pointer.
  .claude/strategies/stochrsi-enhanced-xop.md        |   6 +-
  .claude/strategies/trail-anchor-hwm.md             |  29 +++---
  CLAUDE.md                                          |   3 +
- 15 files changed, 184 insertions(+), 55 deletions(-)
+ 16 files changed, 237 insertions(+), 74 deletions(-)
 
 ----
 **2026-05-09** — May 9 calibration update — tripwires recalibrated, HWM A/B + per-asset Sharpes re-run under entry_only
@@ -285,14 +308,4 @@ Net: cleaner mental map (the journal, two long standalone reports, the auto-gene
  CLAUDE.md                                      |   1 +
  backend/analysis/live_performance_report.py    | 288 +++++++++++++++++++++++++
  4 files changed, 369 insertions(+), 14 deletions(-)
-
-----
-**2026-05-04** — Document $1k small-capital deployment plan + backtest validation
-
- .claude/memory/gitlog.md                        |  20 ++--
- .claude/strategies/portfolio-runner-baseline.md |   2 +-
- .claude/strategies/research-roadmap.md          |   3 +-
- .claude/strategies/small-capital-deployment.md  | 145 ++++++++++++++++++++++++
- CLAUDE.md                                       |   1 +
- 5 files changed, 160 insertions(+), 11 deletions(-)
 

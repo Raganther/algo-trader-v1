@@ -357,6 +357,13 @@ class LiveBroker:
         if not self.pending_stop_order_id:
             return
         old_stop_price = self._last_stop_price
+        # Idempotency guard: Alpaca rounds stop_price to $0.01 (alpaca_trader.py).
+        # Strategy stores current_sl as a raw float, so successive bars often produce
+        # tiny float deltas that pass the strategy's > / < comparison but round to the
+        # same broker price. Skip the cancel+replace round-trip when the rounded
+        # values match — no broker-visible change.
+        if old_stop_price is not None and round(old_stop_price, 2) == round(new_stop_price, 2):
+            return
         # Cancel old, place new — sleep briefly to let Alpaca process the cancel
         # before placing the replacement (avoids "insufficient qty" race condition)
         self.trader.cancel_order(self.pending_stop_order_id)
