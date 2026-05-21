@@ -3,6 +3,43 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-21** — ADX-filter exit-block bug — flip default to entry_only, pin live bots, re-baseline
+Default adx_filter_mode flipped all -> entry_only in stoch_rsi_mean_reversion.py;
+the May 8 bug fix is now the codebase default. All 7 live run scripts explicitly
+pinned to adx_filter_mode=all so live trading is byte-unchanged pending a
+deliberate deploy decision (live bots not restarted; cloud code synced only).
+
+Driven by the May 20 matched-window live-vs-backtest comparison: over the 5-week
+verified-params tape the buggy all-mode backtest (+8,978) has zero predictive
+value for live (-653); the entry_only backtest (+372) predicts live within noise.
+
+portfolio-runner-baseline.md re-run under the fix: +212.28% / 3.72 / 2.06% /
+4486 trades (was buggy +424.09% / 4.95 / 3.41% / 4344).
+
+New scripts/window_backtest.py reproducer for the day-14/30/60 live-vs-backtest
+gates. Docs updated: calibration-journal (May 20 + May 21 entries), research-log,
+research-roadmap, CLAUDE.md. Remaining buggy-mode re-runs pending: cap-shrink,
+small-cap, rotation.
+
+Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+
+ .claude/calibration/calibration-journal.md      |  50 ++++++++++-
+ .claude/strategies/portfolio-runner-baseline.md |  49 +++++------
+ .claude/strategies/research-log.md              |  20 ++++-
+ .claude/strategies/research-roadmap.md          |   4 +-
+ CLAUDE.md                                       |   3 +-
+ backend/strategies/stoch_rsi_mean_reversion.py  |  16 ++--
+ scripts/run_gdx_test.sh                         |   2 +-
+ scripts/run_gld_test.sh                         |   2 +-
+ scripts/run_iau_test.sh                         |   2 +-
+ scripts/run_oih_test.sh                         |   2 +-
+ scripts/run_slv_test.sh                         |   2 +-
+ scripts/run_xbi_test.sh                         |   2 +-
+ scripts/run_xop_test.sh                         |   2 +-
+ scripts/window_backtest.py                      | 108 ++++++++++++++++++++++++
+ 14 files changed, 219 insertions(+), 45 deletions(-)
+
+----
 **2026-05-13** — Fix trailing-stop idempotency — broker no-op when rounded stop price unchanged
 GDX May 12 audit revealed 4 cancel+replace cycles all at $96.92.
 Root cause: strategy stores current_sl as raw float, but
@@ -21,8 +58,9 @@ pm2 logs show all 32 May 11 fifteen-minute bars processed; HWM-ATR
 trail formula correctly stayed below initial $72.15 stop until the
 final bar (expanding-volatility uptrend kept trail wide by design).
 
- backend/engine/live_broker.py | 7 +++++++
- 1 file changed, 7 insertions(+)
+ .claude/memory/gitlog.md      | 35 ++++++++++++++++++++++++-----------
+ backend/engine/live_broker.py |  7 +++++++
+ 2 files changed, 31 insertions(+), 11 deletions(-)
 
 ----
 **2026-05-10** — May 10 lineup-selection — pruning closed, 7-bot lineup wins, domain sweep
@@ -299,13 +337,4 @@ Net: cleaner mental map (the journal, two long standalone reports, the auto-gene
  .claude/strategies/research-roadmap.md |  4 ++--
  CLAUDE.md                              |  3 +++
  3 files changed, 14 insertions(+), 13 deletions(-)
-
-----
-**2026-05-05** — Live performance report — automated tripwire monitoring vs backtest
-
- .claude/calibration/live-performance-report.md |  70 ++++++
- .claude/memory/gitlog.md                       |  24 +--
- CLAUDE.md                                      |   1 +
- backend/analysis/live_performance_report.py    | 288 +++++++++++++++++++++++++
- 4 files changed, 369 insertions(+), 14 deletions(-)
 

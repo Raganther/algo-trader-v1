@@ -7,6 +7,24 @@ Status: current | Epistemic: confirmed | Last verified: 2026-05-10
 
 ---
 
+## Matched-Window Live-vs-Backtest + ADX Default Flip — May 20–21 2026
+
+**Trigger.** Five weeks of verified-params forward test looked like underperformance (7 bots ≈ −$700 / −0.73%, Apr 15 → May 20). Ran the scheduled day-14 HWM gate: the 7-bot portfolio backtested over the exact live price tape, three configs, vs live.
+
+**Finding.** Same tape, Apr 15 → May 20: **live −$653 · buggy `'all'` backtest +$8,978 · bug-fixed `entry_only` backtest +$372** (+$214 once config-matched for the May 7 close→HWM switch). The buggy backtest has **zero predictive value for live**; the `entry_only` backtest predicts live within ~$867 (delay artifact + slippage), and the HWM era matches to $10. Live behaves like `entry_only` because broker-side stops fire regardless of the ADX gate — so the bug only ever flattered the *backtest*. **The strategy is not broken** — the +$9k "expectation" was the bug. Rolling 23-day Sharpe distribution (bug-fixed, 6yr): live's −0.62 is ~p6 (poor, but ~1-in-16 normal); the bug-fixed backtest scored only +0.61 on this same window — the regime was genuinely weak. GLD is the largest single live-vs-backtest gap (delay artifact amplified by dip-buying a downtrend), offset by SLV at portfolio level.
+
+**Action.** Flipped strategy default `adx_filter_mode` `'all'` → `'entry_only'` (May 21). 7 live run scripts pinned to `'all'` — live unchanged pending a deliberate deploy. Portfolio baseline re-run under the fix: **+212.28% / 3.72 / 2.06% / 4486**.
+
+**Implications / what to try next.**
+- Every deployment-facing backtest now defaults to `entry_only`. The `'all'` numbers describe an un-tradeable market — historical reference only.
+- Tripwire design flaw surfaced: an absolute Sharpe < 1.8 bar can't separate "bad regime" from "broken edge" (this healthy window would have tripped it). Re-anchor `live_performance_report.py` to percentile breaches of the bug-fixed rolling distribution.
+- Remaining buggy-mode re-runs still pending: cap-shrink, small-cap, rotation.
+- The one live lever with a credible path past portfolio Sharpe 4.17 remains **per-bot cap-shrink under `entry_only`**.
+
+Full detail: `calibration-journal.md` §2 May 20 + May 21 entries. Reproducer: `scripts/window_backtest.py`.
+
+---
+
 ## ADX-Filter Exit-Block Bug — May 8 2026 PM
 
 **Trigger.** Investigating why backtest didn't reproduce a live OIH +$22.53 short (entered May 5 19:47 @ $442.09, K-exited May 8 13:31 @ $419.56). Backtest fired the same entry but couldn't exit through May 6-8 even when K dropped to 0.0.
@@ -31,7 +49,7 @@ Status: current | Epistemic: confirmed | Last verified: 2026-05-10
 - HWM mechanism audit (May 8 AM) ran under the bug — caveat added
 - **Live Sharpe expectation revised:** previously ~5.50 (HWM-corrected), now realistic range **~3.7-4.5**, anchor ~4.0 ±0.5
 
-**Action.** Parameterized fix shipped behind `adx_filter_mode` parameter (`'all'` default preserves prior backtests byte-identical; `'entry_only'` is the proper fix). Live bots unchanged. Strategic decision deferred — needs full A/B re-suite under `'entry_only'` before flipping default + live deploy.
+**Action (updated May 21).** Parameterized fix shipped May 8 behind the `adx_filter_mode` parameter. **Default flipped `'all'` → `'entry_only'` May 21** (see top-of-log entry) — `'entry_only'` is now the codebase default; pass `'all'` only to reproduce a pre-May-21 backtest byte-identical. Live bots pinned to `'all'`, byte-unchanged, pending a deliberate deploy decision.
 
 **Files.** `backend/strategies/stoch_rsi_mean_reversion.py:50,211-239,269-273`, `backend/analysis/audit_adx_filter_exit_block.py`, `.claude/calibration/audit-adx-filter-exit-block.json`. Full narrative + caveats: `calibration-journal.md` §2 May 8 PM entries.
 

@@ -1,4 +1,4 @@
-Status: current | Epistemic: confirmed | Last verified: 2026-05-07
+Status: current | Epistemic: confirmed | Last verified: 2026-05-21
 
 # Portfolio Runner Baseline
 
@@ -13,17 +13,18 @@ Shared-timeline portfolio backtest. Single PaperTrader, one capital pool, one st
 - Initial capital: $94,000
 - Spread: 0.0003
 - Parameters: `{"adx_threshold": 20, "min_hold_bars": 10, "overbought": 80, "oversold": 15, "rsi_period": 7, "skip_adx_filter": false, "skip_days": [0], "sl_atr": 2.0, "stoch_period": 14, "trail_after_bars": 10, "trail_atr": 2.0, "trailing_stop": true}`
+- ADX filter mode: `entry_only` (codebase default since May 21 2026 — bug-fixed). The legacy buggy `'all'` baseline was +424.09% / 4.95 / 3.41% / 4344 trades. Close-anchored trail; portfolio cap ON @ FRAC 1.0. **Note:** a future `portfolio` run that explicitly passes `adx_filter_mode='all'` would overwrite this snapshot with buggy-mode numbers — re-add this line if so.
 
 ## Headline
 
 | Metric | Value |
 |---|---:|
-| Final equity | $492,642.94 |
-| Return | 424.09% |
-| Max DD (daily) | 3.41% |
-| Sharpe (daily, ×√252) | 4.95 |
-| Total trades | 4344 |
-| Max concurrent positions | 7 |
+| Final equity | $293,541.53 |
+| Return | 212.28% |
+| Max DD (daily) | 2.06% |
+| Sharpe (daily, ×√252) | 3.72 |
+| Total trades | 4486 |
+| Max concurrent positions | 6 |
 
 > **Interpretation note (V2 — fixed-equity reference, Apr 30 2026).**
 > Each strategy sizes risk + notional cap off `initial_capital` ($94k), not
@@ -46,13 +47,13 @@ Shared-timeline portfolio backtest. Single PaperTrader, one capital pool, one st
 
 | Symbol | Trades | P&L ($) | Win rate |
 |---|---:|---:|---:|
-| GDX | 573 | 67,765.22 | 45.0% |
-| GLD | 716 | 36,206.27 | 43.3% |
-| IAU | 698 | 27,706.31 | 40.8% |
-| OIH | 564 | 85,117.62 | 44.5% |
-| SLV | 579 | 73,876.92 | 47.0% |
-| XBI | 591 | 51,439.95 | 44.2% |
-| XOP | 623 | 55,639.24 | 42.9% |
+| GDX | 589 | 25,512.16 | 41.3% |
+| GLD | 734 | 27,705.70 | 42.4% |
+| IAU | 717 | 17,360.08 | 40.2% |
+| OIH | 597 | 49,290.78 | 42.4% |
+| SLV | 595 | 39,402.04 | 44.0% |
+| XBI | 615 | 16,306.74 | 40.0% |
+| XOP | 639 | 24,000.98 | 40.5% |
 
 ## Cluster co-occupancy
 
@@ -62,24 +63,24 @@ How many bars (out of all observed) had N cluster members holding open positions
 
 | N members held | Bars | % of bars |
 |---:|---:|---:|
-| 0 | 9,144 | 22.2% |
-| 1 | 13,058 | 31.7% |
-| 2 | 11,100 | 26.9% |
-| 3 | 6,491 | 15.7% |
-| 4 | 1,437 | 3.5% |
+| 0 | 21,996 | 53.3% |
+| 1 | 10,388 | 25.2% |
+| 2 | 5,984 | 14.5% |
+| 3 | 2,375 | 5.8% |
+| 4 | 487 | 1.2% |
 
 ### energy (OIH, XLE, XOP)
 
 | N members held | Bars | % of bars |
 |---:|---:|---:|
-| 0 | 18,197 | 44.1% |
-| 1 | 17,338 | 42.1% |
-| 2 | 5,695 | 13.8% |
+| 0 | 28,463 | 69.0% |
+| 1 | 10,332 | 25.1% |
+| 2 | 2,435 | 5.9% |
 
 ### biotech (XBI)
 
 | N members held | Bars | % of bars |
 |---:|---:|---:|
-| 0 | 26,711 | 64.8% |
-| 1 | 14,519 | 35.2% |
+| 0 | 34,108 | 82.7% |
+| 1 | 7,122 | 17.3% |
 

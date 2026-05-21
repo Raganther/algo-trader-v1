@@ -48,13 +48,15 @@ class StochRSIMeanReversionStrategy(Strategy):
         # lowest low for shorts). HWM is less sensitive to bar-Close phase shifts caused
         # by live's 1-bar polling delay (see live-vs-backtest-iau-diagnostic.md).
         self.trail_anchor = parameters.get('trail_anchor', 'close')
-        # ADX filter mode: 'all' (default, legacy — gate blocks entire on_data when
-        # ADX > threshold, which incidentally blocks stop checks and signal exits too)
-        # vs 'entry_only' (May 8 2026 fix — gate only blocks new entries, stops and
-        # exits run regardless of ADX). 'all' preserves backward compatibility byte-
-        # identical with prior backtests; 'entry_only' is the proper fix that lets
-        # exits fire mid-trade in trending regimes.
-        self.adx_filter_mode = parameters.get('adx_filter_mode', 'all')
+        # ADX filter mode: 'entry_only' (May 8 2026 fix, DEFAULT since May 21 2026 —
+        # gate only blocks new entries; stops and signal-exits run regardless of ADX)
+        # vs 'all' (legacy buggy behaviour — gate blocks the entire on_data when
+        # ADX > threshold, which incidentally blocks stop checks and signal exits too).
+        # Default flipped 'all' -> 'entry_only' on May 21 2026: the May 20 matched-window
+        # live-vs-backtest comparison confirmed the buggy 'all' mode has zero predictive
+        # value for live (calibration-journal.md §2). Pass 'all' explicitly only to
+        # reproduce pre-May-21 backtests byte-identical.
+        self.adx_filter_mode = parameters.get('adx_filter_mode', 'entry_only')
         self.min_hold_bars = int(parameters.get('min_hold_bars', 0))  # Minimum bars before signal exit allowed
         self.long_only = parameters.get('long_only', False)  # Skip short entries entirely
         # Random-entry control mode — replaces entry signal with Bernoulli draws when > 0.

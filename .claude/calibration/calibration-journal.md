@@ -17,9 +17,9 @@ Single living document for the calibration journey. **Status of every component,
 | Stop-fire mechanics (server-side stop, intrabar) | **Calibrated** | Apr 13 snapshot below |
 | Layer 3 — stop slippage aggregation | **In progress** — 41/50 fires (Apr 24 refresh; floor not current) | §5 below + cloud `live_trade_log` for refresh |
 | Per-cluster slippage | **Pending** — sample too thin | (gated on Layer 3 hitting 50+) |
-| 1-bar polling delay artifact | **Identified May 7, magnitude refined May 8** — model-fit pending (`--delay 1` broken) | `live-vs-backtest-iau-diagnostic.md`, `audit-hwm-delay-mechanism.md` |
-| ADX-filter early-return blocks exits | **Quantified May 8 PM** — bug contributes ~50% of return and ~1.23 Sharpe in long-window 7-bot. Parameterized fix shipped behind `adx_filter_mode='entry_only'` opt-in; default still buggy for backward compat. **HWM A/B + per-asset re-runs landed May 9; lineup-selection landed May 10. Strategic decision (flip default + live deploy) still pending.** | §2 timeline May 8 PM + May 9 + May 10 entries |
-| HWM trail anchor — live tracking | **T+1** (deployed May 7 PM) | `trail-anchor-hwm.md`, `live-performance-report.md` |
+| 1-bar polling delay artifact | **Identified May 7, magnitude refined May 8, portfolio-level confirmed May 20** — config-matched residual ~$867 over the 5-week verified window; model-fit still pending (`--delay 1` broken) | `live-vs-backtest-iau-diagnostic.md`, `audit-hwm-delay-mechanism.md`, §2 May 20 entry |
+| ADX-filter early-return blocks exits | **Quantified May 8 PM; default flipped to `entry_only` May 21** — bug contributes ~50% of return and ~1.23 Sharpe in long-window 7-bot. The fix is now the strategy default; 7 live run scripts pinned to `'all'` so live trading is byte-unchanged pending a deliberate deploy. **HWM A/B + per-asset re-runs May 9; portfolio baseline re-run May 21. Live deploy + cap-shrink/small-cap re-runs still pending.** | §2 timeline May 8 PM / May 9 / May 20 / May 21 entries |
+| HWM trail anchor — live tracking | **Day-14 gate PASSED May 20** — HWM-era live P&L (−$300) matches HWM+entry_only backtest (−$310) on the identical tape | `trail-anchor-hwm.md`, §2 May 20 entry |
 | Sub-bar fill price variance | **Not characterized** — extractable from `live_trade_log` | (none yet) |
 | Overnight gap behavior on stops | **Characterized** Apr 23 incident + `gap-distribution.md` | `gap-distribution.md` |
 | Aggregate live Sharpe expectation | **~4.0 ±0.5 (May 9)** — was 5.73 → 5.50 → 4.0 over May 7–9. Tripwires SHIPPED May 9 (bars 1.8/2.5/3.0 at 30/60/90d). | `live_performance_report.py`, §2 May 9 entry |
@@ -146,6 +146,50 @@ Only **GLD and SLV** clear the 2.0 quality bar at the per-asset close-anchored l
 **Status board updates needed:** "All validated-edges per-asset Sharpes" row should reference the new May 9 column; HWM trail anchor row should reference the +0.45 result; live Sharpe expectation row resolved (4.0 ±0.5 anchor, tripwires now calibrated).
 
 **Outstanding A/B re-runs under `entry_only`:** May 8 delay-mechanism audit, small-cap deployment, cap-shrink experiment, portfolio-runner V2 baseline, cluster-cap V1 — all preserved as historical record but pending refresh before any further strategic use.
+
+---
+
+### May 20 2026 — First portfolio-level matched-window live-vs-backtest comparison (day-14 HWM gate)
+
+The roadmap scheduled a day-14 HWM pattern-detection gate for ~May 21. Ran it: the 7-bot portfolio backtested over the **exact same price tape** as the verified-params forward test (Apr 15 → May 20 2026), three configs, vs live. Reproducer: `scripts/window_backtest.py` (one-off; loads Alpaca recent data or research.db cache, runs `PortfolioRunner` with the live param set, dumps equity + trades to JSON).
+
+**Headline three-way comparison, full Apr 15 → May 20 window:**
+
+| Run | Trades | P&L | Win% | W/L |
+|---|---:|---:|---:|---:|
+| LIVE (real bots) | 51 | **−$653** | 27.5% | 2.34 |
+| Backtest, `adx_filter_mode='all'` (buggy — the config the bots actually run) | 65 | **+$8,978** | 46.2% | 4.53 |
+| Backtest, `adx_filter_mode='entry_only'` (bug fixed) | 68 | **+$372** | 42.6% | 1.46 |
+
+**The buggy backtest is worthless as a live predictor.** Same data, same nominal config as the bots, yet +$8,978 vs live −$653. Fixing the bug collapses the *same backtest* from +$8,978 → +$372 — the bug invented ~$8,600 of phantom profit over five weeks. The bug-fixed backtest (+$372) sits right next to live (−$653).
+
+**Why live can't capture the bug even though the bots run `'all'`:** the bug blocks the *strategy's* stop-loss check when ADX is high. Live's server-side Alpaca stop orders fire intrabar regardless of ADX, so live exits where the buggy backtest rides. Live therefore behaves like `entry_only`, not like `'all'` — confirming the May 8 PM "live partially escapes the bug" thesis on real forward-test data. **Decision rule going forward: all deployment-facing backtests use `entry_only`; `'all'` numbers describe an un-tradeable market.**
+
+**Config-matched refinement.** The matched backtest above used HWM throughout, but live ran close-anchored Apr 15–May 6 and HWM only from May 7. Re-running `entry_only` with `trail_anchor='close'` and stitching (close for Apr 15–May 6 + HWM for May 7–20):
+
+- Config-matched bug-fixed backtest: **+$214** · live: **−$653** · residual gap **~$867** over 65 trades.
+- **HWM era May 7–20 in isolation: live −$300 vs HWM+entry_only backtest −$310 — a $10 match.** The most recent, cleanly config-matched fortnight shows near-perfect live/backtest agreement.
+- The ~$867 residual is concentrated in the Apr 28–May 6 window and is consistent with the documented 1-bar polling-delay artifact + slippage.
+
+**Rolling distribution context.** Full bug-fixed backtest (`entry_only`+HWM, 2020-07→2026-04: +180.56% / Sharpe 3.96 / DD 3.17% / 3,810 trades — consistent with the May 9 long-window 4.17). Rolling **23-trading-day** annualised Sharpe (live window length): median **4.38**, p10 0.19, p5 −0.96, p1 −3.44; **9.1% of all 23-day windows are negative**. Live's −0.62 sits at **~p6.3** — a poor window, ~1-in-16 frequency, not a structural break. Crucially, the bug-fixed backtest *over the identical Apr 15–May 20 tape* scored only Sharpe **+0.61** (~p13): **the regime itself was weak for the strategy.** Five weeks of chop → roughly flat is the correct, expected outcome.
+
+**GLD diagnostic.** GLD is the single largest negative live-vs-backtest contributor: live −$674 vs config-matched bug-fixed backtest +$526 (~$1,200 gap). Trade-level diff: live took repeated long re-entries into the Apr 22–23 gold selloff (4 stopped longs, −$382) and a fast May 5 stop-out (−$50 where the backtest rode +$680). This is the **delay artifact amplified by a sustained down-trend** — counter-trend longs entered one bar late get worse fills and faster stops in a falling tape; GLD trended down hardest (440→417), so it ate the most delay damage. Not a GLD-specific bug. At the portfolio level it is substantially offset (SLV live +$2,237 *beat* the bug-fixed backtest's +$1,168) — per-symbol live-vs-backtest gaps are large and noisy but largely cancel across the lineup.
+
+**Tripwire-calibration insight.** The 30-day tripwire (Sharpe < 1.8) cannot distinguish "bad regime" from "broken edge": the bug-fixed backtest's own 23-day windows fall below 1.8 well over a third of the time, and *this* window scored 0.61 — it would have tripped the wire while perfectly healthy. A single sub-1.8 reading is not diagnostic. Recommend re-anchoring `live_performance_report.py` tripwires to **percentile breaches** of the bug-fixed rolling distribution (sustained below p10/p5) rather than absolute Sharpe levels.
+
+**Net verdict:** the strategy is **not broken and not underperforming a correct backtest** — live tracks `entry_only` within ~$867 over five weeks, and the HWM era matches to $10. The disappointment was measuring live against a *buggy* backtest. The true five-week expectation in this chop regime was ≈ break-even, and that is what live delivered. Strongest evidence to date for flipping the `adx_filter_mode` default to `entry_only`.
+
+---
+
+### May 21 2026 — `adx_filter_mode` default flipped to `entry_only` (code), live pinned
+
+Acting on the May 20 finding: flipped the strategy default `adx_filter_mode` `'all'` → `'entry_only'` at `stoch_rsi_mean_reversion.py:57`. The bug-fixed mode is now what every backtest and the codebase use by default; the legacy buggy `'all'` mode is reachable only by passing it explicitly (to reproduce a pre-May-21 backtest).
+
+**Live trading is byte-unchanged.** All 7 live bot run scripts (`scripts/run_*_test.sh`) were explicitly pinned to `"adx_filter_mode":"all"` in the same change. Flipping the default without pinning would have silently switched the bots to `entry_only` on their next deploy — that is the "live deploy" decision, which is **deliberately deferred** (it changes live behaviour — K-exits would fire in high-ADX regimes — and resets the forward-test clock). The pin holds the bots on their current behaviour until that decision is made; remove it as part of the deploy.
+
+**Portfolio baseline re-run under the new default** (`portfolio-runner-baseline.md` regenerated, 2020-07→2026-04, $94k, close-anchored, cap on): **+212.28% / Sharpe 3.72 / DD 2.06% / 4,486 trades** — down from the buggy +424.09% / 4.95 / 3.41% / 4,344. Reproduces the May 8 PM A-vs-C audit's C-cell figure exactly (consistency check passed).
+
+**Still pending (buggy-`'all'`-mode, not yet re-run):** per-bot cap-shrink experiment, small-capital ($1k) deployment plan, the Apr 30 rotation 4-run study — all numbers in `CLAUDE.md` Current Status and the corresponding domain files remain buggy-mode. The per-asset validated-edges Sharpes (May 9) and HWM A/B (May 9) are already on `entry_only`. Code change only — no git-save / cloud deploy performed.
 
 ---
 
