@@ -90,7 +90,7 @@ Trimmed lineups (A/B) reduce gold-cluster co-occupancy (Run A: gold N≥2 = 4.5%
 
 ```bash
 # Baseline (Run 0) — already in calibration-journal.md as the HWM+entry_only leg B:
-python3 -m backend.runner portfolio --strategy StochRSIMeanReversion \
+python3 -m backend.runner portfolio --strategy TrendFramework \
   --symbols GLD,IAU,SLV,GDX,OIH,XBI,XOP \
   --timeframe 15m --start 2020-07-27 --end 2026-04-27 \
   --source alpaca --spread 0.0003 --initial 94000 \

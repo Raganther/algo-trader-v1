@@ -8,7 +8,7 @@ Status: current | Epistemic: confirmed | Last verified: 2026-04-23 (results unaf
 
 ## Knowledge
 
-Window: `2020-01-01` to `2025-12-31`. Source: validated StochRSI Enhanced trades for `GLD`, `IAU`, `SLV`, `GDX`, replayed on one realized-P&L timeline.
+Window: `2020-01-01` to `2025-12-31`. Source: validated Trend Framework trades for `GLD`, `IAU`, `SLV`, `GDX`, replayed on one realized-P&L timeline.
 
 This is diagnostic-only. It scales closed-trade P&L by entry-regime multipliers; it does not change strategy logic, model intratrade cash constraints, or deploy live sizing.
 

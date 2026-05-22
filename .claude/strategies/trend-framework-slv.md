@@ -1,10 +1,10 @@
 Status: current | Epistemic: headline confirmed; framework IS the edge (signal decorative); metals direction-dependent (regime risk) | Last verified: 2026-05-10
 
-# StochRSI Enhanced — SLV 15m
+# Trend Framework — SLV 15m
 
 > **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: SLV Sharpe 2.46 → 2.19 (close-anchored, single-symbol). Still clears 2.0 quality bar.** ΔSharpe −0.27 under bug correction. SLV is one of only two assets (with GLD) that survives the 2.0 bar at the per-asset level. Buggy 2.46 figure preserved below as historical reference. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
 
-> **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
+> **Strategy file:** `backend/strategies/trend_framework.py`
 
 > **Apr 28 2026 status update — framework attribution finding.**
 >
@@ -37,7 +37,7 @@ Same params as GLD 15m — no tuning needed, transferred directly.
 
 #### Backtest command:
 ```bash
-python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol SLV --timeframe 15m \
+python3 -m backend.runner backtest --strategy TrendFramework --symbol SLV --timeframe 15m \
   --start 2020-01-01 --end 2025-12-31 --source alpaca --spread 0.0003 --delay 0 \
   --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 ```
@@ -75,7 +75,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol SLV
 
 ### Thesis Validation
 
-This result confirms the **precious metals thesis**: the StochRSI Enhanced edge is not GLD-specific. It is a structural property of precious metals mean-reverting at 15m within a longer-term trend.
+This result confirms the **precious metals thesis**: the Trend Framework edge is not GLD-specific. It is a structural property of precious metals mean-reverting at 15m within a longer-term trend.
 
 ### Long-Only Baseline (verified Apr 28 2026)
 

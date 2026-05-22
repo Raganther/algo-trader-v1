@@ -1,12 +1,12 @@
 Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; framework IS the edge (signal decorative); regime-dependence presumed (untested per-asset) | Last verified: 2026-05-10
 
-# StochRSI Enhanced — OIH 15m (Validated — Top-Tier)
+# Trend Framework — OIH 15m (Validated — Top-Tier)
 
 > **May 10 2026 update — portfolio-level test: OIH is the single biggest dollar-P&L contributor in the 7-bot lineup ($50.5k, ~22% of total).** Present in all four tested lineups (it's the only energy bot in Run A). KEEP IN LINEUP. See `portfolio-runner-lineup-selection.md`.
 >
 > **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: OIH Sharpe 2.33 → 1.91 (close-anchored, single-symbol). FAILS the 2.0 quality bar (just under).** ΔSharpe −0.42. Buggy 2.33 figure preserved below as historical reference. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
 
-> **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
+> **Strategy file:** `backend/strategies/trend_framework.py`
 
 > **Apr 28 2026 status update — framework attribution finding.**
 >
@@ -21,7 +21,7 @@ Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; framework IS th
 
 ### Validated Parameters
 
-Same recipe as all other StochRSI Enhanced bots — no retuning.
+Same recipe as all other Trend Framework bots — no retuning.
 
 | Param | Value |
 |---|---|
@@ -40,7 +40,7 @@ Same recipe as all other StochRSI Enhanced bots — no retuning.
 
 #### Backtest command:
 ```bash
-python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol OIH --timeframe 15m \
+python3 -m backend.runner backtest --strategy TrendFramework --symbol OIH --timeframe 15m \
   --start 2020-01-01 --end 2026-04-28 --source alpaca --spread 0.0003 --delay 0 \
   --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 ```

@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
 from backend.engine.backtester import Backtester
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 
 DB_PATH = Path(__file__).resolve().parent.parent / "research.db"
 OUTPUT_PATH = ROOT / ".claude" / "strategies" / "long-window-validation.md"
@@ -115,7 +115,7 @@ def invert_prices(df: pd.DataFrame) -> pd.DataFrame:
 def run_strategy(data: pd.DataFrame, params: dict) -> dict:
     if len(data) < 100:
         return {"sharpe": None, "return_pct": None, "max_dd": None, "trades": 0, "win_rate": None}
-    bt = Backtester(data, StochRSIMeanReversionStrategy, parameters=params,
+    bt = Backtester(data, TrendFrameworkStrategy, parameters=params,
                     initial_capital=10000.0, spread=0.0003, execution_delay=0)
     r = bt.run()
     return {

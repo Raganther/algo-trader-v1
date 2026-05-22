@@ -1,8 +1,8 @@
 import pandas as pd
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 from backend.analysis.regime_quantifier import RegimeQuantifier
 
-class RegimeGatedStoch(StochRSIMeanReversionStrategy):
+class RegimeGatedStoch(TrendFrameworkStrategy):
     """
     A 'Sniper' version of StochRSI that only trades when the market is in a RANGING regime.
     

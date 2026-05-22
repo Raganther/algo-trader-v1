@@ -29,7 +29,7 @@ Full detail: `calibration-journal.md` §2 May 20 + May 21 entries. Reproducer: `
 
 **Trigger.** Investigating why backtest didn't reproduce a live OIH +$22.53 short (entered May 5 19:47 @ $442.09, K-exited May 8 13:31 @ $419.56). Backtest fired the same entry but couldn't exit through May 6-8 even when K dropped to 0.0.
 
-**Root cause.** `stoch_rsi_mean_reversion.py:211-239` `if current_adx > adx_threshold: return` exits `on_data` early when ADX is high. Intent was to block entries during trends; actual effect blocks stop-loss check (line 242), entry block (line 269), AND signal-exit blocks (lines 428, 445). Trail-update runs BEFORE the filter so trails keep ratcheting, but exits cannot fire mid-trade in high-ADX regimes. Live partially escapes via server-side Alpaca stops + K-exits on transient ADX dips. Backtest cannot escape.
+**Root cause.** `trend_framework.py:211-239` `if current_adx > adx_threshold: return` exits `on_data` early when ADX is high. Intent was to block entries during trends; actual effect blocks stop-loss check (line 242), entry block (line 269), AND signal-exit blocks (lines 428, 445). Trail-update runs BEFORE the filter so trails keep ratcheting, but exits cannot fire mid-trade in high-ADX regimes. Live partially escapes via server-side Alpaca stops + K-exits on transient ADX dips. Backtest cannot escape.
 
 **A vs C audit, long-window 7-bot, $94k, 2020-07 → 2026-04:**
 
@@ -51,7 +51,7 @@ Full detail: `calibration-journal.md` §2 May 20 + May 21 entries. Reproducer: `
 
 **Action (updated May 21).** Parameterized fix shipped May 8 behind the `adx_filter_mode` parameter. **Default flipped `'all'` → `'entry_only'` May 21** (see top-of-log entry) — `'entry_only'` is now the codebase default; pass `'all'` only to reproduce a pre-May-21 backtest byte-identical. Live bots pinned to `'all'`, byte-unchanged, pending a deliberate deploy decision.
 
-**Files.** `backend/strategies/stoch_rsi_mean_reversion.py:50,211-239,269-273`, `backend/analysis/audit_adx_filter_exit_block.py`, `.claude/calibration/audit-adx-filter-exit-block.json`. Full narrative + caveats: `calibration-journal.md` §2 May 8 PM entries.
+**Files.** `backend/strategies/trend_framework.py:50,211-239,269-273`, `backend/analysis/audit_adx_filter_exit_block.py`, `.claude/calibration/audit-adx-filter-exit-block.json`. Full narrative + caveats: `calibration-journal.md` §2 May 8 PM entries.
 
 ---
 
@@ -142,7 +142,7 @@ Only **GLD and SLV** survive the 2.0 quality bar at the per-asset close-anchored
 
 **Finding 1 — Backtest is structurally optimistic by ~0.7 Sharpe.** The backtest evaluates signals at bar Close with effective delay=0; live polls Alpaca every ~60s, so live's effective execution timing is ~1 bar after each bar Close. The phase shift propagates through `trail_after_bars=10` (trail activates on a different bar) and the close-anchored trail formula uses each bar's Close as reference (different bar = different reference Close = different trail level). On choppy price action where prices wobble around the trail level, live's stop fires while backtest's doesn't. Apr 23 IAU short was the smoking gun: same entry $89.05 in both, backtest let it run to K-exit at $88.00 (+$274), live got whipsawed at trail stop $89.10 (−$14). Wider trail (2.5 ATR) tested — does NOT mitigate (long-window Sharpe 4.95 → 4.33, DD 3.41% → 4.07%). The issue is structural to the trail formula's bar-Close anchoring, not parameter-tunable. **Implication:** all validated-edges Sharpes (GLD 2.48 etc.) overstate live by ~0.7. CLAUDE.md guidance "size for Sharpe 1.0–1.5 on metals" was correct intuition; this provides the mechanism.
 
-**Finding 2 — HWM trail anchor closes the gap (Path 2 shipped).** New `trail_anchor` parameter on `stoch_rsi_mean_reversion.py` with values `'close'` (default — byte-identical to legacy) or `'hwm'` (anchors trail to trade's high-water-mark: highest High since entry for longs, lowest Low for shorts). HWM is intrinsic to the trade's price action, structurally insensitive to bar timing. **Long-window 7-bot result: Close +424.09% / 4.95 / 3.41% vs HWM +517.41% / 5.73 / 3.05%.** ΔSharpe +0.78, ΔDD −0.36pp, all 7 symbols improve, no regressions. The +0.78 lift ≈ the 0.7 estimated delay artifact, suggesting HWM in live should approximately recover the gap. **Why it works:** HWM fixes two problems at once — (a) timing-sensitivity (different bar = different Close = different trail) AND (b) noisy signal (bar Close is variable; trade's actual best price is invariant). The improvements compound.
+**Finding 2 — HWM trail anchor closes the gap (Path 2 shipped).** New `trail_anchor` parameter on `trend_framework.py` with values `'close'` (default — byte-identical to legacy) or `'hwm'` (anchors trail to trade's high-water-mark: highest High since entry for longs, lowest Low for shorts). HWM is intrinsic to the trade's price action, structurally insensitive to bar timing. **Long-window 7-bot result: Close +424.09% / 4.95 / 3.41% vs HWM +517.41% / 5.73 / 3.05%.** ΔSharpe +0.78, ΔDD −0.36pp, all 7 symbols improve, no regressions. The +0.78 lift ≈ the 0.7 estimated delay artifact, suggesting HWM in live should approximately recover the gap. **Why it works:** HWM fixes two problems at once — (a) timing-sensitivity (different bar = different Close = different trail) AND (b) noisy signal (bar Close is variable; trade's actual best price is invariant). The improvements compound.
 
 **Implications across the project.**
 - All headline backtest Sharpe figures should be read as close-anchored with ~0.7 live optimism. Live expectations subtract this.
@@ -151,7 +151,7 @@ Only **GLD and SLV** survive the 2.0 quality bar at the per-asset close-anchored
 - Validated-edges Sharpe table needs eventual re-run with HWM for canonical reference.
 - Pending strategic decisions: (1) flip live bots to `trail_anchor: hwm`, (2) flip strategy default `close → hwm`, (3) re-run per-asset Sharpe table, (4) test interaction with cap-shrink and small-capital configurations.
 
-**Files.** `.claude/calibration/live-vs-backtest-iau-diagnostic.md` (full diagnosis), `.claude/strategies/trail-anchor-hwm.md` (HWM A/B + decision matrix), `backend/strategies/stoch_rsi_mean_reversion.py` (`trail_anchor` parameter), `backend/analysis/live_performance_report.py` (corrected tripwires).
+**Files.** `.claude/calibration/live-vs-backtest-iau-diagnostic.md` (full diagnosis), `.claude/strategies/trail-anchor-hwm.md` (HWM A/B + decision matrix), `backend/strategies/trend_framework.py` (`trail_anchor` parameter), `backend/analysis/live_performance_report.py` (corrected tripwires).
 
 ---
 
@@ -187,7 +187,7 @@ Only **GLD and SLV** survive the 2.0 quality bar at the per-asset close-anchored
 
 ## Regime-Segmented Diagnostic — Apr 23 2026
 
-**Tried:** Tagged validated StochRSI Enhanced 15m trades with the previous completed daily regime at entry. Scope was deliberately narrow: current forward-test assets only (`GLD`, `IAU`, `SLV`, `GDX`), current validated strategy only (`StochRSIMeanReversion`), 2020–2025 window, long/short split. Full artifact: `.claude/strategies/regime-stochrsi-diagnostic.md`. Regenerate with `python3 -m backend.analysis.stochrsi_regime_performance`.
+**Tried:** Tagged validated Trend Framework 15m trades with the previous completed daily regime at entry. Scope was deliberately narrow: current forward-test assets only (`GLD`, `IAU`, `SLV`, `GDX`), current validated strategy only (`TrendFramework`), 2020–2025 window, long/short split. Full artifact: `.claude/strategies/regime-stochrsi-diagnostic.md`. Regenerate with `python3 -m backend.analysis.stochrsi_regime_performance`.
 
 **Result:** Partial gradient, not a clean regime switch.
 
@@ -208,7 +208,7 @@ Only **GLD and SLV** survive the 2.0 quality bar at the per-asset close-anchored
 
 ---
 
-## StochRSI Enhanced 15m (GLD) — Feb 26 2026
+## Trend Framework 15m (GLD) — Feb 26 2026
 
 **Tried:** Moved from 1h to 15m on GLD. Added trailing stop component (trail ATR multiplier, trail_after_bars gate) and min_hold_bars filter. Added ADX threshold and skip Mondays.
 
@@ -317,7 +317,7 @@ All four validated. Every year profitable on all four assets.
 
 ## XLE Generalisation — Mar 28 2026
 
-**Tried:** Same StochRSI Enhanced 15m params on XLE (Energy Select Sector SPDR) — completely different asset class from precious metals.
+**Tried:** Same Trend Framework 15m params on XLE (Energy Select Sector SPDR) — completely different asset class from precious metals.
 
 **Result:** Sharpe ~2.06, return +85.2%, max DD 3.35%, 4/4 WF. Every year profitable.
 
@@ -445,7 +445,7 @@ Validated params extract 4–8× more return with fewer trades and lower or comp
 
 ## Forgotten Asset Reruns — Apr 28 2026 Result
 
-**Tried:** Applied the validated StochRSI Enhanced 15m recipe (OB80/OS15, ADX 20, 2.0 ATR trail after 10 bars, skip Monday) to the four borderline-candidate assets identified in the Apr 27 audit: XBI (biotech), OIH (oil services), TLT (bonds), XOP (oil & gas explorers). All four had been tested at 1h timeframe with old non-validated params in Feb 2026 and shown Sharpe 0.55–1.18 — close to but below the 2.0 quality bar. Hypothesis: corrected engine + validated recipe + extended data window would push some across.
+**Tried:** Applied the validated Trend Framework 15m recipe (OB80/OS15, ADX 20, 2.0 ATR trail after 10 bars, skip Monday) to the four borderline-candidate assets identified in the Apr 27 audit: XBI (biotech), OIH (oil services), TLT (bonds), XOP (oil & gas explorers). All four had been tested at 1h timeframe with old non-validated params in Feb 2026 and shown Sharpe 0.55–1.18 — close to but below the 2.0 quality bar. Hypothesis: corrected engine + validated recipe + extended data window would push some across.
 
 **Result:**
 
@@ -631,7 +631,7 @@ These two readings are nearly the same statement and consistent with cross-cutti
 
 ## Edge Question — Test 2: Fully-Random Ablation (Apr 28 2026)
 
-**Tried:** Added `random_exit_prob` parameter to `StochRSIMeanReversionStrategy` mirroring the existing `random_entry_prob`. With both set, the strategy uses the same RNG to fire entries (Bernoulli per flat bar, p=0.15) and exits (Bernoulli per in-position bar after min-hold, p=0.05 — calibrated to produce trade counts comparable to validated). Stop loss + trailing stop unchanged. ADX filter, skip-Mon, sizing, 25% notional cap, 10-bar min-hold all unchanged. This isolates the framework's contribution with **zero signal information** anywhere in the strategy.
+**Tried:** Added `random_exit_prob` parameter to `TrendFrameworkStrategy` mirroring the existing `random_entry_prob`. With both set, the strategy uses the same RNG to fire entries (Bernoulli per flat bar, p=0.15) and exits (Bernoulli per in-position bar after min-hold, p=0.05 — calibrated to produce trade counts comparable to validated). Stop loss + trailing stop unchanged. ADX filter, skip-Mon, sizing, 25% notional cap, 10-bar min-hold all unchanged. This isolates the framework's contribution with **zero signal information** anywhere in the strategy.
 
 **Calibration (GLD):**
 - ep=0.03 → 546 trades, Sharpe 2.81
@@ -737,7 +737,7 @@ The framework's edge is regime-dependent on directional assets and regime-agnost
 
 2. **The "validated edges across 8 assets" framing is overstated.** What's validated is one framework, applied to 8 assets, with 6 of them clearing Sharpe 2.0 in a 2020–2026 bull market. The framework is the edge; the per-asset Sharpe variations reflect each asset's volatility profile and regime.
 
-3. **The strategy library is smaller than we thought.** "StochRSI Enhanced" isn't a strategy in the sense we documented — it's `Framework v1` plus a misattributed signal. The actual research surface is: alternative framework parameters, regime-aware sizing for the framework, additional framework variants (different stop / trail / filter logic).
+3. **The strategy library is smaller than we thought.** "Trend Framework" isn't a strategy in the sense we documented — it's `Framework v1` plus a misattributed signal. The actual research surface is: alternative framework parameters, regime-aware sizing for the framework, additional framework variants (different stop / trail / filter logic).
 
 4. **Real-money deployment posture:**
    - **Conservative path:** keep the current paper bots running, size for Sharpe 1.0–1.5 expected (not 2.46), prioritise IWM over more metals on the next deployment because it's regime-robust. Continue the Critical Path technical items (correlation-aware sizing, ATR sizing, late-session guard).
@@ -759,7 +759,7 @@ The Apr 28 finding chain (held-out 12/12 → boundary 4/4 → Sharpe verificatio
 
 ## Random-Entry Control — Apr 28 2026
 
-**Tried:** After the boundary verification + Sharpe sweep made the strategy look suspiciously general ("works on almost everything"), ran a discriminator: replace the StochRSI entry signal with random Bernoulli draws (calibrated to match validated trade frequency, p=0.15 per flat bar, seed=42, 50/50 long/short). Keep all other logic identical — ADX filter, skip-Mon, 2% risk sizing, 25% notional cap, ATR stop, trailing stop after 10 bars, K-cross exit, min-hold. Added `random_entry_prob` param to `StochRSIMeanReversionStrategy`. Compared random-entry Sharpe to validated Sharpe on 6 representative assets.
+**Tried:** After the boundary verification + Sharpe sweep made the strategy look suspiciously general ("works on almost everything"), ran a discriminator: replace the StochRSI entry signal with random Bernoulli draws (calibrated to match validated trade frequency, p=0.15 per flat bar, seed=42, 50/50 long/short). Keep all other logic identical — ADX filter, skip-Mon, 2% risk sizing, 25% notional cap, ATR stop, trailing stop after 10 bars, K-cross exit, min-hold. Added `random_entry_prob` param to `TrendFrameworkStrategy`. Compared random-entry Sharpe to validated Sharpe on 6 representative assets.
 
 **Result:**
 

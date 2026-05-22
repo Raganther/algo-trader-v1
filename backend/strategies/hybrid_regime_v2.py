@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from backend.engine.strategy import Strategy
 from backend.analysis.regime_classifier import RegimeClassifier
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 from backend.strategies.donchian_breakout import DonchianBreakoutStrategy
 
 class MockBroker:
@@ -43,7 +43,7 @@ class HybridRegimeV2(Strategy):
         # StochRSI (Range)
         stoch_params = parameters.copy()
         stoch_params['rsi_period'] = 7 # Champion Config
-        self.range_strategy = StochRSIMeanReversionStrategy(data, events, stoch_params, initial_cash, self.stoch_broker)
+        self.range_strategy = TrendFrameworkStrategy(data, events, stoch_params, initial_cash, self.stoch_broker)
         
         # Donchian (Trend)
         donch_params = parameters.copy()

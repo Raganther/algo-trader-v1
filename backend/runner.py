@@ -11,7 +11,7 @@ from backend.strategies.donchian_breakout import DonchianBreakoutStrategy
 from backend.strategies.bollinger_breakout import BollingerBreakoutStrategy
 # from backend.strategies.nfp_breakout import NFPBreakoutStrategy  # Commented out - missing backend.data module
 from backend.strategies.macd_bollinger import MACDBollingerStrategy # New
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 from backend.strategies.stoch_rsi_next_open import StochRSINextOpen
 from backend.strategies.stoch_rsi_limit import StochRSILimit
 from backend.strategies.hybrid_regime import HybridRegimeStrategy # New
@@ -32,7 +32,8 @@ STRATEGY_MAP = {
     "BollingerBreakout": BollingerBreakoutStrategy,
     # "NFPBreakout": NFPBreakoutStrategy,  # Commented out - missing backend.data module
     "MACDBollinger": MACDBollingerStrategy,
-    "StochRSIMeanReversion": StochRSIMeanReversionStrategy,
+    "TrendFramework": TrendFrameworkStrategy,
+    "StochRSIMeanReversion": TrendFrameworkStrategy,  # legacy alias — live bot run scripts still pass this name; renamed to TrendFramework May 22 2026
     "StochRSINextOpen": StochRSINextOpen,
     "StochRSILimit": StochRSILimit,
     "HybridRegime": HybridRegimeStrategy,
@@ -1586,7 +1587,7 @@ def worker_task(task_config):
                 "stop_loss_atr": 2.0,
                 "atr_period": 20
             }
-        elif strategy_name == "StochRSIMeanReversion":
+        elif strategy_name in ("TrendFramework", "StochRSIMeanReversion"):
             params = {
                 "symbol": symbol,
                 "rsi_period": 14,

@@ -13,7 +13,7 @@ import io
 from contextlib import contextmanager
 from backend.engine.backtester import Backtester
 from backend.engine.data_utils import load_backtest_data
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 from backend.optimizer.scoring import calc_sharpe
 
 # GLD 15m validated baseline params
@@ -46,7 +46,7 @@ def run_backtest(data, params):
     with suppress_stdout():
         bt = Backtester(
             data=data,
-            strategy_class=StochRSIMeanReversionStrategy,
+            strategy_class=TrendFrameworkStrategy,
             parameters=params,
             initial_capital=10000.0,
             spread=0.0003,

@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from backend.engine.data_loader import DataLoader
 from backend.engine.alpaca_loader import AlpacaDataLoader
 from backend.engine.backtester import Backtester
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 
 
 def run_analysis():
@@ -77,7 +77,7 @@ def run_analysis():
     import io, contextlib
     backtester = Backtester(
         data,
-        StochRSIMeanReversionStrategy,
+        TrendFrameworkStrategy,
         parameters=params,
         initial_capital=10000.0,
         spread=0.0003,

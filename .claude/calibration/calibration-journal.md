@@ -48,7 +48,7 @@ The "+0.78 Sharpe lift ≈ 0.7 delay artifact" causal claim from May 7 put under
 Full audit + 2×2 + per-trade attribution: `audit-hwm-delay-mechanism.md` (with caveat header noting the audit was run under the ADX-bug). Reproducible script: `python3 -m backend.analysis.audit_hwm_delay_sensitivity`.
 
 ### May 8 2026 (PM) — ADX-filter early-return blocks mid-trade exits
-While investigating why backtest didn't reproduce the live OIH +$22.53 short (May 5 19:47 entry → May 8 13:31 K-exit), found a bug in `backend/strategies/stoch_rsi_mean_reversion.py:211-239`. The ADX filter `if current_adx > self.adx_threshold: return` runs **before** the stop-loss check (line 242), entry block (line 269), and signal-exit blocks (lines 428, 445). When ADX rises above threshold mid-trade, the strategy returns early and **all exits are blocked** — only the trail-update path (line 168-208, before the filter) keeps running.
+While investigating why backtest didn't reproduce the live OIH +$22.53 short (May 5 19:47 entry → May 8 13:31 K-exit), found a bug in `backend/strategies/trend_framework.py:211-239`. The ADX filter `if current_adx > self.adx_threshold: return` runs **before** the stop-loss check (line 242), entry block (line 269), and signal-exit blocks (lines 428, 445). When ADX rises above threshold mid-trade, the strategy returns early and **all exits are blocked** — only the trail-update path (line 168-208, before the filter) keeps running.
 
 Effect: positions opened in low-ADX regime cannot exit (via stop or K-signal) once ADX rises above 20 mid-trade. The OIH short opened May 5 at ADX=8.5 with K=23 (clean entry), but ADX rose to 30+ as the down-move accelerated; backtest's exit logic was locked out for the entire May 6-7 window even when K dropped to 0.0 (clear K-exit condition). Empirically confirmed: backtest leaves the position open with `qty=-5` at end of data window.
 
@@ -58,7 +58,7 @@ Effect: positions opened in low-ADX regime cannot exit (via stop or K-signal) on
 
 **This is a third backtest-vs-live divergence**, alongside the delay artifact (May 7) and the trade-fire divergence. Direction of impact on aggregate Sharpe is unclear — depends on whether trapped trades are net winners or losers.
 
-**Suggested fix:** move the ADX filter to gate only the entry block, not the whole `on_data` function. Stops and signal-exits should run regardless of ADX state. Single-block code change in `stoch_rsi_mean_reversion.py:211-269`.
+**Suggested fix:** move the ADX filter to gate only the entry block, not the whole `on_data` function. Stops and signal-exits should run regardless of ADX state. Single-block code change in `trend_framework.py:211-269`.
 
 **Status:** identified, not fixed. Holding off on the fix because (a) HWM was deployed yesterday and is still being verified, (b) the fix invalidates every prior backtest result (validated edges, portfolio runner, HWM A/B, May 8 audit) until re-run, (c) impact direction needs quantification before committing.
 
@@ -77,7 +77,7 @@ What the audit *did* surface, on the 2,149 trades that fired in both runs:
 
 JSON record: `audit-adx-filter-exit-block.json`.
 
-**Second quantification audit (May 8 PM, parameterized fix).** Added `adx_filter_mode` parameter to `stoch_rsi_mean_reversion.py` with values `'all'` (default — legacy buggy behaviour, byte-identical to prior backtests) or `'entry_only'` (proper fix — ADX gate blocks new entries only, stops and signal-exits run regardless). Re-ran long-window 7-bot:
+**Second quantification audit (May 8 PM, parameterized fix).** Added `adx_filter_mode` parameter to `trend_framework.py` with values `'all'` (default — legacy buggy behaviour, byte-identical to prior backtests) or `'entry_only'` (proper fix — ADX gate blocks new entries only, stops and signal-exits run regardless). Re-ran long-window 7-bot:
 
 | Metric | A (`'all'` — buggy) | C (`'entry_only'` — fix) | Δ |
 |---|---:|---:|---:|
@@ -183,7 +183,7 @@ The roadmap scheduled a day-14 HWM pattern-detection gate for ~May 21. Ran it: t
 
 ### May 21 2026 — `adx_filter_mode` default flipped to `entry_only` (code), live pinned
 
-Acting on the May 20 finding: flipped the strategy default `adx_filter_mode` `'all'` → `'entry_only'` at `stoch_rsi_mean_reversion.py:57`. The bug-fixed mode is now what every backtest and the codebase use by default; the legacy buggy `'all'` mode is reachable only by passing it explicitly (to reproduce a pre-May-21 backtest).
+Acting on the May 20 finding: flipped the strategy default `adx_filter_mode` `'all'` → `'entry_only'` at `trend_framework.py:57`. The bug-fixed mode is now what every backtest and the codebase use by default; the legacy buggy `'all'` mode is reachable only by passing it explicitly (to reproduce a pre-May-21 backtest).
 
 **Live trading is byte-unchanged.** All 7 live bot run scripts (`scripts/run_*_test.sh`) were explicitly pinned to `"adx_filter_mode":"all"` in the same change. Flipping the default without pinning would have silently switched the bots to `entry_only` on their next deploy — that is the "live deploy" decision, which is **deliberately deferred** (it changes live behaviour — K-exits would fire in high-ADX regimes — and resets the forward-test clock). The pin holds the bots on their current behaviour until that decision is made; remove it as part of the deploy.
 
@@ -258,7 +258,7 @@ The test params (OB 60/OS 40, ADX 50, 3-bar hold, 0.5 ATR trail) were a calibrat
 
 ```bash
 # Backtest over same window as live, with full lead-in for indicator warmup
-python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD \
+python3 -m backend.runner backtest --strategy TrendFramework --symbol GLD \
   --timeframe 15m --start 2026-01-01 --end 2026-04-20 --source alpaca \
   --spread 0.0003 --delay 0 \
   --parameters '{"rsi_period":7,"stoch_period":14,"overbought":60,"oversold":40,"adx_threshold":50,"skip_adx_filter":false,"sl_atr":2.0,"dynamic_adx":false,"trailing_stop":true,"trail_atr":0.5,"trail_after_bars":1,"min_hold_bars":3,"skip_days":[],"trading_hours":[13.5,20],"long_only":true}'

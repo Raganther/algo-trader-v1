@@ -1,3 +1,15 @@
+"""Trend Framework strategy — renamed from StochRSIMeanReversion (May 22 2026).
+
+A position-management framework: ATR stop, trailing stop, ADX entry filter,
+fixed-risk sizing, notional cap, min-hold. Trend-favouring. The StochRSI entry
+signal is the current entry trigger but is decorative — the Apr 28 2026
+framework-attribution work showed the management framework carries the edge,
+not the signal. Renamed accordingly.
+
+Registered in runner.py under both 'TrendFramework' (canonical) and
+'StochRSIMeanReversion' (legacy alias — the live bot run scripts still pass
+the old name).
+"""
 from backend.engine.strategy import Strategy
 from backend.engine import correlation_sizing
 from backend.indicators.stoch_rsi import StochRSI
@@ -8,7 +20,7 @@ import random
 import pandas as pd
 from datetime import timedelta
 
-class StochRSIMeanReversionStrategy(Strategy):
+class TrendFrameworkStrategy(Strategy):
     def __init__(self, data, events, parameters, initial_cash=10000.0, broker=None):
         super().__init__(data, events, parameters, initial_cash, broker)
         

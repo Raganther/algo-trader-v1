@@ -14,7 +14,7 @@ import sqlite3
 import json
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 from backend.optimizer.validation import validate_holdout, walk_forward
 from backend.optimizer.experiment_tracker import ExperimentTracker
 
@@ -61,8 +61,8 @@ def validate_asset(symbol, timeframe, params, tracker):
     print(f"VALIDATING: {symbol} {timeframe}")
     print(f"{'='*60}")
 
-    holdout = validate_holdout(StochRSIMeanReversionStrategy, params, symbol, timeframe)
-    wf = walk_forward(StochRSIMeanReversionStrategy, params, symbol, timeframe)
+    holdout = validate_holdout(TrendFrameworkStrategy, params, symbol, timeframe)
+    wf = walk_forward(TrendFrameworkStrategy, params, symbol, timeframe)
 
     print_holdout(symbol, holdout)
     print_walkforward(wf)
@@ -107,7 +107,7 @@ def validate_trail_atr_comparison(tracker):
 
     for trail_val in [1.5, 2.0]:
         params = {**ENHANCED_PARAMS, "trail_atr": trail_val}
-        result = validate_holdout(StochRSIMeanReversionStrategy, params, "GLD", "15m")
+        result = validate_holdout(TrendFrameworkStrategy, params, "GLD", "15m")
         print(f"\n  trail_atr={trail_val}:")
         print(f"    Train (2020-2023): {result['train_return']:.1f}%  Sharpe {result['train_sharpe']:.2f}")
         print(f"    Test  (2024-2025): {result['test_return']:.1f}%  Sharpe {result['test_sharpe']:.2f}")
@@ -116,8 +116,8 @@ def validate_trail_atr_comparison(tracker):
     params_15 = {**ENHANCED_PARAMS, "trail_atr": 1.5}
     params_20 = {**ENHANCED_PARAMS, "trail_atr": 2.0}
 
-    r15 = validate_holdout(StochRSIMeanReversionStrategy, params_15, "GLD", "15m")
-    r20 = validate_holdout(StochRSIMeanReversionStrategy, params_20, "GLD", "15m")
+    r15 = validate_holdout(TrendFrameworkStrategy, params_15, "GLD", "15m")
+    r20 = validate_holdout(TrendFrameworkStrategy, params_20, "GLD", "15m")
 
     if r15["test_return"] > r20["test_return"]:
         print(f"\n  trail_atr=1.5 wins on holdout ({r15['test_return']:.1f}% vs {r20['test_return']:.1f}%)")

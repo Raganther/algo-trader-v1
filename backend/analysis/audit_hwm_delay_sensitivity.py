@@ -28,7 +28,7 @@ import pandas as pd
 from backend.database import DatabaseManager
 from backend.engine import correlation_sizing
 from backend.engine.portfolio_runner import PortfolioRunner
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 
 SYMBOLS = ["GLD", "IAU", "SLV", "GDX", "OIH", "XBI", "XOP"]
 START = "2020-07-27"
@@ -100,7 +100,7 @@ def run_one(symbol_data: dict[str, pd.DataFrame], anchor: str, shift: int) -> di
     data = shift_ohlcv(symbol_data, shift)
     pr = PortfolioRunner(
         symbol_data=data,
-        strategy_class=StochRSIMeanReversionStrategy,
+        strategy_class=TrendFrameworkStrategy,
         parameters=params,
         initial_capital=INITIAL,
         spread=SPREAD,

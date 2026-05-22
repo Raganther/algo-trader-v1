@@ -1,9 +1,9 @@
-from .stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from .trend_framework import TrendFrameworkStrategy
 from datetime import time
 import pandas as pd
 from backend.indicators.adx import adx
 
-class StochRSIQuantStrategy(StochRSIMeanReversionStrategy):
+class StochRSIQuantStrategy(TrendFrameworkStrategy):
     """
     StochRSI Mean Reversion with Quant Optimization Filters:
     1. Time Filter: Avoid Opening Range (09:30-10:00) and Close (15:50-16:00).

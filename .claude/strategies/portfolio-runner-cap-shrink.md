@@ -19,7 +19,7 @@ Status: current | Epistemic: confirmed | Last verified: 2026-05-07
 
 ## Code change
 
-Added optional strategy param `position_cap_frac` to `StochRSIMeanReversionStrategy` (default 0.25 — preserves byte-identical behaviour for single-symbol backtests + live deployment when omitted). Three sizing blocks (`stoch_rsi_mean_reversion.py:268, 314, 369`) now read `equity * self.position_cap_frac` instead of the hardcoded `equity * 0.25`. New CLI flag `--position-cap-frac` on the `portfolio` subcommand (`runner.py`) injects the param into the parameters JSON before strategy instantiation.
+Added optional strategy param `position_cap_frac` to `TrendFrameworkStrategy` (default 0.25 — preserves byte-identical behaviour for single-symbol backtests + live deployment when omitted). Three sizing blocks (`trend_framework.py:268, 314, 369`) now read `equity * self.position_cap_frac` instead of the hardcoded `equity * 0.25`. New CLI flag `--position-cap-frac` on the `portfolio` subcommand (`runner.py`) injects the param into the parameters JSON before strategy instantiation.
 
 Run 0 (no override) reproduces the `070e3dc` baseline byte-identical: +424.09% / 3.41% / 4.95 Sharpe / 4344 trades. Refactor is a no-op at default.
 
@@ -73,13 +73,13 @@ If the goal is to maximise *absolute return at a given account size*, the 25% ba
 
 1. **Ship the param itself** ✓ already done. `position_cap_frac` is now a first-class strategy param + CLI flag. Future experiments (e.g. 5% × 20 bots, regime-conditional cap) are now one-line changes.
 2. **Strategic decision pending** on whether to:
-   - (a) Flip the default to `0.125` in `stoch_rsi_mean_reversion.py` __init__, and
+   - (a) Flip the default to `0.125` in `trend_framework.py` __init__, and
    - (b) Reshuffle the live lineup from 7 → 8 bots, swapping IAU + GDX out for IWM + SMH + IBB.
    This involves real-money implications (deploying 3 new bot types, retiring 2) and a deliberate trade-off (lower absolute return at current $94k account, higher Sharpe + DD-resilience). Decision belongs to the user.
 3. **Untested next:** 20 bots × 5% cap on the full Run B universe — the cap-shrink curve may continue (theoretical √(20/4) = 2.24× Sharpe lift at perfect uncorrelation, much less in practice). Lower priority than acting on the Run 2 finding.
 
 ## Files
 
-- `backend/strategies/stoch_rsi_mean_reversion.py` — `position_cap_frac` param read in `__init__`, three sizing blocks updated.
+- `backend/strategies/trend_framework.py` — `position_cap_frac` param read in `__init__`, three sizing blocks updated.
 - `backend/runner.py` — `--position-cap-frac` CLI flag on portfolio subcommand, injection into parameters JSON.
 - `/tmp/cap_shrink/run{0,1,2}_*.md` — full snapshot output of each run.

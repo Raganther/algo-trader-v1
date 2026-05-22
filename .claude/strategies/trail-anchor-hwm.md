@@ -8,7 +8,7 @@ Status: current | Epistemic: backtest-validated under bug fix; HWM still wins; m
 >
 > **May 8 2026 audit (still valid context):** mechanism claim SUPPORTED via data-shift falsification. HWM is ~2.8× more delay-resistant than close-anchored (`Δsharpe(close)=0.42`, `Δsharpe(hwm)=0.15`). Only 0.42 of the predicted 0.7 artifact reproduced — see `.claude/calibration/audit-hwm-delay-mechanism.md`. Note that audit was itself run under the buggy default; both Δs are partly conflated with the bug; pending re-run under entry_only.
 >
-> **May 8 2026 PM caveat (now resolved by today's re-run):** the ADX-filter exit-block bug at `stoch_rsi_mean_reversion.py:211-239` inflated all prior numbers in this card. The original table below (close 4.95, HWM 5.73, Δ +0.78) is the buggy-mode A/B and is preserved as historical record. The bug-fixed A/B above is the current source of truth.
+> **May 8 2026 PM caveat (now resolved by today's re-run):** the ADX-filter exit-block bug at `trend_framework.py:211-239` inflated all prior numbers in this card. The original table below (close 4.95, HWM 5.73, Δ +0.78) is the buggy-mode A/B and is preserved as historical record. The bug-fixed A/B above is the current source of truth.
 >
 > **Live tripwire anchor: ~4.0 ±0.5 Sharpe.** Live should sit between 4.17 (pure entry_only fix) and 5.73 (pure buggy) since live partially escapes the bug via server-side stops + ADX dips. Tripwires in `live_performance_report.py` are calibrated to this band (1.8 / 2.5 / 3.0 at 30/60/90d).
 
@@ -83,7 +83,7 @@ The Sharpe lift of +0.78 is **close to the 0.7 Sharpe gap** estimated for the li
 
 Run with HWM:
 ```bash
-python3 -m backend.runner portfolio --strategy StochRSIMeanReversion \
+python3 -m backend.runner portfolio --strategy TrendFramework \
     --symbols GLD,IAU,SLV,GDX,OIH,XBI,XOP \
     --timeframe 15m --start 2020-07-27 --end 2026-04-27 \
     --source alpaca --spread 0.0003 --initial 94000 \
@@ -118,6 +118,6 @@ All 7 bot scripts (`scripts/run_{gld,iau,slv,gdx,oih,xbi,xop}_test.sh`) updated 
 
 ## Files referenced
 
-- `backend/strategies/stoch_rsi_mean_reversion.py` — `trail_anchor` parameter (line ~46), HWM tracking (line ~92), trail update (line ~189)
+- `backend/strategies/trend_framework.py` — `trail_anchor` parameter (line ~46), HWM tracking (line ~92), trail update (line ~189)
 - `.claude/calibration/live-vs-backtest-iau-diagnostic.md` — May 7 diagnostic that motivated this change
 - `.claude/strategies/portfolio-runner-baseline.md` — canonical Run 0 (close-anchored)

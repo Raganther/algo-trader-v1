@@ -6,7 +6,7 @@ Shared-timeline portfolio backtest. Single PaperTrader, one capital pool, one st
 
 ## Run config
 
-- Strategy: `StochRSIMeanReversion`
+- Strategy: `TrendFramework`
 - Symbols: GDX, GLD, IAU, OIH, SLV, XBI, XOP (n=7)
 - Timeframe: 15m
 - Window: 2020-07-27 → 2026-04-27

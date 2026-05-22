@@ -1,6 +1,6 @@
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 
-class StochRSINextOpen(StochRSIMeanReversionStrategy):
+class StochRSINextOpen(TrendFrameworkStrategy):
     def __init__(self, data, events, parameters, initial_cash=10000.0, broker=None):
         super().__init__(data, events, parameters, initial_cash, broker)
         self.pending_order = None

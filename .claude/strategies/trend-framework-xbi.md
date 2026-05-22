@@ -1,12 +1,12 @@
 Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; framework IS the edge (signal decorative); regime-dependence presumed (untested per-asset) | Last verified: 2026-05-10
 
-# StochRSI Enhanced — XBI 15m (Validated — Diversifier)
+# Trend Framework — XBI 15m (Validated — Diversifier)
 
 > **May 10 2026 update — portfolio-level test confirms XBI's "diversifier" framing: KEEP IN LINEUP.** XBI is present in all four tested lineups (it's the only biotech, so removing it would eliminate the cluster entirely). Sharpe-by-bot-count is monotonic 3.79/3.87/4.01/4.17, validating XBI's contribution alongside the others. The 2.0 per-asset bar is a candidate-addition screen, not a prune threshold.
 >
 > **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: XBI Sharpe 2.18 → 1.18 (close-anchored, single-symbol). FAILS the 2.0 quality bar by a wide margin.** ΔSharpe **−1.00** — XBI (with GDX) is the heaviest bug-beneficiary. Most of XBI's "validated edge" was the ADX-bug letting trades run through high-ADX regimes without exit. Buggy 2.18 figure preserved below as historical reference. See `calibration-journal.md` §2 May 9 entry. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
 
-> **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
+> **Strategy file:** `backend/strategies/trend_framework.py`
 
 > **Apr 28 2026 status update — framework attribution finding.**
 >
@@ -21,7 +21,7 @@ Status: validated | Epistemic: WF 4/4 + Sharpe ≥2.0 confirmed; framework IS th
 
 ### Validated Parameters
 
-Same recipe as all other StochRSI Enhanced bots — no retuning.
+Same recipe as all other Trend Framework bots — no retuning.
 
 | Param | Value |
 |---|---|
@@ -40,7 +40,7 @@ Same recipe as all other StochRSI Enhanced bots — no retuning.
 
 #### Backtest command:
 ```bash
-python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol XBI --timeframe 15m \
+python3 -m backend.runner backtest --strategy TrendFramework --symbol XBI --timeframe 15m \
   --start 2020-01-01 --end 2026-04-28 --source alpaca --spread 0.0003 --delay 0 \
   --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 ```

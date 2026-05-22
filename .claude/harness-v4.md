@@ -89,13 +89,13 @@ Always use `git-save.sh` — not raw `git commit`.
 
 | If changed | Reminder |
 |------------|---------|
-| `backend/strategies/stoch_rsi_mean_reversion.py` | Update relevant stochrsi-enhanced-*.md domain files |
+| `backend/strategies/trend_framework.py` | Update relevant trend-framework-*.md domain files |
 | `backend/engine/live_broker.py` | Update CLAUDE.md Current Status and MEMORY.md if new bug fixed |
 | `backend/engine/alpaca_trader.py` | Update alpaca-mcp.md and CLAUDE.md |
 | `scripts/run_*.sh` | Update CLAUDE.md Run Commands bot table |
 | `CLAUDE.md` | Commit message must explain why |
 | `research-roadmap.md` | Have settled items been promoted to domain files? |
-| `.claude/strategies/stochrsi-enhanced-*.md` | Is CLAUDE.md Validated Edges table current? |
+| `.claude/strategies/trend-framework-*.md` | Is CLAUDE.md Validated Edges table current? |
 | `backend/engine/backtester.py` | Update calibration-journal.md if calibration methodology affected |
 
 ## Hooks
@@ -121,11 +121,11 @@ These hooks are Claude Code automation. In Codex sessions, treat them as a requi
 | File | Read when |
 |------|----------|
 | `.claude/strategies/research-roadmap.md` | Every session — after gitlog |
-| `.claude/strategies/stochrsi-enhanced-gld.md` | Working on GLD, reviewing long-only vs full strategy, checking audit baseline |
-| `.claude/strategies/stochrsi-enhanced-iau.md` | Working on IAU or reviewing 15m strategy params |
-| `.claude/strategies/stochrsi-enhanced-slv.md` | Working on SLV or reviewing 15m strategy params |
-| `.claude/strategies/stochrsi-enhanced-gdx.md` | Working on GDX or reviewing 15m strategy params |
-| `.claude/strategies/stochrsi-enhanced-xle.md` | Working on XLE or planning Rolling Validation Test #1 |
+| `.claude/strategies/trend-framework-gld.md` | Working on GLD, reviewing long-only vs full strategy, checking audit baseline |
+| `.claude/strategies/trend-framework-iau.md` | Working on IAU or reviewing 15m strategy params |
+| `.claude/strategies/trend-framework-slv.md` | Working on SLV or reviewing 15m strategy params |
+| `.claude/strategies/trend-framework-gdx.md` | Working on GDX or reviewing 15m strategy params |
+| `.claude/strategies/trend-framework-xle.md` | Working on XLE or planning Rolling Validation Test #1 |
 | `.claude/strategies/research-log.md` | Deciding what to experiment on next, reviewing cross-strategy learnings |
 | `.claude/strategies/composable-results.md` | Combining strategies or planning composable bot deployment |
 | `.claude/strategies/event-surprise.md` | Researching economic event strategies or revisiting CPI/NFP trading |

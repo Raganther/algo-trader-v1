@@ -13,7 +13,7 @@ import pandas as pd
 from backend.engine.alpaca_loader import AlpacaDataLoader
 from backend.database import DatabaseManager
 from backend.engine.portfolio_runner import PortfolioRunner
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 
 LIVE_PARAMS = {
     "rsi_period": 7, "stoch_period": 14, "overbought": 80, "oversold": 15,
@@ -79,7 +79,7 @@ def main():
         params["adx_filter_mode"] = args.adx_mode
     if args.trail_anchor:
         params["trail_anchor"] = args.trail_anchor
-    pr = PortfolioRunner(symbol_data=data, strategy_class=StochRSIMeanReversionStrategy,
+    pr = PortfolioRunner(symbol_data=data, strategy_class=TrendFrameworkStrategy,
                          parameters=params, initial_capital=args.initial,
                          spread=args.spread)
     res = pr.run()

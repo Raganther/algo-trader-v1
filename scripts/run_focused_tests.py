@@ -18,7 +18,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy as StochRSIMeanReversion
+from backend.strategies.trend_framework import TrendFrameworkStrategy as StochRSIMeanReversion
 from backend.optimizer.sweep import SweepEngine
 from backend.optimizer.experiment_tracker import ExperimentTracker
 

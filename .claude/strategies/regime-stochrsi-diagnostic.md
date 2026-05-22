@@ -1,6 +1,6 @@
 Status: current | Epistemic: results valid; interpretation under review | Last verified: 2026-04-28
 
-# StochRSI Enhanced Performance by Daily Regime
+# Trend Framework Performance by Daily Regime
 
 > **May 7 2026 caveat.** All Sharpe figures in this file are close-anchored backtests with ~0.7 Sharpe optimism (1-bar polling delay artifact, see `.claude/calibration/live-vs-backtest-iau-diagnostic.md`). Live expectation = backtest Sharpe **− 0.7**. Per-regime/per-cell rankings are unaffected (the artifact is roughly uniform); absolute live numbers should be deflated.
 
@@ -12,7 +12,7 @@ Window requested: `2020-01-01` to `2025-12-31`. Source: `backend/research.db` in
 
 Regime tag uses the previous completed daily bar at the trade entry timestamp, so the diagnostic does not peek at the current day's close/high/low.
 
-Validated params: StochRSI Mean Reversion, 15m, spread `0.0003`, delay `0`, `dynamic_adx:false`, OB/OS `80/15`, ADX `20`, `sl_atr:2.0`, trailing after 10 bars at `2.0 ATR`, `min_hold_bars:10`, skip Monday.
+Validated params: Trend Framework, 15m, spread `0.0003`, delay `0`, `dynamic_adx:false`, OB/OS `80/15`, ADX `20`, `sl_atr:2.0`, trailing after 10 bars at `2.0 ATR`, `min_hold_bars:10`, skip Monday.
 
 Cells with fewer than 10 trades are flagged as directional-only, not significant.
 

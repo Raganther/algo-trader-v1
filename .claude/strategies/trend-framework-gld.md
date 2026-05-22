@@ -1,10 +1,10 @@
 Status: current | Epistemic: headline confirmed; framework IS the edge (signal decorative); metals direction-dependent (regime risk) | Last verified: 2026-05-10
 
-# StochRSI Enhanced — GLD 15m (Best Edge — title under review)
+# Trend Framework — GLD 15m (Best Edge — title under review)
 
 > **May 9 2026 update — re-run under `adx_filter_mode='entry_only'`: GLD Sharpe 2.48 → 2.28 (close-anchored, single-symbol). Still clears 2.0 quality bar.** ΔSharpe −0.20 under bug correction. GLD is one of only two assets (with SLV) that survives the 2.0 bar at the per-asset level. Buggy 2.48 figure preserved below as historical reference. See `calibration-journal.md` §2 May 9 entry for the full per-asset table. Live tripwire anchor revised to ~4.0 ±0.5 (portfolio-level).
 
-> **Strategy file:** `backend/strategies/stoch_rsi_mean_reversion.py`
+> **Strategy file:** `backend/strategies/trend_framework.py`
 > **Bot scripts:** `scripts/run_gld_test.sh`, `scripts/run_iau_test.sh`
 
 > **Apr 28 2026 status update — framework attribution finding.**
@@ -36,7 +36,7 @@ Status: current | Epistemic: headline confirmed; framework IS the edge (signal d
 
 #### Correct backtest command (verified Feb 26):
 ```bash
-python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD --timeframe 15m \
+python3 -m backend.runner backtest --strategy TrendFramework --symbol GLD --timeframe 15m \
   --start 2020-01-01 --end 2025-12-31 --source alpaca --spread 0.0003 --delay 0 \
   --parameters '{"rsi_period":7,"stoch_period":14,"overbought":80,"oversold":15,"adx_threshold":20,"skip_adx_filter":false,"sl_atr":2.0,"trailing_stop":true,"trail_atr":2.0,"trail_after_bars":10,"min_hold_bars":10,"skip_days":[0]}'
 ```
@@ -54,7 +54,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 - **Multi-asset:** GLD/SLV/IAU/GDX all validated — generalises strongly (those cards' headlines also need re-verification — see Apr 27 correction below)
 - **Previous baseline:** Sharpe 1.57, 664 trades, 1.2% DD — enhancements nearly doubled Sharpe
 
-> **Apr 27 2026 correction:** Today's verified rerun on the same 2020–2025 window with current code produces 689 trades / +42.25%, not the 465 trades / +39.22% claimed in the prior version of this card. The Apr 4 stop-check fix IS in place and active (`stoch_rsi_mean_reversion.py:141, 199-221` — `sl_for_check` captured before ratchet, intrabar check uses pre-ratchet level). No commits since Apr 4 modify trade-count behaviour on this code path. The 465-figure was a transcription error (most likely a mis-pasted run output or a config that silently dropped a parameter). No DB record of any 465-trade GLD 15m run exists. The fix produces a small improvement (710 → 689 trades, ~3% reduction) by suppressing same-bar false stop fires, not the 35% reduction implied by 710 → 465. **Pre-Apr-4 baseline:** +44.7%, 0.69% DD, Sharpe 2.54, 710 trades. **Apr 4 transcription (suspect):** +39.22%, 0.73% DD, Sharpe 2.47, 465 trades. **Apr 27 verified:** +42.25%, 0.67% DD, 689 trades on same 2020–2025 window.
+> **Apr 27 2026 correction:** Today's verified rerun on the same 2020–2025 window with current code produces 689 trades / +42.25%, not the 465 trades / +39.22% claimed in the prior version of this card. The Apr 4 stop-check fix IS in place and active (`trend_framework.py:141, 199-221` — `sl_for_check` captured before ratchet, intrabar check uses pre-ratchet level). No commits since Apr 4 modify trade-count behaviour on this code path. The 465-figure was a transcription error (most likely a mis-pasted run output or a config that silently dropped a parameter). No DB record of any 465-trade GLD 15m run exists. The fix produces a small improvement (710 → 689 trades, ~3% reduction) by suppressing same-bar false stop fires, not the 35% reduction implied by 710 → 465. **Pre-Apr-4 baseline:** +44.7%, 0.69% DD, Sharpe 2.54, 710 trades. **Apr 4 transcription (suspect):** +39.22%, 0.73% DD, Sharpe 2.47, 465 trades. **Apr 27 verified:** +42.25%, 0.67% DD, 689 trades on same 2020–2025 window.
 
 ### Year-by-Year Breakdown (verified Apr 27 2026)
 
@@ -110,7 +110,7 @@ python3 -m backend.runner backtest --strategy StochRSIMeanReversion --symbol GLD
 
 #### Buy & Hold Comparison
 
-| Metric | StochRSI Enhanced | Buy & Hold GLD |
+| Metric | Trend Framework | Buy & Hold GLD |
 |---|---|---|
 | Total return (2020–2025) | +39.22% | +117.5% |
 | Max drawdown | 0.73% | 22% |

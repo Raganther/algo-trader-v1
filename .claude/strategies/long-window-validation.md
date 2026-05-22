@@ -61,7 +61,7 @@ Validated 15m strategy applied to spot price proxies covering real bear regimes 
 
 ## Regime preference — strength ranking across the 18 cells
 
-Counter-intuitively for a strategy named after mean-reversion, the framework performs **better in trends than in chop, and worst in regime transitions.** The 10-bar minimum hold + trailing stop after 10 bars is trend-friendly: it captures sustained moves once entered.
+Counter-intuitively for a strategy whose entry signal is a mean-reversion oscillator (StochRSI), the framework performs **better in trends than in chop, and worst in regime transitions.** The 10-bar minimum hold + trailing stop after 10 bars is trend-friendly: it captures sustained moves once entered.
 
 **Strongest — sustained directional moves (bull or bear) with normal-to-elevated volatility.** Direction does not matter; what matters is sustained character.
 - XAGUSD 2009–2011 bull run-up: **Sharpe +2.59** (best cell across 18)

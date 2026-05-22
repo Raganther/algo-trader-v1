@@ -13,14 +13,14 @@ from backend.optimizer.sweep import SweepEngine
 from backend.optimizer.experiment_tracker import ExperimentTracker
 
 # Import strategies from runner.py's STRATEGY_MAP
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 from backend.strategies.donchian_breakout import DonchianBreakoutStrategy
 from backend.strategies.macd_bollinger import MACDBollingerStrategy
 from backend.strategies.regime_gated_stoch import RegimeGatedStoch
 from backend.strategies.swing_breakout import SwingBreakoutStrategy
 
 STRATEGY_MAP = {
-    "StochRSIMeanReversion": StochRSIMeanReversionStrategy,
+    "StochRSIMeanReversion": TrendFrameworkStrategy,
     "DonchianBreakout": DonchianBreakoutStrategy,
     "MACDBollinger": MACDBollingerStrategy,
     "RegimeGatedStoch": RegimeGatedStoch,

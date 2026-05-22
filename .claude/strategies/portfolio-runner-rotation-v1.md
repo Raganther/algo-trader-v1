@@ -125,6 +125,6 @@ Yesterday's headline +1013% / 6.20 was 100% leverage. With the cap on, the actua
 
 ## Files / artefacts
 
-- Code: `backend/engine/rotation.py`, `backend/engine/correlation_sizing.py` (+ `portfolio_cap_max_size` helper), `backend/strategies/stoch_rsi_mean_reversion.py:138-143` (rotation_paused flag), `backend/engine/portfolio_runner.py` (W-FRI boundary), `backend/runner.py` (CLI flags `--rotation`, `--rotation-rule`, `--rotation-universe`, `--portfolio-cap-frac`, `--use-cache`).
+- Code: `backend/engine/rotation.py`, `backend/engine/correlation_sizing.py` (+ `portfolio_cap_max_size` helper), `backend/strategies/trend_framework.py:138-143` (rotation_paused flag), `backend/engine/portfolio_runner.py` (W-FRI boundary), `backend/runner.py` (CLI flags `--rotation`, `--rotation-rule`, `--rotation-universe`, `--portfolio-cap-frac`, `--use-cache`).
 - Logs (local): `/tmp/run_b_done` (B), `/tmp/run_c.log` (C), `/tmp/run_d.log` (D).
 - Decision: rotation closed; portfolio cap promoted; per-bot cap shrinking promoted.

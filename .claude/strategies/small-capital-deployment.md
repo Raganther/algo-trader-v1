@@ -143,5 +143,5 @@ Re-evaluate the lineup at any of these triggers:
 
 - Empirical run command: see "Empirical validation" section above for full CLI invocation
 - Snapshot output: `.claude/strategies/portfolio-runner-baseline.md` was overwritten with the $1k run on 2026-05-04, then restored to the canonical V2 baseline. Re-run the canonical command to regenerate if needed.
-- Per-bot cap mechanism: `backend/strategies/stoch_rsi_mean_reversion.py` `position_cap_frac` parameter
+- Per-bot cap mechanism: `backend/strategies/trend_framework.py` `position_cap_frac` parameter
 - Portfolio cap mechanism: `backend/engine/correlation_sizing.py` `portfolio_cap_max_size` helper, default ON

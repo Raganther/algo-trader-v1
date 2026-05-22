@@ -23,8 +23,8 @@ fi
 CHANGED=$(git diff --name-only HEAD 2>/dev/null; git diff --cached --name-only 2>/dev/null)
 WARNINGS=""
 
-echo "$CHANGED" | grep -q "backend/strategies/stoch_rsi_mean_reversion.py" && \
-  WARNINGS="${WARNINGS}\n  [strategy] Strategy logic changed — update relevant stochrsi-enhanced-*.md domain files."
+echo "$CHANGED" | grep -q "backend/strategies/trend_framework.py" && \
+  WARNINGS="${WARNINGS}\n  [strategy] Strategy logic changed — update relevant trend-framework-*.md domain files."
 
 echo "$CHANGED" | grep -q "backend/engine/live_broker.py" && \
   WARNINGS="${WARNINGS}\n  [live_broker] Live broker changed — update CLAUDE.md Current Status and MEMORY.md if a new bug was fixed."
@@ -41,7 +41,7 @@ echo "$CHANGED" | grep -q "CLAUDE.md" && \
 echo "$CHANGED" | grep -q "research-roadmap.md" && \
   WARNINGS="${WARNINGS}\n  [roadmap] Roadmap changed — have any newly settled items been promoted to the relevant domain file?"
 
-echo "$CHANGED" | grep -qE "stochrsi-enhanced-(gld|iau|slv|gdx|xle)\.md" && \
+echo "$CHANGED" | grep -qE "trend-framework-(gld|iau|slv|gdx|xle)\.md" && \
   WARNINGS="${WARNINGS}\n  [strategy domain] Strategy domain file changed — is CLAUDE.md Validated Edges table still accurate?"
 
 echo "$CHANGED" | grep -q "backend/engine/backtester.py" && \

@@ -11,14 +11,14 @@ from backend.optimizer.validation import validate_holdout, walk_forward, multi_a
 from backend.optimizer.experiment_tracker import ExperimentTracker
 
 # Strategy class lookup
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 from backend.strategies.donchian_breakout import DonchianBreakoutStrategy
 from backend.strategies.macd_bollinger import MACDBollingerStrategy
 from backend.strategies.regime_gated_stoch import RegimeGatedStoch
 from backend.strategies.swing_breakout import SwingBreakoutStrategy
 
 STRATEGY_CLASS_MAP = {
-    "StochRSIMeanReversionStrategy": StochRSIMeanReversionStrategy,
+    "TrendFrameworkStrategy": TrendFrameworkStrategy,
     "DonchianBreakoutStrategy": DonchianBreakoutStrategy,
     "MACDBollingerStrategy": MACDBollingerStrategy,
     "RegimeGatedStoch": RegimeGatedStoch,

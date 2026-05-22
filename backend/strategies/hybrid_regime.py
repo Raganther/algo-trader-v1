@@ -3,7 +3,7 @@ import numpy as np
 from backend.engine.strategy import Strategy
 from backend.indicators.adx import adx
 from backend.indicators.sma import sma
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 from backend.strategies.donchian_breakout import DonchianBreakoutStrategy
 
 class MockBroker:
@@ -71,7 +71,7 @@ class HybridRegimeStrategy(Strategy):
         stoch_params = parameters.copy()
         stoch_params['atr_col'] = 'atr_stoch'
         stoch_params['skip_adx_filter'] = True # We handle regime filtering
-        self.mean_reversion = StochRSIMeanReversionStrategy(data, events, stoch_params, initial_cash, self.stoch_broker)
+        self.mean_reversion = TrendFrameworkStrategy(data, events, stoch_params, initial_cash, self.stoch_broker)
         
         # Donchian Setup
         donch_params = parameters.copy()

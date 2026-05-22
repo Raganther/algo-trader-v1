@@ -1,6 +1,6 @@
 """Audit: how many trades does the ADX-filter early-return bug affect?
 
-Bug: `stoch_rsi_mean_reversion.py:211-239` — when `current_adx > adx_threshold`
+Bug: `trend_framework.py:211-239` — when `current_adx > adx_threshold`
 the strategy returns from `on_data` BEFORE reaching the stop-loss check, entry
 block, or signal-exit blocks. Result: positions opened in low-ADX regime cannot
 exit once ADX rises above threshold mid-trade.
@@ -29,7 +29,7 @@ import pandas as pd
 from backend.database import DatabaseManager
 from backend.engine import correlation_sizing
 from backend.engine.portfolio_runner import PortfolioRunner
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 
 SYMBOLS = ["GLD", "IAU", "SLV", "GDX", "OIH", "XBI", "XOP"]
 START = "2020-07-27"
@@ -81,7 +81,7 @@ def run_one(symbol_data: dict[str, pd.DataFrame], skip_adx: bool) -> dict:
 
     pr = PortfolioRunner(
         symbol_data=symbol_data,
-        strategy_class=StochRSIMeanReversionStrategy,
+        strategy_class=TrendFrameworkStrategy,
         parameters=params,
         initial_capital=INITIAL,
         spread=SPREAD,

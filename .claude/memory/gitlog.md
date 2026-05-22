@@ -3,6 +3,75 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-05-22** — Rename strategy StochRSIMeanReversion -> TrendFramework
+Renamed the strategy to reflect what it actually is. The Apr 28
+framework-attribution work showed the StochRSI signal is decorative and the
+position-management framework (trend-favouring) carries the edge -- so
+MeanReversion was misleading on both counts.
+
+Code: backend/strategies/stoch_rsi_mean_reversion.py -> trend_framework.py;
+class StochRSIMeanReversionStrategy -> TrendFrameworkStrategy; runner.py
+STRATEGY_MAP gains canonical key TrendFramework and keeps StochRSIMeanReversion
+as a legacy alias. The 7 live bot run scripts still pass the old name and
+resolve via the alias -- live trading byte-unchanged. Verified: identical
+backtest under both keys.
+
+Docs: 8 per-asset cards renamed stochrsi-enhanced-*.md -> trend-framework-*.md;
+references updated across 37 .claude domain files + CLAUDE.md; git-save.sh
+domain checklist updated.
+
+Not renamed (separate subsystems, pending a decision): AGENTS.md / .Codex
+parallel harness (stale), frontend card registry, docs/ pinescript.
+
+Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+
+ .claude/calibration/audit-hwm-delay-mechanism.md   |  4 +-
+ .claude/calibration/calibration-journal.md         | 10 ++---
+ .../calibration/live-vs-backtest-iau-diagnostic.md |  6 +--
+ .claude/harness-v4.md                              | 14 +++----
+ .claude/strategies/long-window-validation.md       |  2 +-
+ .claude/strategies/portfolio-runner-baseline.md    |  2 +-
+ .claude/strategies/portfolio-runner-cap-shrink.md  |  6 +--
+ .../portfolio-runner-lineup-selection.md           |  2 +-
+ .claude/strategies/portfolio-runner-rotation-v1.md |  2 +-
+ .../regime-sizing-portfolio-diagnostic.md          |  2 +-
+ .claude/strategies/regime-stochrsi-diagnostic.md   |  4 +-
+ .claude/strategies/research-log.md                 | 22 +++++-----
+ .claude/strategies/research-roadmap.md             | 24 +++++------
+ .claude/strategies/small-capital-deployment.md     |  2 +-
+ .claude/strategies/trail-anchor-hwm.md             |  6 +--
+ ...hrsi-enhanced-gdx.md => trend-framework-gdx.md} |  6 +--
+ ...hrsi-enhanced-gld.md => trend-framework-gld.md} | 10 ++---
+ ...hrsi-enhanced-iau.md => trend-framework-iau.md} |  6 +--
+ ...hrsi-enhanced-oih.md => trend-framework-oih.md} |  8 ++--
+ ...hrsi-enhanced-slv.md => trend-framework-slv.md} |  8 ++--
+ ...hrsi-enhanced-xbi.md => trend-framework-xbi.md} |  8 ++--
+ ...hrsi-enhanced-xle.md => trend-framework-xle.md} |  4 +-
+ ...hrsi-enhanced-xop.md => trend-framework-xop.md} |  6 +--
+ CLAUDE.md                                          | 48 +++++++++++-----------
+ backend/analysis/audit_adx_filter_exit_block.py    |  6 +--
+ backend/analysis/audit_hwm_delay_sensitivity.py    |  4 +-
+ backend/analysis/long_window_validation.py         |  4 +-
+ backend/optimizer/enhancement_sweep.py             |  4 +-
+ backend/optimizer/pipeline.py                      |  4 +-
+ backend/optimizer/run_sweep.py                     |  4 +-
+ backend/optimizer/trade_analysis.py                |  4 +-
+ backend/runner.py                                  |  7 ++--
+ backend/scripts/event_trade_analysis.py            |  4 +-
+ backend/strategies/hybrid_regime.py                |  4 +-
+ backend/strategies/hybrid_regime_v2.py             |  4 +-
+ backend/strategies/regime_gated_stoch.py           |  4 +-
+ backend/strategies/stoch_rsi_limit.py              |  4 +-
+ backend/strategies/stoch_rsi_next_open.py          |  4 +-
+ backend/strategies/stoch_rsi_quant.py              |  4 +-
+ ...ch_rsi_mean_reversion.py => trend_framework.py} | 14 ++++++-
+ scripts/git-save.sh                                |  6 +--
+ scripts/run_focused_tests.py                       |  2 +-
+ scripts/run_validation.py                          | 12 +++---
+ scripts/window_backtest.py                         |  4 +-
+ 44 files changed, 164 insertions(+), 151 deletions(-)
+
+----
 **2026-05-21** — ADX-filter exit-block bug — flip default to entry_only, pin live bots, re-baseline
 Default adx_filter_mode flipped all -> entry_only in stoch_rsi_mean_reversion.py;
 the May 8 bug fix is now the codebase default. All 7 live run scripts explicitly
@@ -24,6 +93,7 @@ small-cap, rotation.
 Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
  .claude/calibration/calibration-journal.md      |  50 ++++++++++-
+ .claude/memory/gitlog.md                        |  51 ++++++++---
  .claude/strategies/portfolio-runner-baseline.md |  49 +++++------
  .claude/strategies/research-log.md              |  20 ++++-
  .claude/strategies/research-roadmap.md          |   4 +-
@@ -37,7 +107,7 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
  scripts/run_xbi_test.sh                         |   2 +-
  scripts/run_xop_test.sh                         |   2 +-
  scripts/window_backtest.py                      | 108 ++++++++++++++++++++++++
- 14 files changed, 219 insertions(+), 45 deletions(-)
+ 15 files changed, 259 insertions(+), 56 deletions(-)
 
 ----
 **2026-05-13** — Fix trailing-stop idempotency — broker no-op when rounded stop price unchanged
@@ -329,12 +399,4 @@ Net: cleaner mental map (the journal, two long standalone reports, the auto-gene
  CLAUDE.md                                          |   1 +
  backend/analysis/live_performance_report.py        |  20 +++-
  7 files changed, 192 insertions(+), 52 deletions(-)
-
-----
-**2026-05-05** — Wire live perf report into CLAUDE.md run commands + roadmap rows
-
- .claude/memory/gitlog.md               | 20 +++++++++-----------
- .claude/strategies/research-roadmap.md |  4 ++--
- CLAUDE.md                              |  3 +++
- 3 files changed, 14 insertions(+), 13 deletions(-)
 

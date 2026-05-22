@@ -11,7 +11,7 @@ Usage:
 import pandas as pd
 from backend.engine.backtester import Backtester
 from backend.engine.data_utils import load_backtest_data
-from backend.strategies.stoch_rsi_mean_reversion import StochRSIMeanReversionStrategy
+from backend.strategies.trend_framework import TrendFrameworkStrategy
 
 # GLD 15m validated params (Sharpe 1.66)
 PARAMS = {
@@ -35,7 +35,7 @@ def run_diagnostic():
     print("Running backtest with enriched trade records...")
     bt = Backtester(
         data=data,
-        strategy_class=StochRSIMeanReversionStrategy,
+        strategy_class=TrendFrameworkStrategy,
         parameters=PARAMS,
         initial_capital=10000.0,
         spread=0.0003,
