@@ -1141,6 +1141,13 @@ def run_live_trading(args):
     last_bar_time = initial_data.index[-1]
     _last_deferred_bar = None  # tracks last bar skipped by session-open guard (for log dedup)
     loop_count = 0
+    # Latches True if the broker position ever contradicts the strategy's believed
+    # direction (opposite sign, or believed-flat while actually holding). Once set,
+    # the bot suspends ALL order logic until a human restarts it (a restart re-runs
+    # startup SYNC, the only full reconciliation). See the May 2026 GLD incident: a
+    # seeded direction-inversion plus belief-sided stop sizing doubled a short to
+    # 464 shares (~8x the per-position cap) over 34 days of uninterrupted uptime.
+    _desync_halt = False
 
     try:
         while not _shutdown_requested:
@@ -1149,6 +1156,8 @@ def run_live_trading(args):
             # Heartbeat every ~15 iterations (~15 minutes)
             if loop_count % 15 == 0:
                 pos_status = strategy.position if strategy.position else 'flat'
+                if _desync_halt:
+                    pos_status = f"DESYNC-HALT (believed {pos_status})"
                 bot_name = getattr(args, 'name', args.symbol)
                 print(f"[HEARTBEAT] {bot_name} alive | {pos_status} | last bar: {last_bar_time} | loop: {loop_count}")
 
@@ -1227,6 +1236,39 @@ def run_live_trading(args):
                     last_row = latest_data.iloc[-1]
 
                     broker.refresh()
+
+                    # ── Bidirectional position reconciliation ──────────────────────
+                    # The server-stop-fired block below only catches "believe held,
+                    # broker flat". It does NOT catch a believed direction OPPOSITE to
+                    # the broker, or a believed-flat that is actually holding — both let
+                    # the stop-replacement logic place a belief-sided stop sized to the
+                    # real position, doubling exposure on every fill (May 2026 GLD bug).
+                    # Startup SYNC is the only full reconciliation and a long-running
+                    # process never re-runs it, so detect the contradiction here and halt.
+                    _bpos = broker.get_position(args.symbol)
+                    _broker_side = 'long' if _bpos > 0.0001 else ('short' if _bpos < -0.0001 else 'flat')
+                    _believed = strategy.position if strategy.position in ('long', 'short') else 'flat'
+                    _is_desync = (
+                        (_believed == 'long' and _broker_side == 'short')
+                        or (_believed == 'short' and _broker_side == 'long')
+                        or (_believed == 'flat' and _broker_side != 'flat')
+                    )
+                    if _is_desync and not _desync_halt:
+                        _desync_halt = True
+                        print(f"🚨 POSITION DESYNC for {args.symbol}: strategy believes "
+                              f"'{_believed}' but broker holds {_bpos:+g} ({_broker_side}). "
+                              f"Suspending ALL order logic — manual restart required to re-sync.")
+                        # Cancel resting orders now: a belief-sided stop still working would
+                        # double the position again on its next fill.
+                        try:
+                            cancelled = broker.trader.cancel_all_orders_for_symbol(args.symbol)
+                            print(f"🚨 DESYNC: cancelled {cancelled} open order(s) for {args.symbol} to stop further accumulation")
+                        except Exception as _ce:
+                            print(f"🚨 DESYNC: order cancel failed: {_ce}")
+                    if _desync_halt:
+                        # Stay alive for observability (heartbeat shows DESYNC-HALT); take
+                        # no automated action until a human restarts the bot.
+                        continue
 
                     # Detect if server-side stop fired (position closed externally)
                     if strategy.position in ('long', 'short'):
@@ -1313,9 +1355,15 @@ def run_live_trading(args):
                                 and strategy.position in ('long', 'short')
                                 and not broker.pending_stop_order_id
                                 and strategy.current_sl):
-                            pos_size = abs(broker.get_position(args.symbol))
-                            if pos_size > 0.0001:
-                                stop_side = 'sell' if strategy.position == 'long' else 'buy'
+                            _bpos_signed = broker.get_position(args.symbol)
+                            pos_size = abs(_bpos_signed)
+                            # Side comes from the ACTUAL broker position, never the believed
+                            # direction; size comes from the broker too. If the two disagree,
+                            # a belief-sided stop would *add* to the position on fill (the May
+                            # 2026 GLD doubling bug) — refuse it (handled by the elif below).
+                            actual_side = 'long' if _bpos_signed > 0 else 'short'
+                            if pos_size > 0.0001 and strategy.position == actual_side:
+                                stop_side = 'sell' if actual_side == 'long' else 'buy'
                                 # Gap-through-stop guard: if price has already moved past the
                                 # intended stop level (long: current ≤ stop; short: current ≥ stop),
                                 # Alpaca will reject the stop order. The stop's intent ("exit if we
@@ -1361,6 +1409,10 @@ def run_live_trading(args):
                                         print(f"[LOOP] ⚡ Stop re-placed at ${strategy.current_sl:.2f} (DAY stop gap recovery)")
                                     except Exception as e:
                                         print(f"[LOOP] ⚠️ Stop re-place failed: {e}")
+                            elif pos_size > 0.0001 and strategy.position != actual_side:
+                                print(f"[LOOP] ❌ Stop-replace aborted for {args.symbol}: believe "
+                                      f"'{strategy.position}' but broker is '{actual_side}' — refusing "
+                                      f"belief-sided stop that would increase exposure")
 
                         if not skip_on_bar:
                             strategy.on_bar(last_row, last_index, latest_data)

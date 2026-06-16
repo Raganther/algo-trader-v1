@@ -3,6 +3,35 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-06-16** — Fix position desync accumulation bug (GLD short → 464sh / 8x cap)
+Root cause: GLD bot's believed direction inverted vs broker (likely a
+cancel-vs-fill race during May 22/26-27 churn), then never re-synced —
+startup SYNC is the only full reconciliation and the process ran 34 days
+without restart. The in-loop check only caught 'believe held, broker flat'
+(current_pos==0), never an opposite-sign or believed-flat-but-holding
+mismatch. The stop-replacement block then sized a protective stop off
+abs(broker position) but chose the SIDE from the believed direction; with
+belief inverted it placed a SELL stop on an actual short, doubling the
+short on every fill (58 -> 116 -> 232 -> 464, ~193% notional, naked).
+
+Fix in backend/runner.py run_live_trading loop:
+1. Bidirectional reconciliation after broker.refresh(): if broker sign
+   contradicts belief (opposite sign, or believed-flat-but-holding), latch
+   _desync_halt, cancel resting orders (kills the amplifier), alert, and
+   skip all order logic until a human restart re-runs SYNC.
+2. Stop-replacement now derives side from the ACTUAL broker position sign,
+   not the belief; refuses any belief-sided stop that would increase exposure.
+3. Heartbeat renders DESYNC-HALT so the condition is visible in pm2 logs.
+
+Live remediation done separately: gld-test stopped, 464 short flattened via
+market-on-open order. pm2 restart all pending after the flatten fills.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+
+ backend/runner.py | 58 ++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 55 insertions(+), 3 deletions(-)
+
+----
 **2026-05-22** — Rename strategy StochRSIMeanReversion -> TrendFramework
 Renamed the strategy to reflect what it actually is. The Apr 28
 framework-attribution work showed the StochRSI signal is decorative and the
@@ -26,37 +55,38 @@ parallel harness (stale), frontend card registry, docs/ pinescript.
 Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
  .claude/calibration/audit-hwm-delay-mechanism.md   |  4 +-
- .claude/calibration/calibration-journal.md         | 10 ++---
- .../calibration/live-vs-backtest-iau-diagnostic.md |  6 +--
- .claude/harness-v4.md                              | 14 +++----
+ .claude/calibration/calibration-journal.md         | 10 +--
+ .../calibration/live-vs-backtest-iau-diagnostic.md |  6 +-
+ .claude/harness-v4.md                              | 14 ++--
+ .claude/memory/gitlog.md                           | 80 +++++++++++++++++++---
  .claude/strategies/long-window-validation.md       |  2 +-
  .claude/strategies/portfolio-runner-baseline.md    |  2 +-
- .claude/strategies/portfolio-runner-cap-shrink.md  |  6 +--
+ .claude/strategies/portfolio-runner-cap-shrink.md  |  6 +-
  .../portfolio-runner-lineup-selection.md           |  2 +-
  .claude/strategies/portfolio-runner-rotation-v1.md |  2 +-
  .../regime-sizing-portfolio-diagnostic.md          |  2 +-
  .claude/strategies/regime-stochrsi-diagnostic.md   |  4 +-
- .claude/strategies/research-log.md                 | 22 +++++-----
- .claude/strategies/research-roadmap.md             | 24 +++++------
+ .claude/strategies/research-log.md                 | 22 +++---
+ .claude/strategies/research-roadmap.md             | 24 +++----
  .claude/strategies/small-capital-deployment.md     |  2 +-
- .claude/strategies/trail-anchor-hwm.md             |  6 +--
- ...hrsi-enhanced-gdx.md => trend-framework-gdx.md} |  6 +--
- ...hrsi-enhanced-gld.md => trend-framework-gld.md} | 10 ++---
- ...hrsi-enhanced-iau.md => trend-framework-iau.md} |  6 +--
- ...hrsi-enhanced-oih.md => trend-framework-oih.md} |  8 ++--
- ...hrsi-enhanced-slv.md => trend-framework-slv.md} |  8 ++--
- ...hrsi-enhanced-xbi.md => trend-framework-xbi.md} |  8 ++--
+ .claude/strategies/trail-anchor-hwm.md             |  6 +-
+ ...hrsi-enhanced-gdx.md => trend-framework-gdx.md} |  6 +-
+ ...hrsi-enhanced-gld.md => trend-framework-gld.md} | 10 +--
+ ...hrsi-enhanced-iau.md => trend-framework-iau.md} |  6 +-
+ ...hrsi-enhanced-oih.md => trend-framework-oih.md} |  8 +--
+ ...hrsi-enhanced-slv.md => trend-framework-slv.md} |  8 +--
+ ...hrsi-enhanced-xbi.md => trend-framework-xbi.md} |  8 +--
  ...hrsi-enhanced-xle.md => trend-framework-xle.md} |  4 +-
- ...hrsi-enhanced-xop.md => trend-framework-xop.md} |  6 +--
- CLAUDE.md                                          | 48 +++++++++++-----------
- backend/analysis/audit_adx_filter_exit_block.py    |  6 +--
+ ...hrsi-enhanced-xop.md => trend-framework-xop.md} |  6 +-
+ CLAUDE.md                                          | 48 ++++++-------
+ backend/analysis/audit_adx_filter_exit_block.py    |  6 +-
  backend/analysis/audit_hwm_delay_sensitivity.py    |  4 +-
  backend/analysis/long_window_validation.py         |  4 +-
  backend/optimizer/enhancement_sweep.py             |  4 +-
  backend/optimizer/pipeline.py                      |  4 +-
  backend/optimizer/run_sweep.py                     |  4 +-
  backend/optimizer/trade_analysis.py                |  4 +-
- backend/runner.py                                  |  7 ++--
+ backend/runner.py                                  |  7 +-
  backend/scripts/event_trade_analysis.py            |  4 +-
  backend/strategies/hybrid_regime.py                |  4 +-
  backend/strategies/hybrid_regime_v2.py             |  4 +-
@@ -64,12 +94,12 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
  backend/strategies/stoch_rsi_limit.py              |  4 +-
  backend/strategies/stoch_rsi_next_open.py          |  4 +-
  backend/strategies/stoch_rsi_quant.py              |  4 +-
- ...ch_rsi_mean_reversion.py => trend_framework.py} | 14 ++++++-
- scripts/git-save.sh                                |  6 +--
+ ...ch_rsi_mean_reversion.py => trend_framework.py} | 14 +++-
+ scripts/git-save.sh                                |  6 +-
  scripts/run_focused_tests.py                       |  2 +-
- scripts/run_validation.py                          | 12 +++---
+ scripts/run_validation.py                          | 12 ++--
  scripts/window_backtest.py                         |  4 +-
- 44 files changed, 164 insertions(+), 151 deletions(-)
+ 45 files changed, 235 insertions(+), 160 deletions(-)
 
 ----
 **2026-05-21** — ADX-filter exit-block bug — flip default to entry_only, pin live bots, re-baseline
@@ -387,16 +417,4 @@ Net: cleaner mental map (the journal, two long standalone reports, the auto-gene
  .claude/calibration/live-vs-backtest-iau-diagnostic.md | 14 ++++++++++++++
  .claude/memory/gitlog.md                               | 16 ++++++++--------
  2 files changed, 22 insertions(+), 8 deletions(-)
-
-----
-**2026-05-07** — IAU live-vs-backtest diagnostic — identifies 1-bar polling delay artifact (~0.7 Sharpe). Anchor live tripwires to corrected expectation.
-
- .claude/calibration/live-performance-report.md     |  27 +++--
- .../calibration/live-vs-backtest-iau-diagnostic.md | 119 +++++++++++++++++++++
- .claude/memory/gitlog.md                           |  27 ++---
- .claude/strategies/portfolio-runner-baseline.md    |  48 ++++-----
- .claude/strategies/research-roadmap.md             |   2 +
- CLAUDE.md                                          |   1 +
- backend/analysis/live_performance_report.py        |  20 +++-
- 7 files changed, 192 insertions(+), 52 deletions(-)
 
