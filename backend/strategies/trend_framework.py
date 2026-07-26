@@ -70,6 +70,17 @@ class TrendFrameworkStrategy(Strategy):
         # reproduce pre-May-21 backtests byte-identical.
         self.adx_filter_mode = parameters.get('adx_filter_mode', 'entry_only')
         self.min_hold_bars = int(parameters.get('min_hold_bars', 0))  # Minimum bars before signal exit allowed
+
+        # Gap-conditional stop-fill model. The engine historically filled every stop
+        # at exactly the trigger price, which the Jul 2026 fill-fidelity audit showed
+        # is what live actually does only ~16% of the time — 84% of real stops breach
+        # the trigger inside the bar, costing a mean $54/stop.
+        #   fill = trigger -/+ k * (trigger - Low | High - trigger)
+        # k=0.0 reproduces the legacy (optimistic) fills byte-identically and stays
+        # the default so historical backtests remain comparable. k=0.5465 is the
+        # moment-matched fit to 109 live stops (backend/analysis/stop_fill_model.json)
+        # and is the honest setting for any forward-looking decision.
+        self.stop_fill_k = float(parameters.get('stop_fill_k', 0.0))
         self.long_only = parameters.get('long_only', False)  # Skip short entries entirely
         # Random-entry control mode — replaces entry signal with Bernoulli draws when > 0.
         # Used to test whether the StochRSI entry signal carries edge or whether the
@@ -140,6 +151,24 @@ class TrendFrameworkStrategy(Strategy):
         df['d'] = df['d'].fillna(50)
         
         return df
+
+    def _stop_fill(self, trigger, extreme, side):
+        """
+        Price a stop exit. `extreme` is the bar's Low (long exit) or High (short
+        exit) — the only intrabar information available at bar resolution.
+
+        Returns the trigger itself when k=0 (legacy behaviour) or when the bar
+        never breached the trigger. Otherwise interpolates k of the way from the
+        trigger toward the bar extreme. Unbiased in aggregate against 109 measured
+        live stops; necessarily noisy per-trade.
+        """
+        if not self.stop_fill_k:
+            return trigger
+        if side == 'long':
+            breach = trigger - extreme
+            return trigger - self.stop_fill_k * breach if breach > 0 else trigger
+        breach = extreme - trigger
+        return trigger + self.stop_fill_k * breach if breach > 0 else trigger
 
     def on_data(self, index, row):
         # Delegate to on_bar logic
@@ -274,7 +303,8 @@ class TrendFrameworkStrategy(Strategy):
                 # SL Hit
                 qty = abs(self.broker.get_position(self.symbol))
                 if qty > 0:
-                    result = self.sell(price=sl_for_check, size=qty, timestamp=i, exit_reason='stop')
+                    fill = self._stop_fill(sl_for_check, row['Low'], 'long')
+                    result = self.sell(price=fill, size=qty, timestamp=i, exit_reason='stop')
                     if result is not None:
                         self.position = 0
                         self.current_sl = None
@@ -287,7 +317,8 @@ class TrendFrameworkStrategy(Strategy):
                 # SL Hit
                 qty = abs(self.broker.get_position(self.symbol))
                 if qty > 0:
-                    result = self.buy(price=sl_for_check, size=qty, timestamp=i, exit_reason='stop')
+                    fill = self._stop_fill(sl_for_check, row['High'], 'short')
+                    result = self.buy(price=fill, size=qty, timestamp=i, exit_reason='stop')
                     if result is not None:
                         self.position = 0
                         self.current_sl = None

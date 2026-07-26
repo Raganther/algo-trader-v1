@@ -1,0 +1,11 @@
+{
+  "fitted_at": "2026-07-26T20:39:06Z",
+  "window": "2026-04-13..present",
+  "n_stops": 109,
+  "n_breached": 92,
+  "k_least_squares": 0.8097,
+  "k_share_weighted": 0.7328,
+  "k": 0.5465,
+  "actual_cost_usd": 5802.53,
+  "note": "fill = trigger -/+ k * (trigger - low | high - trigger). Unbiased in aggregate, noisy per-trade \u2014 bar resolution cannot recover the intrabar path."
+}

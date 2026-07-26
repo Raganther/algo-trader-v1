@@ -3,6 +3,66 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-07-26** — Backtest fidelity harness — stop-fill model accounts for the 3.35 Sharpe live-vs-backtest gap
+Root cause of the live-vs-backtest divergence found and quantified. The engine
+filled every stop at exactly the trigger price (trend_framework.py:277/290 ->
+self.sell(price=sl_for_check)). Measured against 109 real stop fills, live does
+that only ~16% of the time: 84% breach the trigger inside the bar.
+
+New backend/analysis/fill_fidelity_audit.py — live P&L ground truth from Alpaca
+fills, with a reconciliation guard that compares implied net position against the
+broker and refuses to trust the round-trip chain when they disagree. That guard
+caught a real error: chaining from Apr 13 inherited open positions on GDX/GLD/SLV
+and produced a confident but fictional +$13,991. Chaining from account inception
+reconciles all 10 symbols exactly, giving -$291.87 realised over Apr 13 - Jul 26
+(vs -$1,824 equity change; reconciles to within $203 after unrealised).
+
+Measured execution cost the backtester models as $0: -$6,306, of which -$6,023 is
+stop fills vs trigger across 111 stops (mean -$54.26). Intra-order partial-fill
+walk is negligible (-$284). Annualised that is ~-23% of equity — comparable to the
+strategy's entire modelled edge. Note the median per-share slippage is only
+-$0.02, matching the earlier Layer 3 measurement; the cost lives in a fat left
+tail (p10 -$197/stop, worst -$770), which is why reasoning from the median hid it.
+
+New backend/analysis/stop_fill_model.py + .json — gap-conditional fill model:
+  fill = trigger -/+ k * (trigger - Low | High - trigger)
+Moment-matched k = 0.5465 reproduces measured cost to within 2.4% (-$5,662 vs
+-$5,803). Least-squares k over-predicts by 31% and is not shipped.
+
+trend_framework.py gains stop_fill_k (default 0.0 — legacy fills stay
+byte-identical, historical backtests reproduce unchanged) and _stop_fill().
+
+7-bot portfolio, 2020-07 -> 2026-04, HWM + entry_only, identical 4100 trades:
+  k=0.0     208.87% / DD 3.45% / Sharpe 4.19
+  k=0.5465   38.08% / DD 9.12% / Sharpe 0.84
+Live over the same config delivered -0.13 (full) to +0.74 (ex-desync). The
+corrected backtest agrees with live for the first time. Per-symbol under honest
+fills, OIH (+$19.0k) and SLV (+$13.6k) carry the book; XBI (+$395) is noise and
+XOP (-$5.3k) loses money — contradicting the May 10 lineup conclusion, which was
+measured on the broken instrument.
+
+Still optimistic: entries fill at signal-bar Close, so the 1-bar polling delay
+remains unmodelled and 0.84 is an upper bound. k is one calibration from 3.4
+months in one regime (per-symbol implied k spans 0.23-1.03), not a constant.
+
+Live remediation this session (separate from the code change): gdx-test and
+xbi-test had been DESYNC-HALTed since Jul 7 with no resting stops — $48k notional,
+50% of equity, naked for 19 days. Cause is distinct from the Jun 16 accumulation
+bug: the bot reset state to flat on an unconfirmed 'SERVER STOP FIRED' and its
+orphaned-order cleanup removed the protective stop, so the Jun 16 guard latched
+with nothing left to cancel. Restarted both; SYNC re-placed a GTC stop on GDX at
+$74.92 and fired the emergency market exit on XBI (stop $158.00 already breached
+at $150.75). Root-cause fix for the optimistic state reset is NOT in this commit.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+ backend/analysis/fill_fidelity_audit.py | 294 ++++++++++++++++++++++++++++++++
+ backend/analysis/stop_fill_model.json   |  11 ++
+ backend/analysis/stop_fill_model.py     | 173 +++++++++++++++++++
+ backend/strategies/trend_framework.py   |  35 +++-
+ 4 files changed, 511 insertions(+), 2 deletions(-)
+
+----
 **2026-06-16** — Fix position desync accumulation bug (GLD short → 464sh / 8x cap)
 Root cause: GLD bot's believed direction inverted vs broker (likely a
 cancel-vs-fill race during May 22/26-27 churn), then never re-synced —
@@ -28,8 +88,9 @@ market-on-open order. pm2 restart all pending after the flatten fills.
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 
- backend/runner.py | 58 ++++++++++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 55 insertions(+), 3 deletions(-)
+ .claude/memory/gitlog.md | 84 +++++++++++++++++++++++++++++-------------------
+ backend/runner.py        | 58 +++++++++++++++++++++++++++++++--
+ 2 files changed, 106 insertions(+), 36 deletions(-)
 
 ----
 **2026-05-22** — Rename strategy StochRSIMeanReversion -> TrendFramework
@@ -410,11 +471,4 @@ Net: cleaner mental map (the journal, two long standalone reports, the auto-gene
  CLAUDE.md                                       |   1 +
  backend/strategies/stoch_rsi_mean_reversion.py  |  30 ++++++-
  6 files changed, 169 insertions(+), 37 deletions(-)
-
-----
-**2026-05-07** — Disambiguate IAU delay finding from Apr 28-29 XBI gap-through-stop incident — unrelated
-
- .claude/calibration/live-vs-backtest-iau-diagnostic.md | 14 ++++++++++++++
- .claude/memory/gitlog.md                               | 16 ++++++++--------
- 2 files changed, 22 insertions(+), 8 deletions(-)
 
