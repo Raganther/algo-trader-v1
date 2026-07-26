@@ -3,6 +3,56 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-07-26** — Fix unconfirmed-fill state reset that strands positions naked (GDX/XBI, 19 days)
+Root cause of the Jul 7 2026 GDX/XBI incident, distinct from the Jun 16
+accumulation bug. Sequence in the old code (runner.py, server-stop-fired block):
+
+  1. broker.get_position() returned 0 while the strategy believed it held
+  2. cancel_all_orders_for_symbol() ran FIRST — deleting the protective stop
+  3. the exit fill could not be confirmed ("SERVER STOP fill not yet visible")
+  4. strategy.position = 0 ran anyway, unconditionally
+
+The position was never actually closed. Protection was gone, belief was wrong,
+and the Jun 16 desync guard then latched onto a position whose stop it had just
+stripped — cancelling 0 orders because there were none left. GDX (328sh) and XBI
+(156sh) sat naked for 19 days, $48k notional, 50% of equity. XBI lost $1,294.
+
+Three fixes:
+
+1. Confirm before mutating. A flat read is no longer treated as proof the stop
+   fired. The exit fill is queried first; if unconfirmed, the protective stop is
+   left working, belief is left intact, and the check repeats next iteration.
+   Only a confirmed fill — or UNCONFIRMED_FLAT_LIMIT=3 corroborating flat reads —
+   permits the cancel and the state reset. Order of operations is the actual fix.
+
+2. Desync halt now re-establishes protection instead of only cancelling. Sizing
+   and SIDE come from the real broker position, never the belief (the Jun 16
+   lesson); the stop is anchored off current price because a desynced
+   entry_price cannot be trusted. Mirrors live_broker.py:370 with a 1s guard
+   between cancel and place — cancel_all_orders_for_symbol is async at Alpaca and
+   placing immediately hits the Mar 19 / Apr 29 race. Failure to place is logged
+   loudly as NAKED rather than passing silently.
+
+3. _unconfirmed_flat streak is cleared whenever the position is confirmed still
+   held, so an unrelated later transient cannot inherit a stale count.
+
+Verified: py_compile clean; AST-confirmed the new code sits in run_live_trading
+where `time` is already bound (line 851); else-branch confirmed attached to the
+correct `if`; single-symbol GLD backtest runs end-to-end through runner.py
+(+2.2% / Sharpe 2.52 / 39 trades, 2025 H1, k=0.5465).
+
+NOT DEPLOYED TO RUNNING BOTS. Cloud has pulled the code but no pm2 restart:
+xbi-test currently has a queued market exit for Monday's open, and SYNC's
+breached-stop path would cancel it and place another — with the async-cancel race
+that risks both filling and flipping 156 long into 156 short. Restart all 7 after
+the XBI exit fills.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+ backend/runner.py | 113 ++++++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 96 insertions(+), 17 deletions(-)
+
+----
 **2026-07-26** — Backtest fidelity harness — stop-fill model accounts for the 3.35 Sharpe live-vs-backtest gap
 Root cause of the live-vs-backtest divergence found and quantified. The engine
 filled every stop at exactly the trigger price (trend_framework.py:277/290 ->
@@ -56,11 +106,12 @@ at $150.75). Root-cause fix for the optimistic state reset is NOT in this commit
 
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 
+ .claude/memory/gitlog.md                |  72 +++++++-
  backend/analysis/fill_fidelity_audit.py | 294 ++++++++++++++++++++++++++++++++
  backend/analysis/stop_fill_model.json   |  11 ++
  backend/analysis/stop_fill_model.py     | 173 +++++++++++++++++++
  backend/strategies/trend_framework.py   |  35 +++-
- 4 files changed, 511 insertions(+), 2 deletions(-)
+ 5 files changed, 574 insertions(+), 11 deletions(-)
 
 ----
 **2026-06-16** — Fix position desync accumulation bug (GLD short → 464sh / 8x cap)
@@ -460,15 +511,4 @@ Net: cleaner mental map (the journal, two long standalone reports, the auto-gene
  .claude/memory/gitlog.md                        | 16 ++++-----
  .claude/strategies/portfolio-runner-baseline.md | 46 ++++++++++++++-----------
  2 files changed, 34 insertions(+), 28 deletions(-)
-
-----
-**2026-05-07** — Path 2 SHIPPED — HWM trail anchor delivers +0.78 Sharpe / -0.36pp DD vs close-anchored. Opt-in via trail_anchor parameter. Live deployment pending strategic decision.
-
- .claude/memory/gitlog.md                        |  20 +++--
- .claude/strategies/portfolio-runner-baseline.md |  46 +++++-----
- .claude/strategies/research-roadmap.md          |   2 +-
- .claude/strategies/trail-anchor-hwm.md          | 107 ++++++++++++++++++++++++
- CLAUDE.md                                       |   1 +
- backend/strategies/stoch_rsi_mean_reversion.py  |  30 ++++++-
- 6 files changed, 169 insertions(+), 37 deletions(-)
 

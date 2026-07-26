@@ -1148,6 +1148,12 @@ def run_live_trading(args):
     # seeded direction-inversion plus belief-sided stop sizing doubled a short to
     # 464 shares (~8x the per-position cap) over 34 days of uninterrupted uptime.
     _desync_halt = False
+    # Consecutive iterations where the broker reported flat while we believed we
+    # held, WITHOUT a confirmable exit fill. get_position() can read stale right
+    # after refresh; treating one such read as proof the stop fired is what
+    # stranded GDX/XBI naked on Jul 7 2026. Require corroboration before acting.
+    _unconfirmed_flat = 0
+    UNCONFIRMED_FLAT_LIMIT = 3
 
     try:
         while not _shutdown_requested:
@@ -1265,6 +1271,49 @@ def run_live_trading(args):
                             print(f"🚨 DESYNC: cancelled {cancelled} open order(s) for {args.symbol} to stop further accumulation")
                         except Exception as _ce:
                             print(f"🚨 DESYNC: order cancel failed: {_ce}")
+
+                        # Cancelling kills the amplifier but leaves the REAL position
+                        # naked. On Jul 7 2026 GDX and XBI sat unprotected for 19 days
+                        # because the halt only cancelled and then waited for a human.
+                        # Re-establish protection before going quiet: size from and SIDE
+                        # FROM the actual broker position (never the belief), and anchor
+                        # off current price since a desynced entry_price is untrustworthy.
+                        if _broker_side != 'flat' and '/' not in args.symbol:
+                            try:
+                                _atr_col = getattr(strategy, 'atr_col', 'atr')
+                                _px = float(last_row['Close'])
+                                _atr = (float(latest_data[_atr_col].iloc[-1])
+                                        if _atr_col in latest_data.columns else 0.0)
+                                _dist = _atr * float(getattr(strategy, 'sl_atr', 2.0))
+                                if _dist > 0:
+                                    _sl = (_px - _dist) if _broker_side == 'long' else (_px + _dist)
+                                    _side = 'sell' if _broker_side == 'long' else 'buy'
+                                    _breached = ((_broker_side == 'long' and _sl >= _px)
+                                                 or (_broker_side == 'short' and _sl <= _px))
+                                    if _breached:
+                                        print(f"🛡️ DESYNC: protective stop ${_sl:.2f} already breached "
+                                              f"by ${_px:.2f} — leaving flat-exit to manual restart")
+                                    else:
+                                        # cancel_all_orders_for_symbol above is async at
+                                        # Alpaca. Placing immediately either fails with
+                                        # "qty unavailable" or gets killed when the cancel
+                                        # propagates late — the Mar 19 / Apr 29 2026 race.
+                                        # Same 1s guard as live_broker.py:370.
+                                        time.sleep(1)
+                                        broker.trader.place_stop_order(
+                                            symbol=args.symbol,
+                                            qty=abs(_bpos),
+                                            side=_side,
+                                            stop_price=round(_sl, 2),
+                                        )
+                                        print(f"🛡️ DESYNC: protective stop placed {_side} "
+                                              f"{abs(_bpos):g} @ ${_sl:.2f} (broker-sided, ATR {_atr:.2f}) "
+                                              f"— position is no longer naked while halted")
+                                else:
+                                    print(f"⚠️ DESYNC: no ATR available — could not place protective stop")
+                            except Exception as _pe:
+                                print(f"❌ DESYNC: protective stop placement FAILED: {_pe} "
+                                      f"— {args.symbol} position is NAKED, manual action required")
                     if _desync_halt:
                         # Stay alive for observability (heartbeat shows DESYNC-HALT); take
                         # no automated action until a human restarts the bot.
@@ -1274,19 +1323,19 @@ def run_live_trading(args):
                     if strategy.position in ('long', 'short'):
                         current_pos = broker.get_position(args.symbol)
                         if current_pos == 0:
-                            print(f"🛡️ SERVER STOP FIRED — position closed externally. Resetting strategy state.")
-                            # Cancel any remaining open orders to prevent wash trade conflicts
-                            cancelled = broker.trader.cancel_all_orders_for_symbol(args.symbol)
-                            if cancelled > 0:
-                                print(f"🛡️ Cleaned up {cancelled} orphaned order(s) for {args.symbol}")
-
-                            # Log the exit to DB — query by specific stop order ID (avoids API propagation delay issues)
+                            # A flat read is NOT proof the stop fired. Confirm the exit
+                            # fill BEFORE cancelling protection or resetting belief.
+                            # Jul 7 2026: the old code did both on an unconfirmed fill,
+                            # so the protective stop was deleted while the position was
+                            # still open — leaving GDX/XBI naked for 19 days once the
+                            # desync guard latched. Order of operations is the fix.
                             stop_order_id = broker.pending_stop_order_id
                             stop_qty = broker.pending_stop_qty
                             # Side of the closing fill: long closed by sell stop, short closed by buy stop
                             exit_side = 'buy' if strategy.position == 'short' else 'sell'
+
+                            filled_exit = None
                             try:
-                                filled_exit = None
                                 if stop_order_id:
                                     order = broker.trader.get_order(stop_order_id)
                                     if order and 'filled' in str(order['status']).lower() and order['filled_avg_price']:
@@ -1296,18 +1345,43 @@ def run_live_trading(args):
                                             'fill_price': order['filled_avg_price'],
                                             'filled_at': order['filled_at']
                                         }
-                                    else:
-                                        # Fill not yet visible in API — queue for retry via pending_fills
-                                        broker.pending_fills.append({
-                                            'order_id': stop_order_id,
-                                            'signal_price': broker._last_stop_price or 0.0,
-                                            'side': exit_side,
-                                            'qty': stop_qty or 0.0
-                                        })
-                                        print(f"⏳ SERVER STOP fill not yet visible — queued order {stop_order_id[:8]}... for retry")
                                 else:
                                     filled_exit = broker.trader.get_recent_filled_sell(args.symbol)
+                            except Exception as _qe:
+                                print(f"⚠️ SERVER STOP fill query failed: {_qe}")
 
+                            if filled_exit is None:
+                                # Unconfirmed. Keep the protective stop working and keep
+                                # believing we hold — then re-check next iteration.
+                                _unconfirmed_flat += 1
+                                print(f"⏳ Broker reports flat but exit fill is UNCONFIRMED "
+                                      f"({_unconfirmed_flat}/{UNCONFIRMED_FLAT_LIMIT}) — keeping stop "
+                                      f"in place, deferring state reset")
+                                if _unconfirmed_flat < UNCONFIRMED_FLAT_LIMIT:
+                                    continue
+                                # Corroborated across iterations: the position really is
+                                # gone even though the fill never became visible. Accept
+                                # it, and queue the fill so the DB record is not lost.
+                                if stop_order_id:
+                                    broker.pending_fills.append({
+                                        'order_id': stop_order_id,
+                                        'signal_price': broker._last_stop_price or 0.0,
+                                        'side': exit_side,
+                                        'qty': stop_qty or 0.0
+                                    })
+                                    print(f"⏳ SERVER STOP fill still not visible after "
+                                          f"{UNCONFIRMED_FLAT_LIMIT} checks — queued order "
+                                          f"{stop_order_id[:8]}... for retry and accepting flat")
+                            _unconfirmed_flat = 0
+
+                            print(f"🛡️ SERVER STOP FIRED — position closed externally. Resetting strategy state.")
+                            # Safe to clean up now: the exit is confirmed (or corroborated),
+                            # so cancelling can no longer strip a live position's protection.
+                            cancelled = broker.trader.cancel_all_orders_for_symbol(args.symbol)
+                            if cancelled > 0:
+                                print(f"🛡️ Cleaned up {cancelled} orphaned order(s) for {args.symbol}")
+
+                            try:
                                 if filled_exit:
                                     db.save_live_trade({
                                         'session_id': session_id,
@@ -1333,6 +1407,11 @@ def run_live_trading(args):
                             strategy.entry_bar = None
                             strategy.entry_price = None
                             broker.pending_stop_order_id = None
+                            _unconfirmed_flat = 0
+                        else:
+                            # Position confirmed still held — clear any partial streak so
+                            # unrelated transients later cannot inherit a stale count.
+                            _unconfirmed_flat = 0
 
                     # Skip bar processing if shutdown requested (prevents zombie trades)
                     if _shutdown_requested:
