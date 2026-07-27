@@ -3,6 +3,44 @@
 > Auto-generated on git save. Do not edit manually.
 
 ----
+**2026-07-27** — Daily watchdog — catches naked positions, desync halts, oversized exposure
+Stage 1 of the autonomous operations loop. Checks facts, not strategy quality.
+
+Every check exists because something actually went wrong:
+  naked position   Jul 7 2026 — GDX + XBI, $48k notional (50% of equity), no
+                   protective stop, undetected for 19 days
+  oversized/lever  Jun 16 2026 — GLD short compounded 58 -> 464sh, ~193% notional
+  desync halt      Jun 16 + Jul 7 — belief diverging from broker
+  bot down/stale   process health + heartbeat presence
+  drawdown         vs 3M high-water mark
+
+Read-only by construction: never places, modifies or cancels an order, never
+restarts a bot, never deploys. Reports and escalates only.
+
+Degrades gracefully — anything unverifiable is reported under COULD NOT CHECK
+rather than silently passing. Heartbeat parsing reports coverage explicitly
+(N/7 bots) so silence can never be mistaken for a clean result. Exit codes
+0/1/2 = clear/warnings/critical.
+
+backend/analysis/test_watchdog.py drives synthetic broker states through
+check_broker() and asserts the alarms fire. 10/10 pass, including regression
+cases reproducing the Jul 7 naked position and the Jun 16 464sh short. An alarm
+never observed to fire is not an alarm.
+
+First live run: both current positions correctly identified as covered (GDX by
+GTC stop, XBI by pending market exit), 7/7 bots online, heartbeats parsed 7/7,
+no desync. One warning — 11.96% drawdown from a 3M peak of $109,919. Note that
+peak is itself the Jun desync artifact (mark-to-market on the naked 464sh short),
+so the figure is real but the baseline is bug-contaminated; it ages out of the
+3M window mid-September.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+ backend/analysis/test_watchdog.py | 124 +++++++++++++++++++
+ backend/analysis/watchdog.py      | 245 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 369 insertions(+)
+
+----
 **2026-07-26** — Fix unconfirmed-fill state reset that strands positions naked (GDX/XBI, 19 days)
 Root cause of the Jul 7 2026 GDX/XBI incident, distinct from the Jun 16
 accumulation bug. Sequence in the old code (runner.py, server-stop-fired block):
@@ -49,8 +87,9 @@ the XBI exit fills.
 
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 
- backend/runner.py | 113 ++++++++++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 96 insertions(+), 17 deletions(-)
+ .claude/memory/gitlog.md |  64 ++++++++++++++++++++++-----
+ backend/runner.py        | 113 ++++++++++++++++++++++++++++++++++++++++-------
+ 2 files changed, 148 insertions(+), 29 deletions(-)
 
 ----
 **2026-07-26** — Backtest fidelity harness — stop-fill model accounts for the 3.35 Sharpe live-vs-backtest gap
@@ -504,11 +543,4 @@ Net: cleaner mental map (the journal, two long standalone reports, the auto-gene
  .claude/strategies/stochrsi-enhanced-xop.md        |  2 ++
  CLAUDE.md                                          |  2 ++
  20 files changed, 88 insertions(+), 12 deletions(-)
-
-----
-**2026-05-07** — Restore canonical Run 0 baseline snapshot (+424.09% / 4.95 / 3.41%) overwritten during HWM A/B testing
-
- .claude/memory/gitlog.md                        | 16 ++++-----
- .claude/strategies/portfolio-runner-baseline.md | 46 ++++++++++++++-----------
- 2 files changed, 34 insertions(+), 28 deletions(-)
 
